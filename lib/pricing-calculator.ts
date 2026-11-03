@@ -2,6 +2,32 @@ import { ZoneId, LandedPriceBreakdown, GeographicPricingZone } from "./types";
 
 export const JPY_TO_NZD_EXCHANGE_RATE = 0.01085; // 1 NZD = ~92.16 JPY
 
+export interface PricingConfig {
+  exchangeRateJPYtoNZD: number;
+  oceanFreightNZD: number;
+  customsProcessingNZD: number;
+  gstRate: number;
+  complianceInspectionNZD: number;
+  programmeFeeNZD: number;
+  zoneDeliveryMatrix: Record<ZoneId, number>;
+}
+
+export const DEFAULT_PRICING_CONFIG: PricingConfig = {
+  exchangeRateJPYtoNZD: 0.01085,
+  oceanFreightNZD: 1950,
+  customsProcessingNZD: 380,
+  gstRate: 0.15,
+  complianceInspectionNZD: 680,
+  programmeFeeNZD: 550,
+  zoneDeliveryMatrix: {
+    ZONE_1: 650,
+    ZONE_2: 850,
+    ZONE_3: 1150,
+    ZONE_4: 1450,
+    ZONE_5: 1750,
+  },
+};
+
 export const OFFICIAL_PRICING_ZONES: Record<ZoneId, GeographicPricingZone> = {
   ZONE_1: {
     zoneId: "ZONE_1",
@@ -74,22 +100,35 @@ export const OFFICIAL_PRICING_ZONES: Record<ZoneId, GeographicPricingZone> = {
  * Calculates the exact Total Buy Price and commercial breakdown for a vehicle
  * based on its FOB JPY price and the dealer's assigned Geographic Pricing Zone.
  */
-export function calculateLandedPrice(fobJPY: number, zoneId: ZoneId): LandedPriceBreakdown {
+export function calculateLandedPrice(
+  fobJPY: number,
+  zoneId: ZoneId,
+  config?: Partial<PricingConfig>
+): LandedPriceBreakdown {
   const zone = OFFICIAL_PRICING_ZONES[zoneId] || OFFICIAL_PRICING_ZONES.ZONE_1;
+  const cfg = {
+    ...DEFAULT_PRICING_CONFIG,
+    ...config,
+    zoneDeliveryMatrix: {
+      ...DEFAULT_PRICING_CONFIG.zoneDeliveryMatrix,
+      ...(config?.zoneDeliveryMatrix || {}),
+    },
+  };
 
   // 1. Convert FOB from JPY to NZD (rounded to nearest dollar)
-  const fobNZD = Math.round(fobJPY * JPY_TO_NZD_EXCHANGE_RATE);
+  const exchangeRate = cfg.exchangeRateJPYtoNZD || JPY_TO_NZD_EXCHANGE_RATE;
+  const fobNZD = Math.round(fobJPY * exchangeRate);
 
-  // 2. Standard Fixed Components
-  const oceanFreightNZD = zone.oceanFreightNZD;
-  const customsProcessingNZD = zone.customsProcessingNZD;
-  const complianceInspectionNZD = zone.complianceInspectionNZD;
-  const programmeFeeNZD = zone.programmeFeeNZD;
-  const zoneDeliveryNZD = zone.deliveryCostNZD;
+  // 2. Standard Components from config
+  const oceanFreightNZD = cfg.oceanFreightNZD;
+  const customsProcessingNZD = cfg.customsProcessingNZD;
+  const complianceInspectionNZD = cfg.complianceInspectionNZD;
+  const programmeFeeNZD = cfg.programmeFeeNZD;
+  const zoneDeliveryNZD = cfg.zoneDeliveryMatrix[zoneId] ?? zone.deliveryCostNZD;
 
   // 3. NZ GST (15% on CIF = FOB + Freight + Customs processing)
   const taxableImportBase = fobNZD + oceanFreightNZD + customsProcessingNZD;
-  const gstNZD = Math.round(taxableImportBase * 0.15);
+  const gstNZD = Math.round(taxableImportBase * (cfg.gstRate || 0.15));
 
   // 4. Total Buy Price (Landed, Complied, and Delivered to Dealership)
   const totalBuyPriceNZD =
@@ -103,7 +142,7 @@ export function calculateLandedPrice(fobJPY: number, zoneId: ZoneId): LandedPric
 
   return {
     fobJPY,
-    exchangeRateJPYtoNZD: JPY_TO_NZD_EXCHANGE_RATE,
+    exchangeRateJPYtoNZD: exchangeRate,
     fobNZD,
     oceanFreightNZD,
     customsProcessingNZD,

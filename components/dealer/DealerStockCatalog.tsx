@@ -677,7 +677,7 @@ export default function DealerStockCatalog({
           vehicle={dossierVehicle}
           onClose={() => setDossierVehicle(null)}
           onNavigateToReservations={() => router.push("/admin/reservations")}
-          onNavigateToInventory={() => router.push("/admin/inventory")}
+          onNavigateToInventory={() => router.push(`/admin/vehicles/${dossierVehicle.id}`)}
         />
       )}
 

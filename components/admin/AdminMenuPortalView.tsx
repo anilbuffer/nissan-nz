@@ -18,6 +18,7 @@ import {
   Sparkles,
   Users,
   Shield,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface AdminMenuPortalViewProps {
@@ -110,17 +111,17 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
     },
     {
       num: "06",
-      id: "admin-inventory",
-      title: "Inventory",
-      subtitle: "Yard Management & Cost Control",
-      description: "Japan export yard inventory controller, chassis inspection records, FOB rates, and commercial cost boundaries.",
-      icon: Layers,
-      badge: `${vehicles.length} Total Units`,
-      badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
-      statValue: `${vehicles.length} Registered`,
-      statLabel: "Yokohama & Kobe yards",
-      href: "/admin/inventory",
-      accent: "from-slate-500/10 via-transparent to-transparent hover:border-slate-300",
+      id: "admin-config",
+      title: "Pricing Configuration",
+      subtitle: "Landed Cost Parameters",
+      description: "Configure wholesale landed cost components, editable fee parameters, 5-zone regional delivery rates, and the Nissan programme fee.",
+      icon: SlidersHorizontal,
+      badge: "Commercial Matrix",
+      badgeColor: "bg-slate-100 text-slate-800 border-slate-200",
+      statValue: "5-Zone Matrix",
+      statLabel: "Section 4 Schedule",
+      href: "/admin/config",
+      accent: "from-slate-500/10 via-transparent to-transparent hover:border-slate-400",
       iconBg: "bg-slate-900 text-white",
     },
     {

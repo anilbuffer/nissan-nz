@@ -18,11 +18,11 @@ import AdminDashboardView from "@/components/admin/AdminDashboardView";
 import AdminMenuPortalView from "@/components/admin/AdminMenuPortalView";
 import AdminReservationsView from "@/components/admin/AdminReservationsView";
 import DealerApprovalsView from "@/components/admin/DealerApprovalsView";
-import AdminInventoryControllerView from "@/components/admin/AdminInventoryControllerView";
 import AllocationMilestonesView from "@/components/admin/AllocationMilestonesView";
 import AuditExportView from "@/components/admin/AuditExportView";
 import UserManagementView from "@/components/admin/UserManagementView";
 import RolesPermissionsView from "@/components/admin/RolesPermissionsView";
+import AdminPricingConfigView from "@/components/admin/AdminPricingConfigView";
 import PlatformSettingsView from "@/components/settings/PlatformSettingsView";
 
 interface DashboardShellProps {
@@ -80,7 +80,8 @@ export default function DashboardShell({
       if (pathname === "/admin/catalogue" || pathname === "/admin/catalog" || initialTab === "catalogue" || initialTab === "catalog" || initialTab === "admin-catalogue") return "admin-catalogue";
       if (pathname === "/admin/reservations" || pathname === "/admin/holds" || initialTab === "reservations" || initialTab === "admin-reservations") return "admin-reservations";
       if (pathname === "/admin/dealers" || pathname === "/admin/approvals" || initialTab === "dealers" || initialTab === "admin-dealers" || initialTab === "approvals" || initialTab === "admin-approvals") return "admin-dealers";
-      if (pathname === "/admin/inventory" || pathname === "/admin/stock" || initialTab === "inventory" || initialTab === "admin-inventory" || initialTab === "stock" || initialTab === "admin-stock") return "admin-inventory";
+      if (pathname === "/admin/inventory" || pathname === "/admin/stock" || initialTab === "inventory" || initialTab === "admin-inventory" || initialTab === "stock" || initialTab === "admin-stock") return "admin-catalogue";
+      if (pathname === "/admin/config" || pathname === "/admin/pricing" || initialTab === "config" || initialTab === "admin-config" || initialTab === "pricing" || initialTab === "admin-pricing") return "admin-config";
       if (pathname === "/admin/users" || initialTab === "users" || initialTab === "admin-users") return "admin-users";
       if (pathname === "/admin/roles" || initialTab === "roles" || initialTab === "admin-roles") return "admin-roles";
       if (pathname === "/admin/milestones" || pathname === "/admin/allocations" || initialTab === "milestones" || initialTab === "admin-milestones") return "admin-orders";
@@ -144,7 +145,12 @@ export default function DashboardShell({
         case "inventory":
         case "stock":
         case "admin-stock":
-          return "/admin/inventory";
+          return "/admin/catalogue";
+        case "admin-config":
+        case "config":
+        case "pricing":
+        case "admin-pricing":
+          return "/admin/config";
         case "admin-users":
         case "users":
           return "/admin/users";
@@ -199,7 +205,7 @@ export default function DashboardShell({
       case "inventory":
       case "stock":
       case "admin-stock":
-        return "/admin/inventory";
+        return "/admin/catalogue";
       case "admin-users":
       case "users":
         return "/admin/users";
@@ -237,12 +243,24 @@ export default function DashboardShell({
 
   const handleSelectVehicle = (vehicleId: string) => {
     setViewingVehicleId(vehicleId);
-    router.push(`/dealer/vehicles/${vehicleId}`);
+    if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
+      router.push(`/admin/vehicles/${vehicleId}`);
+    } else if (pathname.startsWith("/japan") || portal === "japan" || currentUser?.role === "NISSAN_JAPAN") {
+      router.push(`/japan/inventory/${vehicleId}`);
+    } else {
+      router.push(`/dealer/vehicles/${vehicleId}`);
+    }
   };
 
   const handleBackFromVehicle = () => {
     setViewingVehicleId(null);
-    router.push("/dealer/stocks");
+    if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
+      router.push("/admin/catalogue");
+    } else if (pathname.startsWith("/japan") || portal === "japan" || currentUser?.role === "NISSAN_JAPAN") {
+      router.push("/japan/inventory");
+    } else {
+      router.push("/dealer/stocks");
+    }
   };
 
   // Determine what view to render based on active tab
@@ -322,7 +340,18 @@ export default function DashboardShell({
           return <DealerApprovalsView />;
         case 'admin-inventory':
         case 'inventory':
-          return <AdminInventoryControllerView />;
+        case 'admin-stock':
+          return (
+            <DealerStockCatalog
+              onSelectVehicle={handleSelectVehicle}
+              externalSearchQuery={globalSearch}
+            />
+          );
+        case 'admin-config':
+        case 'config':
+        case 'pricing':
+        case 'admin-pricing':
+          return <AdminPricingConfigView onNavigateTab={handleTabChange} />;
         // legacy aliases
         case 'admin-users':
           return <UserManagementView />;
@@ -330,8 +359,6 @@ export default function DashboardShell({
           return <RolesPermissionsView />;
         case 'admin-approvals':
           return <DealerApprovalsView />;
-        case 'admin-stock':
-          return <AdminInventoryControllerView />;
         case 'admin-milestones':
           return <AllocationMilestonesView />;
         case 'admin-audit':
@@ -348,7 +375,14 @@ export default function DashboardShell({
             );
           if (pathname === '/admin/reservations') return <AdminReservationsView onNavigateTab={handleTabChange} />;
           if (pathname === '/admin/dealers') return <DealerApprovalsView />;
-          if (pathname === '/admin/inventory') return <AdminInventoryControllerView />;
+          if (pathname === '/admin/inventory')
+            return (
+              <DealerStockCatalog
+                onSelectVehicle={handleSelectVehicle}
+                externalSearchQuery={globalSearch}
+              />
+            );
+          if (pathname === '/admin/config' || pathname === '/admin/pricing') return <AdminPricingConfigView onNavigateTab={handleTabChange} />;
           if (pathname === '/admin/users') return <UserManagementView />;
           if (pathname === '/admin/roles') return <RolesPermissionsView />;
           return <AdminDashboardView onNavigateTab={handleTabChange} />;

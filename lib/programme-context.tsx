@@ -20,7 +20,7 @@ import {
   MOCK_USERS,
   MOCK_RESERVATIONS,
 } from "./mock-data";
-import { calculateLandedPrice } from "./pricing-calculator";
+import { calculateLandedPrice, PricingConfig, DEFAULT_PRICING_CONFIG } from "./pricing-calculator";
 import { audio } from "./sound";
 
 interface ProgrammeContextType {
@@ -30,6 +30,9 @@ interface ProgrammeContextType {
   auditLogs: AuditEvent[];
   users: UserAccount[];
   reservations: ReservationRequest[];
+  pricingConfig: PricingConfig;
+  updatePricingConfig: (updates: Partial<PricingConfig>) => void;
+  resetPricingConfig: () => void;
 
   // User Management Actions
   addUser: (user: Omit<UserAccount, "id">) => UserAccount;
@@ -48,6 +51,7 @@ interface ProgrammeContextType {
   rejectReservation: (reservationId: string, reason: string) => void;
   addVehicle: (vehicle: Omit<Vehicle, "id">) => Vehicle;
   batchAddVehicles: (newVehicles: Vehicle[]) => void;
+  updateVehicle: (vehicleId: string, updates: Partial<Vehicle>) => void;
   toggleVehicleStatus: (vehicleId: string) => void;
 
   // Logistics & Milestone actions
@@ -75,6 +79,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   const [auditLogs, setAuditLogs] = useState<AuditEvent[]>(MOCK_AUDIT_LOGS);
   const [users, setUsers] = useState<UserAccount[]>(MOCK_USERS);
   const [reservations, setReservations] = useState<ReservationRequest[]>(MOCK_RESERVATIONS);
+  const [pricingConfig, setPricingConfig] = useState<PricingConfig>(DEFAULT_PRICING_CONFIG);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Hydrate from localStorage on client mount
@@ -125,6 +130,16 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           } else {
             setReservations(MOCK_RESERVATIONS);
           }
+          if (parsed.pricingConfig) {
+            setPricingConfig({
+              ...DEFAULT_PRICING_CONFIG,
+              ...parsed.pricingConfig,
+              zoneDeliveryMatrix: {
+                ...DEFAULT_PRICING_CONFIG.zoneDeliveryMatrix,
+                ...(parsed.pricingConfig.zoneDeliveryMatrix || {}),
+              },
+            });
+          }
         } else {
           setVehicles(MOCK_VEHICLES);
           setReservations(MOCK_RESERVATIONS);
@@ -143,12 +158,12 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ vehicles, orders, dealers, auditLogs, users, reservations })
+        JSON.stringify({ vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig })
       );
     } catch (e) {
       console.warn("Could not persist programme state:", e);
     }
-  }, [vehicles, orders, dealers, auditLogs, users, reservations, isHydrated]);
+  }, [vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig, isHydrated]);
 
   // Helper to log audit event
   const logAudit = (event: Omit<AuditEvent, "id" | "timestamp">) => {
@@ -158,6 +173,45 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       timestamp: new Date().toISOString(),
     };
     setAuditLogs((prev) => [newEvent, ...prev]);
+  };
+
+  // Pricing Configuration Handlers
+  const updatePricingConfig = (updates: Partial<PricingConfig>) => {
+    setPricingConfig((prev) => {
+      const next = {
+        ...prev,
+        ...updates,
+        zoneDeliveryMatrix: {
+          ...prev.zoneDeliveryMatrix,
+          ...(updates.zoneDeliveryMatrix || {}),
+        },
+      };
+      logAudit({
+        actorName: "Operations Administrator",
+        actorEmail: "ops@autohub.co.nz",
+        actorRole: "AUTOHUB_ADMIN",
+        action: "STATUS_CHANGED",
+        category: "PRICING",
+        objectType: "PricingConfig",
+        objectId: "PRICING_MATRIX",
+        details: "Commercial landed pricing parameters and matrix components updated.",
+      });
+      return next;
+    });
+  };
+
+  const resetPricingConfig = () => {
+    setPricingConfig(DEFAULT_PRICING_CONFIG);
+    logAudit({
+      actorName: "Operations Administrator",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "STATUS_CHANGED",
+      category: "PRICING",
+      objectType: "PricingConfig",
+      objectId: "PRICING_MATRIX",
+      details: "Commercial landed pricing restored to default Nissan NZ schedule.",
+    });
   };
 
   // 1. Reserve Vehicle (Atomic Lock by Dealer with full ReservationRequest snapshot)
@@ -174,7 +228,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     const now = new Date().toISOString();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     const dealer = dealers.find((d) => d.id === dealerId) || dealers[0];
-    const priceSnapshot = calculateLandedPrice(target.fobPriceJPY, dealer.pricingZoneId);
+    const priceSnapshot = calculateLandedPrice(target.fobPriceJPY, dealer.pricingZoneId, pricingConfig);
 
     const newReservation: ReservationRequest = {
       id: `RES_${Date.now()}`,
@@ -236,7 +290,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     const dealerId = targetVehicle.reservedByDealerId || "DEALER_001";
     const dealer = dealers.find((d) => d.id === dealerId) || dealers[0];
     const orderNum = `ORD-NZ-2026-${String(orders.length + 82).padStart(3, "0")}`;
-    const priceBreakdown = calculateLandedPrice(targetVehicle.fobPriceJPY, dealer.pricingZoneId);
+    const priceBreakdown = calculateLandedPrice(targetVehicle.fobPriceJPY, dealer.pricingZoneId, pricingConfig);
     const now = new Date().toISOString();
 
     // Update matching reservation if active hold exists
@@ -497,6 +551,24 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectType: "BatchUpload",
       objectId: `BATCH-${Date.now().toString().slice(-4)}`,
       details: `Ingested ${newBatch.length} verified export vehicles from Yokohama and Kobe terminals.`,
+    });
+  };
+
+  // Update Vehicle Parameters (FOB price, specs, etc.)
+  const updateVehicle = (vehicleId: string, updates: Partial<Vehicle>) => {
+    setVehicles((prev) =>
+      prev.map((v) => (v.id === vehicleId ? { ...v, ...updates } : v))
+    );
+    const target = vehicles.find((v) => v.id === vehicleId);
+    logAudit({
+      actorName: "Operations Administrator",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "STATUS_CHANGED",
+      category: "INVENTORY",
+      objectType: "Vehicle",
+      objectId: target?.stockId || vehicleId,
+      details: `Commercial parameters updated for vehicle ${target?.stockId || vehicleId}.`,
     });
   };
 
@@ -817,6 +889,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         rejectReservation,
         addVehicle,
         batchAddVehicles,
+        updateVehicle,
         toggleVehicleStatus,
         advanceOrderMilestone,
         attachAdditionalCost,
@@ -824,6 +897,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         approveDealer,
         rejectDealer,
         updateDealerZone,
+        pricingConfig,
+        updatePricingConfig,
+        resetPricingConfig,
         resetToDefaultData,
       }}
     >

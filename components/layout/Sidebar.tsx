@@ -25,6 +25,7 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Building2,
+  SlidersHorizontal,
   X,
 } from "lucide-react";
 
@@ -147,12 +148,14 @@ export default function Sidebar({
             href: "/admin/dealers",
           },
         ] : []),
-        {
-          id: "admin-inventory",
-          label: "Inventory",
-          icon: Layers,
-          href: "/admin/inventory",
-        },
+        ...(!isAuditor ? [
+          {
+            id: "admin-config",
+            label: "Configuration",
+            icon: SlidersHorizontal,
+            href: "/admin/config",
+          },
+        ] : []),
         ...(!isAuditor ? [
           {
             id: "admin-users",

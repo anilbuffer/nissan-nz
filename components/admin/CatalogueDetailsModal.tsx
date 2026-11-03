@@ -370,8 +370,8 @@ export default function CatalogueDetailsModal({
                 }}
                 className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                <Layers className="w-3.5 h-3.5" />
-                <span>Open in Inventory Controller</span>
+                <Car className="w-3.5 h-3.5" />
+                <span>View Admin Vehicle Details</span>
               </button>
             )}
 

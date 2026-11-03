@@ -473,7 +473,7 @@ export default function GlobalSearchModal({
                 audio.playSubtleClick();
                 onClose();
                 if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") {
-                  router.push("/admin/inventory");
+                  router.push("/admin/catalogue");
                 } else if (pathname.startsWith("/japan") || currentUser?.role === "NISSAN_JAPAN") {
                   router.push("/japan/inventory");
                 } else {

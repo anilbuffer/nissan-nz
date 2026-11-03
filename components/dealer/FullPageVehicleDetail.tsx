@@ -21,6 +21,7 @@ import {
   TrendingUp,
   FileText,
   Building2,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface FullPageVehicleDetailProps {
@@ -50,7 +51,13 @@ export default function FullPageVehicleDetail({
   onBack,
 }: FullPageVehicleDetailProps) {
   const router = useRouter();
-  const { vehicles, reserveVehicle: atomicReserve } = useProgramme();
+  const {
+    vehicles,
+    reserveVehicle: atomicReserve,
+    updateVehicle,
+    toggleVehicleStatus,
+    pricingConfig,
+  } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
   const isAdmin = currentUser?.role === "AUTOHUB_ADMIN";
   const dealerZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
@@ -79,12 +86,22 @@ export default function FullPageVehicleDetail({
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
 
+  // Admin Price Editing State
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [fobInputJPY, setFobInputJPY] = useState(vehicle.fobPriceJPY);
+  const [priceUpdatedToast, setPriceUpdatedToast] = useState(false);
+
+  // Keep fobInput synced with vehicle
+  React.useEffect(() => {
+    setFobInputJPY(vehicle.fobPriceJPY);
+  }, [vehicle.fobPriceJPY]);
+
   // In Dealer role, pricing is anchored to the dealer's designated franchise delivery zone
   const activeZoneId = isAdmin ? selectedZone : dealerZone;
   const selectedZoneConfig = OFFICIAL_PRICING_ZONES[activeZoneId] || OFFICIAL_PRICING_ZONES.ZONE_1;
   const landedPrice: LandedPriceBreakdown = useMemo(() => {
-    return calculateLandedPrice(vehicle.fobPriceJPY, activeZoneId);
-  }, [vehicle.fobPriceJPY, activeZoneId]);
+    return calculateLandedPrice(vehicle.fobPriceJPY, activeZoneId, pricingConfig);
+  }, [vehicle.fobPriceJPY, activeZoneId, pricingConfig]);
 
   // Dealer Commercial Margins
   const retailEstimateNZD = Math.round(landedPrice.totalBuyPriceNZD * 1.28);
@@ -113,6 +130,14 @@ export default function FullPageVehicleDetail({
     } else {
       router.push("/dealer/stocks");
     }
+  };
+
+  const handleSavePrice = () => {
+    audio.playSuccessChime();
+    updateVehicle(vehicle.id, { fobPriceJPY: Number(fobInputJPY) });
+    setIsEditingPrice(false);
+    setPriceUpdatedToast(true);
+    setTimeout(() => setPriceUpdatedToast(false), 4000);
   };
 
   const handleReservationSuccess = (vId: string) => {
@@ -205,6 +230,23 @@ export default function FullPageVehicleDetail({
           )}
         </div>
       </div>
+
+      {/* Notification Toast */}
+      {priceUpdatedToast && (
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm font-medium flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Vehicle FOB acquisition price updated. Wholesale landed matrix recalculated across all zones.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPriceUpdatedToast(false)}
+            className="text-emerald-700 hover:text-emerald-900 text-sm cursor-pointer p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Top 4 Compact Metric Cards                               */}
@@ -535,67 +577,79 @@ export default function FullPageVehicleDetail({
               </div>
             )}
 
-            {/* Price Line Items Table */}
+            {/* Price Line Items Table matching Exact Nissan Specifications */}
             <div className="divide-y divide-slate-100 text-xs">
+              <div className="py-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                <span>Pricing Component</span>
+                <span>{isAdmin ? "Calculated Value" : "Commercial Allocation"}</span>
+              </div>
+
+              {/* 1. FOB Acquisition Price */}
               <div className="py-2 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-normal">Selected Zone Territory:</span>
-                <span className="text-slate-800 font-medium text-right truncate max-w-[180px]">
-                  {selectedZoneConfig.zoneName}
+                <span className="text-slate-600 font-medium">FOB Acquisition Price:</span>
+                <span className="font-mono font-medium text-slate-900 text-right">
+                  ¥{vehicle.fobPriceJPY.toLocaleString()}
+                  <span className="text-slate-400 font-normal text-[11px] ml-1">
+                    (~${landedPrice.fobNZD.toLocaleString()} NZD)
+                  </span>
                 </span>
               </div>
 
-              {/* Show FOB only to Admin; For Dealer, show Commercial Landed breakdown */}
-              {isAdmin ? (
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <span className="text-slate-500 font-normal">FOB Acquisition (JPY):</span>
-                  <span className="font-mono font-medium text-slate-800 text-right">
-                    ¥{vehicle.fobPriceJPY.toLocaleString()}
-                  </span>
-                </div>
-              ) : (
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <span className="text-slate-500 font-normal">Japanese Export Marshalling:</span>
-                  <span className="text-emerald-700 font-medium text-right flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> JEVIC &amp; Radiation Passed
-                  </span>
-                </div>
-              )}
-
+              {/* 2. Ocean Freight & Port Handling */}
               <div className="py-2 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-normal">Ocean Freight &amp; Port Handling:</span>
-                <span className="font-mono font-medium text-slate-800 text-right">
+                <span className="text-slate-600 font-medium">Ocean Freight &amp; Port Handling:</span>
+                <span className="font-mono font-medium text-slate-900 text-right">
                   ${landedPrice.oceanFreightNZD.toLocaleString()} NZD
                 </span>
               </div>
 
+              {/* 3. Customs Processing & GST */}
               <div className="py-2 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-normal">NZ Customs Entry &amp; 15% GST:</span>
-                <span className="font-mono font-medium text-slate-800 text-right">
-                  ${landedPrice.gstNZD.toLocaleString()} NZD
+                <span className="text-slate-600 font-medium">Customs Processing &amp; GST:</span>
+                <span className="font-mono font-medium text-slate-900 text-right">
+                  ${(landedPrice.customsProcessingNZD + landedPrice.gstNZD).toLocaleString()} NZD
                 </span>
               </div>
 
+              {/* 4. MR2A Compliance & Inspection */}
               <div className="py-2 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-normal">MR2A Compliance &amp; Inspection:</span>
-                <span className="font-mono font-medium text-slate-800 text-right">
+                <span className="text-slate-600 font-medium">MR2A Compliance &amp; Inspection:</span>
+                <span className="font-mono font-medium text-slate-900 text-right">
                   ${landedPrice.complianceInspectionNZD.toLocaleString()} NZD
                 </span>
               </div>
 
+              {/* 5. Domestic NZ Delivery */}
               <div className="py-2 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-normal">Domestic Carrier Towing:</span>
-                <span className="font-mono font-medium text-slate-800 text-right">
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-600 font-medium">Domestic NZ Delivery:</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    ({selectedZoneConfig.zoneName.split("-")[0]?.trim() || selectedZone})
+                  </span>
+                </div>
+                <span className="font-mono font-medium text-slate-900 text-right">
                   ${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD
                 </span>
               </div>
 
-              {/* Total Guarantee Row */}
-              <div className="py-2.5 px-3 flex items-center justify-between gap-3 bg-slate-50 rounded-lg -mx-1 mt-1">
-                <div>
-                  <strong className="text-xs text-slate-900 block font-semibold">Total Landed Allocation:</strong>
-                  <span className="text-[10px] text-slate-400">100% Fixed Cost Guarantee</span>
+              {/* 6. Nissan Programme Component */}
+              <div className="py-2 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-600 font-medium">Nissan Programme Component:</span>
+                  <span className="text-[10px] text-slate-400 font-normal">(Configured)</span>
                 </div>
-                <strong className="font-mono text-sm font-bold text-slate-900">
+                <span className="font-mono font-medium text-slate-900 text-right">
+                  ${landedPrice.programmeFeeNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              {/* 7. Total Buy Price */}
+              <div className="py-2.5 px-3 flex items-center justify-between gap-3 bg-slate-50 rounded-lg -mx-1 mt-1 border border-slate-200">
+                <div>
+                  <strong className="text-xs text-slate-900 block font-bold">Total Buy Price:</strong>
+                  <span className="text-[10px] text-slate-400 font-normal">System calculated landed total</span>
+                </div>
+                <strong className="font-mono text-base font-bold text-slate-950">
                   ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
                 </strong>
               </div>
@@ -616,17 +670,97 @@ export default function FullPageVehicleDetail({
             </div>
 
             {isAdmin ? (
-              <div className="pt-1 space-y-2">
+              <div className="pt-1 space-y-3">
+                {/* Vehicle FOB Price Configurator */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 block">FOB Acquisition Baseline</span>
+                      <span className="text-[11px] text-slate-500">Fixed Japan export baseline</span>
+                    </div>
+                    {!isEditingPrice && (
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingPrice(true)}
+                        className="px-2.5 py-1 text-xs font-semibold text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                      >
+                        <SlidersHorizontal className="w-3 h-3 text-slate-500" />
+                        <span>Configure Price</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {isEditingPrice ? (
+                    <div className="space-y-2 pt-1 border-t border-slate-200">
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-slate-400">
+                          ¥
+                        </span>
+                        <input
+                          type="number"
+                          step="10000"
+                          value={fobInputJPY}
+                          onChange={(e) => setFobInputJPY(Number(e.target.value))}
+                          className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-slate-300 bg-white font-mono font-bold text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                        />
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFobInputJPY(vehicle.fobPriceJPY);
+                            setIsEditingPrice(false);
+                          }}
+                          className="px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSavePrice}
+                          className="px-3.5 py-1 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                        >
+                          Save New Price
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="font-mono font-bold text-base text-slate-900">
+                      ¥{vehicle.fobPriceJPY.toLocaleString()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Stock Visibility Toggle */}
                 <button
                   type="button"
                   onClick={() => {
                     audio.playSubtleClick();
-                    alert("Vehicle " + vehicle.stockId + " withdrawn from dealer access.");
+                    toggleVehicleStatus(vehicle.id);
                   }}
-                  className="w-full py-2.5 px-3 rounded-lg bg-white hover:bg-rose-50 text-[#C3002F] border border-rose-200 font-semibold text-xs transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  className={`w-full py-2.5 px-3 rounded-lg font-semibold text-xs transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer ${
+                    vehicle.status === "WITHDRAWN"
+                      ? "bg-slate-900 hover:bg-black text-white"
+                      : "bg-white hover:bg-rose-50 text-[#C3002F] border border-rose-200"
+                  }`}
                 >
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Withdraw from Dealer Access</span>
+                  <span>
+                    {vehicle.status === "WITHDRAWN" ? "Publish to Dealer Access" : "Withdraw from Dealer Access"}
+                  </span>
+                </button>
+
+                {/* Direct Link to Commercial Cost Matrix */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    audio.playSubtleClick();
+                    router.push("/admin/config");
+                  }}
+                  className="w-full py-2 px-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-medium text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Open Commercial Cost Matrix (/admin/config)</span>
                 </button>
               </div>
             ) : (
