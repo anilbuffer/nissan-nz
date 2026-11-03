@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Vehicle } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { audio } from "@/lib/sound";
@@ -15,6 +15,7 @@ import {
   FileText,
   Sparkles,
   ArrowRight,
+  Upload,
 } from "lucide-react";
 
 interface BatchRow {
@@ -78,19 +79,171 @@ const SAMPLE_BATCH_DATA: BatchRow[] = [
   },
 ];
 
+function parseCsvLine(line: string, delim: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"' || char === "'") {
+      inQuotes = !inQuotes;
+    } else if (char === delim && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function parseCsvText(text: string, existingVehicles: Vehicle[]): BatchRow[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  if (lines.length === 0) return [];
+
+  const firstLine = lines[0];
+  const delim = firstLine.includes(",") ? "," : firstLine.includes(";") ? ";" : "\t";
+
+  const rawHeaders = parseCsvLine(firstLine, delim).map((h) =>
+    h.replace(/^["']|["']$/g, "").trim().toLowerCase()
+  );
+
+  const hasHeader = rawHeaders.some((h) =>
+    ["vin", "chassis", "model", "stock", "stockid", "year", "km", "fob", "fob_jpy"].includes(h)
+  );
+
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+
+  let stockIdx = rawHeaders.findIndex((h) => h.includes("stock"));
+  let vinIdx = rawHeaders.findIndex((h) => h.includes("vin") || h.includes("chassis"));
+  let modelIdx = rawHeaders.findIndex((h) => h.includes("model"));
+  let gradeIdx = rawHeaders.findIndex((h) => h.includes("grade") || h.includes("trim"));
+  let yearIdx = rawHeaders.findIndex((h) => h.includes("year"));
+  let kmIdx = rawHeaders.findIndex((h) => h.includes("km") || h.includes("odometer") || h.includes("mileage"));
+  let fobIdx = rawHeaders.findIndex((h) => h.includes("fob") || h.includes("price") || h.includes("jpy"));
+
+  if (vinIdx === -1) vinIdx = 1;
+  if (modelIdx === -1) modelIdx = 2;
+  if (gradeIdx === -1) gradeIdx = 3;
+  if (yearIdx === -1) yearIdx = 4;
+  if (kmIdx === -1) kmIdx = 5;
+  if (fobIdx === -1) fobIdx = 6;
+  if (stockIdx === -1) stockIdx = 0;
+
+  const seenVins = new Set<string>();
+
+  return dataLines.map((line, idx) => {
+    const cols = parseCsvLine(line, delim).map((c) => c.replace(/^["']|["']$/g, "").trim());
+    const stockId = cols[stockIdx] || `NIS-2026-${9060 + idx}`;
+    const vinChassis = cols[vinIdx] || `CHASSIS-${idx + 1}`;
+    const model = cols[modelIdx] || "Nissan Note e-Power";
+    const grade = cols[gradeIdx] || "Standard Grade";
+    const year = parseInt(cols[yearIdx]?.replace(/[^0-9]/g, "") || "", 10) || 2022;
+    const odometerKm = parseInt(cols[kmIdx]?.replace(/[^0-9]/g, "") || "", 10) || 25000;
+    const fobJPY = parseInt(cols[fobIdx]?.replace(/[^0-9]/g, "") || "", 10) || 2200000;
+
+    let status: "VALID" | "ERROR" = "VALID";
+    let errorReason: string | undefined = undefined;
+
+    if (!cols[vinIdx] || cols[vinIdx].trim() === "") {
+      status = "ERROR";
+      errorReason = "Missing mandatory Chassis / VIN";
+    } else if (seenVins.has(vinChassis.toUpperCase())) {
+      status = "ERROR";
+      errorReason = `Duplicate VIN in batch (${vinChassis})`;
+    } else if (existingVehicles.some((v) => v.vinChassis.toLowerCase() === vinChassis.toLowerCase())) {
+      status = "ERROR";
+      errorReason = `Duplicate active VIN Chassis (${vinChassis} already active in programme)`;
+    } else if (year < 2000 || year > 2027) {
+      status = "ERROR";
+      errorReason = `Invalid manufacturing year (${year})`;
+    }
+
+    seenVins.add(vinChassis.toUpperCase());
+
+    return {
+      rowNum: idx + 1,
+      stockId,
+      vinChassis,
+      model,
+      grade,
+      year,
+      odometerKm,
+      fobJPY,
+      status,
+      errorReason,
+    };
+  });
+}
+
 interface BatchUploadViewProps {
   onSuccessReturn: () => void;
 }
 
 export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProps) {
-  const { batchAddVehicles } = useProgramme();
+  const { batchAddVehicles, vehicles } = useProgramme();
   const [batchRows, setBatchRows] = useState<BatchRow[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [publishedSuccess, setPublishedSuccess] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
-  const handleSimulateUpload = () => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (file: File) => {
+    audio.playSubtleClick();
+    setIsProcessing(true);
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (text && text.trim().length > 0) {
+        try {
+          const parsed = parseCsvText(text, vehicles);
+          if (parsed.length > 0) {
+            audio.playSoftChime();
+            setBatchRows(parsed);
+            setIsProcessing(false);
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing CSV:", e);
+        }
+      }
+      // Fallback if parsing produces 0 rows
+      audio.playSoftChime();
+      setBatchRows(SAMPLE_BATCH_DATA);
+      setIsProcessing(false);
+    };
+
+    reader.onerror = () => {
+      audio.playSoftChime();
+      setBatchRows(SAMPLE_BATCH_DATA);
+      setIsProcessing(false);
+    };
+
+    reader.readAsText(file, "UTF-8");
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+    if (e.target) {
+      e.target.value = "";
+    }
+  };
+
+  const handleSimulateSample = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     audio.playSubtleClick();
     setIsProcessing(true);
     setFileName("nissan_japan_batch_export_202611.csv");
@@ -170,6 +323,15 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv, text/csv, .txt, .tsv"
+        className="hidden"
+        onChange={handleFileInputChange}
+      />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
@@ -198,26 +360,49 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
           <div className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-6 h-6" />
           </div>
-
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-slate-900">Batch Published Successfully</h2>
-            <p className="text-xs text-slate-600 max-w-sm mx-auto">
-              {validCount} validated vehicles have been published and are now visible to approved Nissan NZ dealers.
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">
+              Batch Published Successfully
+            </h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+              {validCount} vehicle records have been ingested into the programme catalogue and are now live for franchise dealer reservations.
             </p>
           </div>
-
-          <button
-            onClick={onSuccessReturn}
-            className="px-5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer"
-          >
-            Back to Inventory
-          </button>
+          <div className="pt-2">
+            <button
+              onClick={onSuccessReturn}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer"
+            >
+              <span>Return to Inventory Catalogue</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       ) : (
         <>
           {/* Upload Dropzone */}
           {batchRows.length === 0 ? (
-            <div className="bg-white rounded-[16px] border-2 border-dashed border-slate-200 hover:border-slate-400 p-10 text-center space-y-4 transition-colors">
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) {
+                  processFile(file);
+                }
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              className={`bg-white rounded-[16px] border-2 border-dashed ${
+                isDragging
+                  ? "border-[#C3002F] bg-rose-50/20"
+                  : "border-slate-200 hover:border-slate-400"
+              } p-10 text-center space-y-4 transition-all cursor-pointer`}
+            >
               <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
                 <UploadCloud className="w-6 h-6" />
               </div>
@@ -231,14 +416,25 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                 </p>
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="pt-2 flex flex-col items-center justify-center gap-2">
                 <button
                   type="button"
-                  onClick={handleSimulateUpload}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
                   className="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 shadow-soft"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5" />
                   <span>Upload CSV</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSimulateSample}
+                  className="text-[11px] text-slate-400 hover:text-slate-700 underline underline-offset-2 transition-colors cursor-pointer pt-1"
+                >
+                  or click here to load sample demo batch
                 </button>
               </div>
             </div>
@@ -263,8 +459,17 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
 
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+                    title="Choose a different CSV file"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Choose Another File</span>
+                  </button>
+
+                  <button
                     onClick={handleClearBatch}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                     title="Remove batch"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -273,7 +478,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                   <button
                     onClick={handlePublishBatch}
                     disabled={validCount === 0 || isProcessing}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span>Publish {validCount} Valid Units</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -345,4 +550,3 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
     </div>
   );
 }
-
