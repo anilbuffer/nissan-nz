@@ -343,7 +343,7 @@ export default function Sidebar({
               </div>
               {!collapsed && (
                 <div className="min-w-0 transition-opacity duration-200">
-                  <h1 className="font-extrabold text-sm tracking-tight text-white truncate leading-tight">
+                  <h1 className="font-bold text-sm tracking-tight text-white truncate leading-tight">
                     Nissan New Zealand
                   </h1>
                 </div>

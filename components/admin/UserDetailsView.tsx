@@ -216,7 +216,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
           {currentUser?.id !== user.id && (
             <button
               onClick={handleImpersonate}
-              title="Test platform as this user"
+              title="Switch persona to this user"
               className="px-3.5 py-1.5 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5 text-rose-400" />
@@ -246,7 +246,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
 
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
                   {user.name}
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${roleInfo.bg}`}>

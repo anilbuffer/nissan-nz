@@ -107,11 +107,14 @@ export default function DealerStockCatalog({
     const list = [
       { key: "ALL", name: "All Models", count: 0 },
       { key: "Note", name: "Note e-Power", count: 0 },
-      { key: "X-Trail", name: "X-Trail Hybrid", count: 0 },
+      { key: "Leaf", name: "Leaf (EV)", count: 0 },
+      { key: "X-Trail", name: "X-Trail", count: 0 },
       { key: "Serena", name: "Serena e-Power", count: 0 },
-      { key: "Leaf", name: "Leaf e+ (EV)", count: 0 },
-      { key: "Ariya", name: "Ariya EV", count: 0 },
       { key: "Kicks", name: "Kicks e-Power", count: 0 },
+      { key: "Dayz", name: "Dayz Kei", count: 0 },
+      { key: "Elgrand", name: "Elgrand VIP", count: 0 },
+      { key: "Navara", name: "Navara 4WD Ute", count: 0 },
+      { key: "Ariya", name: "Ariya (EV)", count: 0 },
     ];
 
     vehicles.forEach((v) => {
@@ -194,7 +197,7 @@ export default function DealerStockCatalog({
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             {isAdminView ? "Vehicle Catalogue" : "Vehicle Stock"} ({filteredVehicles.length})
           </h1>
           {isAdminView && (
@@ -275,7 +278,7 @@ export default function DealerStockCatalog({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Note, X-Trail, Serena, Leaf, stock ID, or chassis..."
+              placeholder="Search Note, Leaf, X-Trail, Serena, Kicks, Dayz, Elgrand, Navara..."
               className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all font-medium"
             />
             {searchQuery && (
@@ -404,7 +407,7 @@ export default function DealerStockCatalog({
                   {/* Card Top Row: Full Width Name + Model, with Arrow on Right */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors leading-snug">
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-black transition-colors leading-snug">
                         {vehicle.make} - {vehicle.model}
                       </h3>
                       <p className="text-[12px] text-slate-400 mt-1">
@@ -413,7 +416,7 @@ export default function DealerStockCatalog({
                     </div>
                     <div className="flex items-center shrink-0">
                       <div
-                        className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#C3002F] text-slate-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0"
+                        className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#0A0A0A] text-slate-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0"
                         title="View Full Vehicle Details"
                       >
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -478,7 +481,7 @@ export default function DealerStockCatalog({
                           audio.playSubtleClick();
                           setReserveVehicle(vehicle);
                         }}
-                        className="py-2.5 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+                        className="py-2.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Hold (24h)</span>
@@ -553,14 +556,14 @@ export default function DealerStockCatalog({
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-black transition-colors truncate">
                     {vehicle.make} {vehicle.model}
                   </h3>
 
                   {/* 3-Column Specifications in List View */}
                   <div className="grid grid-cols-3 gap-4 pt-2 border-t border-slate-100 max-w-md">
                     <div>
-                      <span className="text-sm font-mono font-black text-slate-900 block leading-tight">
+                      <span className="text-sm font-mono font-bold text-slate-900 block leading-tight">
                         {vehicle.odometerKm.toLocaleString()} km
                       </span>
                       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
@@ -568,7 +571,7 @@ export default function DealerStockCatalog({
                       </span>
                     </div>
                     <div>
-                      <span className="text-sm font-mono font-black text-slate-900 block leading-tight">
+                      <span className="text-sm font-mono font-bold text-slate-900 block leading-tight">
                         ★ {vehicle.auctionGrade} / {vehicle.interiorGrade}
                       </span>
                       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
@@ -576,7 +579,7 @@ export default function DealerStockCatalog({
                       </span>
                     </div>
                     <div>
-                      <span className="text-sm font-mono font-black text-emerald-600 block leading-tight">
+                      <span className="text-sm font-mono font-bold text-emerald-600 block leading-tight">
                         +${grossMargin.toLocaleString()}
                       </span>
                       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
@@ -592,7 +595,7 @@ export default function DealerStockCatalog({
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
                       Landed Buy ({dealerZone})
                     </span>
-                    <div className="text-xl font-black text-slate-900 font-mono tracking-tight mt-0.5">
+                    <div className="text-xl font-bold text-slate-900 font-mono tracking-tight mt-0.5">
                       ${price.totalBuyPriceNZD.toLocaleString()}
                       <span className="text-xs text-slate-500 font-normal ml-1">NZD</span>
                     </div>
@@ -634,7 +637,7 @@ export default function DealerStockCatalog({
                           audio.playSubtleClick();
                           setReserveVehicle(vehicle);
                         }}
-                        className="flex-1 py-2 px-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                        className="flex-1 py-2 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Hold</span>

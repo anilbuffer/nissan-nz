@@ -208,7 +208,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               <span className="text-slate-900 font-bold">Add Single Vehicle</span>
             </div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
               Add Single Export Vehicle
             </h1>
           </div>
@@ -231,7 +231,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
           </div>
 
           <div className="space-y-1.5">
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
               Vehicle Registered Successfully
             </h2>
             <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
@@ -284,7 +284,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             <button
               type="button"
               onClick={onSuccessReturn}
-              className="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
+              className="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               <span>Return to Inventory Listing</span>
             </button>
@@ -330,7 +330,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
             {/* Section 1: Identification & Provenance */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 font-black text-sm text-slate-900">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                 <Hash className="w-4 h-4 text-[#C3002F]" />
                 <span>1. Identification &amp; Japanese Yard Staging</span>
               </div>
@@ -381,7 +381,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
             {/* Section 2: Vehicle Technical Specifications */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 font-black text-sm text-slate-900">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                 <Car className="w-4 h-4 text-slate-600" />
                 <span>2. Technical Specifications &amp; Powertrain</span>
               </div>
@@ -399,11 +399,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   />
                   <datalist id="nissan-models">
                     <option value="Note e-Power" />
+                    <option value="Leaf" />
                     <option value="X-Trail" />
                     <option value="Serena e-Power" />
-                    <option value="Leaf e+" />
-                    <option value="Ariya" />
                     <option value="Kicks e-Power" />
+                    <option value="Dayz" />
+                    <option value="Elgrand" />
+                    <option value="Navara" />
+                    <option value="Ariya" />
                   </datalist>
                 </div>
 
@@ -521,7 +524,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
             {/* Section 3: USS Auction Condition & FOB Pricing */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 font-black text-sm text-slate-900">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                 <FileCheck2 className="w-4 h-4 text-emerald-600" />
                 <span>3. USS Auction Condition &amp; Raw FOB Pricing</span>
               </div>
@@ -580,7 +583,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     value={fobPriceJPY}
                     onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
                     placeholder="e.g. 1850000"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-black bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] text-sm placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] text-sm placeholder-slate-400 transition-colors"
                   />
                 </div>
               </div>
@@ -613,9 +616,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <span className="text-[11px] text-slate-400 font-medium">Quick Presets:</span>
                   {[
                     { label: "Note", path: "/images/cars/note.png" },
-                    { label: "Ariya", path: "/images/cars/ariya.png" },
                     { label: "Leaf", path: "/images/cars/leaf.png" },
                     { label: "X-Trail", path: "/images/cars/xtrail.png" },
+                    { label: "Serena", path: "/images/cars/serena.png" },
+                    { label: "Kicks", path: "/images/cars/kicks.png" },
+                    { label: "Dayz", path: "/images/cars/dayz.png" },
+                    { label: "Elgrand", path: "/images/cars/elgrand.png" },
+                    { label: "Navara", path: "/images/cars/navara.png" },
+                    { label: "Ariya", path: "/images/cars/ariya.png" },
                   ].map((p) => (
                     <button
                       key={p.path}
@@ -655,7 +663,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   type="button"
                   disabled={isSubmitting}
                   onClick={(e) => handleSubmit(e, "AVAILABLE")}
-                  className="py-2.5 px-6 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
+                  className="py-2.5 px-6 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>Publish to Central Catalogue</span>
@@ -700,7 +708,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
               {/* Vehicle Title & Specifications */}
               <div className="space-y-1">
-                <h3 className="font-black text-base text-slate-900 tracking-tight leading-snug">
+                <h3 className="font-bold text-base text-slate-900 tracking-tight leading-snug">
                   {model ? `Nissan - ${model}` : "Nissan Vehicle Spec"}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
@@ -735,7 +743,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               {/* Estimated Guaranteed Landed Buy Price for Zone 1 */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-lg font-black text-slate-900 font-mono tracking-tight block leading-tight">
+                  <span className="text-lg font-bold text-slate-900 font-mono tracking-tight block leading-tight">
                     {liveLanded ? `$${liveLanded.totalBuyPriceNZD.toLocaleString()}` : "$— NZD"}
                   </span>
                   <span className="text-[10px] text-slate-400 font-medium block">

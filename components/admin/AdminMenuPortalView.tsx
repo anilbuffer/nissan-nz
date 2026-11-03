@@ -170,7 +170,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
       <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-2xl">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
               Platform Operations Menu
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
@@ -226,7 +226,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
                 </div>
 
                 {/* Title & Description */}
-                <h2 className="text-xl font-black text-slate-900 group-hover:text-[#C3002F] transition-colors tracking-tight">
+                <h2 className="text-xl font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors tracking-tight">
                   {item.title}
                 </h2>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">

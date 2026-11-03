@@ -81,9 +81,13 @@ export default function GlobalSearchModal({
     { id: "ALL", label: "All Stock", count: vehicles.filter((v) => v.status !== "WITHDRAWN").length },
     { id: "AVAILABLE", label: "Available to Reserve", count: vehicles.filter((v) => v.status === "AVAILABLE").length },
     { id: "NOTE", label: "Note e-Power", count: vehicles.filter((v) => v.model?.toLowerCase().includes("note")).length },
+    { id: "LEAF", label: "Leaf EV", count: vehicles.filter((v) => v.model?.toLowerCase().includes("leaf")).length },
     { id: "X-TRAIL", label: "X-Trail", count: vehicles.filter((v) => v.model?.toLowerCase().includes("x-trail")).length },
     { id: "SERENA", label: "Serena", count: vehicles.filter((v) => v.model?.toLowerCase().includes("serena")).length },
-    { id: "LEAF", label: "Leaf EV", count: vehicles.filter((v) => v.model?.toLowerCase().includes("leaf")).length },
+    { id: "KICKS", label: "Kicks", count: vehicles.filter((v) => v.model?.toLowerCase().includes("kicks")).length },
+    { id: "DAYZ", label: "Dayz", count: vehicles.filter((v) => v.model?.toLowerCase().includes("dayz")).length },
+    { id: "ELGRAND", label: "Elgrand", count: vehicles.filter((v) => v.model?.toLowerCase().includes("elgrand")).length },
+    { id: "NAVARA", label: "Navara", count: vehicles.filter((v) => v.model?.toLowerCase().includes("navara")).length },
     { id: "ARIYA", label: "Ariya", count: vehicles.filter((v) => v.model?.toLowerCase().includes("ariya")).length },
     { id: "GRADE_45", label: "Grade 4.5+", count: vehicles.filter((v) => parseFloat(v.auctionGrade || "0") >= 4.5).length },
   ];
@@ -96,9 +100,13 @@ export default function GlobalSearchModal({
       // 1. Category Preset Filter
       if (activeFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
       if (activeFilter === "NOTE" && !v.model?.toLowerCase().includes("note")) return false;
+      if (activeFilter === "LEAF" && !v.model?.toLowerCase().includes("leaf")) return false;
       if (activeFilter === "X-TRAIL" && !v.model?.toLowerCase().includes("x-trail")) return false;
       if (activeFilter === "SERENA" && !v.model?.toLowerCase().includes("serena")) return false;
-      if (activeFilter === "LEAF" && !v.model?.toLowerCase().includes("leaf")) return false;
+      if (activeFilter === "KICKS" && !v.model?.toLowerCase().includes("kicks")) return false;
+      if (activeFilter === "DAYZ" && !v.model?.toLowerCase().includes("dayz")) return false;
+      if (activeFilter === "ELGRAND" && !v.model?.toLowerCase().includes("elgrand")) return false;
+      if (activeFilter === "NAVARA" && !v.model?.toLowerCase().includes("navara")) return false;
       if (activeFilter === "ARIYA" && !v.model?.toLowerCase().includes("ariya")) return false;
       if (activeFilter === "GRADE_45" && parseFloat(v.auctionGrade || "0") < 4.5) return false;
 
@@ -324,14 +332,14 @@ export default function GlobalSearchModal({
                       alt={vehicle.model}
                       className="w-full h-full object-contain filter drop-shadow-xs transition-transform duration-200 group-hover:scale-105"
                     />
-                    <div className="absolute top-1 left-1 bg-white/90 backdrop-blur-xs px-1 py-0.2 rounded text-[9px] font-black text-slate-800 border border-slate-200/80">
+                    <div className="absolute top-1 left-1 bg-white/90 backdrop-blur-xs px-1 py-0.2 rounded text-[9px] font-bold text-slate-800 border border-slate-200/80">
                       ★ {vehicle.auctionGrade}
                     </div>
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-black text-sm sm:text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
+                      <h4 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </h4>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold border border-slate-200/80 shrink-0">
@@ -366,7 +374,7 @@ export default function GlobalSearchModal({
                 {/* Right: Pricing, Status Pill, Action Button */}
                 <div className="flex items-center justify-between sm:justify-end gap-3.5 sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <div className="text-left sm:text-right">
-                    <div className="text-base sm:text-lg font-black font-mono text-slate-900 tracking-tight leading-tight">
+                    <div className="text-base sm:text-lg font-bold font-mono text-slate-900 tracking-tight leading-tight">
                       ${price.totalBuyPriceNZD.toLocaleString()}
                       <span className="text-xs font-semibold text-slate-400 ml-1">NZD</span>
                     </div>

@@ -164,7 +164,7 @@ export default function Header({
             alt="Nissan"
             className="w-7 h-7 object-contain drop-shadow-xs"
           />
-          <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
+          <span className="font-bold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
             Nissan New Zealand
           </span>
         </div>

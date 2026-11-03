@@ -110,7 +110,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <Settings className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 Platform Settings
               </h3>
               <p className="text-xs text-slate-500">
@@ -166,7 +166,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           {activeTab === "ROLES" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-slate-500 pb-1">
-                <span>Select active test persona to preview other portals:</span>
+                <span>Select active persona to preview other portals:</span>
                 <span className="text-[11px] font-mono font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                   MVP Live Switch
                 </span>
@@ -199,7 +199,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`text-xs font-extrabold truncate ${isActive ? "text-white" : "text-slate-900"
+                              className={`text-xs font-bold truncate ${isActive ? "text-white" : "text-slate-900"
                                 }`}
                             >
                               {item.label}
@@ -243,11 +243,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           {activeTab === "ACCOUNT" && (
             <div className="space-y-4 text-xs">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-black text-lg flex items-center justify-center shrink-0 border border-slate-700">
+                <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-bold text-lg flex items-center justify-center shrink-0 border border-slate-700">
                   {currentUser?.name.charAt(0) || "U"}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-extrabold text-slate-900 text-sm truncate">
+                  <h4 className="font-bold text-slate-900 text-sm truncate">
                     {currentUser?.name}
                   </h4>
                   <p className="text-slate-500 text-[11px] truncate">{currentUser?.email}</p>

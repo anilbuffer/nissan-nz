@@ -106,7 +106,7 @@ export default function AllocationMilestonesView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Wholesale Orders
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -213,7 +213,7 @@ export default function AllocationMilestonesView() {
                           {order.pricingZoneId}
                         </span>
                       </div>
-                      <h3 className="font-black text-slate-900 text-base tracking-tight truncate">
+                      <h3 className="font-bold text-slate-900 text-base tracking-tight truncate">
                         {order.vehicle.year} {order.vehicle.make} - {order.vehicle.model}
                       </h3>
                       <p className="text-xs text-slate-500 font-mono truncate">
@@ -224,7 +224,7 @@ export default function AllocationMilestonesView() {
 
                   {/* Financial & Shipping Info */}
                   <div className="flex flex-col sm:flex-row lg:flex-col sm:items-end gap-1.5 text-xs shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
-                    <div className="text-base font-black text-slate-900 font-mono tracking-tight">
+                    <div className="text-base font-bold text-slate-900 font-mono tracking-tight">
                       ${order.priceBreakdown.totalBuyPriceNZD.toLocaleString()} <span className="text-xs text-slate-400 font-normal">NZD Landed</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-slate-600 font-medium">
@@ -319,7 +319,7 @@ export default function AllocationMilestonesView() {
                     <button
                       type="button"
                       onClick={() => startEditingMilestone(order)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                     >
                       <span>Update Milestone &amp; EDD</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -424,7 +424,7 @@ export default function AllocationMilestonesView() {
                       <button
                         type="button"
                         onClick={() => handleAdvanceMilestone(order.id)}
-                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Save Milestone &amp; Carrier Progress</span>

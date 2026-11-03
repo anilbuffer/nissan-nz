@@ -371,7 +371,7 @@ export default function InviteUserModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

@@ -105,7 +105,7 @@ export default function LoginPage() {
         setAuthStep("MFA");
       } else {
         audio.playWarningChime();
-        setErrorMsg("Unrecognized email address. Click 'Auto-fill demo' to use a pre-configured test account.");
+        setErrorMsg("Unrecognized email address. Click 'Auto-fill demo' to use a pre-configured dealer account.");
       }
       setIsSubmitting(false);
     }, 400);
@@ -416,7 +416,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 px-4 bg-[#C3002F] hover:bg-[#A10026] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-[#C3002F]/20 flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-3 px-4 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-[#C3002F]/20 flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -458,7 +458,7 @@ export default function LoginPage() {
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
               {/* Header Title */}
               <div className="space-y-2.5">
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0B1527] tracking-tight">
+                <h2 className="text-3xl sm:text-4xl font-bold text-[#0B1527] tracking-tight">
                   Protect your account
                 </h2>
 
@@ -627,7 +627,7 @@ export default function LoginPage() {
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
                       <span className="text-[11px] text-slate-500">
-                        Demo test code:{" "}
+                        Passcode:{" "}
                         <strong className="font-mono text-slate-900">{expectedOtp}</strong>
                       </span>
                       <button
@@ -688,7 +688,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="w-full py-3.5 px-4 bg-[#EB4A4B] hover:bg-[#D43B3C] active:bg-[#C3002F] text-white rounded-xl font-bold text-base transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                  className="w-full py-3.5 px-4 bg-[#0A0A0A] hover:bg-[#444444] active:bg-[#222222] text-white rounded-xl font-bold text-base transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   {isVerifying ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

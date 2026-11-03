@@ -317,7 +317,7 @@ export default function DealerDetailsModal({
                       onApprove(dealer.id, selectedZone);
                       onClose();
                     }}
-                    className="px-4 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+                    className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4 text-white" />
                     <span>Authorize Franchise</span>

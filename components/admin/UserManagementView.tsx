@@ -124,7 +124,7 @@ export default function UserManagementView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             User Management ({users.length})
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -137,7 +137,7 @@ export default function UserManagementView() {
             audio.playSubtleClick();
             setIsInviteModalOpen(true);
           }}
-          className="px-4 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-lg cursor-pointer self-start sm:self-auto shrink-0"
+          className="px-4 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-lg cursor-pointer self-start sm:self-auto shrink-0"
         >
           <UserPlus className="w-4 h-4" />
           <span>Invite New User</span>

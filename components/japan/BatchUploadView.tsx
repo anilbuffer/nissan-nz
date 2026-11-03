@@ -131,8 +131,23 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
       exteriorGrade: "A",
       location: "Yokohama Yard (Bay 5)",
       images: [
-        "/images/cars/nissan-note.jpg",
-        "/images/cars/nissan-suv.png",
+        r.model.toLowerCase().includes("note")
+          ? "/images/cars/note.png"
+          : r.model.toLowerCase().includes("x-trail")
+          ? "/images/cars/xtrail.png"
+          : r.model.toLowerCase().includes("serena")
+          ? "/images/cars/serena.png"
+          : r.model.toLowerCase().includes("leaf")
+          ? "/images/cars/leaf.png"
+          : r.model.toLowerCase().includes("kicks")
+          ? "/images/cars/kicks.png"
+          : r.model.toLowerCase().includes("dayz")
+          ? "/images/cars/dayz.png"
+          : r.model.toLowerCase().includes("elgrand")
+          ? "/images/cars/elgrand.png"
+          : r.model.toLowerCase().includes("navara")
+          ? "/images/cars/navara.png"
+          : "/images/cars/note.png"
       ],
       conditionReportUrl: "https://example.com/reports/batch_inspection.pdf",
       knownDefects: ["Zero panel structural repairs detected", "Verified export condition pass"],
@@ -156,11 +171,11 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Batch CSV Upload
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Ingest and validate multiple Japanese vehicle records in a single batch (US-06)
+            Ingest and validate multiple Japanese vehicle records in a single batch
           </p>
         </div>
 
@@ -256,7 +271,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                   <button
                     onClick={handlePublishBatch}
                     disabled={validCount === 0 || isProcessing}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer"
                   >
                     <span>Publish {validCount} Valid Units</span>
                     <ArrowRight className="w-3.5 h-3.5" />

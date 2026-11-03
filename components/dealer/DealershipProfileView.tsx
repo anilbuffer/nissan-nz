@@ -128,7 +128,7 @@ export default function DealershipProfileView() {
           <div className="space-y-1">
 
 
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
               {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"}
             </h1>
 
@@ -190,7 +190,7 @@ export default function DealershipProfileView() {
                     <Building2 className="w-5 h-5 text-slate-700" />
                   </div>
                   <div>
-                    <h2 className="text-base font-black text-slate-900">
+                    <h2 className="text-base font-bold text-slate-900">
                       Showroom &amp; Receiving Yard
                     </h2>
                     <p className="text-xs text-slate-400 font-medium">
@@ -370,7 +370,7 @@ export default function DealershipProfileView() {
               <span className="text-[11px] font-bold text-[#C3002F] uppercase tracking-wider block">
                 Selected Schedule
               </span>
-              <h3 className="text-base font-extrabold text-slate-900 mt-0.5">
+              <h3 className="text-base font-bold text-slate-900 mt-0.5">
                 {activeZoneConfig.zoneName} ({activeZoneConfig.coverage})
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -380,7 +380,7 @@ export default function DealershipProfileView() {
 
             <div className="text-right shrink-0">
               <span className="text-[10px] text-slate-400 block uppercase font-bold">Standard 2x NZ Tow Total</span>
-              <span className="text-xl font-black font-mono text-slate-900">
+              <span className="text-xl font-bold font-mono text-slate-900">
                 ${activeZoneConfig.deliveryCostNZD.toLocaleString()} NZD
               </span>
             </div>
@@ -390,7 +390,7 @@ export default function DealershipProfileView() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 text-xs">
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[11px] text-slate-400 block uppercase font-bold">RoRo Marine Freight</span>
-              <span className="text-base font-extrabold font-mono text-slate-900 block">
+              <span className="text-base font-bold font-mono text-slate-900 block">
                 ${activeZoneConfig.oceanFreightNZD.toLocaleString()} NZD
               </span>
               <span className="text-[10px] text-slate-500 block">Yokohama to Auckland/Lyttelton</span>
@@ -398,7 +398,7 @@ export default function DealershipProfileView() {
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[11px] text-slate-400 block uppercase font-bold">Customs &amp; MPI Bio</span>
-              <span className="text-base font-extrabold font-mono text-slate-900 block">
+              <span className="text-base font-bold font-mono text-slate-900 block">
                 ${activeZoneConfig.customsProcessingNZD.toLocaleString()} NZD
               </span>
               <span className="text-[10px] text-slate-500 block">Heat treatment &amp; entry clearance</span>
@@ -406,7 +406,7 @@ export default function DealershipProfileView() {
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[11px] text-slate-400 block uppercase font-bold">MR2A Compliance</span>
-              <span className="text-base font-extrabold font-mono text-slate-900 block">
+              <span className="text-base font-bold font-mono text-slate-900 block">
                 ${activeZoneConfig.complianceInspectionNZD.toLocaleString()} NZD
               </span>
               <span className="text-[10px] text-slate-500 block">Standard structural &amp; emissions check</span>
@@ -414,7 +414,7 @@ export default function DealershipProfileView() {
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[11px] text-slate-400 block uppercase font-bold">2x Domestic Movements</span>
-              <span className="text-base font-extrabold font-mono text-slate-900 block">
+              <span className="text-base font-bold font-mono text-slate-900 block">
                 ${activeZoneConfig.deliveryCostNZD.toLocaleString()} NZD
               </span>
               <span className="text-[10px] text-slate-500 block">Port to center &amp; to Greenlane</span>
@@ -422,7 +422,7 @@ export default function DealershipProfileView() {
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
               <span className="text-[11px] text-slate-400 block uppercase font-bold">Programme Fee</span>
-              <span className="text-base font-extrabold font-mono text-slate-900 block">
+              <span className="text-base font-bold font-mono text-slate-900 block">
                 ${activeZoneConfig.programmeFeeNZD.toLocaleString()} NZD
               </span>
               <span className="text-[10px] text-slate-500 block">Nissan certified provenance fee</span>
@@ -493,7 +493,7 @@ export default function DealershipProfileView() {
                         <td className="py-3 px-4 font-mono">${z.complianceInspectionNZD.toLocaleString()}</td>
                         <td className="py-3 px-4 font-mono font-bold">${z.deliveryCostNZD.toLocaleString()}</td>
                         <td className="py-3 px-4 font-mono">${z.programmeFeeNZD.toLocaleString()}</td>
-                        <td className="py-3 px-4 text-right font-mono font-black text-slate-900">
+                        <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
                           ${totalFixed.toLocaleString()} NZD
                         </td>
                       </tr>
@@ -515,7 +515,7 @@ export default function DealershipProfileView() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
-                  Dealer Governance (US-05)
+                  Dealer Governance
                 </span>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
                   Role-Based Access Control

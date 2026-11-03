@@ -110,7 +110,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Operations Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -237,7 +237,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     <button
                       type="button"
                       onClick={() => handleApprove(dealer.id, defaultZone)}
-                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#C3002F] hover:bg-[#A10026] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
                     >
                       Authorize
                     </button>
@@ -357,7 +357,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     <button
                       type="button"
                       onClick={() => handleConfirmReservation(vehicle.id)}
-                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#C3002F] hover:bg-[#A10026] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
                     >
                       Confirm Order
                     </button>
@@ -449,7 +449,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 type="button"
                 disabled={!declineReason.trim()}
                 onClick={handleConfirmDecline}
-                className="px-4 py-2 rounded-lg bg-[#C3002F] hover:bg-[#A10026] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-semibold cursor-pointer transition-all shadow-xs"
+                className="px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#444444] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-semibold cursor-pointer transition-all shadow-xs"
               >
                 Confirm Decline
               </button>

@@ -403,7 +403,7 @@ export default function AuditExportView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Programme Audit History &amp; Data Export Hub
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -424,7 +424,7 @@ export default function AuditExportView() {
           <button
             type="button"
             onClick={() => exportAuditLedger("XLSX")}
-            className="px-3.5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all active:scale-[0.98]"
+            className="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all active:scale-[0.98]"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
             <span>Audit (XLSX)</span>
@@ -704,7 +704,7 @@ export default function AuditExportView() {
                 <button
                   type="button"
                   onClick={() => exportAuditLedger("XLSX")}
-                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                  className="flex-1 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
                   <span>Download XLSX</span>
@@ -746,7 +746,7 @@ export default function AuditExportView() {
                 <button
                   type="button"
                   onClick={() => exportStockCatalogue("XLSX")}
-                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                  className="flex-1 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
                   <span>Download XLSX</span>
@@ -788,7 +788,7 @@ export default function AuditExportView() {
                 <button
                   type="button"
                   onClick={() => exportOrdersPipeline("XLSX")}
-                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                  className="flex-1 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
                   <span>Download XLSX</span>
@@ -830,7 +830,7 @@ export default function AuditExportView() {
                 <button
                   type="button"
                   onClick={() => exportReservationsQueue("XLSX")}
-                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                  className="flex-1 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
                   <span>Download XLSX</span>
@@ -872,7 +872,7 @@ export default function AuditExportView() {
                 <button
                   type="button"
                   onClick={() => exportDealersRoster("XLSX")}
-                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                  className="flex-1 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
                   <span>Download XLSX</span>

@@ -237,7 +237,7 @@ export default function DealerApprovalsView() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Assigned Pricing Zone
             </span>
-            <div className="text-xl font-black text-slate-900 font-mono">
+            <div className="text-xl font-bold text-slate-900 font-mono">
               {dealer.pricingZoneId}
             </div>
             <span className="text-xs text-slate-500 font-medium block truncate">
@@ -249,7 +249,7 @@ export default function DealerApprovalsView() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Active Exclusivity Holds
             </span>
-            <div className="text-xl font-black text-amber-700 font-mono">
+            <div className="text-xl font-bold text-amber-700 font-mono">
               {dealerHolds.length} Vehicles
             </div>
             <span className="text-xs text-slate-500 font-medium block truncate">
@@ -261,7 +261,7 @@ export default function DealerApprovalsView() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Total Wholesale Orders
             </span>
-            <div className="text-xl font-black text-slate-900 font-mono">
+            <div className="text-xl font-bold text-slate-900 font-mono">
               {dealerOrders.length} Shipments
             </div>
             <span className="text-xs text-slate-500 font-medium block truncate">
@@ -273,7 +273,7 @@ export default function DealerApprovalsView() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Authorized Staff Accounts
             </span>
-            <div className="text-xl font-black text-slate-900 font-mono">
+            <div className="text-xl font-bold text-slate-900 font-mono">
               {dealerUsers.length || 1} Registered
             </div>
             <span className="text-xs text-emerald-600 font-semibold block truncate">
@@ -293,7 +293,7 @@ export default function DealerApprovalsView() {
                   <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                     Franchise Entity Dossier
                   </span>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                     {dealer.legalTradingName}
                   </h2>
                 </div>
@@ -353,19 +353,19 @@ export default function DealerApprovalsView() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Floorplan Facility</span>
-                  <strong className="text-sm font-black text-slate-900 font-mono block">$350,000 NZD</strong>
+                  <strong className="text-sm font-bold text-slate-900 font-mono block">$350,000 NZD</strong>
                   <span className="text-[10px] text-slate-500">Tier 1 Nissan Floorplan</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Concurrent Holds</span>
-                  <strong className="text-sm font-black text-slate-900 font-mono block">3 Units Max</strong>
+                  <strong className="text-sm font-bold text-slate-900 font-mono block">3 Units Max</strong>
                   <span className="text-[10px] text-slate-500">Atomic 24h Lock Limit</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Direct Order Authority</span>
-                  <strong className="text-sm font-black text-emerald-700 block">Self-Service Active</strong>
+                  <strong className="text-sm font-bold text-emerald-700 block">Self-Service Active</strong>
                   <span className="text-[10px] text-slate-500">Wholesale Catalogue Access</span>
                 </div>
               </div>
@@ -476,7 +476,7 @@ export default function DealerApprovalsView() {
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-black text-slate-900 text-sm">
+                  <h3 className="font-bold text-slate-900 text-sm">
                     Geographic Pricing Zone Configuration
                   </h3>
                   {hasSavedDetailZone && (
@@ -520,7 +520,7 @@ export default function DealerApprovalsView() {
                       </div>
 
                       <div className="text-right shrink-0">
-                        <div className="font-mono font-black text-slate-900 text-xs">
+                        <div className="font-mono font-bold text-slate-900 text-xs">
                           ${z.deliveryCostNZD} <span className="text-[10px] font-normal text-slate-400">NZD</span>
                         </div>
                         {isSelected && (
@@ -558,7 +558,7 @@ export default function DealerApprovalsView() {
                   <button
                     type="button"
                     onClick={() => handleApprove(dealer.id, currentZoneId)}
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
+                    className="w-full py-3.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Authorize Franchise &amp; Assign Zone</span>
@@ -601,7 +601,7 @@ export default function DealerApprovalsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Franchise Dealers
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -634,7 +634,7 @@ export default function DealerApprovalsView() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Total Network
           </span>
-          <div className="text-2xl font-black text-slate-900 font-mono">
+          <div className="text-2xl font-bold text-slate-900 font-mono">
             {dealers.length}
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -646,7 +646,7 @@ export default function DealerApprovalsView() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Active Showrooms
           </span>
-          <div className="text-2xl font-black text-emerald-600 font-mono">
+          <div className="text-2xl font-bold text-emerald-600 font-mono">
             {approvedDealers.length}
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -658,7 +658,7 @@ export default function DealerApprovalsView() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             National Coverage
           </span>
-          <div className="text-2xl font-black text-slate-900 font-mono">
+          <div className="text-2xl font-bold text-slate-900 font-mono">
             5 Zones
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -695,7 +695,7 @@ export default function DealerApprovalsView() {
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <h2 className="text-base font-black text-slate-900 tracking-tight">
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">
                 Franchise Dealership Network ({approvedDealers.length})
               </h2>
             </div>

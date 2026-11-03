@@ -89,7 +89,7 @@ export default function JapanInventoryView({
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Export Inventory
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -116,7 +116,7 @@ export default function JapanInventoryView({
               audio.playSubtleClick();
               onNavigateAdd();
             }}
-            className="py-2.5 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+            className="py-2.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Add Vehicle</span>
@@ -132,7 +132,7 @@ export default function JapanInventoryView({
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Total Listed
           </span>
-          <div className="text-2xl font-black text-slate-900 font-mono">
+          <div className="text-2xl font-bold text-slate-900 font-mono">
             {vehicles.length}
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -144,7 +144,7 @@ export default function JapanInventoryView({
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Available to NZ
           </span>
-          <div className="text-2xl font-black text-emerald-600 font-mono">
+          <div className="text-2xl font-bold text-emerald-600 font-mono">
             {availableCount}
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -156,7 +156,7 @@ export default function JapanInventoryView({
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Dealer Reserved
           </span>
-          <div className="text-2xl font-black text-amber-600 font-mono">
+          <div className="text-2xl font-bold text-amber-600 font-mono">
             {reservedCount}
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -168,7 +168,7 @@ export default function JapanInventoryView({
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Primary Staging Yard
           </span>
-          <div className="text-xl font-black text-slate-900 truncate">
+          <div className="text-xl font-bold text-slate-900 truncate">
             Yokohama Terminal
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
@@ -207,7 +207,7 @@ export default function JapanInventoryView({
                 setStatusFilter(st.id);
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${statusFilter === st.id
-                  ? "bg-white text-slate-900 shadow-2xs font-black"
+                  ? "bg-white text-slate-900 shadow-2xs font-bold"
                   : "text-slate-500 hover:text-slate-800 font-medium"
                 }`}
             >

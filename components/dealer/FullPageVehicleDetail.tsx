@@ -658,7 +658,7 @@ export default function FullPageVehicleDetail({
                           audio.playSubtleClick();
                           setIsReserveModalOpen(true);
                         }}
-                        className="w-full py-3 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs tracking-wide transition-all shadow-xs active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full py-3 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs tracking-wide transition-all shadow-xs active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Hold Vehicle (24h Exclusivity Lock)</span>

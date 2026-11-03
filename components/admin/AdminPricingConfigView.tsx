@@ -136,7 +136,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Pricing Configuration
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
@@ -160,7 +160,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             onClick={handleSave}
             disabled={!hasChanges && !saveSuccess}
             className={`px-4 py-2 rounded-xl font-semibold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-1.5 ${hasChanges
-              ? "bg-[#C3002F] hover:bg-[#A10026] text-white active:scale-[0.98]"
+              ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
               : "bg-slate-100 text-slate-400 border border-slate-200 cursor-default"
               }`}
           >
@@ -529,7 +529,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">
-                Reservation Expiry &amp; Warning Rules (US-15)
+                Reservation Expiry &amp; Warning Rules
               </h2>
               <p className="text-[11px] text-slate-500">
                 Programme parameters governing dealer exclusivity windows and auto-release lifecycle
@@ -537,7 +537,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             </div>
           </div>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200">
-            US-15 Active
+            Active Rules
           </span>
         </div>
 

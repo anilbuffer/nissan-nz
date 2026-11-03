@@ -319,7 +319,7 @@ export default function CatalogueDetailsModal({
 
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
                 <span className="text-[10px] text-rose-700 font-bold uppercase tracking-wider block">Total Landed NZD</span>
-                <div className="font-mono font-black text-[#C3002F] text-base mt-0.5">
+                <div className="font-mono font-bold text-[#C3002F] text-base mt-0.5">
                   ${landedPrice.totalBuyPriceNZD.toLocaleString()}
                 </div>
                 <span className="text-[10px] text-rose-600 font-semibold">Excl. GST</span>

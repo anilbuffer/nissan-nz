@@ -66,7 +66,7 @@ export default function AdditionalCostCreatorModal({
               <AlertTriangle className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white">Attach Compliance Variation (US-18)</h3>
+              <h3 className="font-bold text-sm text-white">Attach Compliance Variation</h3>
               <p className="text-[10px] text-slate-400">Autohub Operations Defect Logging</p>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function AdditionalCostCreatorModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold transition-all shadow-xs cursor-pointer"
+              className="px-6 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold transition-all shadow-xs cursor-pointer"
             >
               {isSubmitting ? "Submitting..." : "Submit Variation for Dealer Approval"}
             </button>

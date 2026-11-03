@@ -184,7 +184,7 @@ export default function DealerOrdersView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Orders &amp; Shipments
           </h1>
           <p className="text-xs text-slate-500 font-medium">
@@ -309,7 +309,7 @@ export default function DealerOrdersView() {
                         <span className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${isExpiringSoon
                           ? "bg-amber-100 text-amber-900 border border-amber-300 ring-2 ring-amber-400/30 animate-pulse"
                           : "bg-slate-100 text-slate-700 border border-slate-200"
-                          }`} title={isExpiringSoon ? "Warning: Hold expiring soon under US-15" : "Holding countdown"}>
+                          }`} title={isExpiringSoon ? "Warning: Hold expiring soon" : "Holding countdown"}>
                           <Clock className="w-3 h-3 text-amber-600" />
                           <span>{remHours}h {remMins}m left</span>
                         </span>
@@ -327,7 +327,7 @@ export default function DealerOrdersView() {
 
                       {/* Vehicle Spec */}
                       <div>
-                        <h3 className="text-base font-black text-slate-900 truncate">
+                        <h3 className="text-base font-bold text-slate-900 truncate">
                           {res.vehicle.year} {res.vehicle.make} {res.vehicle.model}
                         </h3>
                         <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
@@ -339,7 +339,7 @@ export default function DealerOrdersView() {
                       <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
                         <div className="flex items-center justify-between">
                           <span className="text-slate-500 font-medium">Guaranteed Landed:</span>
-                          <span className="font-mono text-base font-black text-slate-900">
+                          <span className="font-mono text-base font-bold text-slate-900">
                             ${res.priceSnapshot.totalBuyPriceNZD.toLocaleString()} NZD
                           </span>
                         </div>
@@ -355,7 +355,7 @@ export default function DealerOrdersView() {
                       <button
                         type="button"
                         onClick={() => setConfirmingHoldVehicleId(res.vehicleId)}
-                        className="flex-1 py-2.5 px-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="flex-1 py-2.5 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Confirm Order</span>
@@ -430,7 +430,7 @@ export default function DealerOrdersView() {
                           </span>
                         </div>
 
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                        <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
                           {selectedOrder.vehicle.year} {selectedOrder.vehicle.make} {selectedOrder.vehicle.model}
                         </h2>
 
@@ -470,7 +470,7 @@ export default function DealerOrdersView() {
                         <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
                           Total Buy Price (Fixed Landed)
                         </span>
-                        <div className="text-2xl font-black font-mono text-slate-900">
+                        <div className="text-2xl font-bold font-mono text-slate-900">
                           ${selectedOrder.priceBreakdown.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-sans text-slate-500">NZD</span>
                         </div>
                         <div className="text-[11px] text-slate-500 font-mono">
@@ -654,12 +654,12 @@ export default function DealerOrdersView() {
                               <div className="flex items-center gap-2">
                                 <AlertTriangle className="w-4 h-4 text-amber-600" />
                                 <h3 className="font-bold text-sm text-slate-900">
-                                  Compliance Defect Remediation Sign-Off (US-18)
+                                  Compliance Defect Remediation Sign-Off
                                 </h3>
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <span className="font-mono text-base font-black text-slate-900">
+                                <span className="font-mono text-base font-bold text-slate-900">
                                   +${cost.amountNZD.toLocaleString()} NZD
                                 </span>
                                 <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full font-mono ${isPending
@@ -729,7 +729,7 @@ export default function DealerOrdersView() {
                     <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                       <div>
                         <h3 className="font-bold text-sm text-slate-900">
-                          Agreed Order Delivery Milestones (US-17)
+                          Agreed Order Delivery Milestones
                         </h3>
                         <p className="text-xs text-slate-500">
                           Traceable sign-offs from Yokohama export terminal to franchise yard delivery.
@@ -1010,7 +1010,7 @@ export default function DealerOrdersView() {
                           {/* Card Top Row: Order # + Status Pill */}
                           <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
                             <div>
-                              <span className="font-mono font-black text-sm text-slate-900 group-hover:text-[#C3002F] transition-colors">
+                              <span className="font-mono font-bold text-sm text-slate-900 group-hover:text-[#C3002F] transition-colors">
                                 {order.orderNumber}
                               </span>
                               <span className="text-[10px] text-slate-400 font-mono block">
@@ -1043,7 +1043,7 @@ export default function DealerOrdersView() {
 
                           {/* Vehicle Title & Specs */}
                           <div className="space-y-1">
-                            <h3 className="font-black text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
+                            <h3 className="font-bold text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
                               {order.vehicle.year} {order.vehicle.make} {order.vehicle.model}
                             </h3>
                             <p className="text-xs text-slate-400 font-medium truncate">
@@ -1056,7 +1056,7 @@ export default function DealerOrdersView() {
                         <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between gap-3">
                           <div>
                             <span className="text-[10px] text-slate-400 uppercase font-semibold block">Landed Total</span>
-                            <span className="font-mono font-black text-base text-slate-900">
+                            <span className="font-mono font-bold text-base text-slate-900">
                               ${order.priceBreakdown.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-normal text-slate-400">NZD</span>
                             </span>
                           </div>
@@ -1205,7 +1205,7 @@ export default function DealerOrdersView() {
             </div>
 
             <div className="text-center space-y-1">
-              <h3 className="font-black text-lg text-slate-900">
+              <h3 className="font-bold text-lg text-slate-900">
                 Confirm Wholesale Allocation
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
@@ -1239,7 +1239,7 @@ export default function DealerOrdersView() {
               <button
                 type="button"
                 onClick={() => handleConfirmHoldToOrder(confirmingHoldVehicleId)}
-                className="flex-1 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold shadow-xs cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold shadow-xs cursor-pointer"
               >
                 Execute Order
               </button>

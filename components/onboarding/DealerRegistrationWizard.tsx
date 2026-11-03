@@ -460,7 +460,7 @@ export default function DealerRegistrationWizard() {
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Application Successfully Logged</span>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                   Dealership Onboarding Received
                 </h2>
                 <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
@@ -495,7 +495,7 @@ export default function DealerRegistrationWizard() {
                     audio.playSubtleClick();
                     router.push("/");
                   }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Return to Sign In Portal</span>
@@ -521,7 +521,7 @@ export default function DealerRegistrationWizard() {
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-50 border border-rose-200/80 text-[10px] font-bold uppercase tracking-wider text-[#C3002F]">
                     Step {currentStep} of {STEPS.length}
                   </span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-2 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2 tracking-tight">
                     {STEPS[currentStep - 1].title}
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -772,7 +772,7 @@ export default function DealerRegistrationWizard() {
                       {/* Section 1: Included in Guaranteed Total Buy Price */}
                       <div className="space-y-2.5">
                         <div className="flex items-center gap-2 font-bold text-emerald-900 text-xs">
-                          <div className="w-5 h-5 rounded-full bg-emerald-100/80 text-emerald-700 flex items-center justify-center text-[10px] font-black">
+                          <div className="w-5 h-5 rounded-full bg-emerald-100/80 text-emerald-700 flex items-center justify-center text-[10px] font-bold">
                             ✓
                           </div>
                           <span>Included in Total Buy Price (Guaranteed Fixed Landed):</span>
@@ -808,7 +808,7 @@ export default function DealerRegistrationWizard() {
                       {/* Section 2: Potential Additional Costs */}
                       <div className="space-y-2.5 pt-3.5">
                         <div className="flex items-center gap-2 font-bold text-amber-900 text-xs">
-                          <div className="w-5 h-5 rounded-full bg-amber-100/80 text-amber-700 flex items-center justify-center text-[10px] font-black">
+                          <div className="w-5 h-5 rounded-full bg-amber-100/80 text-amber-700 flex items-center justify-center text-[10px] font-bold">
                             !
                           </div>
                           <span>Potential Additional Costs (Requires Prior Dealership Approval):</span>
@@ -992,7 +992,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-all shadow-xs active:scale-[0.98] group cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-all shadow-xs active:scale-[0.98] group cursor-pointer"
                   >
                     <span>Continue to Step {currentStep + 1}</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -1001,7 +1001,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>Submit Dealership Application</span>

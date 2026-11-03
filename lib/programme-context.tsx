@@ -116,7 +116,7 @@ export const DEFAULT_RESERVATION_CONFIG: ReservationConfig = {
   maxActiveHoldsPerDealer: 5,
 };
 
-const STORAGE_KEY = "dealer_platform_programme_state_v11";
+const STORAGE_KEY = "dealer_platform_programme_state_v12";
 
 export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
@@ -143,29 +143,33 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem("dealer_platform_programme_state_v5");
           localStorage.removeItem("dealer_platform_programme_state_v6");
           localStorage.removeItem("dealer_platform_programme_state_v7");
+          localStorage.removeItem("dealer_platform_programme_state_v8");
+          localStorage.removeItem("dealer_platform_programme_state_v9");
+          localStorage.removeItem("dealer_platform_programme_state_v10");
+          localStorage.removeItem("dealer_platform_programme_state_v11");
         } catch (e) { }
 
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed.vehicles && Array.isArray(parsed.vehicles)) {
-            // Always sync images & location with current MOCK_VEHICLES so transparent PNG cutouts and metadata take precedence
-            const syncedVehicles = parsed.vehicles.map((v: Vehicle) => {
-              const mock = MOCK_VEHICLES.find((m) => m.id === v.id);
-              if (mock) {
+            // Always sync with current MOCK_VEHICLES so transparent PNG cutouts and full catalogue take precedence
+            const syncedVehicles = MOCK_VEHICLES.map((mock) => {
+              const live = parsed.vehicles.find((v: Vehicle) => v.id === mock.id);
+              if (live) {
                 return {
                   ...mock,
-                  ...v,
-                  images: mock.images || v.images,
-                  location: v.location || mock.location || "Yokohama Yard",
+                  status: live.status || mock.status,
+                  reservedByDealerId: live.reservedByDealerId || mock.reservedByDealerId,
+                  reservedAt: live.reservedAt || mock.reservedAt,
+                  reservationExpiresAt: live.reservationExpiresAt || mock.reservationExpiresAt,
                 };
               }
-              return {
-                ...v,
-                location: v.location || "Yokohama Yard",
-              };
+              return mock;
             });
-            setVehicles(syncedVehicles);
+            // Include any dynamically user-added vehicles created in session
+            const addedByUser = parsed.vehicles.filter((v: Vehicle) => !MOCK_VEHICLES.some((m) => m.id === v.id));
+            setVehicles([...syncedVehicles, ...addedByUser]);
           } else {
             setVehicles(MOCK_VEHICLES);
           }

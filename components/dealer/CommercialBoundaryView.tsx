@@ -8,7 +8,7 @@ export default function CommercialBoundaryView() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Clean Header */}
       <div className="pb-2">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
           Pricing Terms & Boundary
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">

@@ -228,7 +228,7 @@ export default function ProgrammeUserPortalView({
               </span>
             )}
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0A0A0A]">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Programme Portal
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 font-normal max-w-2xl leading-relaxed">
@@ -982,7 +982,7 @@ export default function ProgrammeUserPortalView({
                     {selectedVehicleForDossier.status}
                   </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
                   {selectedVehicleForDossier.year} {selectedVehicleForDossier.make} {selectedVehicleForDossier.model}
                 </h3>
               </div>
@@ -1011,7 +1011,7 @@ export default function ProgrammeUserPortalView({
                 </span>
 
                 <div>
-                  <div className="text-2xl font-black font-mono text-[#C3002F]">
+                  <div className="text-2xl font-bold font-mono text-[#C3002F]">
                     ${calculateLandedPrice(selectedVehicleForDossier.fobPriceJPY, selectedZone).totalBuyPriceNZD.toLocaleString()} NZD
                   </div>
                   <span className="text-[11px] text-slate-500 font-medium">
@@ -1149,7 +1149,7 @@ export default function ProgrammeUserPortalView({
                     Wholesale Order Record
                   </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
                   {selectedOrderForDossier.vehicle?.year} {selectedOrderForDossier.vehicle?.model}
                 </h3>
               </div>

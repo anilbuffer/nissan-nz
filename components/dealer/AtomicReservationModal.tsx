@@ -93,14 +93,14 @@ export default function AtomicReservationModal({
         {/* Header */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#C3002F] flex items-center justify-center font-bold text-white shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] border border-white/20 flex items-center justify-center font-bold text-white shadow-xs">
               <Lock className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-sm text-white">Vehicle Exclusivity Reservation</h3>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/15">
-                  US-12 · US-13
+                  24h Exclusivity
                 </span>
               </div>
               <p className="text-[10px] text-slate-400">Atomic Concurrency Lock &amp; Landed Price Commitment</p>
@@ -128,7 +128,7 @@ export default function AtomicReservationModal({
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 font-mono">
                 REQ-HOLD-{vehicle.stockId}
               </span>
-              <h4 className="text-xl font-black text-slate-900 pt-1">
+              <h4 className="text-xl font-bold text-slate-900 pt-1">
                 24-Hour Exclusivity Hold Secured!
               </h4>
               <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
@@ -166,7 +166,7 @@ export default function AtomicReservationModal({
             <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-left text-xs space-y-1 text-amber-900">
               <div className="font-bold flex items-center gap-1.5 text-amber-800">
                 <Clock className="w-4 h-4 text-amber-600" />
-                <span>Wholesale Allocation Review (US-14)</span>
+                <span>Wholesale Allocation Review</span>
               </div>
               <p className="text-[11px] text-amber-800 leading-relaxed">
                 Autohub operations will review this reservation and issue your confirmed order milestones within the {defaultHours}-hour exclusivity window. You may cancel without penalty under Section 6.2 before allocation confirmation.
@@ -204,7 +204,7 @@ export default function AtomicReservationModal({
               <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs space-y-2 animate-in fade-in">
                 <div className="flex items-center gap-2 font-bold text-rose-800">
                   <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>Double Reservation Collision Avoided (US-13)</span>
+                  <span>Double Reservation Collision Avoided</span>
                 </div>
                 <p className="text-[11px] text-rose-700 leading-relaxed">
                   {conflictError}
@@ -229,7 +229,7 @@ export default function AtomicReservationModal({
                 className="w-20 h-14 object-contain rounded-xl border border-slate-200 bg-white p-1 shrink-0"
               />
               <div className="min-w-0 flex-1 text-xs">
-                <div className="font-extrabold text-slate-900 truncate">
+                <div className="font-bold text-slate-900 truncate">
                   {vehicle.year} {vehicle.make} {vehicle.model}
                 </div>
                 <div className="text-[11px] text-slate-500 font-mono truncate mt-0.5">
@@ -279,7 +279,7 @@ export default function AtomicReservationModal({
                 </div>
                 <div className="flex justify-between text-slate-900 font-bold border-t border-slate-100 pt-1.5 text-xs">
                   <span>Total Guaranteed Landed Buy Price:</span>
-                  <span className="font-mono text-sm text-[#C3002F] font-black">
+                  <span className="font-mono text-sm text-[#C3002F] font-bold">
                     ${price.totalBuyPriceNZD.toLocaleString()} NZD
                   </span>
                 </div>
@@ -373,7 +373,7 @@ export default function AtomicReservationModal({
                 onClick={handleConfirmReservation}
                 className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-soft cursor-pointer ${
                   ackTermsAndPrice && ackCancellationStatement
-                    ? "bg-[#C3002F] hover:bg-[#A10026] text-white shadow-rose-900/20 active:scale-[0.98]"
+                    ? "bg-[#0A0A0A] hover:bg-[#444444] text-white shadow-rose-900/20 active:scale-[0.98]"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
                 }`}
               >
@@ -382,7 +382,7 @@ export default function AtomicReservationModal({
                 ) : (
                   <>
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Confirm Exclusivity Hold (US-12)</span>
+                    <span>Confirm Exclusivity Hold</span>
                   </>
                 )}
               </button>

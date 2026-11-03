@@ -288,7 +288,7 @@ export default function DealerRegistrationModal({
                 type="submit"
                 disabled={!acceptTerms || !acceptCostBoundary}
                 className={`px-5 py-2.5 text-sm font-semibold rounded-xl text-white shadow-soft transition-all flex items-center gap-2 ${acceptTerms && acceptCostBoundary
-                  ? "bg-[#C3002F] hover:bg-[#A10026] cursor-pointer shadow-md"
+                  ? "bg-[#0A0A0A] hover:bg-[#444444] cursor-pointer shadow-md"
                   : "bg-slate-300 cursor-not-allowed text-slate-500"
                   }`}
               >
