@@ -102,7 +102,7 @@ export const MOCK_DEALERS: DealerAccount[] = [
     address: "105 Karamu Road North, Hastings 4122",
     region: "Lower North Island (Hawke's Bay)",
     pricingZoneId: "ZONE_3",
-    status: "PENDING_APPROVAL",
+    status: "APPROVED",
     primaryContactName: "Cameron Scott",
     primaryContactEmail: "cameron@hbnissan.co.nz",
     primaryContactPhone: "+64 6 878 9100",

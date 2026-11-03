@@ -181,7 +181,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             setVehicles(MOCK_VEHICLES);
           }
           if (parsed.orders) setOrders(parsed.orders);
-          if (parsed.dealers) setDealers(parsed.dealers);
+          if (parsed.dealers) setDealers(parsed.dealers.map((d: DealerAccount) => d.id === "DEALER_006" && d.status === "PENDING_APPROVAL" ? { ...d, status: "APPROVED" as const } : d));
           if (parsed.auditLogs) setAuditLogs(parsed.auditLogs);
           if (parsed.reservationConfig) setReservationConfig({ ...DEFAULT_RESERVATION_CONFIG, ...parsed.reservationConfig });
           if (parsed.notifications && Array.isArray(parsed.notifications)) setNotifications(parsed.notifications);
