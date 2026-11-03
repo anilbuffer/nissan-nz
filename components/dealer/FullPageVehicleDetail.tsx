@@ -149,14 +149,21 @@ export default function FullPageVehicleDetail({
     setIsReserveModalOpen(false);
   };
 
-  // 5 Delivery Zones for Matrix Reference
-  const zonesList: { id: ZoneId; code: string; cost: number; name: string }[] = [
-    { id: "ZONE_1", code: "Z1", cost: 650, name: "Upper North Island (Auckland)" },
-    { id: "ZONE_2", code: "Z2", cost: 900, name: "Central North Island (Waikato/BOP)" },
-    { id: "ZONE_3", code: "Z3", cost: 1150, name: "Lower North Island (Wellington)" },
-    { id: "ZONE_4", code: "Z4", cost: 1450, name: "Upper South Island (Canterbury)" },
-    { id: "ZONE_5", code: "Z5", cost: 1750, name: "Lower South Island (Otago)" },
-  ];
+  // 5 Delivery Zones with dynamic Fixed Profile Prices for this vehicle
+  const zonesWithPrices = useMemo(() => {
+    return (["ZONE_1", "ZONE_2", "ZONE_3", "ZONE_4", "ZONE_5"] as ZoneId[]).map((zid) => {
+      const zConfig = OFFICIAL_PRICING_ZONES[zid];
+      const zBreakdown = calculateLandedPrice(vehicle.fobPriceJPY, zid, pricingConfig);
+      return {
+        id: zid,
+        code: zid.replace("ZONE_", "Z"),
+        name: zConfig?.zoneName || zid,
+        region: zConfig?.coverage || zid,
+        towingCost: zBreakdown.zoneDeliveryNZD,
+        fixedProfilePrice: zBreakdown.totalBuyPriceNZD,
+      };
+    });
+  }, [vehicle.fobPriceJPY, pricingConfig]);
 
   const isElectricOrHybrid =
     vehicle.fuelType === "100% Electric" ||
@@ -526,31 +533,44 @@ export default function FullPageVehicleDetail({
 
             {/* Delivery Zone Presentation */}
             {isAdmin ? (
-              /* Admin: Interactive 5-Zone Matrix */
-              <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1">
-                {zonesList.map((z) => {
-                  const isSelected = selectedZone === z.id;
-                  return (
-                    <button
-                      key={z.id}
-                      type="button"
-                      onClick={() => {
-                        audio.playSubtleClick();
-                        setSelectedZone(z.id);
-                      }}
-                      className={`flex-1 py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer ${
-                        isSelected
-                          ? "bg-white text-slate-900 font-bold shadow-2xs ring-1 ring-slate-200"
-                          : "text-slate-600 hover:text-slate-900 font-medium"
-                      }`}
-                    >
-                      <span className="block text-xs font-bold leading-tight">{z.code}</span>
-                      <span className="block text-[10px] font-mono text-slate-400 leading-tight">
-                        ${z.cost}
-                      </span>
-                    </button>
-                  );
-                })}
+              /* Admin: Interactive 5-Zone Matrix with Fixed Profile Prices */
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-semibold uppercase tracking-wider text-slate-500">
+                    Fixed Profile Price as per Zone
+                  </span>
+                  <span className="font-mono text-slate-400">
+                    Active: {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
+                  </span>
+                </div>
+                <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1">
+                  {zonesWithPrices.map((z) => {
+                    const isSelected = selectedZone === z.id;
+                    return (
+                      <button
+                        key={z.id}
+                        type="button"
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          setSelectedZone(z.id);
+                        }}
+                        className={`flex-1 py-2 px-1 rounded-lg text-center transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-white text-slate-900 font-bold shadow-2xs ring-1 ring-slate-300"
+                            : "text-slate-600 hover:text-slate-900 font-medium"
+                        }`}
+                      >
+                        <span className="block text-xs font-bold leading-tight">{z.code}</span>
+                        <span className="block text-[11px] font-mono font-bold text-slate-900 leading-tight mt-0.5">
+                          ${z.fixedProfilePrice.toLocaleString()}
+                        </span>
+                        <span className="block text-[9px] font-mono text-slate-400 leading-tight">
+                          Tow ${z.towingCost}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             ) : (
               /* Dealer: Fixed Designated Territory Badge (Section 4 Compliance) */
@@ -643,17 +663,73 @@ export default function FullPageVehicleDetail({
                 </span>
               </div>
 
-              {/* 7. Total Buy Price */}
+              {/* 7. Total Buy Price / Fixed Profile Price */}
               <div className="py-2.5 px-3 flex items-center justify-between gap-3 bg-slate-50 rounded-lg -mx-1 mt-1 border border-slate-200">
                 <div>
-                  <strong className="text-xs text-slate-900 block font-bold">Total Buy Price:</strong>
-                  <span className="text-[10px] text-slate-400 font-normal">System calculated landed total</span>
+                  <strong className="text-xs text-slate-900 block font-bold">
+                    Total Buy Price (Fixed Profile Price):
+                  </strong>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    Guaranteed landed total for {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
+                  </span>
                 </div>
                 <strong className="font-mono text-base font-bold text-slate-950">
                   ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
                 </strong>
               </div>
             </div>
+
+            {/* Admin: Dedicated Fixed Profile Price Schedule as per Zone */}
+            {isAdmin && (
+              <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                    Fixed Profile Price as per Zone Schedule
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400">
+                    5-Zone Commercial Guarantee
+                  </span>
+                </div>
+                <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-slate-50/50 overflow-hidden text-xs">
+                  {zonesWithPrices.map((z) => {
+                    const isSelected = selectedZone === z.id;
+                    return (
+                      <div
+                        key={z.id}
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          setSelectedZone(z.id);
+                        }}
+                        className={`py-2 px-2.5 flex items-center justify-between cursor-pointer transition-colors ${
+                          isSelected
+                            ? "bg-white font-semibold text-slate-900 shadow-2xs ring-1 ring-slate-200"
+                            : "hover:bg-white text-slate-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className={`font-mono text-[10px] px-1.5 py-0.5 rounded font-bold shrink-0 ${
+                              isSelected ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-700"
+                            }`}
+                          >
+                            {z.code}
+                          </span>
+                          <span className="text-xs truncate">{z.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            Tow: ${z.towingCost}
+                          </span>
+                          <span className="font-mono font-bold text-slate-900">
+                            ${z.fixedProfilePrice.toLocaleString()} NZD
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Card 2: Dealer Role Action / Procurement Box */}
