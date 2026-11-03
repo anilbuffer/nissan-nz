@@ -20,7 +20,7 @@ function ProgrammePageContent() {
     return <LoginPage />;
   }
 
-  return <DashboardShell initialTab="programme-stock" portal="programme" />;
+  return <DashboardShell initialTab="programme-reservations" portal="programme" />;
 }
 
 export default function ProgrammeIndexPage() {

@@ -437,7 +437,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <input
                     type="text"
                     required
-                    placeholder="e.g. E13-098412 or FE0-004128"
                     value={vinChassis}
                     onChange={(e) => setVinChassis(e.target.value.toUpperCase())}
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
@@ -451,7 +450,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={make}
                     onChange={(e) => setMake(e.target.value)}
-                    placeholder="Nissan"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-semibold transition-colors"
                   />
                 </div>
@@ -463,7 +461,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     required
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    placeholder="e.g. Note e-Power, X-Trail, Serena e-Power, Ariya..."
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
                 </div>
@@ -474,7 +471,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={grade}
                     onChange={(e) => setGrade(e.target.value)}
-                    placeholder="e.g. Highway Star V, X Package, Premier"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
@@ -485,7 +481,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="number"
                     value={year}
                     onChange={(e) => setYear(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 2023"
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
@@ -497,7 +492,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       type="number"
                       value={odometerKm}
                       onChange={(e) => setOdometerKm(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                      placeholder="e.g. 24000"
                       className="flex-1 px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                     <select
@@ -518,7 +512,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     
                     value={transmission}
                     onChange={(e) => setTransmission(e.target.value)}
-                    placeholder="e.g. Automatic, e-Power Drive, CVT"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
                   
@@ -530,7 +523,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    placeholder="e.g. Pearl White Two-Tone, Diamond Black"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
@@ -542,7 +534,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     
                     value={fuelType}
                     onChange={(e) => setFuelType(e.target.value)}
-                    placeholder="e.g. e-Power, 100% Electric, Petrol"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
                   
@@ -631,7 +622,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   rows={2}
                   value={knownDefects}
                   onChange={(e) => setKnownDefects(e.target.value)}
-                  placeholder="e.g. Minor scratch rear bumper (A1), clean panel pass, zero structural repairs detected."
                   className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                 />
               </div>
@@ -712,7 +702,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       required
                       value={fobPriceJPY}
                       onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                      placeholder="e.g. 1850000"
                       className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                   </div>
@@ -725,7 +714,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value.toUpperCase() as "JPY" | "NZD" | "USD")}
-                    placeholder="JPY"
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[10px] text-slate-400 block font-mono">Default: JPY</span>
@@ -894,7 +882,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={stockReference}
                     onChange={(e) => setStockReference(e.target.value)}
-                    placeholder="e.g. USS-TYO-8841 / JEVIC-NZ-102"
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[10px] text-slate-400 block">Japanese auction lot number or AutoHub reference</span>

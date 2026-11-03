@@ -119,12 +119,6 @@ export default function Sidebar({
     if (currentUser?.role === "READONLY_PROGRAMME_USER") {
       return [
         {
-          id: "programme-stock",
-          label: "Authorised Stock",
-          icon: Car,
-          href: "/programme/stock",
-        },
-        {
           id: "programme-reservations",
           label: "Reservations Queue",
           icon: Clock,

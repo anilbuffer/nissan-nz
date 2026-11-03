@@ -85,7 +85,7 @@ export default function RoleSwitcher() {
     } else if (role === "NISSAN_JAPAN") {
       router.push("/japan/inventory");
     } else if (role === "READONLY_PROGRAMME_USER") {
-      router.push("/programme/stock");
+      router.push("/programme/reservations");
     } else {
       router.push("/dealer/stocks");
     }

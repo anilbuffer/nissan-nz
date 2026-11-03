@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Vehicle } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { audio } from "@/lib/sound";
+import CsvTemplateModal from "./CsvTemplateModal";
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -87,6 +88,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
   const [fileName, setFileName] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [publishedSuccess, setPublishedSuccess] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
   const handleSimulateUpload = () => {
     audio.playSubtleClick();
@@ -182,11 +184,11 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
         <button
           onClick={() => {
             audio.playSubtleClick();
-            alert("Downloading official CSV template: StockID, VIN, Model, Grade, Year, KM, FOB_JPY, Location.");
+            setIsTemplateModalOpen(true);
           }}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
         >
-          <Download className="w-3.5 h-3.5" />
+          <Download className="w-3.5 h-3.5 text-slate-600" />
           <span>Download CSV Template</span>
         </button>
       </div>
@@ -334,6 +336,12 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
           )}
         </>
       )}
+
+      {/* Official CSV Template Modal */}
+      <CsvTemplateModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+      />
     </div>
   );
 }
