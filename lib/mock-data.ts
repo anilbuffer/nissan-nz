@@ -444,6 +444,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/note.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9041.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor stone chip on lower front bumper (A1)",
       "Factory alloys in immaculate condition"
@@ -476,6 +499,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/xtrail.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9042.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper (under 2cm)",
       "Full service record present"
@@ -511,6 +557,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/serena.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9043.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Small stone chip on left front wing"
@@ -543,6 +612,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/leaf.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9044.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper lower edge",
       "State of Health (SOH) battery check: 94.8% (12/12 bars)"
@@ -575,6 +667,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/ariya.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9045.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Showroom demonstration grade, zero panel flaws",
       "ProPILOT 2.0 autonomous highway cruise certified"
@@ -609,6 +724,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/kicks.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9046.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper (under 2cm)",
       "Nissan Around View Monitor 360 camera operational"
@@ -644,6 +782,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/note.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9047.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor clearcoat scratch on rear arch (A1)",
       "Staged for paintless dent rectification"
@@ -676,6 +837,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/xtrail.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9048.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Zero defects. Pre-delivery inspection passed 100%"
     ],
@@ -708,6 +892,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/dayz.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9049.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Original smart keys (x2) present"
@@ -740,6 +947,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/elgrand.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9050.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper corner (A1)",
       "Rear entertainment screen verified working"
@@ -772,6 +1002,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/navara.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9051.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor cosmetic scuff inside rear cargo bed tray",
       "Chassis and rails verified rust-free"
@@ -804,6 +1057,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/leaf.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9052.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Small pin dent on driver door (P1)"
@@ -836,6 +1112,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/note.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9053.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scuff on alloy rim edge",
       "Factory floor mats present and steam-cleaned"
@@ -868,6 +1167,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/serena.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9054.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper lower trim (A1)",
       "Interior spotless, non-smoker vehicle"
@@ -900,6 +1222,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/kicks.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9055.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor stone chip on front bumper",
       "Clean interior with zero leather wear"
@@ -932,6 +1277,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/dayz.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9056.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Pristine showroom vehicle, zero reported defects"
     ],
@@ -963,6 +1331,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/elgrand.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9057.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper near step pad (A1)",
       "Dual sunroofs and curtains verified working"
@@ -995,6 +1386,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/navara.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9058.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper corner",
       "Complete logbook and 2 remote keys"
@@ -1027,6 +1441,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/note.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9059.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Grade 5.0 showroom condition, zero defects found"
     ],
@@ -1058,6 +1495,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/xtrail.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9060.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper (A1)",
       "Small stone chip front left fender (A1)"
@@ -1090,6 +1550,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/leaf.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9061.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Minor scuff on driver seat side bolster"
@@ -1122,6 +1605,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/serena.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9062.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper (A2)",
       "Carpet floor mats showing mild wear"
@@ -1154,6 +1660,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/dayz.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9063.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Immaculate Bolero custom interior"
@@ -1186,6 +1715,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/ariya.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9064.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Grade 5.0 immaculate condition, zero flaws reported"
     ],
@@ -1217,6 +1769,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/kicks.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9065.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Small stone chip on windshield edge (passed JEVIC)"
@@ -1249,6 +1824,29 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "/images/cars/elgrand.png"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9066.pdf",
+    "supportingDocuments": [
+      {
+        "name": "USS_Tokyo_Official_Auction_Sheet.pdf",
+        "type": "AUCTION_SHEET",
+        "url": "https://example.com/reports/uss_sheet.pdf",
+        "size": "2.4 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "JEVIC_Digital_Odometer_Certificate.pdf",
+        "type": "JEVIC_CERTIFICATE",
+        "url": "https://example.com/reports/jevic_pass.pdf",
+        "size": "1.1 MB",
+        "uploadedAt": "2026-10-22"
+      },
+      {
+        "name": "NZTA_MR2A_Entry_Dossier.pdf",
+        "type": "MR2A_DOSSIER",
+        "url": "https://example.com/reports/mr2a_pass.pdf",
+        "size": "1.8 MB",
+        "uploadedAt": "2026-10-22"
+      }
+    ],
     "knownDefects": [
       "Minor scratch rear bumper",
       "Alloy wheels in clean condition"

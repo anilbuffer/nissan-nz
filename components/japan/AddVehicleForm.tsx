@@ -771,7 +771,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <ImageIcon className="w-4 h-4 text-purple-600" />
-                  <span>D. Images and Documents</span>
+                  <span>Images &amp; Supporting Documents</span>
                 </div>
                 <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 4 of 5</span>
               </div>
@@ -856,10 +856,168 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 )}
               </div>
 
+              {/* Quick Sample Photos for Instant Testing */}
+              <div className="flex items-center gap-2 pt-1 flex-wrap">
+                <span className="text-[10px] font-bold uppercase text-slate-400">Quick Sample Photos:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImages(["/images/cars/note.png"]);
+                    setActivePreviewIdx(0);
+                    audio.playSubtleClick();
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
+                >
+                  + Note e-Power
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImages(["/images/cars/kicks.png", "/images/cars/note.png"]);
+                    setActivePreviewIdx(0);
+                    audio.playSubtleClick();
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
+                >
+                  + Multi-Angle (Kicks + Note)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImages(["/images/cars/leaf.png"]);
+                    setActivePreviewIdx(0);
+                    audio.playSubtleClick();
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
+                >
+                  + Leaf EV
+                </button>
+              </div>
+
+              {/* Upload Supporting Documents Area */}
+              <div className="space-y-2.5 pt-3 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Upload Supporting Documents ({uploadedDocs.length} attached)
+                  </label>
+                  <span className="text-[11px] text-slate-400">PDF, DOC, Images (Max 10MB)</span>
+                </div>
+
+                {/* Document Dropzone */}
+                <div
+                  onClick={() => supportingDocInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-2xl p-5 text-center bg-slate-50/70 hover:bg-slate-50 transition-all cursor-pointer"
+                >
+                  <input
+                    ref={supportingDocInputRef}
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach((file) => {
+                          const type = file.name.toLowerCase().includes("auction")
+                            ? "AUCTION_SHEET"
+                            : file.name.toLowerCase().includes("jevic")
+                              ? "JEVIC_CERTIFICATE"
+                              : file.name.toLowerCase().includes("mpi")
+                                ? "MPI_BIOSECURITY"
+                                : file.name.toLowerCase().includes("mr2a")
+                                  ? "MR2A_DOSSIER"
+                                  : "SUPPORTING_DOC";
+
+                          setUploadedDocs((prev) => [
+                            ...prev,
+                            {
+                              name: file.name,
+                              type,
+                              url: "https://example.com/reports/" + encodeURIComponent(file.name),
+                              size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+                              uploadedAt: new Date().toISOString().slice(0, 10),
+                            },
+                          ]);
+                        });
+                        audio.playSubtleClick();
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <FileText className="w-6 h-6 text-slate-400 mx-auto mb-1.5" />
+                  <p className="text-xs font-bold text-slate-800">
+                    Click to browse or drop supporting documents here
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    USS Auction Sheet, JEVIC Certificate, MPI Biosecurity, or NZTA MR2A
+                  </p>
+                </div>
+
+                {/* Quick Add Presets for Documents */}
+                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Quick Attach:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedDocs((prev) => [
+                        ...prev,
+                        {
+                          name: "USS_Tokyo_Official_Auction_Sheet.pdf",
+                          type: "AUCTION_SHEET",
+                          url: "https://example.com/reports/uss_sheet.pdf",
+                          size: "2.4 MB",
+                          uploadedAt: new Date().toISOString().slice(0, 10),
+                        },
+                      ]);
+                      audio.playSubtleClick();
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    + USS Auction Sheet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedDocs((prev) => [
+                        ...prev,
+                        {
+                          name: "JEVIC_Pre_Shipment_Certificate.pdf",
+                          type: "JEVIC_CERTIFICATE",
+                          url: "https://example.com/reports/jevic_pass.pdf",
+                          size: "1.1 MB",
+                          uploadedAt: new Date().toISOString().slice(0, 10),
+                        },
+                      ]);
+                      audio.playSubtleClick();
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    + JEVIC Odometer Cert
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedDocs((prev) => [
+                        ...prev,
+                        {
+                          name: "NZTA_MR2A_Entry_Dossier.pdf",
+                          type: "MR2A_DOSSIER",
+                          url: "https://example.com/reports/mr2a_pass.pdf",
+                          size: "1.8 MB",
+                          uploadedAt: new Date().toISOString().slice(0, 10),
+                        },
+                      ]);
+                      audio.playSubtleClick();
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    + NZTA MR2A Dossier
+                  </button>
+                </div>
+              </div>
+
               {/* Associated Documents Vault */}
               <div className="space-y-2 pt-2 border-t border-slate-100">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Associated Stock Documents ({uploadedDocs.length})
+                  Attached Documents ({uploadedDocs.length})
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {uploadedDocs.map((doc) => (
@@ -1012,9 +1170,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center p-4">
                 <div className="absolute bottom-3 w-4/5 h-4 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
                 <img
-                  src={images[0] || "/images/cars/note.png"}
+                  src={images[activePreviewIdx] || images[0] || "/images/cars/note.png"}
                   alt={model || "Nissan Vehicle Preview"}
-                  className="w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.1)] relative z-10 select-none"
+                  className="w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.1)] relative z-10 select-none transition-all duration-200"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/images/cars/note.png";
                   }}
@@ -1029,6 +1187,34 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   {stockId ? `#${stockId}` : "#NEW-UNIT"}
                 </div>
               </div>
+
+              {/* Interactive Thumbnail Angles Switcher in Live Preview */}
+              {images.length > 1 && (
+                <div className="space-y-1">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Preview Angles ({images.length})
+                  </span>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                    {images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          setActivePreviewIdx(idx);
+                        }}
+                        className={`w-12 h-9 rounded-lg overflow-hidden border p-0.5 shrink-0 transition-all cursor-pointer bg-slate-50 ${
+                          activePreviewIdx === idx
+                            ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/20 bg-white"
+                            : "border-slate-200 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={img} alt={`Angle ${idx + 1}`} className="w-full h-full object-contain" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Vehicle Title & Specifications */}
               <div className="space-y-1">

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Vehicle, VehicleStatus } from "@/lib/types";
+import React, { useState, useMemo } from "react";
+import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { audio } from "@/lib/sound";
 import {
@@ -66,6 +66,20 @@ export default function JapanInventoryDetailsView({
   } | null>(null);
 
   const vehicle = vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId);
+
+  const vehicleDocs = useMemo(() => {
+    const docs = [...(vehicle?.supportingDocuments || [])];
+    if (vehicle?.conditionReportName && !docs.some(d => d.name === vehicle.conditionReportName)) {
+      docs.unshift({
+        name: vehicle.conditionReportName,
+        type: "AUCTION_SHEET",
+        url: vehicle.conditionReportUrl || "https://example.com/reports/condition.pdf",
+        size: "2.4 MB",
+        uploadedAt: vehicle.createdAt || "2026-10-22",
+      });
+    }
+    return docs;
+  }, [vehicle]);
 
   // Amendment Form States initialized if vehicle exists
   const [editModel, setEditModel] = useState(vehicle?.model || "");
@@ -743,123 +757,53 @@ export default function JapanInventoryDetailsView({
                 </ul>
               </div>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono border border-emerald-200 shrink-0 self-start">
-                4/4 Verified
+                {vehicleDocs.length} {vehicleDocs.length === 1 ? "Document" : "Documents"} Uploaded
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-              {/* Document 1: USS Auction Sheet */}
-              <div
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setActiveDocPreview({
-                    title: "USS Tokyo Verified Auction Sheet",
-                    type: "AUCTION_SHEET",
-                    refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
-                    details: `Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · Genuine Japanese documentation certified.`,
-                  });
-                }}
-                className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#C3002F]" />
-                    <span className="font-bold text-xs text-slate-900 group-hover:text-[#C3002F] transition-colors">
-                      USS Auction Sheet
-                    </span>
+            {vehicleDocs.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                {vehicleDocs.map((doc: VehicleSupportingDoc, idx: number) => (
+                  <div
+                    key={doc.name + idx}
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setActiveDocPreview({
+                        title: doc.name.replace(/_/g, " ").replace(/\.[^/.]+$/, ""),
+                        type: (doc.type as any) || "AUCTION_SHEET",
+                        refNumber: `${vehicle.stockId}-DOC-${idx + 1}`,
+                        details: `Official uploaded documentation for ${vehicle.make} ${vehicle.model} (Stock #${vehicle.stockId}). File: ${doc.name} · Size: ${doc.size || "1.2 MB"} · Uploaded on ${doc.uploadedAt || vehicle.createdAt}. Certified pass.`,
+                      });
+                    }}
+                    className="p-3.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between bg-white shadow-2xs"
+                  >
+                    <div className="space-y-1 min-w-0 pr-2">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-[#C3002F] shrink-0" />
+                        <span className="font-bold text-xs text-slate-900 group-hover:text-[#C3002F] transition-colors truncate block">
+                          {doc.name}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        {doc.type.replace(/_/g, " ")} · {doc.size || "PDF Document"}
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-600 font-semibold block">
+                        Uploaded with Vehicle ({doc.uploadedAt || vehicle.createdAt})
+                      </span>
+                    </div>
+                    <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 mt-0.5" />
                   </div>
-                  <div className="text-[11px] text-slate-500">Grade {vehicle.auctionGrade} · Tokyo Terminal</div>
-                  <span className="text-[10px] font-mono text-emerald-600 font-semibold block">
-                    Verified Digital PDF
-                  </span>
-                </div>
-                <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 mt-0.5" />
+                ))}
               </div>
-
-              {/* Document 2: JEVIC Certificate */}
-              <div
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setActiveDocPreview({
-                    title: "JEVIC Pre-Shipment Digital Certificate",
-                    type: "JEVIC",
-                    refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
-                    details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash match: 100% · Radiation test: Passed 0.08 µSv/h.`,
-                  });
-                }}
-                className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="font-bold text-xs text-slate-900 group-hover:text-emerald-700 transition-colors">
-                      JEVIC Odometer Cert
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-500">{vehicle.odometerKm.toLocaleString()} km · Authenticity Pass</div>
-                  <span className="text-[10px] font-mono text-emerald-600 font-semibold block">
-                    Tamper Proof Seal
-                  </span>
-                </div>
-                <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 mt-0.5" />
+            ) : (
+              <div className="p-8 rounded-2xl bg-slate-50/70 border border-dashed border-slate-200 text-center my-3">
+                <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-xs font-bold text-slate-700">No Supporting Documents</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  No documents were uploaded while adding this vehicle.
+                </p>
               </div>
-
-              {/* Document 3: MPI Border Clearance */}
-              <div
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setActiveDocPreview({
-                    title: "MPI Biosecurity Border Pre-Clearance",
-                    type: "MPI",
-                    refNumber: `MPI-BIO-${vehicle.vinChassis.slice(-6)}`,
-                    details: `MPI Off-shore Verification Programme (Japan) · Heat treatment: Compliant · Undercarriage soil clearance: Grade A (Clean).`,
-                  });
-                }}
-                className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-                    <span className="font-bold text-xs text-slate-900 group-hover:text-blue-700 transition-colors">
-                      MPI Biosecurity
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-500">NZ Border Bio-Cleanliness Pass</div>
-                  <span className="text-[10px] font-mono text-blue-600 font-semibold block">
-                    Pre-Cleared Quarantine
-                  </span>
-                </div>
-                <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 mt-0.5" />
-              </div>
-
-              {/* Document 4: NZTA MR2A Entry Dossier */}
-              <div
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setActiveDocPreview({
-                    title: "NZTA MR2A Entry Compliance Dossier",
-                    type: "MR2A",
-                    refNumber: `NZTA-MR2A-${vehicle.vinChassis.slice(-6)}`,
-                    details: `Land Transport Rule Compliance Pre-Check · Waka Kotahi NZTA Standards · Japanese Export Certificate de-registration verified.`,
-                  });
-                }}
-                className="p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <FileCheck2 className="w-3.5 h-3.5 text-amber-600" />
-                    <span className="font-bold text-xs text-slate-900 group-hover:text-amber-700 transition-colors">
-                      NZTA MR2A Pass
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-500">Entry Certification Pre-Check</div>
-                  <span className="text-[10px] font-mono text-amber-600 font-semibold block">
-                    NZTA Verified
-                  </span>
-                </div>
-                <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-700 shrink-0 mt-0.5" />
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Pinned Cryptographic Status Footer */}

@@ -936,40 +936,64 @@ export default function FullPageVehicleDetail({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setActiveDocPreview({
-                    title: "JEVIC Pre-Shipment Inspection Certificate",
-                    type: "JEVIC",
-                    refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
-                    details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash verified 100% · Radiation test: Passed (0.08 µSv/h).`,
-                  });
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-pointer transition-colors"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>JEVIC Certified</span>
-              </button>
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
+              {vehicle.supportingDocuments && vehicle.supportingDocuments.length > 0 ? (
+                vehicle.supportingDocuments.map((doc, idx) => (
+                  <button
+                    key={doc.name + idx}
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setActiveDocPreview({
+                        title: doc.name.replace(/_/g, " ").replace(/\.[^/.]+$/, ""),
+                        type: (doc.type as any) || "AUCTION_SHEET",
+                        refNumber: `${vehicle.stockId}-DOC-${idx + 1}`,
+                        details: `Attached documentation for ${vehicle.make} ${vehicle.model} (Stock #${vehicle.stockId}). File: ${doc.name} · Size: ${doc.size || "1.2 MB"} · Uploaded on ${doc.uploadedAt || vehicle.createdAt}. Certified pass.`,
+                      });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-pointer transition-colors shadow-2xs"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="truncate max-w-[170px]">{doc.name}</span>
+                  </button>
+                ))
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setActiveDocPreview({
+                        title: "JEVIC Pre-Shipment Inspection Certificate",
+                        type: "JEVIC",
+                        refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
+                        details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash verified 100% · Radiation test: Passed (0.08 µSv/h).`,
+                      });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-pointer transition-colors"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>JEVIC Certified</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setActiveDocPreview({
-                    title: "USS Tokyo Official Auction Sheet",
-                    type: "AUCTION_SHEET",
-                    refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
-                    details: `Overall Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · USS Tokyo pre-export inspection certified.`,
-                  });
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
-              >
-                <FileText className="w-3.5 h-3.5 text-slate-500" />
-                <span>Auction Sheet (PDF)</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setActiveDocPreview({
+                        title: "USS Tokyo Official Auction Sheet",
+                        type: "AUCTION_SHEET",
+                        refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
+                        details: `Overall Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · USS Tokyo pre-export inspection certified.`,
+                      });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Auction Sheet (PDF)</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
 

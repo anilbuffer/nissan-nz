@@ -166,6 +166,10 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
                   allocationMode: live.allocationMode !== undefined ? live.allocationMode : mock.allocationMode,
                   additionalCosts: live.additionalCosts || mock.additionalCosts,
                   location: live.location || mock.location,
+                  images: (live.images && live.images.length > 0) ? live.images : mock.images,
+                  supportingDocuments: (live.supportingDocuments && live.supportingDocuments.length > 0) ? live.supportingDocuments : mock.supportingDocuments,
+                  conditionReportName: live.conditionReportName || mock.conditionReportName,
+                  conditionReportUrl: live.conditionReportUrl || mock.conditionReportUrl,
                 };
               }
               return mock;
