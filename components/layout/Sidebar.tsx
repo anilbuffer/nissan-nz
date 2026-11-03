@@ -9,8 +9,6 @@ import {
   Package,
   Layers,
   FileText,
-  Shield,
-  Users,
   User,
   Clock,
   Download,
@@ -181,18 +179,6 @@ export default function Sidebar({
           href: "/admin/config",
         },
         {
-          id: "admin-users",
-          label: "User Accounts",
-          icon: Users,
-          href: "/admin/users",
-        },
-        {
-          id: "admin-roles",
-          label: "Roles & Permissions",
-          icon: Shield,
-          href: "/admin/roles",
-        },
-        {
           id: "admin-audit",
           label: "Audit Logs",
           icon: FileText,
@@ -205,7 +191,7 @@ export default function Sidebar({
     return [
       {
         id: "japan-inventory",
-        label: "Export Inventory",
+        label: "Inventory",
         icon: Car,
         href: "/japan/inventory",
       },

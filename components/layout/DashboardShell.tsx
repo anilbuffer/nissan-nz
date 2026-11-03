@@ -85,8 +85,8 @@ export default function DashboardShell({
       if (pathname === "/admin/dealers" || pathname === "/admin/approvals" || initialTab === "dealers" || initialTab === "admin-dealers" || initialTab === "approvals" || initialTab === "admin-approvals") return "admin-dealers";
       if (pathname === "/admin/inventory" || pathname === "/admin/stock" || initialTab === "inventory" || initialTab === "admin-inventory" || initialTab === "stock" || initialTab === "admin-stock") return "admin-catalogue";
       if (pathname === "/admin/config" || pathname === "/admin/pricing" || initialTab === "config" || initialTab === "admin-config" || initialTab === "pricing" || initialTab === "admin-pricing") return "admin-config";
-      if (pathname === "/admin/users" || initialTab === "users" || initialTab === "admin-users") return "admin-users";
-      if (pathname === "/admin/roles" || initialTab === "roles" || initialTab === "admin-roles") return "admin-roles";
+      if (pathname === "/admin/users" || initialTab === "users" || initialTab === "admin-users") return "admin-dashboard";
+      if (pathname === "/admin/roles" || initialTab === "roles" || initialTab === "admin-roles") return "admin-dashboard";
       if (pathname === "/admin/milestones" || pathname === "/admin/allocations" || initialTab === "milestones" || initialTab === "admin-milestones") return "admin-orders";
       if (pathname === "/admin/audit" || initialTab === "audit" || initialTab === "admin-audit") return "admin-audit";
       if (pathname === "/admin" || initialTab === "menu" || initialTab === "admin-menu") return "admin-menu";
@@ -174,10 +174,10 @@ export default function DashboardShell({
           return "/admin/config";
         case "admin-users":
         case "users":
-          return "/admin/users";
+          return "/admin/dashboard";
         case "admin-roles":
         case "roles":
-          return "/admin/roles";
+          return "/admin/dashboard";
         case "admin-menu":
         case "menu":
           return "/admin";
@@ -254,10 +254,10 @@ export default function DashboardShell({
         return "/admin/catalogue";
       case "admin-users":
       case "users":
-        return "/admin/users";
+        return "/admin/dashboard";
       case "admin-roles":
       case "roles":
-        return "/admin/roles";
+        return "/admin/dashboard";
       case "admin-milestones":
       case "milestones":
       case "allocations":
@@ -411,9 +411,9 @@ export default function DashboardShell({
           return <AdminPricingConfigView onNavigateTab={handleTabChange} />;
         // legacy aliases
         case 'admin-users':
-          return <UserManagementView />;
+          return <AdminDashboardView onNavigateTab={handleTabChange} />;
         case 'admin-roles':
-          return <RolesPermissionsView />;
+          return <AdminDashboardView onNavigateTab={handleTabChange} />;
         case 'admin-approvals':
           return <DealerApprovalsView />;
         case 'admin-milestones':
@@ -440,8 +440,8 @@ export default function DashboardShell({
               />
             );
           if (pathname === '/admin/config' || pathname === '/admin/pricing') return <AdminPricingConfigView onNavigateTab={handleTabChange} />;
-          if (pathname === '/admin/users') return <UserManagementView />;
-          if (pathname === '/admin/roles') return <RolesPermissionsView />;
+          if (pathname === '/admin/users') return <AdminDashboardView onNavigateTab={handleTabChange} />;
+          if (pathname === '/admin/roles') return <AdminDashboardView onNavigateTab={handleTabChange} />;
           return <AdminDashboardView onNavigateTab={handleTabChange} />;
       }
     }

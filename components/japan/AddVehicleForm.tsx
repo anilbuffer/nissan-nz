@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
@@ -34,12 +34,31 @@ interface AddVehicleFormProps {
 }
 
 export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps) {
-  const { addVehicle } = useProgramme();
+  const { vehicles, addVehicle } = useProgramme();
 
   // ───────────────────────────────────────────────────────────
   // A. Vehicle Identification State
   // ───────────────────────────────────────────────────────────
+  // Calculate next sequential serial stock ID based on existing vehicles
+  const nextSerialStockId = useMemo(() => {
+    let maxSeq = 9066;
+    vehicles.forEach((v) => {
+      const match = v.stockId.match(/NIS-2026-(\d+)/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxSeq) maxSeq = num;
+      }
+    });
+    return `NIS-2026-${maxSeq + 1}`;
+  }, [vehicles]);
+
   const [stockId, setStockId] = useState("");
+
+  useEffect(() => {
+    if (!stockId && nextSerialStockId) {
+      setStockId(nextSerialStockId);
+    }
+  }, [nextSerialStockId, stockId]);
   const [vinChassis, setVinChassis] = useState("");
   const [make, setMake] = useState("Nissan");
   const [model, setModel] = useState("");
@@ -212,7 +231,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     audio.playSubtleClick();
 
     const targetStatus = overrideStatus || status;
-    const finalStockId = stockId.trim() || `NIS-2026-${Math.floor(9050 + Math.random() * 50)}`;
+    const finalStockId = stockId.trim() || nextSerialStockId;
     const finalYear = year ? Number(year) : 2023;
     const finalOdo = odometerKm ? Number(odometerKm) : 0;
     const finalFob = fobPriceJPY ? Number(fobPriceJPY) : 0;
@@ -264,7 +283,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
   const handleAutoFillDemo = () => {
     audio.playSubtleClick();
-    setStockId(`NIS-2026-${Math.floor(9100 + Math.random() * 900)}`);
+    setStockId(nextSerialStockId);
     setVinChassis("FE0-008924");
     setMake("Nissan");
     setModel("Ariya B6 e-4ORCE");
@@ -358,8 +377,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               <strong className="text-slate-900">Grade {auctionGrade || "—"} · {odometerKm ? Number(odometerKm).toLocaleString() : 0} {odometerUnit}</strong>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
-              <span className="text-slate-500">Purchase Price Basis:</span>
-              <strong className="text-slate-900">{purchasePriceBasis} ({currency})</strong>
+              <span className="text-slate-500">Currency:</span>
+              <strong className="text-slate-900 font-mono">{currency}</strong>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">FOB Price (JPY):</span>
@@ -371,7 +390,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             </div>
             <div className="flex items-center justify-between py-1">
               <span className="text-slate-500">Images &amp; Documents Attached:</span>
-              <strong className="text-slate-900">{images.length} Photos · {uploadedDocs.length} Docs</strong>
+              <strong className="text-slate-900">{images.length} Photos</strong>
             </div>
           </div>
 
@@ -430,15 +449,19 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Stock ID</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700 block">Stock ID</label>
+                    <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Auto-Generated
+                    </span>
+                  </div>
                   <input
                     type="text"
-                    value={stockId}
-                    onChange={(e) => setStockId(e.target.value)}
-                    placeholder="e.g. NIS-2026-9055"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    readOnly
+                    value={stockId || nextSerialStockId}
+                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-900 cursor-default select-all"
                   />
-                  <span className="text-[10px] text-slate-400 block">Auto-generated if left blank</span>
+                  <span className="text-[10px] text-slate-400 block font-mono">Sequential stock reference</span>
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
@@ -753,31 +776,19 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 block">Currency</label>
-                  <select
+                  <input
+                    type="text"
                     value={currency}
-                    onChange={(e) => setCurrency(e.target.value as "JPY" | "NZD" | "USD")}
-                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
-                  >
-                    <option value="JPY">JPY (¥) - Japanese Yen</option>
-                    <option value="NZD">NZD ($) - New Zealand Dollar</option>
-                    <option value="USD">USD ($) - US Dollar</option>
-                  </select>
+                    onChange={(e) => setCurrency(e.target.value.toUpperCase() as "JPY" | "NZD" | "USD")}
+                    placeholder="JPY"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                  />
+                  <span className="text-[10px] text-slate-400 block font-mono">Default: JPY</span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Purchase Price Basis</label>
-                  <select
-                    value={purchasePriceBasis}
-                    onChange={(e) => setPurchasePriceBasis(e.target.value as "FOB" | "CIF" | "EXW")}
-                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
-                  >
-                    <option value="FOB">FOB (Free on Board - Yokohama Export Wharf)</option>
-                    <option value="CIF">CIF (Cost, Insurance &amp; Freight)</option>
-                    <option value="EXW">EXW (Ex Works - Japanese Auction Yard)</option>
-                  </select>
-                </div>
+                {/* Purchase Price Basis field: Hidden for now */}
 
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1.5 sm:col-span-3">
                   <label className="text-xs font-bold text-slate-700 block">Equivalent Amount (NZD)</label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
@@ -927,156 +938,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </button>
               </div>
 
-              {/* Upload Supporting Documents Area */}
-              <div className="space-y-2.5 pt-3 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700 block">
-                    Upload Supporting Documents ({uploadedDocs.length} attached)
-                  </label>
-                  <span className="text-[11px] text-slate-400">PDF, DOC, Images (Max 10MB)</span>
-                </div>
-
-                {/* Document Dropzone */}
-                <div
-                  onClick={() => supportingDocInputRef.current?.click()}
-                  className="border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-2xl p-5 text-center bg-slate-50/70 hover:bg-slate-50 transition-all cursor-pointer"
-                >
-                  <input
-                    ref={supportingDocInputRef}
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files.length > 0) {
-                        Array.from(e.target.files).forEach((file) => {
-                          const type = file.name.toLowerCase().includes("auction")
-                            ? "AUCTION_SHEET"
-                            : file.name.toLowerCase().includes("jevic")
-                              ? "JEVIC_CERTIFICATE"
-                              : file.name.toLowerCase().includes("mpi")
-                                ? "MPI_BIOSECURITY"
-                                : file.name.toLowerCase().includes("mr2a")
-                                  ? "MR2A_DOSSIER"
-                                  : "SUPPORTING_DOC";
-
-                          setUploadedDocs((prev) => [
-                            ...prev,
-                            {
-                              name: file.name,
-                              type,
-                              url: "https://example.com/reports/" + encodeURIComponent(file.name),
-                              size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-                              uploadedAt: new Date().toISOString().slice(0, 10),
-                            },
-                          ]);
-                        });
-                        audio.playSubtleClick();
-                      }
-                    }}
-                    className="hidden"
-                  />
-                  <FileText className="w-6 h-6 text-slate-400 mx-auto mb-1.5" />
-                  <p className="text-xs font-bold text-slate-800">
-                    Click to browse or drop supporting documents here
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    USS Auction Sheet, JEVIC Certificate, MPI Biosecurity, or NZTA MR2A
-                  </p>
-                </div>
-
-                {/* Quick Add Presets for Documents */}
-                <div className="flex items-center gap-2 pt-0.5 flex-wrap">
-                  <span className="text-[10px] font-bold uppercase text-slate-400">Quick Attach:</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUploadedDocs((prev) => [
-                        ...prev,
-                        {
-                          name: "USS_Tokyo_Official_Auction_Sheet.pdf",
-                          type: "AUCTION_SHEET",
-                          url: "https://example.com/reports/uss_sheet.pdf",
-                          size: "2.4 MB",
-                          uploadedAt: new Date().toISOString().slice(0, 10),
-                        },
-                      ]);
-                      audio.playSubtleClick();
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-semibold transition-colors cursor-pointer"
-                  >
-                    + USS Auction Sheet
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUploadedDocs((prev) => [
-                        ...prev,
-                        {
-                          name: "JEVIC_Pre_Shipment_Certificate.pdf",
-                          type: "JEVIC_CERTIFICATE",
-                          url: "https://example.com/reports/jevic_pass.pdf",
-                          size: "1.1 MB",
-                          uploadedAt: new Date().toISOString().slice(0, 10),
-                        },
-                      ]);
-                      audio.playSubtleClick();
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-semibold transition-colors cursor-pointer"
-                  >
-                    + JEVIC Odometer Cert
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUploadedDocs((prev) => [
-                        ...prev,
-                        {
-                          name: "NZTA_MR2A_Entry_Dossier.pdf",
-                          type: "MR2A_DOSSIER",
-                          url: "https://example.com/reports/mr2a_pass.pdf",
-                          size: "1.8 MB",
-                          uploadedAt: new Date().toISOString().slice(0, 10),
-                        },
-                      ]);
-                      audio.playSubtleClick();
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-[11px] font-semibold transition-colors cursor-pointer"
-                  >
-                    + NZTA MR2A Dossier
-                  </button>
-                </div>
-              </div>
-
-              {/* Associated Documents Vault */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Attached Documents ({uploadedDocs.length})
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {uploadedDocs.map((doc) => (
-                    <div
-                      key={doc.name}
-                      className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2.5"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
-                        <div className="min-w-0">
-                          <span className="text-xs font-semibold text-slate-800 truncate block">{doc.name}</span>
-                          <span className="text-[10px] font-mono text-slate-400 block">{doc.size || "1.5 MB"} · Verified JEVIC/USS</span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveDoc(doc.name)}
-                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
-                        title="Remove document"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+{/* Upload Supporting Documents: Hidden for now as requested */}
             </div>
 
             {/* ───────────────────────────────────────────────────────── */}
@@ -1270,9 +1132,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Price Basis</span>
-                  <strong className="text-slate-900 text-xs font-medium block truncate">
-                    {purchasePriceBasis} ({currency})
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Currency</span>
+                  <strong className="text-slate-900 font-mono text-xs font-bold block truncate">
+                    {currency}
                   </strong>
                 </div>
                 <div>
@@ -1282,7 +1144,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 <div>
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Photos / Docs</span>
                   <span className="text-slate-700 text-xs font-medium block truncate">
-                    {images.length} photos · {uploadedDocs.length} docs
+                    {images.length} photos uploaded
                   </span>
                 </div>
               </div>

@@ -16,8 +16,6 @@ import {
   MapPin,
   ExternalLink,
   Sparkles,
-  Users,
-  Shield,
   SlidersHorizontal,
 } from "lucide-react";
 
@@ -27,7 +25,7 @@ interface AdminMenuPortalViewProps {
 
 export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalViewProps) {
   const router = useRouter();
-  const { vehicles, orders, dealers, users } = useProgramme();
+  const { vehicles, orders, dealers } = useProgramme();
 
   const availableStockCount = vehicles.filter((v) => v.status === "AVAILABLE").length;
   const heldVehicles = vehicles.filter((v) => v.status === "RESERVED");
@@ -123,36 +121,6 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
       href: "/admin/config",
       accent: "from-slate-500/10 via-transparent to-transparent hover:border-slate-400",
       iconBg: "bg-slate-900 text-white",
-    },
-    {
-      num: "07",
-      id: "admin-users",
-      title: "User Management",
-      subtitle: "Team Access & Permissions",
-      description: "Administer platform operators, dealer principals, invite new staff with RBAC role assignments, and review security logs.",
-      icon: Users,
-      badge: `${users.length} Active Users`,
-      badgeColor: "bg-blue-50 text-blue-700 border-blue-200",
-      statValue: `${users.length} Operators`,
-      statLabel: "Across 3 Organisations",
-      href: "/admin/users",
-      accent: "from-blue-500/10 via-transparent to-transparent hover:border-blue-300",
-      iconBg: "bg-blue-700 text-white",
-    },
-    {
-      num: "08",
-      id: "admin-roles",
-      title: "Roles & Permissions",
-      subtitle: "Governance & RBAC Matrix",
-      description: "Define granular permission boundaries, audit capability matrices across Admin, Dealer, and Japan logistics personas.",
-      icon: Shield,
-      badge: "4 Roles Active",
-      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      statValue: "RBAC Governance",
-      statLabel: "Zero-Trust Enforcement",
-      href: "/admin/roles",
-      accent: "from-emerald-500/10 via-transparent to-transparent hover:border-emerald-300",
-      iconBg: "bg-emerald-700 text-white",
     },
   ];
 

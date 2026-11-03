@@ -103,7 +103,7 @@ export default function JapanInventoryView({
             </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">
-            Export Inventory
+            Inventory
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Nissan Motor Co. Japan · Central vehicle repository, yard marshalling, and franchise publication controls.

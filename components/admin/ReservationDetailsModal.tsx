@@ -105,23 +105,23 @@ export default function ReservationDetailsModal({
     >
       <div className="relative w-full max-w-5xl bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header - Nissan Obsidian Black */}
-        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+        <div className="px-6 py-4 bg-white text-slate-900 flex items-center justify-between border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
               <Lock className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-medium text-slate-300">
+                <span className="text-xs font-mono font-medium text-slate-500">
                   {reservation.requestId}
                 </span>
-                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-white/10 text-white border border-white/15">
+                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                   {reservation.status === "ACTIVE_HOLD"
                     ? "24-Hour Exclusivity Active"
                     : reservation.status}
                 </span>
               </div>
-              <h2 id="reservation-details-title" className="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5">
+              <h2 id="reservation-details-title" className="text-base sm:text-lg font-bold text-slate-900 tracking-tight mt-0.5">
                 Reservation Dossier · {vehicle?.year} {vehicle?.make} {vehicle?.model}
               </h2>
             </div>

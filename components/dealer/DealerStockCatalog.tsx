@@ -215,7 +215,7 @@ export default function DealerStockCatalog({
           </h1>
           {isAdminView && (
             <p className="text-xs text-slate-500 mt-0.5">
-              Certified Japanese export inventory, condition grades, and landed pricing for New Zealand franchise dealers.
+              Certified Japanese inventory, condition grades, and landed pricing for New Zealand franchise dealers.
             </p>
           )}
         </div>

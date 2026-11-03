@@ -110,30 +110,6 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
   // Fixed Cost Profile Pricing (Tariff Subtotal for Selected Zone)
   const fixedCostProfileNZD = oceanFreight + customsFee + compliance + zoneDelivery + programmeFee;
 
-  // Calculate Fixed Profile Price and Tariffs for all 5 Zones
-  const zoneFixedProfilePrices = zoneKeys.map((zid) => {
-    const z = OFFICIAL_PRICING_ZONES[zid];
-    const delivery = Number(draftConfig.zoneDeliveryMatrix?.[zid] ?? z.deliveryCostNZD);
-    const fixedCostProfile = oceanFreight + customsFee + compliance + delivery + programmeFee;
-    const fixedProfileTotal =
-      fobNZD +
-      oceanFreight +
-      customsAndGstCombined +
-      compliance +
-      delivery +
-      programmeFee;
-
-    return {
-      id: zid,
-      code: zid.replace("ZONE_", "Z"),
-      name: z.zoneName,
-      coverage: z.coverage,
-      deliveryCost: delivery,
-      fixedCostProfile,
-      fixedProfilePrice: fixedProfileTotal,
-    };
-  });
-
   return (
     <div className="max-w-7xl mx-auto space-y-4 animate-in fade-in duration-200 font-sans text-slate-800 pb-16">
       {/* ─────────────────────────────────────────────────────────── */}
@@ -423,61 +399,6 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             </tr>
           </tbody>
         </table>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Fixed Profile Price as per Zone Matrix                   */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-          <div>
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-              Fixed Profile Price as per Zone (Wholesale Landed Schedule)
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Guaranteed landed wholesale schedule automatically calculated for each New Zealand geographic territory.
-            </p>
-          </div>
-          <span className="text-[11px] font-mono font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded border border-slate-200 self-start sm:self-auto">
-            Section 4 Commercial Matrix
-          </span>
-        </div>
-
-        {/* 5-Zone Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
-          {zoneFixedProfilePrices.map((z) => {
-            const isSelected = selectedZone === z.id;
-            return (
-              <div
-                key={z.id}
-                onClick={() => setSelectedZone(z.id)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${isSelected
-                  ? "bg-slate-50 border-slate-900 ring-1 ring-slate-900 shadow-2xs"
-                  : "bg-white border-slate-200 hover:border-slate-300"
-                  }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-mono font-bold text-xs text-slate-900">{z.code}</span>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    Tow: ${z.deliveryCost.toLocaleString()}
-                  </span>
-                </div>
-                <div className="text-xs font-medium text-slate-700 truncate" title={z.name}>
-                  {z.coverage}
-                </div>
-                <div className="mt-2.5 pt-2 border-t border-slate-100">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400 block">
-                    Fixed Profile Price
-                  </span>
-                  <div className="font-mono font-bold text-sm sm:text-base text-slate-950 mt-0.5">
-                    ${z.fixedProfilePrice.toLocaleString()}{" "}
-                    <span className="text-[10px] font-normal text-slate-400">NZD</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}

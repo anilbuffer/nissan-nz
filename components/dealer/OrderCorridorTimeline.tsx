@@ -9,21 +9,21 @@ export interface OrderCorridorTimelineProps {
   className?: string;
 }
 
-interface CorridorStage {
+interface BrandMilestoneStage {
   number: number;
-  id: string;
+  key: OrderMilestone;
   title: string;
   description: string;
   location: string;
+  actor: string;
   timestamp: string;
   isCompleted: boolean;
   isCurrent: boolean;
   isPending: boolean;
-  actor?: string;
 }
 
 /**
- * Format timestamps to match reference format: "DD/MM/YYYY, HH:mm NZST"
+ * Format timestamps to standard format: "DD/MM/YYYY, HH:mm NZST"
  */
 function formatCorridorDate(dateStr?: string): string {
   if (!dateStr) return "Pending";
@@ -45,156 +45,163 @@ function formatCorridorDate(dateStr?: string): string {
   }
 }
 
-/**
- * Maps the internal OrderMilestone status to the 5 corridor stages
- */
-function getCorridorStageIndex(currentMilestone: OrderMilestone): {
-  activeStageIndex: number; // 0 to 4
-  isAllDelivered: boolean;
-} {
-  switch (currentMilestone) {
-    case "ORDER_CONFIRMED":
-    case "JAPAN_VERIFICATION":
-      return { activeStageIndex: 0, isAllDelivered: false };
-    case "BOOKED_FOR_SHIPPING":
-    case "IN_TRANSIT":
-      return { activeStageIndex: 1, isAllDelivered: false };
-    case "NZ_BORDER_PROCESSING":
-      return { activeStageIndex: 2, isAllDelivered: false };
-    case "COMPLIANCE":
-    case "AWAITING_ADDITIONAL_COST":
-    case "READY_FOR_DELIVERY":
-      return { activeStageIndex: 3, isAllDelivered: false };
-    case "DELIVERED":
-      return { activeStageIndex: 4, isAllDelivered: true };
-    default:
-      return { activeStageIndex: 1, isAllDelivered: false };
-  }
-}
+const BRAND_SEQUENCE: OrderMilestone[] = [
+  "ORDER_CONFIRMED",
+  "JAPAN_VERIFICATION",
+  "BOOKED_FOR_SHIPPING",
+  "IN_TRANSIT",
+  "NZ_BORDER_PROCESSING",
+  "COMPLIANCE",
+  "READY_FOR_DELIVERY",
+  "DELIVERED",
+];
 
 export default function OrderCorridorTimeline({
   order,
   className = "",
 }: OrderCorridorTimelineProps) {
-  const { activeStageIndex, isAllDelivered } = getCorridorStageIndex(
-    order.currentMilestone
-  );
+  // Normalize milestone (AWAITING_ADDITIONAL_COST corresponds to COMPLIANCE phase)
+  const normalizedMilestone: OrderMilestone =
+    order.currentMilestone === "AWAITING_ADDITIONAL_COST"
+      ? "COMPLIANCE"
+      : order.currentMilestone;
+
+  const currentIdx = BRAND_SEQUENCE.indexOf(normalizedMilestone);
+  const activeStageIndex = currentIdx >= 0 ? currentIdx : 3;
+  const isAllDelivered = order.currentMilestone === "DELIVERED";
 
   // Helper to extract timestamp from order milestone records
-  const getMilestoneTimestamp = (keys: OrderMilestone[]): string | undefined => {
-    for (const k of keys) {
-      const found = order.milestones?.find((m) => m.key === k);
-      if (found?.completedAt) return found.completedAt;
-    }
+  const getMilestoneTimestamp = (key: OrderMilestone): string | undefined => {
+    const found = order.milestones?.find((m) => m.key === key);
+    if (found?.completedAt) return found.completedAt;
     return undefined;
   };
 
-  // Helper to extract ETA if not yet completed
-  const getMilestoneEta = (keys: OrderMilestone[]): string | undefined => {
-    for (const k of keys) {
-      const found = order.milestones?.find((m) => m.key === k);
-      if (found?.eta) return found.eta;
-    }
+  const getMilestoneEta = (key: OrderMilestone): string | undefined => {
+    const found = order.milestones?.find((m) => m.key === key);
+    if (found?.eta) return found.eta;
     return undefined;
   };
 
-  // Build the 5 corridor stages with Nissan NZ automotive brand data
-  const stages: CorridorStage[] = [
+  // Build the 8 brand order milestone stages
+  const stages: BrandMilestoneStage[] = [
     {
       number: 1,
-      id: "facility",
-      title: "Received At Facility",
-      description:
-        "USS/JAA auction pass, physical pre-export inspection & JEVIC digital odometer verification.",
-      location: "Yokohama Export Marshalling Yard, Japan",
-      timestamp: formatCorridorDate(
-        getMilestoneTimestamp(["JAPAN_VERIFICATION", "ORDER_CONFIRMED"]) ||
-        order.orderedAt ||
-        "2026-09-08T21:00:00Z"
-      ),
+      key: "ORDER_CONFIRMED",
+      title: "Order Confirmed",
+      description: "Wholesale allocation accepted and registered into Nissan NZ programme schedule.",
+      location: "Nissan Central Operations Hub, Auckland",
+      actor: "Dealership & Autohub Ops",
+      timestamp: formatCorridorDate(getMilestoneTimestamp("ORDER_CONFIRMED") || order.orderedAt || "2026-09-08T21:00:00Z"),
       isCompleted: isAllDelivered || activeStageIndex > 0,
       isCurrent: !isAllDelivered && activeStageIndex === 0,
       isPending: false,
-      actor: "Japan Logistics Hub & JEVIC Verification",
     },
     {
       number: 2,
-      id: "transit",
-      title: "In Transit",
-      description:
-        "Departed international export terminal on scheduled RoRo carrier across Pacific corridor.",
-      location: `En Route to Ports of Auckland (Vessel: ${order.vesselName || "Trans-Pacific RoRo V.48"})`,
+      key: "JAPAN_VERIFICATION",
+      title: "Verification",
+      description: "USS/JAA auction pass, physical pre-export inspection & JEVIC digital odometer certification.",
+      location: "Yokohama Export Marshalling Yard, Japan",
+      actor: "Japan Logistics Hub & JEVIC Verification",
       timestamp:
         activeStageIndex >= 1 || isAllDelivered
-          ? formatCorridorDate(
-            getMilestoneTimestamp(["IN_TRANSIT", "BOOKED_FOR_SHIPPING"]) ||
-            getMilestoneEta(["IN_TRANSIT"]) ||
-            "2026-09-10T06:30:00Z"
-          )
+          ? formatCorridorDate(getMilestoneTimestamp("JAPAN_VERIFICATION") || "2026-09-09T04:15:00Z")
           : "Pending",
       isCompleted: isAllDelivered || activeStageIndex > 1,
       isCurrent: !isAllDelivered && activeStageIndex === 1,
       isPending: !isAllDelivered && activeStageIndex < 1,
-      actor: "Trans-Pacific RoRo Lines",
     },
     {
       number: 3,
-      id: "arrived_nz",
-      title: "Arrived in NZ",
-      description:
-        "Vessel berth discharge, MPI biosecurity heat treatment, and NZ Customs GST clearance.",
-      location: "Ports of Auckland Cargo Terminal (POAL)",
+      key: "BOOKED_FOR_SHIPPING",
+      title: "Shipment",
+      description: "RoRo vessel space confirmed and port berth staging completed.",
+      location: "Port of Yokohama Berth 4",
+      actor: "AutoHub Shipping Ops",
       timestamp:
         activeStageIndex >= 2 || isAllDelivered
-          ? formatCorridorDate(
-            getMilestoneTimestamp(["NZ_BORDER_PROCESSING"]) ||
-            getMilestoneEta(["NZ_BORDER_PROCESSING"]) ||
-            order.etaDeliveryDate
-          )
+          ? formatCorridorDate(getMilestoneTimestamp("BOOKED_FOR_SHIPPING") || "2026-09-10T02:00:00Z")
           : "Pending",
       isCompleted: isAllDelivered || activeStageIndex > 2,
       isCurrent: !isAllDelivered && activeStageIndex === 2,
       isPending: !isAllDelivered && activeStageIndex < 2,
-      actor: "NZ Customs & MPI Biosecurity",
     },
     {
       number: 4,
-      id: "out_for_delivery",
-      title: "Out For Delivery",
-      description:
-        "MR2A technical compliance pass, 1-year WoF certification, and regional linehaul transport.",
-      location: "VINZ / VTNZ Compliance Depot & Auckland Metro Logistics Hub",
+      key: "IN_TRANSIT",
+      title: "Transit",
+      description: `Departed international export terminal on scheduled RoRo carrier across Pacific corridor.`,
+      location: `En Route to Ports of Auckland (Vessel: ${order.vesselName || "Trans-Pacific RoRo V.48"})`,
+      actor: "Trans-Pacific RoRo Lines",
       timestamp:
         activeStageIndex >= 3 || isAllDelivered
-          ? formatCorridorDate(
-            getMilestoneTimestamp(["COMPLIANCE", "READY_FOR_DELIVERY"]) ||
-            getMilestoneEta(["COMPLIANCE", "READY_FOR_DELIVERY"]) ||
-            order.etaDeliveryDate
-          )
+          ? formatCorridorDate(getMilestoneTimestamp("IN_TRANSIT") || getMilestoneEta("IN_TRANSIT") || "2026-09-12T06:30:00Z")
           : "Pending",
       isCompleted: isAllDelivered || activeStageIndex > 3,
       isCurrent: !isAllDelivered && activeStageIndex === 3,
       isPending: !isAllDelivered && activeStageIndex < 3,
-      actor: "VINZ Compliance & Domestic Carrier",
     },
     {
       number: 5,
-      id: "delivered",
+      key: "NZ_BORDER_PROCESSING",
+      title: "Customs Release",
+      description: "Vessel berth discharge, MPI biosecurity heat treatment, and NZ Customs GST import entry clearance.",
+      location: "Ports of Auckland Cargo Terminal (POAL)",
+      actor: "NZ Customs & MPI Biosecurity",
+      timestamp:
+        activeStageIndex >= 4 || isAllDelivered
+          ? formatCorridorDate(getMilestoneTimestamp("NZ_BORDER_PROCESSING") || getMilestoneEta("NZ_BORDER_PROCESSING") || "2026-09-24T09:00:00Z")
+          : "Pending",
+      isCompleted: isAllDelivered || activeStageIndex > 4,
+      isCurrent: !isAllDelivered && activeStageIndex === 4,
+      isPending: !isAllDelivered && activeStageIndex < 4,
+    },
+    {
+      number: 6,
+      key: "COMPLIANCE",
+      title: "MR2A",
+      description: "NZTA physical safety inspection pass, brake roller testing, and 1-year WoF certification.",
+      location: "VINZ / VTNZ Compliance Depot, Auckland",
+      actor: "VTNZ / VINZ Entry Certifiers",
+      timestamp:
+        activeStageIndex >= 5 || isAllDelivered
+          ? formatCorridorDate(getMilestoneTimestamp("COMPLIANCE") || getMilestoneEta("COMPLIANCE") || "2026-09-27T11:45:00Z")
+          : "Pending",
+      isCompleted: isAllDelivered || activeStageIndex > 5,
+      isCurrent: !isAllDelivered && activeStageIndex === 5,
+      isPending: !isAllDelivered && activeStageIndex < 5,
+    },
+    {
+      number: 7,
+      key: "READY_FOR_DELIVERY",
+      title: "Delivery Ready",
+      description: "MR2A compliance plate affixed; vehicle dispatched via certified domestic linehaul carrier.",
+      location: "Auckland Metro Linehaul Staging Depot",
+      actor: "AutoHub Domestic Carrier",
+      timestamp:
+        activeStageIndex >= 6 || isAllDelivered
+          ? formatCorridorDate(getMilestoneTimestamp("READY_FOR_DELIVERY") || getMilestoneEta("READY_FOR_DELIVERY") || order.etaDeliveryDate || "2026-10-02T08:00:00Z")
+          : "Pending",
+      isCompleted: isAllDelivered || activeStageIndex > 6,
+      isCurrent: !isAllDelivered && activeStageIndex === 6,
+      isPending: !isAllDelivered && activeStageIndex < 6,
+    },
+    {
+      number: 8,
+      key: "DELIVERED",
       title: "Delivered",
-      description:
-        "Final delivery handover to franchise receiving yard. Receiving inspection sign-off.",
+      description: "Physical handover completed, receiving condition log signed, and vehicle entered into yard stock.",
       location: order.deliveryAddress
         ? `${order.dealerName || "Auckland Nissan City Ltd"} (${order.deliveryAddress})`
-        : order.dealerName || "Auckland Nissan City Ltd",
+        : order.dealerName || "Auckland Nissan City Ltd Receiving Yard",
+      actor: "Franchise Receiving Yard Principal",
       timestamp: isAllDelivered
-        ? formatCorridorDate(
-          getMilestoneTimestamp(["DELIVERED"]) || order.etaDeliveryDate
-        )
+        ? formatCorridorDate(getMilestoneTimestamp("DELIVERED") || order.etaDeliveryDate || "2026-10-04T15:30:00Z")
         : "Pending",
       isCompleted: isAllDelivered,
       isCurrent: false,
       isPending: !isAllDelivered,
-      actor: "Franchise Receiving Yard Principal",
     },
   ];
 
@@ -204,17 +211,18 @@ export default function OrderCorridorTimeline({
         const isLast = idx === stages.length - 1;
 
         return (
-          <div key={stage.id} className="flex gap-3 sm:gap-4.5">
+          <div key={stage.key} className="flex gap-3 sm:gap-4.5">
             {/* Left: Circle + Connector Line */}
             <div className="flex flex-col items-center shrink-0 w-7 sm:w-8">
               {/* Circle Badge */}
               <div
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10 transition-colors ${stage.isCompleted
-                  ? "border-2 border-emerald-500 bg-white text-emerald-600"
-                  : stage.isCurrent
-                    ? "border-2 border-blue-500 bg-blue-50 text-blue-600"
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10 transition-colors ${
+                  stage.isCompleted
+                    ? "border-2 border-emerald-500 bg-white text-emerald-600 shadow-2xs"
+                    : stage.isCurrent
+                    ? "border-2 border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10 shadow-2xs"
                     : "border-2 border-slate-200 bg-white text-slate-400 font-semibold"
-                  }`}
+                }`}
               >
                 {stage.isCompleted ? (
                   <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.75] text-emerald-600" />
@@ -226,22 +234,25 @@ export default function OrderCorridorTimeline({
               {/* Continuous connecting line downward to next circle */}
               {!isLast && (
                 <div
-                  className={`w-0.5 flex-1 transition-colors ${stage.isCompleted ? "bg-emerald-500" : "bg-slate-200"
-                    }`}
+                  className={`w-0.5 flex-1 transition-colors ${
+                    stage.isCompleted ? "bg-emerald-500" : "bg-slate-200"
+                  }`}
                 />
               )}
             </div>
 
-            {/* Right: Milestone White Card Matching Reference Layout */}
+            {/* Right: Milestone White Card */}
             <div
-              className={`flex-1 min-w-0 ${!isLast ? "pb-3.5 sm:pb-4.5" : ""
-                }`}
+              className={`flex-1 min-w-0 ${
+                !isLast ? "pb-3.5 sm:pb-4.5" : ""
+              }`}
             >
               <div
-                className={`bg-white rounded-2xl border p-4 sm:p-5 transition-all shadow-2xs ${stage.isCurrent
-                  ? "border-blue-300 ring-2 ring-blue-500/10 shadow-xs"
-                  : "border-slate-200"
-                  }`}
+                className={`bg-white rounded-2xl border p-4 sm:p-5 transition-all shadow-2xs ${
+                  stage.isCurrent
+                    ? "border-blue-300 ring-2 ring-blue-500/10 shadow-xs"
+                    : "border-slate-200"
+                }`}
               >
                 {/* Top Row: Title + Current Pill (Left) & Date / Pending (Right) */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
@@ -257,10 +268,11 @@ export default function OrderCorridorTimeline({
                   </div>
 
                   <div
-                    className={`text-xs font-mono sm:text-right shrink-0 ${stage.timestamp === "Pending"
-                      ? "text-slate-400"
-                      : "text-slate-500 font-medium"
-                      }`}
+                    className={`text-xs font-mono sm:text-right shrink-0 ${
+                      stage.timestamp === "Pending"
+                        ? "text-slate-400"
+                        : "text-slate-600 font-medium"
+                    }`}
                   >
                     {stage.timestamp}
                   </div>
@@ -272,9 +284,14 @@ export default function OrderCorridorTimeline({
                 </p>
 
                 {/* Bottom Row: Location with MapPin Icon */}
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-3 sm:mt-3.5 pt-1 sm:pt-0">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{stage.location}</span>
+                <div className="flex items-center justify-between gap-2 text-xs text-slate-500 font-medium mt-3 sm:mt-3.5 pt-1 sm:pt-0 border-t border-slate-100 sm:border-0">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="truncate">{stage.location}</span>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono shrink-0 hidden sm:inline">
+                    {stage.actor}
+                  </span>
                 </div>
               </div>
             </div>

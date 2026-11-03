@@ -704,7 +704,7 @@ export default function AuditExportView() {
                   Export Stock &amp; Landed Prices
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Export inventory specifications, year, odometer km, auction grades, FOB pricing (JPY), and domestic landed price schedules.
+                  inventory specifications, year, odometer km, auction grades, FOB pricing (JPY), and domestic landed price schedules.
                 </p>
                 <div className="text-[10px] font-mono text-slate-400 pt-1">
                   Schema: Stock ID, VIN, Model, Grade, Year, Km, Fuel, Drive, FOB, Landed NZD, Status
@@ -924,6 +924,6 @@ export default function AuditExportView() {
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-          </div>
+    </div>
   );
 }

@@ -24,13 +24,13 @@ import {
 
 const MILESTONE_SEQUENCE: { key: OrderMilestone; label: string }[] = [
   { key: "ORDER_CONFIRMED", label: "Order Confirmed" },
-  { key: "JAPAN_VERIFICATION", label: "Japan Verification" },
-  { key: "BOOKED_FOR_SHIPPING", label: "Booked Shipping" },
-  { key: "IN_TRANSIT", label: "In Transit (RoRo)" },
-  { key: "NZ_BORDER_PROCESSING", label: "NZ Border" },
-  { key: "COMPLIANCE", label: "MR2A Compliance" },
-  { key: "READY_FOR_DELIVERY", label: "Ready Delivery" },
-  { key: "DELIVERED", label: "Delivered Yard" },
+  { key: "JAPAN_VERIFICATION", label: "Verification" },
+  { key: "BOOKED_FOR_SHIPPING", label: "Shipment" },
+  { key: "IN_TRANSIT", label: "Transit" },
+  { key: "NZ_BORDER_PROCESSING", label: "Customs Release" },
+  { key: "COMPLIANCE", label: "MR2A" },
+  { key: "READY_FOR_DELIVERY", label: "Delivery Ready" },
+  { key: "DELIVERED", label: "Delivered" },
 ];
 
 export default function AllocationMilestonesView() {

@@ -205,7 +205,7 @@ export default function JapanInventoryDetailsView({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 group"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
-            <span>Back to Export Inventory</span>
+            <span>Back to Inventory</span>
           </button>
           <span className="text-slate-300">/</span>
           <span className="font-mono text-slate-500 font-bold">#{vehicle.stockId}</span>
@@ -510,8 +510,8 @@ export default function JapanInventoryDetailsView({
                           setActiveImageIdx(idx);
                         }}
                         className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
-                            ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
-                            : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
+                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
+                          : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
                           }`}
                       >
                         <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
@@ -746,14 +746,8 @@ export default function JapanInventoryDetailsView({
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[#C3002F]" />
-                  <span>Images &amp; Supporting Documents</span>
+                  <span>Supporting Documents</span>
                 </h3>
-                <ul className="text-[11px] text-slate-500 mt-1.5 space-y-0.5 list-disc list-inside">
-                  <li>Upload multiple vehicle photographs.</li>
-                  <li>Upload condition report.</li>
-                  <li>Upload supporting vehicle documents.</li>
-                  <li>Associate all images and documents with the correct stock record.</li>
-                </ul>
               </div>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono border border-emerald-200 shrink-0 self-start">
                 {vehicleDocs.length} {vehicleDocs.length === 1 ? "Document" : "Documents"} Uploaded
@@ -826,7 +820,7 @@ export default function JapanInventoryDetailsView({
           className="py-3 px-6 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs transition-all shadow-2xs flex items-center gap-2 cursor-pointer hover:border-slate-300 active:scale-[0.99]"
         >
           <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
-          <span>Return to Export Inventory Listing</span>
+          <span>Return to Inventory Listing</span>
         </button>
       </div>
 
@@ -1042,8 +1036,8 @@ export default function JapanInventoryDetailsView({
                   key={idx}
                   onClick={() => setWithdrawReason(reason)}
                   className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${withdrawReason === reason
-                      ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
-                      : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                    ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
+                    : "border-slate-200 hover:bg-slate-50 text-slate-700"
                     }`}
                 >
                   <input
