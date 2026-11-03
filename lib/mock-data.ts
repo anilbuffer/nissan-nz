@@ -93,6 +93,22 @@ export const MOCK_DEALERS: DealerAccount[] = [
     termsAcceptedAt: "2026-11-02T10:15:00Z",
     costBoundaryAccepted: true,
   },
+  {
+    id: "DEALER_006",
+    dealerCode: "NZ-NIS-HBY06",
+    legalTradingName: "Hawke's Bay Nissan Hastings",
+    nzbn: "9429039918273",
+    address: "105 Karamu Road North, Hastings 4122",
+    region: "Lower North Island (Hawke's Bay)",
+    pricingZoneId: "ZONE_3",
+    status: "PENDING_APPROVAL",
+    primaryContactName: "Cameron Scott",
+    primaryContactEmail: "cameron@hbnissan.co.nz",
+    primaryContactPhone: "+64 6 878 9100",
+    termsAcceptedVersion: "v2026.1",
+    termsAcceptedAt: "2026-11-03T08:30:00Z",
+    costBoundaryAccepted: true,
+  },
 ];
 
 export const MOCK_USERS: UserAccount[] = [

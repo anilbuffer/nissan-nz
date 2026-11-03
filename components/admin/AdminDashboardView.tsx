@@ -2,35 +2,22 @@
 
 import React, { useState } from "react";
 import { useProgramme } from "@/lib/programme-context";
-import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import DealerDetailsModal from "./DealerDetailsModal";
 import ReservationDetailsModal from "./ReservationDetailsModal";
 import { ReservationRequest, DealerAccount, ZoneId } from "@/lib/types";
+import { MOCK_VEHICLES } from "@/lib/mock-data";
 import {
-  Users,
+  Building2,
   Lock,
   Unlock,
   CheckCircle2,
-  XCircle,
-  Building2,
   ArrowRight,
   Clock,
-  Car,
-  MapPin,
-  ShieldCheck,
-  FileCheck2,
-  Mail,
-  Phone,
-  Copy,
-  Check,
-  AlertCircle,
-  AlertTriangle,
-  ShieldAlert,
   Eye,
-  TrendingUp,
-  Sparkles,
-  Zap,
+  Check,
+  X,
+  AlertTriangle,
 } from "lucide-react";
 
 interface AdminDashboardViewProps {
@@ -49,11 +36,14 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   } = useProgramme();
 
   const [notification, setNotification] = useState<string | null>(null);
-  const [selectedZone, setSelectedZone] = useState<Record<string, ZoneId>>({});
   const [selectedDealerForDetails, setSelectedDealerForDetails] = useState<DealerAccount | null>(null);
   const [selectedResForDetails, setSelectedResForDetails] = useState<ReservationRequest | null>(null);
 
-  // 1. Pending Dealer Onboarding Requests
+  // Decline Reason Note Modal State
+  const [declineTargetDealer, setDeclineTargetDealer] = useState<DealerAccount | null>(null);
+  const [declineReason, setDeclineReason] = useState("");
+
+  // 1. Pending Dealer Onboarding Requests (Always guarantee realistic requests)
   const pendingDealers = dealers.filter((d) => d.status === "PENDING_APPROVAL");
 
   // 2. Active 24-Hour Atomic Reservation Holds
@@ -61,102 +51,99 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   const heldVehicles = (activeHolds.length > 0
     ? activeHolds.map((r) => {
       const live = vehicles.find((v) => v.id === r.vehicleId || v.id === r.vehicle?.id);
+      const mock = MOCK_VEHICLES.find((m) => m.id === live?.id || m.id === r.vehicleId);
       return {
         ...r.vehicle,
         ...live,
-        images:
-          live?.images && live.images.length > 0
-            ? live.images
-            : r.vehicle?.images && r.vehicle.images.length > 0
-              ? r.vehicle.images
-              : ["/images/cars/kicks.png"],
+        images: mock?.images || live?.images || r.vehicle?.images || ["/images/cars/kicks.png"],
       };
     })
-    : vehicles.filter((v) => v.status === "RESERVED")
-  ).map((v) => ({
-    ...v,
-    images: v.images && v.images.length > 0 ? v.images : ["/images/cars/kicks.png"],
-  }));
+    : vehicles.filter((v) => v.status === "RESERVED").map((v) => {
+      const mock = MOCK_VEHICLES.find((m) => m.id === v.id);
+      return {
+        ...v,
+        images: mock?.images || v.images || ["/images/cars/kicks.png"],
+      };
+    })
+  );
 
-  // Total Capital in Active Holds
-  const totalLockedCapitalNZD = heldVehicles.reduce((acc, v) => {
-    const matchingRes = reservations.find((r) => r.vehicleId === v.id && r.status === "ACTIVE_HOLD");
-    const p = matchingRes?.priceSnapshot || calculateLandedPrice(v.fobPriceJPY, "ZONE_1");
-    return acc + p.totalBuyPriceNZD;
-  }, 0);
 
   // Dealer Approval Handler
   const handleApprove = (dealerId: string, defaultZone: ZoneId) => {
     audio.playSuccessChime();
-    const zone = selectedZone[dealerId] || defaultZone;
-    approveDealer(dealerId, zone);
-    setNotification(`Approved dealership application and assigned to ${zone}.`);
+    approveDealer(dealerId, defaultZone);
+    setNotification(`Dealership application approved and assigned to ${defaultZone}.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Dealer Rejection Handler
-  const handleReject = (dealerId: string) => {
+  // Dealer Decline Confirm Handler (with reason note)
+  const handleConfirmDecline = () => {
+    if (!declineTargetDealer) return;
     audio.playSubtleClick();
-    rejectDealer(dealerId);
-    setNotification(`Dealership onboarding request declined.`);
-    setTimeout(() => setNotification(null), 4000);
+    const reasonText = declineReason.trim() || "No specific reason provided.";
+    rejectDealer(declineTargetDealer.id, reasonText);
+    setNotification(`Dealership application declined. Reason logged: "${reasonText}".`);
+    setDeclineTargetDealer(null);
+    setDeclineReason("");
+    setTimeout(() => setNotification(null), 5000);
   };
 
   // 1-Click Confirm Allocation
   const handleConfirmReservation = (vehicleId: string) => {
     audio.playSuccessChime();
-    confirmAllocation(vehicleId, "Confirmed directly from Admin Operations Dashboard.");
-    setNotification(`Wholesale allocation confirmed. Order generated and dispatched to shipping pipeline.`);
+    confirmAllocation(vehicleId, "Confirmed directly from Operations Dashboard.");
+    setNotification(`Wholesale order confirmed and dispatched to shipping pipeline.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
   // 1-Click Release Hold
   const handleReleaseReservation = (vehicleId: string) => {
     audio.playSubtleClick();
-    releaseHold(vehicleId, "Hold released from Admin Operations Dashboard.");
-    setNotification(`Reservation hold released. Vehicle returned to wholesale catalogue.`);
+    releaseHold(vehicleId, "Hold released from Operations Dashboard.");
+    setNotification(`Exclusivity hold released. Vehicle returned to catalogue.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-5 max-w-7xl mx-auto animate-in fade-in duration-200 font-sans text-slate-800 pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header & Live Operations Status Bar                       */}
+      {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#C3002F] animate-pulse" />
-              Autohub Platform Operations
+            <span className="w-2.5 h-2.5 rounded-full bg-[#C3002F]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Operations Control
             </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-              Live Action Queue
+            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+              AutoHub NZ
             </span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
-            Operations Command Center
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            Operations Dashboard
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Active priority alerts for dealer franchise onboarding approvals and 24-hour server-side atomic exclusivity holds.
+          <p className="text-sm text-slate-500 mt-0.5">
+            Priority queues for franchise dealer onboarding approvals and 24h exclusivity holds.
           </p>
         </div>
 
-        {/* Live Operations Stats Counter */}
+        {/* Live Counters */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+          <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold font-mono flex items-center gap-1.5 shadow-2xs">
+            <Building2 className="w-3.5 h-3.5 text-slate-600" />
             <span>{pendingDealers.length} Approvals Pending</span>
           </div>
-          <div className="px-3.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
-            <Lock className="w-3.5 h-3.5 text-[#C3002F]" />
-            <span>{heldVehicles.length} Exclusivity Locks</span>
+          <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold font-mono flex items-center gap-1.5 shadow-2xs">
+            <Lock className="w-3.5 h-3.5 text-slate-600" />
+            <span>{heldVehicles.length} Active Holds</span>
           </div>
         </div>
       </div>
 
+      {/* Notification Toast */}
       {notification && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm font-medium flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{notification}</span>
@@ -164,410 +151,314 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
           <button
             type="button"
             onClick={() => setNotification(null)}
-            className="text-emerald-700 hover:text-emerald-900 text-xs cursor-pointer"
+            className="text-emerald-700 hover:text-emerald-900 text-sm cursor-pointer p-1"
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. OPERATIONAL ALERT CARDS (High-Impact Luxury Alert Theme) */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="space-y-6 w-full">
-        {/* ========================================================= */}
-        {/* ALERT 1: Dealer Onboarding Approval Request (Amber Alert)  */}
-        {/* ========================================================= */}
-        <div className="relative w-full bg-white rounded-3xl border border-amber-200/90 shadow-[0_8px_30px_rgba(245,158,11,0.06)] p-6 sm:p-7 transition-all space-y-5 overflow-hidden">
-          {/* Top Amber Radiant Strip */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600" />
 
-          {/* Alert Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 shadow-2xs shrink-0">
-                <ShieldAlert className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-lg font-black text-slate-900 tracking-tight">
-                    Dealer Onboarding Approval Requests
-                  </h2>
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                    ACTION REQUIRED
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Franchise dealership registrations awaiting legal NZBN verification and Geographic Pricing Zone assignment.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono bg-amber-50 text-amber-900 border border-amber-300/80 shadow-2xs">
-                {pendingDealers.length} {pendingDealers.length === 1 ? "Application Pending" : "Applications Pending"}
-              </span>
-            </div>
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3. Section 1: Dealer Onboarding Approval Requests            */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-slate-700" />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              Dealer Onboarding Approval Requests
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
+              {pendingDealers.length}
+            </span>
           </div>
 
-          {/* Alert Body */}
-          {pendingDealers.length === 0 ? (
-            <div className="py-8 px-4 bg-slate-50/60 rounded-2xl border border-slate-200/80 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span className="font-medium">All dealer onboarding applications processed. No pending authorizations required.</span>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {pendingDealers.map((dealer) => {
-                const currentAssignedZone = selectedZone[dealer.id] || dealer.pricingZoneId || "ZONE_1";
+          <button
+            type="button"
+            onClick={() => onNavigateTab("admin-dealers")}
+            className="text-xs sm:text-sm font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            <span>Manage Franchisees</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-                return (
-                  <div
-                    key={dealer.id}
-                    className="p-5 rounded-2xl bg-gradient-to-br from-amber-50/30 via-white to-amber-50/10 border border-amber-200/80 hover:border-amber-300 shadow-2xs hover:shadow-xs transition-all space-y-4 text-xs"
-                  >
-                    {/* Top Row: Dealership Title + Code + Address */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/70 flex items-center justify-center text-amber-700 font-bold shrink-0">
-                          <Building2 className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <strong className="text-base font-black text-slate-900 tracking-tight">
-                              {dealer.legalTradingName}
-                            </strong>
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-bold border border-slate-200">
-                              {dealer.dealerCode}
-                            </span>
-                          </div>
-                          <p className="text-slate-500 text-xs flex items-center gap-1.5 mt-0.5 truncate">
-                            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                            <span className="truncate">{dealer.address}</span>
-                            <span className="text-slate-300">·</span>
-                            <span className="font-mono text-slate-600 font-semibold">NZBN: {dealer.nzbn}</span>
-                          </p>
-                        </div>
-                      </div>
+        {pendingDealers.length === 0 ? (
+          <div className="py-6 px-4 bg-slate-50 rounded-lg text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>All dealer applications processed. No pending authorizations required.</span>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {pendingDealers.map((dealer) => {
+              const defaultZone = dealer.pricingZoneId || "ZONE_1";
 
-                      {/* Terms Acceptance Badge */}
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-semibold self-start sm:self-auto shrink-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Terms &amp; Cost Boundary Accepted</span>
-                      </div>
+              return (
+                <div
+                  key={dealer.id}
+                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-lg transition-colors"
+                >
+                  {/* Left: Minimal Dealer Info */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+                      <Building2 className="w-4 h-4" />
                     </div>
-
-                    {/* Middle Row: Contact Info & Zone Mapping Controller */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
-                      {/* Principal Contact */}
-                      <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Principal Contact
-                        </span>
-                        <div className="text-xs font-bold text-slate-900 truncate">
-                          {dealer.primaryContactName}
-                        </div>
-                        <div className="text-[11px] text-slate-500 font-mono truncate">
-                          {dealer.primaryContactEmail} · {dealer.primaryContactPhone}
-                        </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-900 truncate">
+                        {dealer.legalTradingName}
                       </div>
-
-                      {/* Geographic Pricing Zone Selector */}
-                      <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Assigned Pricing Zone
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                          #{dealer.dealerCode}
                         </span>
-                        <div className="flex items-center gap-2">
-                          <select
-                            value={currentAssignedZone}
-                            onChange={(e) =>
-                              setSelectedZone({
-                                ...selectedZone,
-                                [dealer.id]: e.target.value as ZoneId,
-                              })
-                            }
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-slate-800 cursor-pointer focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-                          >
-                            <option value="ZONE_1">ZONE_1 (Upper North Island)</option>
-                            <option value="ZONE_2">ZONE_2 (Central North Island)</option>
-                            <option value="ZONE_3">ZONE_3 (Lower North Island)</option>
-                            <option value="ZONE_4">ZONE_4 (Upper South Island)</option>
-                            <option value="ZONE_5">ZONE_5 (Lower South Island)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Floorplan Holding Limit */}
-                      <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-1 sm:col-span-2 lg:col-span-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Floorplan Allocation Tier
+                        <span className="text-slate-300 hidden sm:inline">·</span>
+                        <span className="text-xs text-slate-500 hidden sm:inline truncate">
+                          {dealer.region}
                         </span>
-                        <div className="text-xs font-bold text-slate-900 font-mono">
-                          $350,000 NZD Cap
-                        </div>
-                        <span className="text-[11px] text-slate-500 block">
-                          Max 3 Concurrent 24h Exclusivity Holds
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons Row */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        Approval activates immediate catalog access and zone-based landed price calculator.
-                      </span>
-
-                      <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSubtleClick();
-                            setSelectedDealerForDetails(dealer);
-                          }}
-                          className="btn-outline text-xs py-2 px-3.5"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-slate-400" />
-                          <span>Review Dossier</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleReject(dealer.id)}
-                          className="btn-outline text-xs py-2 px-3.5 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-                        >
-                          <span>Decline</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleApprove(dealer.id, currentAssignedZone)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_18px_rgba(16,185,129,0.4)] cursor-pointer active:scale-[0.98]"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Authorize &amp; Activate</span>
-                        </button>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
 
-          {/* Alert Footer */}
-          <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
-            <span>Requires administrative authorization before commercial stock ordering is unlocked.</span>
-            <button
-              type="button"
-              onClick={() => onNavigateTab("admin-dealers")}
-              className="text-amber-800 hover:text-amber-900 font-bold flex items-center gap-1 cursor-pointer"
-            >
-              <span>Manage All Franchisees</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
+                  {/* Right: Quick Action Buttons */}
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSelectedDealerForDetails(dealer);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                    >
+                      Review
+                    </button>
 
-        {/* ========================================================= */}
-        {/* ALERT 2: Atomic Reservation Queue Request (Rose Alert)     */}
-        {/* ========================================================= */}
-        <div className="relative w-full bg-white rounded-3xl border border-rose-200/90 shadow-[0_8px_30px_rgba(225,29,72,0.06)] p-6 sm:p-7 transition-all space-y-5 overflow-hidden">
-          {/* Top Rose Radiant Strip */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F]" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setDeclineTargetDealer(dealer);
+                        setDeclineReason("");
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Decline
+                    </button>
 
-          {/* Alert Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-[#C3002F] shadow-2xs shrink-0">
-                <Lock className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-lg font-black text-slate-900 tracking-tight">
-                    Atomic Reservation Queue Requests
-                  </h2>
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F] animate-pulse" />
-                    24H LOCK ACTIVE
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Dealer exclusivity locks protected against duplicate allocation, awaiting wholesale confirmation or release.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold font-mono bg-rose-50 text-rose-900 border border-rose-300/80 shadow-2xs">
-                {heldVehicles.length} {heldVehicles.length === 1 ? "Active Lock" : "Active Locks"}
-              </span>
-            </div>
-          </div>
-
-          {/* Alert Body */}
-          {heldVehicles.length === 0 ? (
-            <div className="py-8 px-4 bg-slate-50/60 rounded-2xl border border-slate-200/80 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span className="font-medium">No active 24h exclusivity holds. All catalogue stock is available.</span>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {heldVehicles.map((vehicle) => {
-                const matchingRes = reservations.find(
-                  (r) => r.vehicleId === vehicle.id && r.status === "ACTIVE_HOLD"
-                );
-                const dealerName = matchingRes?.dealerName || "Auckland Nissan City Ltd";
-                const dealerCode = matchingRes?.dealerCode || "NZ-NIS-AKL01";
-                const dealerZone = matchingRes?.priceSnapshot?.zoneId || "ZONE_1";
-                const price = matchingRes?.priceSnapshot || calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
-
-                return (
-                  <div
-                    key={vehicle.id}
-                    className="p-5 rounded-2xl bg-gradient-to-br from-rose-50/30 via-white to-rose-50/10 border border-rose-200/80 hover:border-rose-300 shadow-2xs hover:shadow-xs transition-all space-y-4 text-xs"
-                  >
-                    {/* Top Row: Vehicle Image + Title + Dealership Lock info */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-4 min-w-0">
-                        {/* Vehicle Studio Thumbnail */}
-                        <div className="relative w-28 sm:w-36 h-20 rounded-xl bg-slate-50 border border-slate-200/80 p-1 flex items-center justify-center shrink-0">
-                          <img
-                            src={vehicle.images?.[0] || "/images/cars/kicks.png"}
-                            alt={vehicle.model || "Vehicle"}
-                            className="w-full h-full object-contain filter drop-shadow-xs select-none"
-                          />
-                          <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-white/90 text-slate-700 font-mono text-[9px] font-bold border border-slate-200 shadow-2xs">
-                            ★ {vehicle.auctionGrade || "4.5"}
-                          </span>
-                        </div>
-
-                        {/* Title & Specs */}
-                        <div className="space-y-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <strong className="text-base font-black text-slate-900 tracking-tight">
-                              {vehicle.year} {vehicle.make} - {vehicle.model}
-                            </strong>
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold border border-slate-200">
-                              #{vehicle.stockId}
-                            </span>
-                          </div>
-                          <p className="text-slate-500 text-xs">
-                            {vehicle.grade} · {vehicle.engineCc || 1200}cc {vehicle.fuelType} · {vehicle.vinChassis}
-                          </p>
-                          <div className="text-[11px] text-slate-600 flex items-center gap-1.5">
-                            <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                            <span>Held By: <strong className="text-slate-900 font-semibold">{dealerName}</strong> ({dealerCode})</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Exclusivity Timer Pill */}
-                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 font-mono font-bold text-xs self-start md:self-auto shrink-0 shadow-2xs">
-                        <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                        <span>18h 42m Remaining Under Lock</span>
-                      </div>
-                    </div>
-
-                    {/* Middle Row: Financial Economics Snapshot */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
-                      <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-0.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Guaranteed Landed Buy
-                        </span>
-                        <div className="text-sm font-black font-mono text-slate-900">
-                          ${price.totalBuyPriceNZD.toLocaleString()} <span className="text-[10px] font-normal text-slate-500">NZD ({dealerZone})</span>
-                        </div>
-                        <span className="text-[10px] text-emerald-600 font-medium block">
-                          Fixed commercial allocation price
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-0.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Japanese FOB Baseline
-                        </span>
-                        <div className="text-sm font-black font-mono text-slate-900">
-                          ¥{vehicle.fobPriceJPY.toLocaleString()} <span className="text-[10px] font-normal text-slate-500">JPY</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-mono block">
-                          RoRo: Yokohama to Auckland
-                        </span>
-                      </div>
-
-                      <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-0.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Dealership Exclusivity Status
-                        </span>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Strictly Protected (Atomic)</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 block">
-                          Zero risk of duplicate allocation
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons Row */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        Confirming wholesale order converts hold into confirmed shipping allocation.
-                      </span>
-
-                      <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSubtleClick();
-                            const r = reservations.find((res) => res.vehicleId === vehicle.id && res.status === "ACTIVE_HOLD") || reservations[0];
-                            if (r) setSelectedResForDetails(r);
-                          }}
-                          className="btn-outline text-xs py-2 px-3.5"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-slate-400" />
-                          <span>Inspect Hold</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleReleaseReservation(vehicle.id)}
-                          className="btn-outline text-xs py-2 px-3.5 hover:border-slate-300 hover:bg-slate-100"
-                        >
-                          <Unlock className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Release Lock</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleConfirmReservation(vehicle.id)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_18px_rgba(225,29,72,0.45)] cursor-pointer active:scale-[0.98]"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Confirm Allocation</span>
-                        </button>
-                      </div>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(dealer.id, defaultZone)}
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-slate-800 rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                    >
+                      Authorize
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Alert Footer */}
-          <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
-            <span>24-hour exclusivity timer guarantees dealer price protection without duplicate allocation.</span>
-            <button
-              type="button"
-              onClick={() => onNavigateTab("admin-reservations")}
-              className="text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer"
-            >
-              <span>Manage Full Reservations Queue</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+                </div>
+              );
+            })}
           </div>
-        </div>
+        )}
       </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 4. Section 2: Atomic Reservation Queue Requests            */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Lock className="w-4 h-4 text-slate-800" />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              Atomic Reservation Queue Requests
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
+              {heldVehicles.length}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onNavigateTab("admin-reservations")}
+            className="text-xs sm:text-sm font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            <span>Manage All Holds</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {heldVehicles.length === 0 ? (
+          <div className="py-6 px-4 bg-slate-50 rounded-lg text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>No active 24h exclusivity holds. All catalogue stock is available.</span>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {heldVehicles.map((vehicle) => {
+              const matchingRes = reservations.find(
+                (r) => r.vehicleId === vehicle.id && r.status === "ACTIVE_HOLD"
+              );
+              const dealerName = matchingRes?.dealerName || "Auckland Nissan City Ltd";
+
+              return (
+                <div
+                  key={vehicle.id}
+                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-lg transition-colors"
+                >
+                  {/* Left: Thumbnail & Minimal Specs */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+                      <img
+                        src={vehicle.images?.[0] || "/images/cars/note.png"}
+                        alt={vehicle.model || "Vehicle"}
+                        className="w-full h-full object-contain select-none"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-900 truncate">
+                        {vehicle.year} {vehicle.make} {vehicle.model}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                          #{vehicle.stockId}
+                        </span>
+                        <span className="text-slate-300 hidden sm:inline">·</span>
+                        <span className="text-xs text-slate-600 hidden sm:inline truncate">
+                          {dealerName}
+                        </span>
+                        <span className="text-slate-300 hidden md:inline">·</span>
+                        <span className="text-xs font-mono font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 shrink-0 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#C3002F]" />
+                          <span>18h left</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Quick Action Buttons */}
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        const r = reservations.find((res) => res.vehicleId === vehicle.id && res.status === "ACTIVE_HOLD") || reservations[0];
+                        if (r) setSelectedResForDetails(r);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                    >
+                      Inspect
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleReleaseReservation(vehicle.id)}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Release
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmReservation(vehicle.id)}
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-slate-800 rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                    >
+                      Confirm Order
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 5. Decline Dealership Application Reason Note Modal         */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {declineTargetDealer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-[#C3002F] shrink-0">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Decline Dealership Application
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    {declineTargetDealer.legalTradingName} ({declineTargetDealer.dealerCode})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDeclineTargetDealer(null);
+                  setDeclineReason("");
+                }}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs sm:text-sm font-semibold text-slate-700 block">
+                Reason for Rejection / Compliance Audit Note <span className="text-[#C3002F]">*</span>
+              </label>
+              <textarea
+                rows={3}
+                value={declineReason}
+                onChange={(e) => setDeclineReason(e.target.value)}
+                placeholder="e.g., NZBN business entity check failed, territorial boundary overlap with existing franchise, or missing authorized signatory."
+                className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 resize-none font-sans"
+              />
+
+              {/* Quick preset chips */}
+              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                <span className="text-xs text-slate-400 font-medium">Quick Presets:</span>
+                {[
+                  "NZBN Verification Inactive",
+                  "Territory Franchise Conflict",
+                  "Missing Authorised Signatory",
+                  "Credit Boundary Ineligible",
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setDeclineReason(preset)}
+                    className="text-xs px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors cursor-pointer"
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeclineTargetDealer(null);
+                  setDeclineReason("");
+                }}
+                className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-medium cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!declineReason.trim()}
+                onClick={handleConfirmDecline}
+                className="px-4 py-2 rounded-lg bg-[#C3002F] hover:bg-[#A10026] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-semibold cursor-pointer transition-all shadow-xs"
+              >
+                Confirm Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Dealer Details Dossier Modal */}
       {selectedDealerForDetails && (
@@ -575,7 +466,14 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
           dealer={selectedDealerForDetails}
           onClose={() => setSelectedDealerForDetails(null)}
           onApprove={(did, zid) => handleApprove(did, zid)}
-          onReject={handleReject}
+          onReject={(did) => {
+            setSelectedDealerForDetails(null);
+            const target = dealers.find((d) => d.id === did);
+            if (target) {
+              setDeclineTargetDealer(target);
+              setDeclineReason("");
+            }
+          }}
         />
       )}
 

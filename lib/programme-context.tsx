@@ -57,7 +57,7 @@ interface ProgrammeContextType {
 
   // Dealer Authorization actions
   approveDealer: (dealerId: string, pricingZoneId: ZoneId) => void;
-  rejectDealer: (dealerId: string) => void;
+  rejectDealer: (dealerId: string, reason?: string) => void;
   updateDealerZone: (dealerId: string, pricingZoneId: ZoneId) => void;
 
   // Helper
@@ -66,7 +66,7 @@ interface ProgrammeContextType {
 
 const ProgrammeContext = createContext<ProgrammeContextType | undefined>(undefined);
 
-const STORAGE_KEY = "dealer_platform_programme_state_v6";
+const STORAGE_KEY = "dealer_platform_programme_state_v7";
 
 export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
@@ -675,7 +675,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 11. Reject Dealer
-  const rejectDealer = (dealerId: string) => {
+  const rejectDealer = (dealerId: string, reason?: string) => {
     setDealers((prev) =>
       prev.map((d) => (d.id === dealerId ? { ...d, status: "REJECTED" } : d))
     );
@@ -688,7 +688,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       category: "AUTHENTICATION",
       objectType: "DealerAccount",
       objectId: dealerId,
-      details: `Declined dealer onboarding application for ${dealerId}.`,
+      details: reason
+        ? `Declined dealer onboarding application for ${dealerId}. Reason: ${reason}`
+        : `Declined dealer onboarding application for ${dealerId}.`,
     });
   };
 
