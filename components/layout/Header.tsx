@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { audio } from "@/lib/sound";
 import GlobalSearchModal from "./GlobalSearchModal";
+import RoleSwitcher from "./RoleSwitcher";
 import {
   Search,
   Bell,
@@ -128,7 +129,9 @@ export default function Header({
           <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
             Nissan New Zealand
           </span>
-        </div>
+          {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
 
         {/* Desktop / Tablet Search Trigger Bar -> Opens Global Search Modal Listing */}
         <div
@@ -174,9 +177,17 @@ export default function Header({
                   /
                 </kbd>
               )}
-            </div>
-          </div>
-        </div>
+              {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
+            {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
+          {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
+        {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
       </div>
 
       {/* Right: Quick Search Button on mobile, Notifications, Role Switcher */}
@@ -193,6 +204,9 @@ export default function Header({
         >
           <Search className="w-5 h-5 text-slate-600" />
         </button>
+
+        {/* 1-Click Role Switcher */}
+        <RoleSwitcher />
 
         {/* Real-time Notifications Popover */}
         <div className="relative" ref={notifRef}>
@@ -217,7 +231,9 @@ export default function Header({
                   <span className="text-[10px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full border border-rose-200">
                     2 New
                   </span>
-                </div>
+                  {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
                 <button
                   type="button"
                   onClick={() => audio.playSubtleClick()}
@@ -225,7 +241,9 @@ export default function Header({
                 >
                   Mark all read
                 </button>
-              </div>
+                {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
 
               <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto pt-1 navy-scrollbar">
                 {notifications.map((n) => {
@@ -238,22 +256,32 @@ export default function Header({
                     >
                       <div className={`p-2 rounded-xl shrink-0 ${n.iconColor}`}>
                         <Icon className="w-4 h-4" />
-                      </div>
+                        {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1 mb-0.5">
                           <p className="text-xs font-semibold text-slate-900 truncate">
                             {n.title}
                           </p>
                           <span className="text-[10px] text-slate-400 shrink-0">{n.time}</span>
-                        </div>
+                          {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
                         <p className="text-[11px] text-slate-500 leading-snug line-clamp-2">
                           {n.desc}
                         </p>
-                      </div>
-                    </div>
+                        {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
+                      {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
                   );
                 })}
-              </div>
+                {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
 
               <div className="pt-2 border-t border-slate-100 text-center">
                 <button
@@ -267,11 +295,19 @@ export default function Header({
                 >
                   View All Programme Activity →
                 </button>
-              </div>
-            </div>
+                {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
+              {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
           )}
-        </div>
+          {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
+      </div>
 
+        {/* Universal Persona Role Switcher */}
+        <RoleSwitcher />
       </div>
 
       {/* Universal Global Search Modal Listing */}

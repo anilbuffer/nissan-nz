@@ -19,49 +19,49 @@ interface RoleOption {
 
 const ROLES: RoleOption[] = [
   {
+    role: "AUTOHUB_ADMIN",
+    label: "Platform Operations",
+    sublabel: "Sarah Jenkins · Central Controller",
+    badge: "ADMIN",
+    badgeColor: "bg-slate-100 text-slate-800 border-slate-200",
+    icon: Shield,
+    iconBg: "bg-slate-100 text-slate-800",
+  },
+  {
     role: "DEALER_USER",
     label: "Auckland Nissan",
     sublabel: "David Miller · Sales Buyer",
     badge: "BUYER",
-    badgeColor: "bg-emerald-500/15 text-[#C3002F] border-emerald-500/30",
+    badgeColor: "bg-red-50 text-[#C3002F] border-red-200",
     icon: Car,
-    iconBg: "bg-emerald-500/10 text-[#C3002F]",
+    iconBg: "bg-red-50 text-[#C3002F]",
   },
   {
     role: "DEALER_ADMIN",
     label: "Bay of Plenty Nissan",
     sublabel: "Marcus Vance · Dealer Principal",
-    badge: "PRINCIPAL",
-    badgeColor: "bg-emerald-500/15 text-[#C3002F] border-emerald-500/30",
+    badge: "DEALER PRINCIPAL",
+    badgeColor: "bg-red-50 text-[#C3002F] border-red-200",
     icon: Car,
-    iconBg: "bg-emerald-500/10 text-[#C3002F]",
-  },
-  {
-    role: "AUTOHUB_ADMIN",
-    label: "Platform Operations",
-    sublabel: "Sarah Jenkins · Central Controller",
-    badge: "ADMIN",
-    badgeColor: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    icon: Shield,
-    iconBg: "bg-blue-500/10 text-blue-400",
+    iconBg: "bg-red-50 text-[#C3002F]",
   },
   {
     role: "NISSAN_JAPAN",
     label: "Nissan Japan HQ",
     sublabel: "Kenji Sato · Export Marshalling",
-    badge: "JAPAN",
-    badgeColor: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+    badge: "JAPAN HQ",
+    badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
     icon: Globe2,
-    iconBg: "bg-purple-500/10 text-purple-400",
+    iconBg: "bg-slate-100 text-slate-700",
   },
   {
     role: "READONLY_AUDITOR",
     label: "Regulatory Audit",
     sublabel: "Elena Campbell · Customs/NZTA",
     badge: "AUDITOR",
-    badgeColor: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    badgeColor: "bg-amber-50 text-amber-800 border-amber-200",
     icon: Shield,
-    iconBg: "bg-amber-500/10 text-amber-400",
+    iconBg: "bg-amber-50 text-amber-800",
   },
 ];
 
@@ -112,24 +112,25 @@ export default function RoleSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Switch active workspace role"
-        className="flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 py-1.5 rounded-xl bg-[#121212] hover:bg-[#18181B] border border-[#27272A] hover:border-slate-600 text-white transition-all text-xs focus-visible:ring-2 focus-visible:ring-crimson-500 cursor-pointer shadow-soft"
+        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 transition-all text-xs font-medium cursor-pointer shadow-2xs"
       >
-        <div className={`p-1.5 rounded-lg ${activeRoleOption.iconBg}`}>
+        <div className={`p-1 rounded-md ${activeRoleOption.iconBg}`}>
           <ActiveIcon className="w-3.5 h-3.5" />
         </div>
         <div className="text-left hidden md:block">
-          <div className="font-semibold text-white leading-tight flex items-center gap-1.5">
-            <span className="truncate max-w-[120px]">{activeRoleOption.label}</span>
+          <div className="font-semibold text-slate-900 leading-tight flex items-center gap-1.5">
+            <span className="truncate max-w-[130px]">{activeRoleOption.label}</span>
             <span
-              className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${activeRoleOption.badgeColor}`}
+              className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${activeRoleOption.badgeColor}`}
             >
               {activeRoleOption.badge}
             </span>
           </div>
         </div>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-            }`}
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
         />
       </button>
 
@@ -137,14 +138,14 @@ export default function RoleSwitcher() {
       {isOpen && (
         <div
           role="listbox"
-          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-72 max-w-xs rounded-2xl bg-[#121212] border border-[#27272A] shadow-hover py-2 z-50 text-white backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200"
+          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 text-slate-900 animate-in fade-in slide-in-from-top-2 duration-150"
         >
-          <div className="px-3.5 py-2 border-b border-[#27272A] mb-1">
+          <div className="px-3.5 py-2 border-b border-slate-100 mb-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Switch Workspace View
+              Switch Persona Role
             </p>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Simulate distinct persona permissions
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Simulate role-based views across the 21 MVP user stories
             </p>
           </div>
 
@@ -159,17 +160,18 @@ export default function RoleSwitcher() {
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelectRole(option.role)}
-                  className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left text-xs cursor-pointer ${isSelected
-                    ? "bg-white/10 text-white font-medium border border-white/10"
-                    : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
-                    }`}
+                  className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left text-xs cursor-pointer ${
+                    isSelected
+                      ? "bg-slate-50 text-slate-900 font-semibold border border-slate-200"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                  }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`p-2 rounded-lg shrink-0 ${option.iconBg}`}>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg shrink-0 ${option.iconBg}`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <div className="font-medium text-white flex items-center gap-1.5 truncate">
+                      <div className="font-semibold text-slate-900 flex items-center gap-1.5 truncate">
                         <span className="truncate">{option.label}</span>
                         <span
                           className={`text-[9px] font-bold px-1.5 py-0.2 rounded border shrink-0 ${option.badgeColor}`}
@@ -177,7 +179,7 @@ export default function RoleSwitcher() {
                           {option.badge}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-400 truncate">{option.sublabel}</div>
+                      <div className="text-[11px] text-slate-500 truncate">{option.sublabel}</div>
                     </div>
                   </div>
                   {isSelected && <Check className="w-4 h-4 text-[#C3002F] shrink-0 ml-2" />}
@@ -186,9 +188,9 @@ export default function RoleSwitcher() {
             })}
           </div>
 
-          <div className="mt-2 pt-2 px-3 border-t border-[#27272A] text-[10px] text-slate-400 flex items-center justify-between">
-            <span>Audio Chime Enabled</span>
-            <span className="text-[#C3002F] font-mono">Web Audio API</span>
+          <div className="mt-2 pt-2 px-3.5 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
+            <span>Nissan Used Vehicle Programme</span>
+            <span className="text-[#C3002F] font-mono font-semibold">MVP v2026.1</span>
           </div>
         </div>
       )}
