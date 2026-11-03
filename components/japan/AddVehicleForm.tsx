@@ -461,23 +461,11 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <input
                     type="text"
                     required
-                    list="nissan-models"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    placeholder="e.g. Note e-Power, X-Trail, Serena e-Power..."
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-bold placeholder-slate-400 transition-colors"
+                    placeholder="e.g. Note e-Power, X-Trail, Serena e-Power, Ariya..."
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
-                  <datalist id="nissan-models">
-                    <option value="Note e-Power" />
-                    <option value="Leaf" />
-                    <option value="X-Trail" />
-                    <option value="Serena e-Power" />
-                    <option value="Kicks e-Power" />
-                    <option value="Dayz" />
-                    <option value="Elgrand" />
-                    <option value="Navara" />
-                    <option value="Ariya" />
-                  </datalist>
                 </div>
 
                 <div className="space-y-1.5">
@@ -527,18 +515,13 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <label className="text-xs font-bold text-slate-700 block">Transmission</label>
                   <input
                     type="text"
-                    list="nissan-transmissions"
+                    
                     value={transmission}
                     onChange={(e) => setTransmission(e.target.value)}
                     placeholder="e.g. Automatic, e-Power Drive, CVT"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
-                  <datalist id="nissan-transmissions">
-                    <option value="Automatic" />
-                    <option value="e-Power Drive" />
-                    <option value="CVT" />
-                    <option value="Manual" />
-                  </datalist>
+                  
                 </div>
 
                 <div className="space-y-1.5">
@@ -556,19 +539,13 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <label className="text-xs font-bold text-slate-700 block">Powertrain / Fuel</label>
                   <input
                     type="text"
-                    list="nissan-fuels"
+                    
                     value={fuelType}
                     onChange={(e) => setFuelType(e.target.value)}
                     placeholder="e.g. e-Power, 100% Electric, Petrol"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
-                  <datalist id="nissan-fuels">
-                    <option value="e-Power" />
-                    <option value="100% Electric" />
-                    <option value="Hybrid" />
-                    <option value="Petrol" />
-                    <option value="Diesel" />
-                  </datalist>
+                  
                 </div>
               </div>
             </div>
