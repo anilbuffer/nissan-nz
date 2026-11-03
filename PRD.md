@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary & Purpose
 
-The **Dealer Order Platform (DOP)** is a dedicated, controlled self-service portal connecting approved **Nissan New Zealand franchise dealers** directly with **Nissan Japan export inventory**. 
+The **Dealer Order Platform (DOP)** is a dedicated, controlled self-service portal connecting approved **Nissan franchise dealers** directly with **Nissan Japan export inventory**. 
 
 Currently, vehicle sourcing, landed cost estimation, and order status inquiries rely on fragmented email threads, manual spreadsheets, and phone calls. This platform creates a single source of truth that:
 1. Gives approved dealers transparent visibility into Japanese stock with **guaranteed dealer-specific landed pricing**.

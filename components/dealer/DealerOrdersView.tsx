@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { Order, OrderMilestone, ReservationRequest } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
@@ -49,11 +50,23 @@ const MILESTONE_STEPS: { key: OrderMilestone; label: string; actor: string; desc
   { key: "DELIVERED", label: "Delivered to Dealership", actor: "Franchise Receiving Yard", desc: "Final handover, transport receipt signed, and entered into yard inventory." },
 ];
 
-export default function DealerOrdersView() {
+export interface DealerOrdersViewProps {
+  mode?: "ORDERS" | "RESERVE";
+}
+
+export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   const { currentDealer } = useAuth();
   const { orders, reservations, releaseHold, cancelReservation, respondToAdditionalCost, confirmAllocation, reservationConfig } = useProgramme();
 
-  const [activeTab, setActiveTab] = useState<"ORDERS" | "HOLDS">("ORDERS");
+  const [activeTab, setActiveTab] = useState<"ORDERS" | "HOLDS">(mode === "RESERVE" ? "HOLDS" : "ORDERS");
+
+  useEffect(() => {
+    if (mode === "RESERVE") {
+      setActiveTab("HOLDS");
+    } else if (mode === "ORDERS") {
+      setActiveTab("ORDERS");
+    }
+  }, [mode]);
   const [showPriceBreakdown, setShowPriceBreakdown] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -185,55 +198,79 @@ export default function DealerOrdersView() {
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-            Orders &amp; Shipments
+            {mode === "RESERVE" ? `Vehicle Reservations (${dealerHolds.length})` : `Wholesale Orders (${dealerOrders.length})`}
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"} · 360 Great South Road, Greenlane
+            {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"} · {mode === "RESERVE" ? "Active 24-hour exclusivity reservations with guaranteed landed pricing locks." : "Live tracking of confirmed vehicle orders, ocean transit, and NZ compliance milestones."}
           </p>
         </div>
 
-        {/* Tab Switcher Pills */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              setActiveTab("ORDERS");
-              setViewingOrderId(null);
-            }}
-            className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "ORDERS"
-              ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
-              : "bg-white text-slate-700 hover:bg-slate-50"
-              }`}
+        {/* Action / Navigation links */}
+        {mode === "ORDERS" ? (
+          <Link
+            href="/dealer/reserve"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs shrink-0 self-start sm:self-auto"
           >
-            <Ship className={`w-3.5 h-3.5 ${activeTab === "ORDERS" ? "text-rose-400" : "text-slate-500"}`} />
-            <span>Active Orders</span>
-            <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "ORDERS" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
-              }`}>
-              {dealerOrders.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              setActiveTab("HOLDS");
-              setViewingOrderId(null);
-            }}
-            className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "HOLDS"
-              ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
-              : "bg-white text-slate-700 hover:bg-slate-50"
-              }`}
-          >
-            <Lock className={`w-3.5 h-3.5 ${activeTab === "HOLDS" ? "text-amber-400" : "text-amber-500"}`} />
-            <span>24h Exclusivity Holds</span>
-            <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "HOLDS" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-900"
-              }`}>
+            <Lock className="w-3.5 h-3.5 text-amber-500" />
+            <span>View Reservations</span>
+            <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-amber-100 text-amber-800 font-bold">
               {dealerHolds.length}
             </span>
-          </button>
-        </div>
+          </Link>
+        ) : mode === "RESERVE" ? (
+          <Link
+            href="/dealer/orders"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs shrink-0 self-start sm:self-auto"
+          >
+            <Ship className="w-3.5 h-3.5 text-slate-600" />
+            <span>Wholesale Orders</span>
+            <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-slate-100 text-slate-700 font-bold">
+              {dealerOrders.length}
+            </span>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setActiveTab("ORDERS");
+                setViewingOrderId(null);
+              }}
+              className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "ORDERS"
+                ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
+                : "bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+            >
+              <Ship className={`w-3.5 h-3.5 ${activeTab === "ORDERS" ? "text-rose-400" : "text-slate-500"}`} />
+              <span>Active Orders</span>
+              <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "ORDERS" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
+                }`}>
+                {dealerOrders.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setActiveTab("HOLDS");
+                setViewingOrderId(null);
+              }}
+              className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "HOLDS"
+                ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
+                : "bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+            >
+              <Lock className={`w-3.5 h-3.5 ${activeTab === "HOLDS" ? "text-amber-400" : "text-amber-500"}`} />
+              <span>24h Reservations</span>
+              <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "HOLDS" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-900"
+                }`}>
+                {dealerHolds.length}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Global Interactive Notification Toast */}
@@ -256,7 +293,7 @@ export default function DealerOrdersView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. TAB: My 24-Hour Exclusivity Holds                        */}
       {/* ─────────────────────────────────────────────────────────── */}
-      {activeTab === "HOLDS" && (
+      {(mode === "RESERVE" || (!mode && activeTab === "HOLDS")) && (
         <div className="space-y-6 animate-in fade-in">
           <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-4 text-xs text-amber-950 flex items-start gap-3 shadow-2xs">
             <Lock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -275,7 +312,7 @@ export default function DealerOrdersView() {
               <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mx-auto">
                 <Clock className="w-7 h-7" />
               </div>
-              <h3 className="text-lg font-bold text-slate-800">No Active Exclusivity Holds</h3>
+              <h3 className="text-lg font-bold text-slate-800">No Active Reservations</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
                 Your dealership currently holds no time-locked reservations. Browse the Vehicle Catalogue to claim a 24-hour guaranteed price lock on available stock.
               </p>
@@ -382,7 +419,7 @@ export default function DealerOrdersView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. TAB: Active Orders & Shipments                           */}
       {/* ─────────────────────────────────────────────────────────── */}
-      {activeTab === "ORDERS" && (
+      {(mode === "ORDERS" || (!mode && activeTab === "ORDERS")) && (
         <div className="space-y-6">
           {/* If viewing a specific order detail dossier */}
           {viewingOrderId ? (

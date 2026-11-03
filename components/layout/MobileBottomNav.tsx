@@ -15,6 +15,7 @@ import {
   PlusCircle,
   Clock,
   Layers,
+  Lock,
 } from "lucide-react";
 
 interface MobileBottomNavProps {
@@ -92,6 +93,12 @@ export default function MobileBottomNav({
         label: "Orders",
         icon: Package,
         href: "/dealer/orders",
+      },
+      {
+        id: "dealer-reserve",
+        label: "Reserve",
+        icon: Lock,
+        href: "/dealer/reserve",
       },
       {
         id: "dealer-profile",

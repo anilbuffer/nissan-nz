@@ -140,6 +140,7 @@ export interface Vehicle {
   reservedByDealerId?: string;
   reservedAt?: string;
   reservationExpiresAt?: string;
+  additionalCosts?: AdditionalCostItem[];
 }
 
 export type ReservationStatus =

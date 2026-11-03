@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import DealerRegistrationWizard from "@/components/onboarding/DealerRegistrationWizard";
 
 export const metadata: Metadata = {
-  title: "Dealer Registration | Dealer Order Platform",
-  description: "Official franchise onboarding application for Nissan Used Vehicle Programme New Zealand.",
+  title: "Registration Portal | Nissan Used Vehicle Programme",
+  description: "Official registration application for Nissan New Zealand Dealers, Japan Export HQ, and Programme Users.",
 };
 
 export default function RegisterPage() {

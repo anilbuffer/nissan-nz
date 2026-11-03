@@ -27,7 +27,7 @@ const oldShellMain = `<main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-
           <footer className="mt-10 pt-4 pb-2 border-t border-slate-200 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 max-w-[1680px] 2xl:max-w-[1960px] w-full mx-auto font-sans">
             <div className="flex items-center gap-2">
               <img src="/nissan-logo.png" alt="Nissan" className="w-4 h-4 object-contain opacity-70" />
-              <span>Nissan New Zealand · Dealer Order Platform</span>
+              <span>Nissan · Dealer Order Platform</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-400">
               <span>Powered by</span>

@@ -17,7 +17,7 @@ const topBrandReplacement = `{/* Top: Project Name & Programme Badge */}
           </div>
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block leading-tight">
-              Nissan New Zealand
+              Nissan
             </span>
             <h1 className="font-extrabold text-base tracking-tight text-white leading-tight mt-0.5">
               Dealer Order Platform
@@ -31,7 +31,7 @@ loginContent = loginContent.replace(topBrandRegex, topBrandReplacement);
 const footerRegex = /\{\/\* Minimal Footer \*\/\}[\s\S]*?<span>© 2026<\/span>\s*<\/div>/;
 const footerReplacement = `{/* Minimal Footer */}
         <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/10 font-sans">
-          <span>Nissan New Zealand · Used Vehicle Programme</span>
+          <span>Nissan · Used Vehicle Programme</span>
           <span className="flex items-center gap-1.5 text-slate-400">
             <span>Powered by</span>
             <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>

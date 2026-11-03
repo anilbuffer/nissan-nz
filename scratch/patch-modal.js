@@ -26,7 +26,7 @@ const newModalHeader = `<div className="bg-[#000000] px-6 py-5 text-white flex i
             </div>
             <div>
               <h3 className="font-bold text-base text-white">Nissan Dealer Onboarding Application</h3>
-              <p className="text-xs text-slate-400">Nissan New Zealand · Powered by AutoHub</p>
+              <p className="text-xs text-slate-400">Nissan · Powered by AutoHub</p>
             </div>
           </div>`;
 

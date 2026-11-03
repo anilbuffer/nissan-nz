@@ -26,6 +26,7 @@ import {
   ShoppingBag,
   Building2,
   SlidersHorizontal,
+  Lock,
   X,
 } from "lucide-react";
 
@@ -97,9 +98,15 @@ export default function Sidebar({
         },
         {
           id: "dealer-orders",
-          label: "Orders & Holds",
+          label: "Orders",
           icon: Package,
           href: "/dealer/orders",
+        },
+        {
+          id: "dealer-reserve",
+          label: "Reserve",
+          icon: Lock,
+          href: "/dealer/reserve",
         },
         {
           id: "dealer-profile",
@@ -343,8 +350,8 @@ export default function Sidebar({
               </div>
               {!collapsed && (
                 <div className="min-w-0 transition-opacity duration-200">
-                  <h1 className="font-bold text-sm tracking-tight text-white truncate leading-tight">
-                    Nissan New Zealand
+                  <h1 className="font-bold text-xl tracking-tight text-white truncate leading-tight">
+                    Nissan
                   </h1>
                 </div>
               )}

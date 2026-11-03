@@ -247,11 +247,10 @@ export default function DealerDetailsModal({
                       audio.playSubtleClick();
                       setSelectedZone(zoneKey);
                     }}
-                    className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
-                      isSelected
+                    className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${isSelected
                         ? "bg-white border-slate-900 ring-1 ring-slate-900 shadow-2xs"
                         : "bg-white/80 border-slate-200 hover:border-slate-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-mono font-semibold text-xs text-slate-900">{zoneKey}</span>
@@ -290,7 +289,7 @@ export default function DealerDetailsModal({
               </span>
             ) : (
               <span className="text-slate-600">
-                Authorized Nissan New Zealand Franchisee with live ordering rights.
+                Authorized Nissan Franchisee with live ordering rights.
               </span>
             )}
           </div>

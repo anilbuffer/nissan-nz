@@ -382,7 +382,7 @@ export const WHO_ENTERS_WHAT = [
     actorBadge: "bg-blue-50 text-blue-700 border-blue-200",
     category: "Franchise Governance",
     component: "Nissan Programme Policy",
-    description: "Nissan New Zealand certified used vehicle programme royalty and quality seal fee.",
+    description: "Nissan certified used vehicle programme royalty and quality seal fee.",
   },
   {
     id: 12,

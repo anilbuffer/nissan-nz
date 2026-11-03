@@ -10,7 +10,7 @@ const oldWizardHeader = `<div className="w-10 h-10 rounded-xl bg-gradient-to-br 
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-                Nissan New Zealand
+                Nissan
               </span>
               <h1 className="font-bold text-base text-white tracking-tight leading-tight">
                 Dealer Onboarding
@@ -26,7 +26,7 @@ const newWizardHeader = `<div className="w-10 h-10 flex items-center justify-cen
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-                Nissan New Zealand
+                Nissan
               </span>
               <h1 className="font-extrabold text-base text-white tracking-tight leading-tight mt-0.5">
                 Dealer Onboarding

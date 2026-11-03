@@ -505,8 +505,8 @@ export default function DealerApprovalsView() {
                         setDetailSelectedZone(zoneKey);
                       }}
                       className={`w-full p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${isSelected
-                          ? "bg-slate-50 border-[#C3002F] ring-2 ring-[#C3002F]/10 shadow-2xs"
-                          : "bg-white border-slate-200 hover:border-slate-300"
+                        ? "bg-slate-50 border-[#C3002F] ring-2 ring-[#C3002F]/10 shadow-2xs"
+                        : "bg-white border-slate-200 hover:border-slate-300"
                         }`}
                     >
                       <div className="space-y-0.5 pr-2">
@@ -700,7 +700,7 @@ export default function DealerApprovalsView() {
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Active Nissan New Zealand franchise dealers authorized for wholesale catalogue ordering and 24h holds.
+              Active Nissan franchise dealers authorized for wholesale catalogue ordering and 24h holds.
             </p>
           </div>
 

@@ -372,7 +372,7 @@ export const MOCK_USERS: UserAccount[] = [
     role: "READONLY_PROGRAMME_USER",
     title: "Nissan NZ Programme Representative",
     department: "National Sales Company (NSC) Governance",
-    dealershipName: "Nissan New Zealand NSC / Programme Management",
+    dealershipName: "Nissan NSC / Programme Management",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
     phone: "+64 9 262 9000",
     active: true,

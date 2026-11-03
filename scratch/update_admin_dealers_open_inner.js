@@ -560,7 +560,7 @@ export default function DealerApprovalsView() {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48] flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48]" />
-              Nissan New Zealand Network
+              Nissan Network
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
               Franchise Governance
@@ -824,7 +824,7 @@ export default function DealerApprovalsView() {
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Active Nissan New Zealand franchise dealers authorized for wholesale catalogue ordering and 24h holds.
+              Active Nissan franchise dealers authorized for wholesale catalogue ordering and 24h holds.
             </p>
           </div>
 

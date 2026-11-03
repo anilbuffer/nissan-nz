@@ -126,18 +126,18 @@ export default function AtomicReservationModal({
 
             <div className="space-y-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 font-mono">
-                REQ-HOLD-{vehicle.stockId}
+                REQ-RES-{vehicle.stockId}
               </span>
               <h4 className="text-xl font-bold text-slate-900 pt-1">
-                24-Hour Exclusivity Hold Secured!
+                24-Hour Exclusivity Reservation Secured!
               </h4>
               <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
-                <strong className="text-slate-900">{vehicle.year} {vehicle.make} {vehicle.model}</strong> ({vehicle.stockId}) has been placed on atomic hold for{" "}
+                <strong className="text-slate-900">{vehicle.year} {vehicle.make} {vehicle.model}</strong> ({vehicle.stockId}) has been reserved with atomic exclusivity for{" "}
                 <strong className="text-slate-900">{currentDealer?.legalTradingName || "Your Dealership"}</strong>.
               </p>
             </div>
 
-            {/* Hold Details Summary Card */}
+            {/* Reservation Details Summary Card */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2.5">
               <div className="flex items-center justify-between pb-2 border-b border-slate-200/70">
                 <span className="text-slate-500 font-medium">Guaranteed Buy Price (Zone Landed):</span>
@@ -149,7 +149,7 @@ export default function AtomicReservationModal({
                 <span className="text-slate-500 font-medium">Exclusivity Window:</span>
                 <span className="font-mono text-emerald-700 font-bold flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
-                  {defaultHours} Hours Active Hold
+                  {defaultHours} Hours Active Reservation
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -182,9 +182,9 @@ export default function AtomicReservationModal({
                   onClose();
                   router.push("/dealer/orders");
                 }}
-                className="w-full sm:flex-1 py-2.5 px-4 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition-colors shadow-soft cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full sm:flex-1 py-2.5 px-4 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl font-bold text-xs transition-colors shadow-soft cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <span>View in Orders &amp; Holds</span>
+                <span>View in Orders &amp; Reservations</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <button
@@ -309,7 +309,7 @@ export default function AtomicReservationModal({
               <div className="flex justify-between text-slate-600 text-[11px]">
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Holding Exclusivity Window:</span>
+                  <span>Reservation Exclusivity Window:</span>
                 </span>
                 <span className="font-mono text-slate-900 font-bold">
                   {defaultHours} Hours Exclusivity Lock
@@ -327,7 +327,7 @@ export default function AtomicReservationModal({
                     audio.playSubtleClick();
                     setAckTermsAndPrice(e.target.checked);
                   }}
-                  className="mt-0.5 rounded border-slate-300 text-[#C3002F] focus:ring-[#C3002F] w-4 h-4 cursor-pointer"
+                  className="mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 w-4 h-4 cursor-pointer"
                 />
                 <div className="text-[11px] text-slate-700 leading-snug">
                   <strong className="text-slate-900 block font-semibold mb-0.5">
@@ -346,13 +346,13 @@ export default function AtomicReservationModal({
                     audio.playSubtleClick();
                     setAckCancellationStatement(e.target.checked);
                   }}
-                  className="mt-0.5 rounded border-slate-300 text-[#C3002F] focus:ring-[#C3002F] w-4 h-4 cursor-pointer"
+                  className="mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 w-4 h-4 cursor-pointer"
                 />
                 <div className="text-[11px] text-slate-700 leading-snug">
                   <strong className="text-slate-900 block font-semibold mb-0.5">
                     2. Section 6.2 Cancellation Statement
                   </strong>
-                  I acknowledge that submitting this request establishes an exclusive {defaultHours}-hour hold. If cancelled prior to Autohub allocation confirmation or expired without confirmation, no financial penalty applies and the unit returns to available stock.
+                  I acknowledge that submitting this request establishes an exclusive {defaultHours}-hour reservation. If cancelled prior to Autohub allocation confirmation or expired without confirmation, no financial penalty applies and the unit returns to available stock.
                 </div>
               </label>
             </div>
@@ -373,7 +373,7 @@ export default function AtomicReservationModal({
                 onClick={handleConfirmReservation}
                 className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-soft cursor-pointer ${
                   ackTermsAndPrice && ackCancellationStatement
-                    ? "bg-[#0A0A0A] hover:bg-[#444444] text-white shadow-rose-900/20 active:scale-[0.98]"
+                    ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
                 }`}
               >
@@ -382,7 +382,7 @@ export default function AtomicReservationModal({
                 ) : (
                   <>
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Confirm Exclusivity Hold</span>
+                    <span>Confirm Vehicle Reservation</span>
                   </>
                 )}
               </button>

@@ -152,7 +152,7 @@ loginContent = loginContent.replace(
 );
 
 // Sign-in button shadow
-loginContent = loginContent.replace(/shadow-crimson-600\/20/g, 'shadow-[#C3002F]/20');
+loginContent = loginContent.replace(/shadow-crimson-600\/20/g, 'shadow-[#0A0A0A]/20');
 
 fs.writeFileSync(loginPath, loginContent, 'utf8');
 console.log('LoginPage.tsx color refinements applied.');

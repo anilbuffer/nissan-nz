@@ -13,7 +13,7 @@ const replacement = `{/* Top-Left Nissan Branding (Mobile & Collapsed Desktop) *
             className="w-7 h-7 object-contain drop-shadow-xs"
           />
           <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
-            Nissan New Zealand
+            Nissan
           </span>
         </div>`;
 

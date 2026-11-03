@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Nissan New Zealand | Dealer Order Platform",
+  title: "Nissan | Dealer Order Platform",
   description: "Direct Japan-supplied used vehicle ordering portal for approved Nissan NZ dealers. Powered by AutoHub.",
   icons: {
     icon: "/nissan-logo.png",

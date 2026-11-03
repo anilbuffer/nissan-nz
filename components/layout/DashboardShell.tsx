@@ -123,6 +123,7 @@ export default function DashboardShell({
 
     // 3. Dealer Portal routes
     if (pathname === "/dealer/orders" || initialTab === "orders" || initialTab === "dealer-orders") return "dealer-orders";
+    if (pathname === "/dealer/reserve" || pathname === "/dealer/reservations" || initialTab === "reserve" || initialTab === "reservations" || initialTab === "dealer-reserve") return "dealer-reserve";
     if (pathname === "/dealer/profile" || initialTab === "profile" || initialTab === "dealer-profile") return "dealer-profile";
     if (pathname === "/dealer/stocks" || pathname === "/dealer/stock" || initialTab === "stocks" || initialTab === "stock" || initialTab === "dealer-stock") return "dealer-stock";
     if (pathname === "/dealer/terms" || pathname === "/dealer/commercial-boundary" || initialTab === "terms" || initialTab === "dealer-terms") return "dealer-stock";
@@ -214,6 +215,10 @@ export default function DashboardShell({
       case "dealer-orders":
       case "orders":
         return "/dealer/orders";
+      case "dealer-reserve":
+      case "reserve":
+      case "reservations":
+        return "/dealer/reserve";
       case "dealer-profile":
       case "profile":
         return "/dealer/profile";
@@ -500,7 +505,9 @@ export default function DashboardShell({
           />
         );
       case 'dealer-orders':
-        return <DealerOrdersView />;
+        return <DealerOrdersView mode="ORDERS" />;
+      case 'dealer-reserve':
+        return <DealerOrdersView mode="RESERVE" />;
       case 'dealer-profile':
         return <DealershipProfileView />;
       default:

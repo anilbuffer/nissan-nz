@@ -116,7 +116,7 @@ graph TD
   - ⛔ Cannot approve or allocate dealer reservations.
 
 ### 2.6 Read-Only Programme User (`READONLY_AUDITOR`)
-- **Status:** Nissan New Zealand national sales company or third-party compliance auditor.
+- **Status:** Nissan national sales company or third-party compliance auditor.
 - **Permissions:**
   - Read-only access to all stock listings, active orders, and delivery timelines.
   - View full system audit log (user logins, terms acceptance, price changes, allocations).

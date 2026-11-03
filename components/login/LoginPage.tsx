@@ -209,11 +209,8 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-              Direct Japanese Sourcing
-            </span>
-            <h1 className="font-bold text-xl text-white">
-              Nissan New Zealand
+            <h1 className="font-bold text-lg lg:text-2xl text-white">
+              Nissan
             </h1>
           </div>
         </div>
@@ -232,16 +229,10 @@ export default function LoginPage() {
               Landed &amp; Protected.
             </span>
           </h2>
-
-          {/* Concise 1-liner description */}
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
-            Guaranteed landed wholesale pricing, multi-factor security, and 24-hour atomic exclusivity locks for authorized Nissan New Zealand franchise dealers.
-          </p>
         </div>
 
         {/* Minimal Footer */}
-        <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/10 font-sans">
-          <span>Nissan New Zealand · Used Vehicle Programme</span>
+        <div className="relative z-10 flex items-center justify-between text-sm text-slate-400 pt-4 border-t border-white/10 font-sans">
           <span className="flex items-center gap-1.5 text-slate-400">
             <span>Powered by</span>
             <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>
@@ -262,14 +253,6 @@ export default function LoginPage() {
             <>
               {/* Card Header */}
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#C3002F]">
-                    Identity Verification
-                  </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
-                    Step 1 of 2
-                  </span>
-                </div>
                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                   Sign in to Platform
                 </h2>
@@ -283,11 +266,10 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => handleTabChange("DEALER")}
-                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
-                    activeTab === "DEALER"
-                      ? "bg-white text-slate-900 shadow-soft font-bold"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${activeTab === "DEALER"
+                    ? "bg-white text-slate-900 shadow-soft font-bold"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   <Car className={`w-3.5 h-3.5 shrink-0 ${activeTab === "DEALER" ? "text-[#C3002F]" : "text-slate-400"}`} />
                   <span className="truncate">Dealer</span>
@@ -296,11 +278,10 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => handleTabChange("ADMIN")}
-                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
-                    activeTab === "ADMIN"
-                      ? "bg-white text-slate-900 shadow-soft font-bold"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${activeTab === "ADMIN"
+                    ? "bg-white text-slate-900 shadow-soft font-bold"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   <Shield className={`w-3.5 h-3.5 shrink-0 ${activeTab === "ADMIN" ? "text-[#C3002F]" : "text-slate-400"}`} />
                   <span className="truncate">Admin Ops</span>
@@ -309,11 +290,10 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => handleTabChange("JAPAN")}
-                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
-                    activeTab === "JAPAN"
-                      ? "bg-white text-slate-900 shadow-soft font-bold"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${activeTab === "JAPAN"
+                    ? "bg-white text-slate-900 shadow-soft font-bold"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   <Globe2 className={`w-3.5 h-3.5 shrink-0 ${activeTab === "JAPAN" ? "text-[#C3002F]" : "text-slate-400"}`} />
                   <span className="truncate">Japan HQ</span>
@@ -322,11 +302,10 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => handleTabChange("PROGRAMME")}
-                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${
-                    activeTab === "PROGRAMME"
-                      ? "bg-white text-slate-900 shadow-soft font-bold"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer truncate ${activeTab === "PROGRAMME"
+                    ? "bg-white text-slate-900 shadow-soft font-bold"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   <FileText className={`w-3.5 h-3.5 shrink-0 ${activeTab === "PROGRAMME" ? "text-[#C3002F]" : "text-slate-400"}`} />
                   <span className="truncate">Programme</span>
@@ -348,10 +327,10 @@ export default function LoginPage() {
                       {activeTab === "DEALER"
                         ? "Registered Dealer Email"
                         : activeTab === "ADMIN"
-                        ? "Autohub Operations Email"
-                        : activeTab === "JAPAN"
-                        ? "Nissan Japan Email"
-                        : "Programme Representative Email"}
+                          ? "Autohub Operations Email"
+                          : activeTab === "JAPAN"
+                            ? "Nissan Japan Email"
+                            : "Programme Representative Email"}
                     </label>
                     <button
                       type="button"
@@ -416,7 +395,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 px-4 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-[#C3002F]/20 flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-3 px-4 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-[#0A0A0A]/20 flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -428,14 +407,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </form>
-
-              {/* Security note */}
-              <div className="pt-2 text-center">
-                <div className="inline-flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <Lock className="w-3 h-3 text-amber-500/80" />
-                  <span>256-bit Encrypted Session · 2FA MFA Required</span>
-                </div>
-              </div>
 
               {/* Dealer Registration Action */}
               <div className="pt-4 border-t border-slate-100 space-y-2.5 text-center">

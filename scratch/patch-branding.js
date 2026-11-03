@@ -21,7 +21,7 @@ const newSidebarTop = `{/* Top Branding Section */}
               {!collapsed && (
                 <div className="min-w-0 transition-opacity duration-200">
                   <h1 className="font-extrabold text-sm tracking-tight text-white truncate leading-tight">
-                    Nissan New Zealand
+                    Nissan
                   </h1>
                   <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">Dealer Order Platform</p>
                 </div>
@@ -93,7 +93,7 @@ const newHeaderBranding = `{/* Top-Left Nissan Branding (Mobile & Collapsed Desk
             className="w-7 h-7 object-contain drop-shadow-xs"
           />
           <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
-            Nissan New Zealand
+            Nissan
           </span>
         </div>`;
 
@@ -114,7 +114,7 @@ const oldLoginBranding = `<div className="w-10 h-10 rounded-xl bg-gradient-to-br
           </div>
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-              Nissan New Zealand
+              Nissan
             </span>
             <h1 className="font-bold text-base tracking-tight text-white leading-tight">
               Dealer Order Platform
@@ -130,7 +130,7 @@ const newLoginBranding = `<div className="w-11 h-11 flex items-center justify-ce
           </div>
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-              Nissan New Zealand
+              Nissan
             </span>
             <h1 className="font-extrabold text-base tracking-tight text-white leading-tight mt-0.5">
               Dealer Order Platform
@@ -149,7 +149,7 @@ const oldLoginFooter = `<div className="relative z-10 flex items-center justify-
         </div>`;
 
 const newLoginFooter = `<div className="relative z-10 flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/10 font-sans">
-          <span>Nissan New Zealand · Used Vehicle Programme</span>
+          <span>Nissan · Used Vehicle Programme</span>
           <span className="flex items-center gap-1.5 text-slate-400">
             <span>Powered by</span>
             <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>
@@ -213,7 +213,7 @@ const newShellMain = `<main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-
           <footer className="mt-8 pt-4 pb-2 border-t border-slate-200 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2 max-w-[1680px] 2xl:max-w-[1960px] w-full mx-auto font-sans">
             <div className="flex items-center gap-2">
               <img src="/nissan-logo.png" alt="Nissan" className="w-4 h-4 object-contain opacity-70" />
-              <span>Nissan New Zealand · Dealer Order Platform</span>
+              <span>Nissan · Dealer Order Platform</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-400">
               <span>Powered by</span>
