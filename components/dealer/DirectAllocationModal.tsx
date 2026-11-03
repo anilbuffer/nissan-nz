@@ -77,7 +77,7 @@ export default function DirectAllocationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-      <div className="relative w-full max-w-xl max-h-[94vh] flex flex-col bg-white rounded-[24px] shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-2xl max-h-[94vh] flex flex-col bg-white rounded-[24px] shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A] shrink-0">
           <div className="flex items-center gap-3">
@@ -242,11 +242,10 @@ export default function DirectAllocationModal({
 
             {/* Allocation Agreement Checkbox */}
             <label
-              className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 ${
-                ackTerms
+              className={`flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 ${ackTerms
                   ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20"
                   : "bg-white border-slate-200 hover:border-slate-300"
-              }`}
+                }`}
             >
               <input
                 type="checkbox"
@@ -272,11 +271,10 @@ export default function DirectAllocationModal({
                 type="button"
                 onClick={handleConfirmAllocation}
                 disabled={!ackTerms || isSubmitting}
-                className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
-                  ackTerms && !isSubmitting
+                className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${ackTerms && !isSubmitting
                     ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 <Ship className="w-3.5 h-3.5" />
                 <span>{isSubmitting ? "Allocating..." : "Confirm Vehicle Allocation"}</span>

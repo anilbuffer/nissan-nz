@@ -168,12 +168,6 @@ export default function Sidebar({
           icon: Package,
           href: "/programme/orders",
         },
-        {
-          id: "programme-reports",
-          label: "Programme Reports",
-          icon: FileSpreadsheet,
-          href: "/programme/reports",
-        },
       ];
     }
 

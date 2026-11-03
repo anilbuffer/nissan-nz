@@ -89,7 +89,7 @@ export default function AtomicReservationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-      <div className="relative w-full max-w-xl max-h-[94vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-2xl max-h-[94vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A] shrink-0">
           <div className="flex items-center gap-3">
@@ -371,11 +371,10 @@ export default function AtomicReservationModal({
                 type="button"
                 disabled={isSubmitting || !ackTermsAndPrice || !ackCancellationStatement}
                 onClick={handleConfirmReservation}
-                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-soft cursor-pointer ${
-                  ackTermsAndPrice && ackCancellationStatement
+                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-soft cursor-pointer ${ackTermsAndPrice && ackCancellationStatement
                     ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {isSubmitting ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

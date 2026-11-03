@@ -109,8 +109,8 @@ export default function OrderCorridorTimeline({
       location: "Yokohama Export Marshalling Yard, Japan",
       timestamp: formatCorridorDate(
         getMilestoneTimestamp(["JAPAN_VERIFICATION", "ORDER_CONFIRMED"]) ||
-          order.orderedAt ||
-          "2026-09-08T21:00:00Z"
+        order.orderedAt ||
+        "2026-09-08T21:00:00Z"
       ),
       isCompleted: isAllDelivered || activeStageIndex > 0,
       isCurrent: !isAllDelivered && activeStageIndex === 0,
@@ -127,10 +127,10 @@ export default function OrderCorridorTimeline({
       timestamp:
         activeStageIndex >= 1 || isAllDelivered
           ? formatCorridorDate(
-              getMilestoneTimestamp(["IN_TRANSIT", "BOOKED_FOR_SHIPPING"]) ||
-                getMilestoneEta(["IN_TRANSIT"]) ||
-                "2026-09-10T06:30:00Z"
-            )
+            getMilestoneTimestamp(["IN_TRANSIT", "BOOKED_FOR_SHIPPING"]) ||
+            getMilestoneEta(["IN_TRANSIT"]) ||
+            "2026-09-10T06:30:00Z"
+          )
           : "Pending",
       isCompleted: isAllDelivered || activeStageIndex > 1,
       isCurrent: !isAllDelivered && activeStageIndex === 1,
@@ -147,10 +147,10 @@ export default function OrderCorridorTimeline({
       timestamp:
         activeStageIndex >= 2 || isAllDelivered
           ? formatCorridorDate(
-              getMilestoneTimestamp(["NZ_BORDER_PROCESSING"]) ||
-                getMilestoneEta(["NZ_BORDER_PROCESSING"]) ||
-                order.etaDeliveryDate
-            )
+            getMilestoneTimestamp(["NZ_BORDER_PROCESSING"]) ||
+            getMilestoneEta(["NZ_BORDER_PROCESSING"]) ||
+            order.etaDeliveryDate
+          )
           : "Pending",
       isCompleted: isAllDelivered || activeStageIndex > 2,
       isCurrent: !isAllDelivered && activeStageIndex === 2,
@@ -167,10 +167,10 @@ export default function OrderCorridorTimeline({
       timestamp:
         activeStageIndex >= 3 || isAllDelivered
           ? formatCorridorDate(
-              getMilestoneTimestamp(["COMPLIANCE", "READY_FOR_DELIVERY"]) ||
-                getMilestoneEta(["COMPLIANCE", "READY_FOR_DELIVERY"]) ||
-                order.etaDeliveryDate
-            )
+            getMilestoneTimestamp(["COMPLIANCE", "READY_FOR_DELIVERY"]) ||
+            getMilestoneEta(["COMPLIANCE", "READY_FOR_DELIVERY"]) ||
+            order.etaDeliveryDate
+          )
           : "Pending",
       isCompleted: isAllDelivered || activeStageIndex > 3,
       isCurrent: !isAllDelivered && activeStageIndex === 3,
@@ -188,8 +188,8 @@ export default function OrderCorridorTimeline({
         : order.dealerName || "Auckland Nissan City Ltd",
       timestamp: isAllDelivered
         ? formatCorridorDate(
-            getMilestoneTimestamp(["DELIVERED"]) || order.etaDeliveryDate
-          )
+          getMilestoneTimestamp(["DELIVERED"]) || order.etaDeliveryDate
+        )
         : "Pending",
       isCompleted: isAllDelivered,
       isCurrent: false,
@@ -199,26 +199,22 @@ export default function OrderCorridorTimeline({
   ];
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-0 ${className}`}>
       {stages.map((stage, idx) => {
         const isLast = idx === stages.length - 1;
 
         return (
-          <div
-            key={stage.id}
-            className="relative flex items-stretch gap-3 sm:gap-4.5"
-          >
-            {/* Left Indicator & Continuous Connecting Line */}
-            <div className="flex flex-col items-center shrink-0 w-8 sm:w-9">
+          <div key={stage.id} className="flex gap-3 sm:gap-4.5">
+            {/* Left: Circle + Connector Line */}
+            <div className="flex flex-col items-center shrink-0 w-7 sm:w-8">
               {/* Circle Badge */}
               <div
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10 transition-colors mt-2 sm:mt-2.5 ${
-                  stage.isCompleted
-                    ? "border-2 border-emerald-500 bg-white text-emerald-600"
-                    : stage.isCurrent
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10 transition-colors ${stage.isCompleted
+                  ? "border-2 border-emerald-500 bg-white text-emerald-600"
+                  : stage.isCurrent
                     ? "border-2 border-blue-500 bg-blue-50 text-blue-600"
                     : "border-2 border-slate-200 bg-white text-slate-400 font-semibold"
-                }`}
+                  }`}
               >
                 {stage.isCompleted ? (
                   <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.75] text-emerald-600" />
@@ -227,57 +223,59 @@ export default function OrderCorridorTimeline({
                 )}
               </div>
 
-              {/* Connecting Line Downward to Next Circle */}
+              {/* Continuous connecting line downward to next circle */}
               {!isLast && (
                 <div
-                  className={`w-0.5 flex-1 my-1.5 transition-colors ${
-                    stage.isCompleted ? "bg-emerald-500" : "bg-slate-200"
-                  }`}
+                  className={`w-0.5 flex-1 transition-colors ${stage.isCompleted ? "bg-emerald-500" : "bg-slate-200"
+                    }`}
                 />
               )}
             </div>
 
             {/* Right: Milestone White Card Matching Reference Layout */}
             <div
-              className={`flex-1 bg-white rounded-2xl border p-4 sm:p-5 mb-3 sm:mb-4 transition-all shadow-2xs ${
-                stage.isCurrent
+              className={`flex-1 min-w-0 ${!isLast ? "pb-3.5 sm:pb-4.5" : ""
+                }`}
+            >
+              <div
+                className={`bg-white rounded-2xl border p-4 sm:p-5 transition-all shadow-2xs ${stage.isCurrent
                   ? "border-blue-300 ring-2 ring-blue-500/10 shadow-xs"
                   : "border-slate-200"
-              }`}
-            >
-              {/* Top Row: Title + Current Pill (Left) & Date / Pending (Right) */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <h4 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
-                    {stage.number}. {stage.title}
-                  </h4>
-                  {stage.isCurrent && (
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full font-mono">
-                      Current Milestone
-                    </span>
-                  )}
-                </div>
+                  }`}
+              >
+                {/* Top Row: Title + Current Pill (Left) & Date / Pending (Right) */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+                  <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                    <h4 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+                      {stage.number}. {stage.title}
+                    </h4>
+                    {stage.isCurrent && (
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full font-mono">
+                        Current Milestone
+                      </span>
+                    )}
+                  </div>
 
-                <div
-                  className={`text-xs font-mono sm:text-right shrink-0 ${
-                    stage.timestamp === "Pending"
+                  <div
+                    className={`text-xs font-mono sm:text-right shrink-0 ${stage.timestamp === "Pending"
                       ? "text-slate-400"
                       : "text-slate-500 font-medium"
-                  }`}
-                >
-                  {stage.timestamp}
+                      }`}
+                  >
+                    {stage.timestamp}
+                  </div>
                 </div>
-              </div>
 
-              {/* Middle Row: Description */}
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 sm:mt-1.5">
-                {stage.description}
-              </p>
+                {/* Middle Row: Description */}
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 sm:mt-1.5">
+                  {stage.description}
+                </p>
 
-              {/* Bottom Row: Location with MapPin Icon */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-3 sm:mt-3.5 pt-1 sm:pt-0">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="truncate">{stage.location}</span>
+                {/* Bottom Row: Location with MapPin Icon */}
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-3 sm:mt-3.5 pt-1 sm:pt-0">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="truncate">{stage.location}</span>
+                </div>
               </div>
             </div>
           </div>

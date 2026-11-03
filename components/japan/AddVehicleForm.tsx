@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { Vehicle, VehicleStatus } from "@/lib/types";
+import React, { useState, useRef } from "react";
+import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
-import { calculateLandedPrice } from "@/lib/pricing-calculator";
+import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import {
   Car,
@@ -12,18 +12,20 @@ import {
   Plus,
   Save,
   Star,
-  MapPin,
-  Calendar,
-  Gauge,
-  Fuel,
-  Compass,
   FileCheck2,
-  Image as ImageIcon,
-  Sparkles,
-  Layers,
   ChevronRight,
   ShieldCheck,
   Hash,
+  UploadCloud,
+  X,
+  FileText,
+  DollarSign,
+  Tag,
+  Calendar,
+  Layers,
+  Image as ImageIcon,
+  Paperclip,
+  Trash2,
 } from "lucide-react";
 
 interface AddVehicleFormProps {
@@ -33,102 +35,172 @@ interface AddVehicleFormProps {
 export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps) {
   const { addVehicle } = useProgramme();
 
-  // All fields initially free-value / empty text with clean placeholders
+  // ───────────────────────────────────────────────────────────
+  // A. Vehicle Identification State
+  // ───────────────────────────────────────────────────────────
   const [stockId, setStockId] = useState("");
   const [vinChassis, setVinChassis] = useState("");
+  const [make, setMake] = useState("Nissan");
   const [model, setModel] = useState("");
   const [grade, setGrade] = useState("");
   const [year, setYear] = useState<number | "">("");
   const [odometerKm, setOdometerKm] = useState<number | "">("");
+  const [odometerUnit, setOdometerUnit] = useState<"km" | "mi">("km");
   const [transmission, setTransmission] = useState("");
   const [color, setColor] = useState("");
   const [fuelType, setFuelType] = useState("");
   const [driveType, setDriveType] = useState("");
   const [engineCc, setEngineCc] = useState<number | "">("");
-  const [auctionGrade, setAuctionGrade] = useState("");
-  const [interiorGrade, setInteriorGrade] = useState("");
-  const [exteriorGrade, setExteriorGrade] = useState("");
-  const [location, setLocation] = useState("");
+
+  // ───────────────────────────────────────────────────────────
+  // B. Vehicle Condition State
+  // ───────────────────────────────────────────────────────────
+  const [overallCondition, setOverallCondition] = useState("★ 4.5 - Excellent Clean Japanese Condition");
+  const [auctionGrade, setAuctionGrade] = useState("4.5");
+  const [interiorGrade, setInteriorGrade] = useState("A");
+  const [exteriorGrade, setExteriorGrade] = useState("A");
+  const [knownDefects, setKnownDefects] = useState("");
+  const [conditionReportName, setConditionReportName] = useState("USS_Tokyo_Official_Auction_Sheet.pdf");
+  const [supportingDocName, setSupportingDocName] = useState("JEVIC_Digital_Odometer_Certificate.pdf");
+
+  // ───────────────────────────────────────────────────────────
+  // C. Vehicle Pricing Inputs State
+  // ───────────────────────────────────────────────────────────
   const [fobPriceJPY, setFobPriceJPY] = useState<number | "">("");
-  const [defectsText, setDefectsText] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [currency, setCurrency] = useState<"JPY" | "NZD" | "USD">("JPY");
+  const [purchasePriceBasis, setPurchasePriceBasis] = useState<"FOB" | "CIF" | "EXW">("FOB");
+
+  // ───────────────────────────────────────────────────────────
+  // D. Images & Documents State (Multiple Photos & Uploads)
+  // ───────────────────────────────────────────────────────────
+  const [images, setImages] = useState<string[]>([]);
+  const [activePreviewIdx, setActivePreviewIdx] = useState(0);
+  const [uploadedDocs, setUploadedDocs] = useState<VehicleSupportingDoc[]>([
+    {
+      name: "USS_Tokyo_Inspection_Pass.pdf",
+      type: "AUCTION_SHEET",
+      url: "https://example.com/reports/yokohama_pass.pdf",
+      size: "2.4 MB",
+      uploadedAt: new Date().toISOString().slice(0, 10),
+    },
+    {
+      name: "JEVIC_Pre_Shipment_Verification.pdf",
+      type: "JEVIC_CERTIFICATE",
+      url: "https://example.com/reports/jevic_pass.pdf",
+      size: "1.1 MB",
+      uploadedAt: new Date().toISOString().slice(0, 10),
+    },
+  ]);
+
+  // Drag and drop state for images
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const conditionDocInputRef = useRef<HTMLInputElement>(null);
+  const supportingDocInputRef = useRef<HTMLInputElement>(null);
+
+  // ───────────────────────────────────────────────────────────
+  // E. Listing Information State (MVP Lifecycle)
+  // ───────────────────────────────────────────────────────────
+  const [status, setStatus] = useState<VehicleStatus>("AVAILABLE");
+  const [createdAt, setCreatedAt] = useState(new Date().toISOString().slice(0, 10));
+  const [stockReference, setStockReference] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [publishedStatus, setPublishedStatus] = useState<VehicleStatus>("AVAILABLE");
 
-  // Optional 1-click test intake demo loader
-  const handleLoadPreset = (presetKey: "note" | "ariya" | "serena") => {
-    audio.playSubtleClick();
-    if (presetKey === "note") {
-      setStockId(`NIS-2026-${Math.floor(9060 + Math.random() * 30)}`);
-      setVinChassis(`E13-0${Math.floor(10000 + Math.random() * 90000)}`);
-      setModel("Note e-Power");
-      setGrade("X Package Custom");
-      setYear(2023);
-      setOdometerKm(19400);
-      setTransmission("e-Power Drive");
-      setColor("Pearl White Two-Tone");
-      setFuelType("e-Power");
-      setDriveType("2WD");
-      setEngineCc(1200);
-      setAuctionGrade("4.5");
-      setInteriorGrade("A");
-      setExteriorGrade("A");
-      setLocation("Yokohama Yard (Bay 3)");
-      setFobPriceJPY(1880000);
-      setDefectsText("USS Tokyo auction grade 4.5. Clean vehicle history, zero panel repairs detected.");
-      setImageUrl("/images/cars/note.png");
-    } else if (presetKey === "ariya") {
-      setStockId(`NIS-2026-${Math.floor(9060 + Math.random() * 30)}`);
-      setVinChassis(`FE0-00${Math.floor(1000 + Math.random() * 9000)}`);
-      setModel("Ariya");
-      setGrade("B6 Premier Edition");
-      setYear(2023);
-      setOdometerKm(14800);
-      setTransmission("Automatic");
-      setColor("Akatsuki Copper & Black");
-      setFuelType("100% Electric");
-      setDriveType("e-4ORCE AWD");
-      setEngineCc(0);
-      setAuctionGrade("5.0");
-      setInteriorGrade("A");
-      setExteriorGrade("A");
-      setLocation("Yokohama Yard (Bay 1)");
-      setFobPriceJPY(3950000);
-      setDefectsText("Pristine showroom demonstration grade. ProPILOT 2.0 autonomous highway cruise certified.");
-      setImageUrl("/images/cars/ariya.png");
-    } else {
-      setStockId(`NIS-2026-${Math.floor(9060 + Math.random() * 30)}`);
-      setVinChassis(`C27-4${Math.floor(10000 + Math.random() * 90000)}`);
-      setModel("Serena e-Power");
-      setGrade("Highway Star V");
-      setYear(2022);
-      setOdometerKm(31200);
-      setTransmission("e-Power Drive");
-      setColor("Diamond Black");
-      setFuelType("e-Power");
-      setDriveType("2WD");
-      setEngineCc(1200);
-      setAuctionGrade("4.0");
-      setInteriorGrade("B");
-      setExteriorGrade("B");
-      setLocation("Kobe Export Terminal");
-      setFobPriceJPY(2550000);
-      setDefectsText("Clean dual electric power sliding doors, factory alloy wheels in good order.");
-      setImageUrl("/images/cars/serena.png");
+  // ───────────────────────────────────────────────────────────
+  // Multi-Photo Drag & Drop Handlers
+  // ───────────────────────────────────────────────────────────
+  const processImageFiles = (files: FileList | File[]) => {
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) {
+        alert(`File ${file.name} is not an image.`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setImages((prev) => [...prev, event.target!.result as string]);
+          audio.playSubtleClick();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(true);
+  };
+
+  const handleImageDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(false);
+  };
+
+  const handleImageDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processImageFiles(e.dataTransfer.files);
     }
   };
 
-  // Calculate live preview landed price for Zone 1 if FOB is provided
-  const liveLanded = fobPriceJPY ? calculateLandedPrice(Number(fobPriceJPY), "ZONE_1") : null;
-
-  const handlePresetImage = (url: string) => {
-    audio.playSubtleClick();
-    setImageUrl(url);
+  const handleImageFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processImageFiles(e.target.files);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent, targetStatus: "DRAFT" | "AVAILABLE") => {
+  const handleRemoveImage = (idxToRemove: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== idxToRemove));
+    if (activePreviewIdx >= images.length - 1) {
+      setActivePreviewIdx(Math.max(0, images.length - 2));
+    }
+    audio.playSubtleClick();
+  };
+
+  // Document Upload Handlers
+  const handleConditionDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setConditionReportName(file.name);
+      audio.playSubtleClick();
+    }
+  };
+
+  const handleSupportingDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSupportingDocName(file.name);
+      setUploadedDocs((prev) => [
+        ...prev,
+        {
+          name: file.name,
+          type: "SUPPORTING_DOC",
+          url: "https://example.com/reports/custom_doc.pdf",
+          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+          uploadedAt: new Date().toISOString().slice(0, 10),
+        },
+      ]);
+      audio.playSubtleClick();
+    }
+  };
+
+  const handleRemoveDoc = (docName: string) => {
+    setUploadedDocs((prev) => prev.filter((d) => d.name !== docName));
+    audio.playSubtleClick();
+  };
+
+  // Real-time Parallel Pricing Conversion
+  const nzdEquivalent = fobPriceJPY
+    ? Math.round(Number(fobPriceJPY) * JPY_TO_NZD_EXCHANGE_RATE)
+    : 0;
+
+  // ───────────────────────────────────────────────────────────
+  // Form Submission
+  // ───────────────────────────────────────────────────────────
+  const handleSubmit = (e: React.FormEvent, overrideStatus?: VehicleStatus) => {
     e.preventDefault();
     if (!vinChassis.trim()) {
       alert("VIN / Chassis number is mandatory.");
@@ -138,39 +210,48 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     setIsSubmitting(true);
     audio.playSubtleClick();
 
-    const statusValue = targetStatus === "AVAILABLE" ? "AVAILABLE" : "WITHDRAWN";
-    setPublishedStatus(statusValue);
-
+    const targetStatus = overrideStatus || status;
     const finalStockId = stockId.trim() || `NIS-2026-${Math.floor(9050 + Math.random() * 50)}`;
     const finalYear = year ? Number(year) : 2023;
     const finalOdo = odometerKm ? Number(odometerKm) : 0;
     const finalFob = fobPriceJPY ? Number(fobPriceJPY) : 0;
-    const finalModel = model.trim() || "Nissan Note";
+    const finalModel = model.trim() || "Nissan Note e-Power";
     const finalGrade = grade.trim() || "Standard Grade";
-    const finalImage = imageUrl.trim() || "/images/cars/note.png";
+    const finalImages = images.length > 0 ? images : ["/images/cars/note.png"];
+    const finalRef = stockReference.trim() || `USS-JAA-${finalStockId.slice(-4)}`;
 
     addVehicle({
       stockId: finalStockId,
       vinChassis: vinChassis.trim().toUpperCase(),
-      make: "Nissan",
+      make: make.trim() || "Nissan",
       model: finalModel,
       grade: finalGrade,
       year: finalYear,
       odometerKm: finalOdo,
+      odometerUnit: odometerUnit,
       transmission: (transmission || "Automatic") as Vehicle["transmission"],
       color: color.trim() || "Pearl White",
-      fuelType: (fuelType || "Petrol") as Vehicle["fuelType"],
+      fuelType: (fuelType || "e-Power") as Vehicle["fuelType"],
       driveType: (driveType || "2WD") as Vehicle["driveType"],
       engineCc: engineCc ? Number(engineCc) : 1200,
       auctionGrade: auctionGrade || "4.5",
-      interiorGrade: interiorGrade || "B",
-      exteriorGrade: exteriorGrade || "B",
-      location: location || "Yokohama Yard (Bay 1)",
-      images: [finalImage],
+      interiorGrade: interiorGrade || "A",
+      exteriorGrade: exteriorGrade || "A",
+      overallCondition: overallCondition,
+      conditionSummary: `${overallCondition}. ${knownDefects || "Clean pre-export pass verified."}`,
+      location: "Yokohama Export Terminal",
+      images: finalImages,
       conditionReportUrl: "https://example.com/reports/yokohama_pass.pdf",
-      knownDefects: defectsText ? [defectsText] : ["Clean pass"],
+      conditionReportName: conditionReportName,
+      supportingDocuments: uploadedDocs,
+      knownDefects: knownDefects ? [knownDefects] : ["Clean pre-export inspection pass"],
       fobPriceJPY: finalFob,
-      status: statusValue,
+      currency: currency,
+      purchasePriceBasis: purchasePriceBasis,
+      status: targetStatus,
+      stockReference: finalRef,
+      createdAt: createdAt,
+      updatedAt: new Date().toISOString().slice(0, 10),
     });
 
     setTimeout(() => {
@@ -181,9 +262,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300 font-sans">
+    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300 font-sans pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header Banner & Top Navigation                           */}
+      {/* Top Header & Breadcrumb Bar                                */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div className="flex items-center gap-3">
@@ -222,7 +303,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Success Feedback Screen                                  */}
+      {/* Success Feedback Screen                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
       {isSuccess ? (
         <div className="bg-white rounded-[24px] border border-slate-200 p-8 sm:p-12 text-center space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-2xl mx-auto animate-in fade-in">
@@ -235,8 +316,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               Vehicle Registered Successfully
             </h2>
             <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-              Export unit <strong className="text-slate-800 font-mono font-bold">#{stockId || "NIS-NEW"}</strong> ({vinChassis}) is now saved with status:{" "}
-              <span className="font-bold text-emerald-700">{publishedStatus}</span>.
+              Export unit <strong className="text-slate-800 font-mono font-bold">#{stockId || "NIS-NEW"}</strong> ({vinChassis}) is now saved into central programme inventory with status:{" "}
+              <span className="font-bold text-emerald-700">{status}</span>.
             </p>
           </div>
 
@@ -244,19 +325,27 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left text-xs space-y-2 max-w-md mx-auto">
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">Model &amp; Year:</span>
-              <strong className="text-slate-900">{year || "—"} Nissan {model || "Vehicle"} ({grade || "Standard"})</strong>
+              <strong className="text-slate-900">{year || "—"} {make} {model || "Vehicle"} ({grade || "Standard"})</strong>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">Auction Grade &amp; Odo:</span>
-              <strong className="text-slate-900">Grade {auctionGrade || "—"} · {odometerKm ? Number(odometerKm).toLocaleString() : 0} km</strong>
+              <strong className="text-slate-900">Grade {auctionGrade || "—"} · {odometerKm ? Number(odometerKm).toLocaleString() : 0} {odometerUnit}</strong>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
-              <span className="text-slate-500">FOB Base Price:</span>
+              <span className="text-slate-500">Purchase Price Basis:</span>
+              <strong className="text-slate-900">{purchasePriceBasis} ({currency})</strong>
+            </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-slate-500">FOB Price (JPY):</span>
               <strong className="font-mono text-slate-900">¥{fobPriceJPY ? Number(fobPriceJPY).toLocaleString() : 0} JPY</strong>
             </div>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100">
+              <span className="text-slate-500">FOB Price (NZD Equivalent):</span>
+              <strong className="font-mono text-slate-900">${nzdEquivalent.toLocaleString()} NZD</strong>
+            </div>
             <div className="flex items-center justify-between py-1">
-              <span className="text-slate-500">Yard Staging:</span>
-              <strong className="text-slate-900">{location || "Yokohama Yard"}</strong>
+              <span className="text-slate-500">Images &amp; Documents Attached:</span>
+              <strong className="text-slate-900">{images.length} Photos · {uploadedDocs.length} Docs</strong>
             </div>
           </div>
 
@@ -274,6 +363,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 setOdometerKm("");
                 setFobPriceJPY("");
                 setColor("");
+                setImages([]);
+                setKnownDefects("");
+                setStockReference("");
               }}
               className="btn-outline w-full sm:w-auto text-xs py-2.5 px-4 cursor-pointer"
             >
@@ -292,47 +384,22 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
         </div>
       ) : (
         /* ─────────────────────────────────────────────────────────── */
-        /* 3. Main Form & Live Interactive Vehicle Preview             */
+        /* Main 5-Section Intake Form & Live Catalogue Preview         */
         /* ─────────────────────────────────────────────────────────── */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (8 cols): Input Fields Form */}
-          <form className="lg:col-span-8 space-y-6">
-            {/* Quick Demo Autofill Bar */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2.5">
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-[#C3002F]" />
-                <span className="font-bold text-slate-900">Optional Demo Autofill:</span>
-              </div>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handleLoadPreset("note")}
-                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors shadow-2xs cursor-pointer"
-                >
-                  ⚡ Note e-Power (¥1.88M)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLoadPreset("ariya")}
-                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors shadow-2xs cursor-pointer"
-                >
-                  ⚡ Ariya EV AWD (¥3.95M)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLoadPreset("serena")}
-                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors shadow-2xs cursor-pointer"
-                >
-                  ⚡ Serena e-Power (¥2.55M)
-                </button>
-              </div>
-            </div>
-
-            {/* Section 1: Identification & Provenance */}
+          {/* Left Column (8 cols): Structured Form Sections A through E */}
+          <form className="lg:col-span-8 space-y-6" onSubmit={(e) => handleSubmit(e)}>
+            
+            {/* ───────────────────────────────────────────────────────── */}
+            {/* SECTION A. VEHICLE IDENTIFICATION                         */}
+            {/* ───────────────────────────────────────────────────────── */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
-                <Hash className="w-4 h-4 text-[#C3002F]" />
-                <span>1. Identification &amp; Japanese Yard Staging</span>
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                  <Hash className="w-4 h-4 text-[#C3002F]" />
+                  <span>A. Vehicle Identification</span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 1 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -345,56 +412,42 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     placeholder="e.g. NIS-2026-9055"
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
+                  <span className="text-[10px] text-slate-400 block">Auto-generated if left blank</span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">VIN / Chassis Number *</label>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-700 block">Chassis / VIN *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. E13-098412"
+                    placeholder="e.g. E13-098412 or FE0-004128"
                     value={vinChassis}
                     onChange={(e) => setVinChassis(e.target.value.toUpperCase())}
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
+                  <span className="text-[10px] text-slate-400 block">Mandatory Japanese chassis / VIN stamp</span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Yard Location</label>
-                  <select
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium cursor-pointer transition-colors"
-                  >
-                    <option value="">Select Yard Location...</option>
-                    <option value="Yokohama Yard (Bay 1)">Yokohama Yard (Bay 1)</option>
-                    <option value="Yokohama Yard (Bay 2)">Yokohama Yard (Bay 2)</option>
-                    <option value="Yokohama Yard (Bay 3)">Yokohama Yard (Bay 3)</option>
-                    <option value="Yokohama Yard (Bay 4)">Yokohama Yard (Bay 4)</option>
-                    <option value="Yokohama Yard (Bay 5)">Yokohama Yard (Bay 5)</option>
-                    <option value="Yokohama Yard (Bay 7)">Yokohama Yard (Bay 7)</option>
-                    <option value="Kobe Export Terminal">Kobe Export Terminal</option>
-                  </select>
+                  <label className="text-xs font-bold text-slate-700 block">Make</label>
+                  <input
+                    type="text"
+                    value={make}
+                    onChange={(e) => setMake(e.target.value)}
+                    placeholder="Nissan"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-semibold transition-colors"
+                  />
                 </div>
-              </div>
-            </div>
 
-            {/* Section 2: Vehicle Technical Specifications */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
-                <Car className="w-4 h-4 text-slate-600" />
-                <span>2. Technical Specifications &amp; Powertrain</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-bold text-slate-700 block">Model *</label>
                   <input
                     type="text"
+                    required
                     list="nissan-models"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    placeholder="e.g. Note e-Power, X-Trail, Ariya..."
+                    placeholder="e.g. Note e-Power, X-Trail, Serena e-Power..."
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-bold placeholder-slate-400 transition-colors"
                   />
                   <datalist id="nissan-models">
@@ -411,18 +464,18 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Grade / Trim</label>
+                  <label className="text-xs font-bold text-slate-700 block">Variant / Trim</label>
                   <input
                     type="text"
                     value={grade}
                     onChange={(e) => setGrade(e.target.value)}
-                    placeholder="e.g. X Package, Highway Star, Premier"
+                    placeholder="e.g. Highway Star V, X Package, Premier"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Manufacture Year</label>
+                  <label className="text-xs font-bold text-slate-700 block">Model Year</label>
                   <input
                     type="number"
                     value={year}
@@ -433,14 +486,24 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Odometer (km)</label>
-                  <input
-                    type="number"
-                    value={odometerKm}
-                    onChange={(e) => setOdometerKm(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 24000"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
-                  />
+                  <label className="text-xs font-bold text-slate-700 block">Odometer Reading</label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      value={odometerKm}
+                      onChange={(e) => setOdometerKm(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
+                      placeholder="e.g. 24000"
+                      className="flex-1 px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    />
+                    <select
+                      value={odometerUnit}
+                      onChange={(e) => setOdometerUnit(e.target.value as "km" | "mi")}
+                      className="px-2.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-pointer"
+                    >
+                      <option value="km">km</option>
+                      <option value="mi">mi</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
@@ -450,15 +513,26 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     list="nissan-transmissions"
                     value={transmission}
                     onChange={(e) => setTransmission(e.target.value)}
-                    placeholder="e.g. e-Power Drive, Automatic, CVT"
+                    placeholder="e.g. Automatic, e-Power Drive, CVT"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
                   />
                   <datalist id="nissan-transmissions">
-                    <option value="e-Power Drive" />
                     <option value="Automatic" />
+                    <option value="e-Power Drive" />
                     <option value="CVT" />
                     <option value="Manual" />
                   </datalist>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">Exterior Colour</label>
+                  <input
+                    type="text"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                    placeholder="e.g. Pearl White Two-Tone, Diamond Black"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                  />
                 </div>
 
                 <div className="space-y-1.5">
@@ -479,57 +553,40 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     <option value="Diesel" />
                   </datalist>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Exterior Color</label>
-                  <input
-                    type="text"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    placeholder="e.g. Pearl White, Diamond Black"
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Drivetrain</label>
-                  <input
-                    type="text"
-                    list="nissan-drivetrains"
-                    value={driveType}
-                    onChange={(e) => setDriveType(e.target.value)}
-                    placeholder="e.g. 2WD, 4WD, e-4ORCE AWD"
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
-                  />
-                  <datalist id="nissan-drivetrains">
-                    <option value="2WD" />
-                    <option value="4WD" />
-                    <option value="e-4ORCE AWD" />
-                    <option value="AWD" />
-                  </datalist>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Engine Displacement (cc)</label>
-                  <input
-                    type="number"
-                    value={engineCc}
-                    onChange={(e) => setEngineCc(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 1200 (or 0 for EV)"
-                    className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
-                  />
-                </div>
               </div>
             </div>
 
-            {/* Section 3: USS Auction Condition & FOB Pricing */}
+            {/* ───────────────────────────────────────────────────────── */}
+            {/* SECTION B. VEHICLE CONDITION                              */}
+            {/* ───────────────────────────────────────────────────────── */}
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
-                <FileCheck2 className="w-4 h-4 text-emerald-600" />
-                <span>3. USS Auction Condition &amp; Raw FOB Pricing</span>
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                  <FileCheck2 className="w-4 h-4 text-emerald-600" />
+                  <span>B. Vehicle Condition</span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 2 of 5</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
+              {/* Overall Vehicle Condition / Summary */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">Overall Vehicle Condition / Grade</label>
+                <select
+                  value={overallCondition}
+                  onChange={(e) => setOverallCondition(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                >
+                  <option value="★ 5.0 - Showroom Pristine Condition">★ 5.0 - Showroom Pristine Condition (Demonstration Grade)</option>
+                  <option value="★ 4.5 - Excellent Clean Japanese Condition">★ 4.5 - Excellent Clean Japanese Condition (Minimal Wear)</option>
+                  <option value="★ 4.0 - Good Clean Fleet Condition">★ 4.0 - Good Clean Fleet Condition (Normal Commuter)</option>
+                  <option value="★ 3.5 - Fair Commercial Road Wear">★ 3.5 - Fair Commercial Road Wear</option>
+                  <option value="★ RA - Minor Repaired Pass">★ RA - Minor Repaired Pass (Factory Repaired Verified)</option>
+                  <option value="★ R - Repaired History">★ R - Repaired History</option>
+                </select>
+              </div>
+
+              {/* Auction, Interior & Exterior Grades */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 block">Auction Grade</label>
                   <select
@@ -537,7 +594,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onChange={(e) => setAuctionGrade(e.target.value)}
                     className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
-                    <option value="">Select Grade...</option>
                     <option value="5.0">★ 5.0 (Near New)</option>
                     <option value="4.5">★ 4.5 (Excellent)</option>
                     <option value="4.0">★ 4.0 (Good)</option>
@@ -554,7 +610,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onChange={(e) => setInteriorGrade(e.target.value)}
                     className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
-                    <option value="">Select Grade...</option>
                     <option value="A">Grade A (Immaculate)</option>
                     <option value="B">Grade B (Normal Wear)</option>
                     <option value="C">Grade C (Wear / Marks)</option>
@@ -568,77 +623,347 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onChange={(e) => setExteriorGrade(e.target.value)}
                     className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
-                    <option value="">Select Grade...</option>
                     <option value="A">Grade A (Factory Clean)</option>
                     <option value="B">Grade B (Minor Blemishes)</option>
                     <option value="C">Grade C (Scratches/Dents)</option>
                   </select>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">FOB Price (JPY) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={fobPriceJPY}
-                    onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                    placeholder="e.g. 1850000"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] text-sm placeholder-slate-400 transition-colors"
-                  />
-                </div>
               </div>
 
+              {/* Known Defects */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-slate-700 block">Inspection Remarks / Known Defects</label>
-                <input
-                  type="text"
-                  value={defectsText}
-                  onChange={(e) => setDefectsText(e.target.value)}
-                  placeholder="e.g. Clean USS auction pass, minor stone chip on mirror..."
+                <label className="text-xs font-bold text-slate-700 block">Known Defects &amp; Inspection Remarks</label>
+                <textarea
+                  rows={2}
+                  value={knownDefects}
+                  onChange={(e) => setKnownDefects(e.target.value)}
+                  placeholder="e.g. Minor scratch rear bumper (A1), clean panel pass, zero structural repairs detected."
                   className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                 />
               </div>
 
-              <div className="space-y-2 pt-1">
-                <label className="text-xs font-bold text-slate-700 block">Vehicle Studio Image Asset</label>
-                <div className="flex flex-col sm:flex-row items-center gap-2">
+              {/* Condition Report & Supporting Document Status */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Condition Report</span>
+                      <span className="text-xs font-medium text-slate-800 truncate block">{conditionReportName}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => conditionDocInputRef.current?.click()}
+                    className="text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    Upload New
+                  </button>
                   <input
-                    type="text"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="e.g. /images/cars/note.png or https://..."
-                    className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    ref={conditionDocInputRef}
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={handleConditionDocUpload}
+                    className="hidden"
                   />
                 </div>
 
-                {/* Quick Presets */}
-                <div className="flex items-center gap-2 pt-1">
-                  <span className="text-[11px] text-slate-400 font-medium">Quick Presets:</span>
-                  {[
-                    { label: "Note", path: "/images/cars/note.png" },
-                    { label: "Leaf", path: "/images/cars/leaf.png" },
-                    { label: "X-Trail", path: "/images/cars/xtrail.png" },
-                    { label: "Serena", path: "/images/cars/serena.png" },
-                    { label: "Kicks", path: "/images/cars/kicks.png" },
-                    { label: "Dayz", path: "/images/cars/dayz.png" },
-                    { label: "Elgrand", path: "/images/cars/elgrand.png" },
-                    { label: "Navara", path: "/images/cars/navara.png" },
-                    { label: "Ariya", path: "/images/cars/ariya.png" },
-                  ].map((p) => (
-                    <button
-                      key={p.path}
-                      type="button"
-                      onClick={() => handlePresetImage(p.path)}
-                      className="px-2.5 py-0.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-[10px] font-bold text-slate-700 transition-colors cursor-pointer"
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Supporting Document</span>
+                      <span className="text-xs font-medium text-slate-800 truncate block">{supportingDocName}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => supportingDocInputRef.current?.click()}
+                    className="text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    Upload New
+                  </button>
+                  <input
+                    ref={supportingDocInputRef}
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={handleSupportingDocUpload}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ───────────────────────────────────────────────────────── */}
+            {/* SECTION C. VEHICLE PRICING INPUTS                         */}
+            {/* ───────────────────────────────────────────────────────── */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                  <DollarSign className="w-4 h-4 text-emerald-600" />
+                  <span>C. Vehicle Pricing Inputs</span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 3 of 5</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-700 block">Vehicle Acquisition Price *</label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
+                      {currency === "JPY" ? "¥" : "$"}
+                    </span>
+                    <input
+                      type="number"
+                      required
+                      value={fobPriceJPY}
+                      onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
+                      placeholder="e.g. 1850000"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">Direct Japanese auction acquisition price</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">Currency</label>
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value as "JPY" | "NZD" | "USD")}
+                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                  >
+                    <option value="JPY">JPY (¥) - Japanese Yen</option>
+                    <option value="NZD">NZD ($) - New Zealand Dollar</option>
+                    <option value="USD">USD ($) - US Dollar</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">Purchase Price Basis</label>
+                  <select
+                    value={purchasePriceBasis}
+                    onChange={(e) => setPurchasePriceBasis(e.target.value as "FOB" | "CIF" | "EXW")}
+                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                  >
+                    <option value="FOB">FOB (Free on Board - Yokohama Export Wharf)</option>
+                    <option value="CIF">CIF (Cost, Insurance &amp; Freight)</option>
+                    <option value="EXW">EXW (Ex Works - Japanese Auction Yard)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-700 block">Equivalent Amount (NZD)</label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
+                      $
+                    </span>
+                    <input
+                      type="text"
+                      readOnly
+                      value={fobPriceJPY ? `${nzdEquivalent.toLocaleString()} NZD` : "— NZD"}
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-700 focus:outline-none cursor-default"
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    Real-time indicative conversion (FX: 0.01085)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* ───────────────────────────────────────────────────────── */}
+            {/* SECTION D. IMAGES AND DOCUMENTS                           */}
+            {/* ───────────────────────────────────────────────────────── */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                  <ImageIcon className="w-4 h-4 text-purple-600" />
+                  <span>D. Images and Documents</span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 4 of 5</span>
+              </div>
+
+              {/* Upload Multiple Vehicle Photographs */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Upload Multiple Vehicle Photographs ({images.length} added)
+                  </label>
+                  <span className="text-[11px] text-slate-400">Transparent PNG studio cutout recommended</span>
+                </div>
+
+                {/* Drag & Drop Multi-Image Dropzone */}
+                <div
+                  onDragOver={handleImageDragOver}
+                  onDragLeave={handleImageDragLeave}
+                  onDrop={handleImageDrop}
+                  onClick={() => imageInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-2xl p-6 sm:p-7 text-center transition-all cursor-pointer ${
+                    isDraggingImage
+                      ? "border-[#0A0A0A] bg-slate-100 ring-2 ring-[#0A0A0A]/10"
+                      : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                  }`}
+                >
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    multiple
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleImageFileInputChange}
+                    className="hidden"
+                  />
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2.5 text-slate-500 shadow-2xs">
+                    <UploadCloud className="w-6 h-6 text-slate-500" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800">
+                    Drag &amp; drop multiple vehicle images here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Upload exterior angles, interior, dashboard, and defects photos (PNG, JPG, WEBP)
+                  </p>
+                </div>
+
+                {/* Thumbnail Gallery of Uploaded Photos */}
+                {images.length > 0 && (
+                  <div className="space-y-2 pt-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Uploaded Vehicle Photos ({images.length})
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+                      {images.map((imgUrl, idx) => (
+                        <div
+                          key={idx}
+                          className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${
+                            idx === 0 ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/10" : "border-slate-200"
+                          }`}
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Photo ${idx + 1}`}
+                            className="w-full h-full object-contain"
+                          />
+                          {idx === 0 && (
+                            <span className="absolute top-1 left-1 bg-[#0A0A0A] text-white text-[9px] font-bold px-1.5 py-0.2 rounded font-mono">
+                              Main
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImage(idx);
+                            }}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
+                            title="Remove photo"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Associated Documents Vault */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Associated Stock Documents ({uploadedDocs.length})
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {uploadedDocs.map((doc) => (
+                    <div
+                      key={doc.name}
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2.5"
                     >
-                      {p.label}
-                    </button>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-xs font-semibold text-slate-800 truncate block">{doc.name}</span>
+                          <span className="text-[10px] font-mono text-slate-400 block">{doc.size || "1.5 MB"} · Verified JEVIC/USS</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDoc(doc.name)}
+                        className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                        title="Remove document"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* ───────────────────────────────────────────────────────── */}
+            {/* SECTION E. LISTING INFORMATION                            */}
+            {/* ───────────────────────────────────────────────────────── */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                  <Tag className="w-4 h-4 text-blue-600" />
+                  <span>E. Listing Information</span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 5 of 5</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                {/* Listing Status Dropdown with All MVP Lifecycles */}
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-700 block">Listing Status (MVP Lifecycle)</label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as VehicleStatus)}
+                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                  >
+                    <option value="DRAFT">Draft — Inbound Japanese Yard Preparation</option>
+                    <option value="AVAILABLE">Available — Published to Central Dealer Catalogue</option>
+                    <option value="RESERVED">Reserved — Dealer 24-Hour Exclusivity Hold</option>
+                    <option value="ALLOCATED">Allocated — Confirmed Wholesale Order</option>
+                    <option value="WITHDRAWN">Withdrawn — Yard Rectification / Hold</option>
+                    <option value="SOLD">Sold / Completed — Dealership Handover Done</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">Created Date</label>
+                  <input
+                    type="date"
+                    value={createdAt}
+                    onChange={(e) => setCreatedAt(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-slate-700 block">Relevant Stock Reference</label>
+                  <input
+                    type="text"
+                    value={stockReference}
+                    onChange={(e) => setStockReference(e.target.value)}
+                    placeholder="e.g. USS-TYO-8841 / JEVIC-NZ-102"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                  />
+                  <span className="text-[10px] text-slate-400 block">Japanese auction lot number or AutoHub reference</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">Last Updated Date</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={new Date().toISOString().slice(0, 10)}
+                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-600 cursor-default"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ───────────────────────────────────────────────────────── */}
+            {/* Form Action Buttons                                       */}
+            {/* ───────────────────────────────────────────────────────── */}
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <button
                 type="button"
@@ -656,39 +981,48 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   className="btn-outline text-xs py-2.5 px-4 cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Save as Draft (Staging Yard)</span>
+                  <span>Save as Draft</span>
                 </button>
 
                 <button
-                  type="button"
+                  type="submit"
                   disabled={isSubmitting}
-                  onClick={(e) => handleSubmit(e, "AVAILABLE")}
                   className="py-2.5 px-6 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Publish to Central Catalogue</span>
+                  <span>Save Vehicle Record</span>
                 </button>
               </div>
             </div>
           </form>
 
-          {/* Right Column (4 cols): Live Interactive Vehicle Preview Card */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* Right Column (4 cols): Live Interactive Catalogue Preview   */}
+          {/* ─────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
             <div className="bg-white rounded-[24px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                   Live Catalogue Preview
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold font-mono">
-                  Dealer Visible
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${
+                  status === "AVAILABLE"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : status === "RESERVED"
+                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    : status === "ALLOCATED"
+                    ? "bg-sky-50 text-sky-700 border-sky-200"
+                    : "bg-slate-100 text-slate-700 border-slate-200"
+                }`}>
+                  {status}
                 </span>
               </div>
 
-              {/* Studio Car Photo Preview with Ground Shadow */}
+              {/* Studio Car Photo Preview */}
               <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center p-4">
                 <div className="absolute bottom-3 w-4/5 h-4 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
                 <img
-                  src={imageUrl || "/images/cars/note.png"}
+                  src={images[0] || "/images/cars/note.png"}
                   alt={model || "Nissan Vehicle Preview"}
                   className="w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.1)] relative z-10 select-none"
                   onError={(e) => {
@@ -698,7 +1032,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
                 <div className="absolute top-3 left-3 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-bold border border-slate-200/80 shadow-2xs flex items-center gap-1">
                   <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                  <span>Grade {auctionGrade || "—"}</span>
+                  <span>Grade {auctionGrade || "4.5"}</span>
                 </div>
 
                 <div className="absolute top-3 right-3 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-700 font-mono text-[10px] font-bold border border-slate-200/80 shadow-2xs">
@@ -709,11 +1043,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               {/* Vehicle Title & Specifications */}
               <div className="space-y-1">
                 <h3 className="font-bold text-base text-slate-900 tracking-tight leading-snug">
-                  {model ? `Nissan - ${model}` : "Nissan Vehicle Spec"}
+                  {year || "2023"} {make} {model || "Vehicle"}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  {year || "Year"} · {fuelType || "Powertrain"} · {grade || "Grade / Trim"}
+                  {grade || "Standard Trim"} · {transmission || "Automatic"} · {color || "Color"}
                 </p>
+                <div className="text-[11px] text-emerald-700 font-medium">
+                  {overallCondition}
+                </div>
               </div>
 
               {/* 4-Stat Mini Grid */}
@@ -721,13 +1058,13 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 <div>
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Odometer</span>
                   <strong className="text-slate-900 font-mono text-xs font-bold block">
-                    {odometerKm ? `${Number(odometerKm).toLocaleString()} km` : "— km"}
+                    {odometerKm ? `${Number(odometerKm).toLocaleString()} ${odometerUnit}` : "— km"}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Raw FOB JPY</span>
-                  <strong className="text-slate-900 font-mono text-xs font-bold block">
-                    {fobPriceJPY ? `¥${Number(fobPriceJPY).toLocaleString()}` : "— JPY"}
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Price Basis</span>
+                  <strong className="text-slate-900 text-xs font-medium block truncate">
+                    {purchasePriceBasis} ({currency})
                   </strong>
                 </div>
                 <div>
@@ -735,25 +1072,39 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <span className="text-slate-700 text-xs font-medium block truncate">{transmission || "—"}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Yard Bay</span>
-                  <span className="text-slate-700 text-xs font-medium block truncate">{location ? location.split("(")[0]?.trim() : "—"}</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Photos / Docs</span>
+                  <span className="text-slate-700 text-xs font-medium block truncate">
+                    {images.length} photos · {uploadedDocs.length} docs
+                  </span>
                 </div>
               </div>
 
-              {/* Estimated Guaranteed Landed Buy Price for Zone 1 */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="text-lg font-bold text-slate-900 font-mono tracking-tight block leading-tight">
-                    {liveLanded ? `$${liveLanded.totalBuyPriceNZD.toLocaleString()}` : "$— NZD"}
+              {/* Parallel FOB Pricing (JPY & NZD) */}
+              <div className="pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                    FOB Price (JPY)
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium block">
-                    Est. Landed (Zone 1 NZD)
+                  <span className="text-lg font-bold text-slate-900 font-mono tracking-tight block">
+                    {fobPriceJPY ? `¥${Number(fobPriceJPY).toLocaleString()}` : "¥—"}
                   </span>
                 </div>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                  Fixed Pricing
-                </span>
+
+                <div className="space-y-0.5 sm:text-right">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                    FOB Price (NZD)
+                  </span>
+                  <span className="text-lg font-bold text-slate-900 font-mono tracking-tight block">
+                    {fobPriceJPY ? `$${nzdEquivalent.toLocaleString()} NZD` : "$— NZD"}
+                  </span>
+                </div>
               </div>
+
+              {stockReference && (
+                <div className="pt-1 text-[11px] font-mono text-slate-400 border-t border-slate-100">
+                  Ref: <strong className="text-slate-600">{stockReference}</strong>
+                </div>
+              )}
             </div>
 
             {/* Quick Tips Box */}
@@ -763,7 +1114,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 <span>JEVIC &amp; Export Verification</span>
               </strong>
               <p className="text-[11px] leading-relaxed">
-                Publishing this unit automatically triggers digital odometer verification hashing and pre-clears standard MR2A compliance for New Zealand delivery.
+                Saving this record associates all uploaded photographs, USS condition reports, and JEVIC certificates directly with stock #{stockId || "NIS-NEW"}.
               </p>
             </div>
           </div>

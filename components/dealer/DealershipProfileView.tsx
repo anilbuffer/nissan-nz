@@ -19,7 +19,6 @@ import {
   Mail,
   Clock,
   Download,
-  CreditCard,
   KeyRound,
   ExternalLink,
   ChevronRight,
@@ -180,141 +179,83 @@ export default function DealershipProfileView() {
       {/* 2. SUBTAB: Dealership Details & Physical Showroom           */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "DETAILS" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column (8 cols): Primary Identity & Receiving Facility */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
-                    <Building2 className="w-5 h-5 text-slate-700" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900">
-                      Showroom &amp; Receiving Yard
-                    </h2>
-                    <p className="text-xs text-slate-400 font-medium">
-                      Official drop-off destination for domestic delivery
-                    </p>
-                  </div>
-                </div>
-
-                <span className="px-2.5 py-1 rounded-full bg-slate-100 font-mono text-[11px] font-bold text-slate-700 border border-slate-200/60">
-                  {dealerZone} Scheduled
-                </span>
-              </div>
-
-              {/* Streamlined Info Grid: Clean & Concise */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Trading Entity
-                  </span>
-                  <span className="text-sm font-bold text-slate-900 block">
-                    {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"}
-                  </span>
-                  <span className="text-slate-500 font-mono text-[11px] block">
-                    NZBN: {currentDealer?.nzbn || "9429038291024"}
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Receiving Yard Location
-                  </span>
-                  <span className="text-sm font-bold text-slate-900 block">
-                    {currentDealer?.address || "360 Great South Road, Greenlane, Auckland"}
-                  </span>
-                  <span className="text-slate-500 text-[11px] block">
-                    Mon–Fri, 07:30 – 17:30 NZST
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1 sm:col-span-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Primary Contact
-                  </span>
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-                    <span className="text-sm font-bold text-slate-900">
-                      {currentDealer?.primaryContactName || "David Miller"}
-                    </span>
-                    <div className="flex items-center gap-3 text-slate-600 text-[11px]">
-                      <span className="flex items-center gap-1">
-                        <Mail className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{currentDealer?.primaryContactEmail || "dealer@aucklandnissan.co.nz"}</span>
-                      </span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1 font-mono">
-                        <Phone className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{currentDealer?.primaryContactPhone || "+64 9 520 8899"}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Simplified Delivery Note */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs flex items-center gap-2.5 text-slate-600">
-                <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="text-[11px]">
-                  Fixed price includes <strong>2 standard domestic transport movements</strong> (Port ➔ Compliance Hub ➔ Greenlane Yard).
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column (4 cols): Credit Facility & Commercial Entitlement */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
-              <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F]">
-                  <CreditCard className="w-4 h-4" />
+        <div className="space-y-6">
+          <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
+                  <Building2 className="w-5 h-5 text-slate-700" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-slate-900">Wholesale Holding Limit</h3>
-                  <p className="text-[11px] text-slate-400">Programme commercial facility</p>
+                  <h2 className="text-base font-bold text-slate-900">
+                    Showroom &amp; Receiving Yard
+                  </h2>
+                  <p className="text-xs text-slate-400 font-medium">
+                    Official drop-off destination for domestic delivery
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-slate-500">Active Allocations:</span>
-                  <strong className="text-sm font-mono text-slate-900">$101,899 NZD</strong>
-                </div>
+              <span className="px-2.5 py-1 rounded-full bg-slate-100 font-mono text-[11px] font-bold text-slate-700 border border-slate-200/60">
+                {dealerZone} Scheduled
+              </span>
+            </div>
 
-                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-rose-500 to-[#C3002F] rounded-full w-[28%]" />
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                  <span>Utilized: 28%</span>
-                  <span>Credit Cap: $500,000 NZD</span>
-                </div>
+            {/* Streamlined Info Grid: Clean & Concise */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Trading Entity
+                </span>
+                <span className="text-sm font-bold text-slate-900 block">
+                  {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"}
+                </span>
+                <span className="text-slate-500 font-mono text-[11px] block">
+                  NZBN: {currentDealer?.nzbn || "9429038291024"}
+                </span>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Permitted 24h Holds:</span>
-                  <strong className="text-slate-800 font-mono">Up to 4 Concurrent</strong>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Deposit Requirement:</span>
-                  <strong className="text-emerald-700 font-semibold">Exempt (Approved Franchise)</strong>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Settlement Basis:</span>
-                  <strong className="text-slate-800 font-mono">Net 14 Days Post-Pass</strong>
-                </div>
+              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Receiving Yard Location
+                </span>
+                <span className="text-sm font-bold text-slate-900 block">
+                  {currentDealer?.address || "360 Great South Road, Greenlane, Auckland"}
+                </span>
+                <span className="text-slate-500 text-[11px] block">
+                  Mon–Fri, 07:30 – 17:30 NZST
+                </span>
               </div>
 
-              <button
-                type="button"
-                onClick={handleDownloadAgreement}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer mt-2"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download Facility Certificate</span>
-              </button>
+              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1 sm:col-span-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Primary Contact
+                </span>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                  <span className="text-sm font-bold text-slate-900">
+                    {currentDealer?.primaryContactName || "David Miller"}
+                  </span>
+                  <div className="flex items-center gap-3 text-slate-600 text-[11px]">
+                    <span className="flex items-center gap-1">
+                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{currentDealer?.primaryContactEmail || "dealer@aucklandnissan.co.nz"}</span>
+                    </span>
+                    <span>·</span>
+                    <span className="flex items-center gap-1 font-mono">
+                      <Phone className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{currentDealer?.primaryContactPhone || "+64 9 520 8899"}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Simplified Delivery Note */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs flex items-center gap-2.5 text-slate-600">
+              <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-[11px]">
+                Fixed price includes <strong>2 standard domestic transport movements</strong> (Port ➔ Compliance Hub ➔ Greenlane Yard).
+              </span>
             </div>
           </div>
         </div>

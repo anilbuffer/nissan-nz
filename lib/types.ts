@@ -111,6 +111,14 @@ export type VehicleStatus =
   | "WITHDRAWN"
   | "SOLD";
 
+export interface VehicleSupportingDoc {
+  name: string;
+  type: string;
+  url: string;
+  size?: string;
+  uploadedAt?: string;
+}
+
 export interface Vehicle {
   id: string;
   stockId: string;
@@ -129,14 +137,23 @@ export interface Vehicle {
   auctionGrade: string; // e.g. "4.5", "4.0", "RA"
   interiorGrade: string; // "A", "B", "C"
   exteriorGrade: string; // "A", "B", "C"
+  overallCondition?: string;
   conditionSummary?: string;
   inspectionDate?: string;
   location: string;
   images: string[];
   conditionReportUrl?: string;
+  conditionReportName?: string;
+  supportingDocuments?: VehicleSupportingDoc[];
   knownDefects: string[];
   fobPriceJPY: number;
+  currency?: "JPY" | "NZD" | "USD";
+  purchasePriceBasis?: "FOB" | "CIF" | "EXW";
   status: VehicleStatus;
+  allocationMode?: "RESERVE" | "ALLOCATION";
+  stockReference?: string;
+  createdAt?: string;
+  updatedAt?: string;
   reservedByDealerId?: string;
   reservedAt?: string;
   reservationExpiresAt?: string;

@@ -42,6 +42,12 @@ interface DealerStockCatalogProps {
   externalSearchQuery?: string;
 }
 
+function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
+  if (vehicle.allocationMode) return vehicle.allocationMode;
+  const num = parseInt(vehicle.stockId.replace(/\D/g, "") || "0", 10);
+  return num % 2 === 0 ? "RESERVE" : "ALLOCATION";
+}
+
 
 export default function DealerStockCatalog({
   onSelectVehicle,
@@ -507,20 +513,7 @@ export default function DealerStockCatalog({
                         <span>Inspect Vehicle</span>
                       </button>
                     ) : isAvailable ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setReserveVehicle(vehicle);
-                          }}
-                          className="py-2 px-2.5 sm:px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1 border border-slate-200"
-                          title="Place 24-hour Exclusivity Reservation"
-                        >
-                          <Lock className="w-3 h-3 text-slate-600" />
-                          <span>Reserve</span>
-                        </button>
+                      getVehicleAction(vehicle) === "ALLOCATION" ? (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -528,13 +521,27 @@ export default function DealerStockCatalog({
                             audio.playSubtleClick();
                             setAllocateVehicle(vehicle);
                           }}
-                          className="py-2 px-3 sm:px-3.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1"
+                          className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
                           title="Direct Wholesale Allocation to Order"
                         >
-                          <Ship className="w-3 h-3 text-emerald-400" />
+                          <Ship className="w-3.5 h-3.5 text-emerald-400" />
                           <span>Allocation</span>
                         </button>
-                      </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audio.playSubtleClick();
+                            setReserveVehicle(vehicle);
+                          }}
+                          className="py-2 px-3 sm:px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5 border border-slate-200"
+                          title="Place 24-hour Exclusivity Reservation"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-slate-600" />
+                          <span>Reserve</span>
+                        </button>
+                      )
                     ) : vehicle.status === "ALLOCATED" ? (
                       <button
                         type="button"
@@ -708,19 +715,7 @@ export default function DealerStockCatalog({
                         <span>{isAvailable ? "Inspect" : "Reserved"}</span>
                       </button>
                     ) : isAvailable ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setReserveVehicle(vehicle);
-                          }}
-                          className="py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs border border-slate-200"
-                        >
-                          <Lock className="w-3 h-3 text-slate-600" />
-                          <span>Reserve</span>
-                        </button>
+                      getVehicleAction(vehicle) === "ALLOCATION" ? (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -728,12 +723,27 @@ export default function DealerStockCatalog({
                             audio.playSubtleClick();
                             setAllocateVehicle(vehicle);
                           }}
-                          className="py-2 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                          className="py-2 px-3.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                          title="Direct Wholesale Allocation to Order"
                         >
-                          <Ship className="w-3 h-3 text-emerald-400" />
+                          <Ship className="w-3.5 h-3.5 text-emerald-400" />
                           <span>Allocation</span>
                         </button>
-                      </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audio.playSubtleClick();
+                            setReserveVehicle(vehicle);
+                          }}
+                          className="py-2 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 border border-slate-200 cursor-pointer shadow-2xs"
+                          title="Place 24-hour Exclusivity Reservation"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-slate-600" />
+                          <span>Reserve</span>
+                        </button>
+                      )
                     ) : vehicle.status === "ALLOCATED" ? (
                       <button
                         type="button"

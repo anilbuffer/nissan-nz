@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import OrderCorridorTimeline from "./OrderCorridorTimeline";
 import { Order, OrderMilestone, ReservationRequest } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
@@ -295,18 +296,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
       {/* ─────────────────────────────────────────────────────────── */}
       {(mode === "RESERVE" || (!mode && activeTab === "HOLDS")) && (
         <div className="space-y-6 animate-in fade-in">
-          <div className="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-4 text-xs text-amber-950 flex items-start gap-3 shadow-2xs">
-            <Lock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <strong className="font-bold text-amber-900 block">
-                Atomic Exclusivity Guarantee (Section 3.3):
-              </strong>
-              <p className="text-amber-800 leading-relaxed text-[11px]">
-                Vehicles locked under your 24-hour exclusivity hold are strictly protected server-side against competing dealer requests. The fixed landed buy price and Section 4 commercial boundary are locked at reservation time. You may convert to a confirmed wholesale order at any time before expiration.
-              </p>
-            </div>
-          </div>
-
           {dealerHolds.length === 0 ? (
             <div className="p-16 text-center bg-white rounded-3xl border border-slate-200 space-y-4 shadow-sm">
               <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mx-auto">
@@ -405,7 +394,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         title="Cancel hold under Section 6.2 cooling-off right without penalty"
                       >
                         <Unlock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Cancel (Sec 6.2)</span>
+                        <span>Cancel</span>
                       </button>
                     </div>
                   </div>
@@ -442,8 +431,9 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   <span className="font-mono text-slate-500 font-bold">
                     Order: {selectedOrder?.orderNumber}
                   </span>
-                  <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-slate-900 text-white">
-                    {selectedOrder?.currentMilestone.replace(/_/g, " ")}
+                  <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1.5">
+                    <Ship className="w-3.5 h-3.5 text-blue-600" />
+                    <span>RoRo: {selectedOrder?.currentMilestone.replace(/_/g, " ")}</span>
                   </span>
                 </div>
               </div>
@@ -461,6 +451,10 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                           </span>
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold">
                             Order: {selectedOrder.orderNumber}
+                          </span>
+                          <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1">
+                            <Ship className="w-3 h-3 text-blue-600" />
+                            <span>RoRo: {selectedOrder.currentMilestone.replace(/_/g, " ")}</span>
                           </span>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-[#C3002F] border border-rose-100">
                             {selectedOrder.vehicle.fuelType}
@@ -538,6 +532,84 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                       />
                     </div>
 
+                    {/* Organised Vehicle Details Consistency (Sections A, B, C, E) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
+                      {/* Section A: Vehicle Identification */}
+                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
+                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
+                          <span className="w-2 h-2 rounded-full bg-[#0A0A0A]" />
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
+                            A. Identification
+                          </h4>
+                        </div>
+                        <div className="space-y-1.5 text-xs">
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Stock ID:</span><span className="font-mono font-bold text-slate-900">#{selectedOrder.vehicle.stockId}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Chassis / VIN:</span><span className="font-mono text-slate-800 font-semibold truncate max-w-[130px]">{selectedOrder.vehicle.vinChassis}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Make / Model:</span><span className="font-semibold text-slate-800">{selectedOrder.vehicle.make} {selectedOrder.vehicle.model}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Variant / Trim:</span><span className="font-semibold text-slate-800">{selectedOrder.vehicle.grade}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Model Year:</span><span className="font-mono font-bold text-slate-800">{selectedOrder.vehicle.year}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Odometer:</span><span className="font-mono text-slate-800">{selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Transmission:</span><span className="text-slate-800">{selectedOrder.vehicle.transmission}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Exterior Colour:</span><span className="text-slate-800">{selectedOrder.vehicle.color}</span></div>
+                        </div>
+                      </div>
+
+                      {/* Section B: Vehicle Condition */}
+                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
+                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
+                            B. Vehicle Condition
+                          </h4>
+                        </div>
+                        <div className="space-y-1.5 text-xs">
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Auction Grade:</span><span className="font-mono font-bold text-amber-700">★ {selectedOrder.vehicle.auctionGrade || "4.5"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Interior Grade:</span><span className="font-bold text-slate-800">{selectedOrder.vehicle.interiorGrade || "A"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Exterior Grade:</span><span className="font-bold text-slate-800">{selectedOrder.vehicle.exteriorGrade || "A"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Overall Condition:</span><span className="text-emerald-700 font-semibold">{selectedOrder.vehicle.overallCondition || "Clean Japanese Grade"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Known Defects:</span><span className="text-slate-700">{selectedOrder.vehicle.knownDefects?.[0] || "None Recorded"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Condition Report:</span><span className="text-slate-700 font-medium">USS Digital Dossier</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Supporting Doc:</span><span className="text-emerald-700 font-medium">Verified PDF</span></div>
+                        </div>
+                      </div>
+
+                      {/* Section C: Vehicle Pricing Inputs */}
+                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
+                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
+                          <span className="w-2 h-2 rounded-full bg-blue-600" />
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
+                            C. Pricing Inputs
+                          </h4>
+                        </div>
+                        <div className="space-y-1.5 text-xs">
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Acquisition Price:</span><span className="font-mono font-bold text-slate-900">¥{selectedOrder.priceBreakdown.fobJPY.toLocaleString()}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">NZD Equivalent:</span><span className="font-mono font-bold text-slate-900">${selectedOrder.priceBreakdown.fobNZD.toLocaleString()} NZD</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Currency:</span><span className="font-mono text-slate-800">JPY / NZD</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Purchase Basis:</span><span className="font-mono font-bold text-slate-800">{selectedOrder.vehicle.purchasePriceBasis || "FOB"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Pricing Profile:</span><span className="text-slate-800 font-medium">{selectedOrder.pricingZoneId}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Total Fixed Landed:</span><span className="font-mono font-bold text-slate-900">${selectedOrder.priceBreakdown.totalBuyPriceNZD.toLocaleString()} NZD</span></div>
+                        </div>
+                      </div>
+
+                      {/* Section E: Listing / Order Information */}
+                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
+                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
+                          <span className="w-2 h-2 rounded-full bg-slate-700" />
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
+                            E. Listing &amp; Order
+                          </h4>
+                        </div>
+                        <div className="space-y-1.5 text-xs">
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Listing Status:</span><span className="font-mono font-bold text-slate-900">{selectedOrder.status}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">RoRo Status:</span><span className="font-mono font-bold text-blue-700">RoRo: {selectedOrder.currentMilestone.replace(/_/g, " ")}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Reference:</span><span className="font-mono font-semibold text-slate-800">{selectedOrder.orderNumber}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Stock Reference:</span><span className="font-mono text-slate-800">{selectedOrder.vehicle.stockReference || `USS-JAA-${selectedOrder.vehicle.stockId.slice(-4)}`}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Date:</span><span className="font-mono text-slate-600">{selectedOrder.orderDate ? new Date(selectedOrder.orderDate).toLocaleDateString() : "2026-10-24"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Last Updated:</span><span className="font-mono text-slate-600">{new Date().toISOString().slice(0, 10)}</span></div>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Section 4 Commercial Inclusions Breakdown (Expandable) */}
                     {showPriceBreakdown && (
                       <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-4 animate-in fade-in">
@@ -613,62 +685,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                     )}
                   </div>
 
-                  {/* RoRo Maritime Vessel Tracker */}
-                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
-                          <Ship className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-sm text-slate-900">
-                            RoRo Ocean Transit &amp; Marine Logistics
-                          </h3>
-                          <p className="text-xs text-slate-500 font-mono">
-                            Vessel: {selectedOrder.vesselName || "Trans-Pacific RoRo V.48"} ({selectedOrder.voyageNumber || "Direct"})
-                          </p>
-                        </div>
-                      </div>
 
-                      <span className="px-3 py-1 rounded-full bg-blue-50 font-mono text-[11px] font-bold text-blue-700 border border-blue-200 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        <span>Voyage In Transit</span>
-                      </span>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-[#0B1527] to-slate-900 text-white space-y-4">
-                      <div className="flex items-center justify-between text-xs">
-                        <div>
-                          <span className="text-[10px] text-slate-400 block uppercase font-bold">Port of Departure</span>
-                          <strong className="text-sm text-white block mt-0.5">Yokohama RoRo Terminal</strong>
-                          <span className="text-[10px] text-slate-400 font-mono">Japan (Departed Oct 24)</span>
-                        </div>
-
-                        <div className="text-right">
-                          <span className="text-[10px] text-slate-400 block uppercase font-bold">Port of Arrival</span>
-                          <strong className="text-sm text-white block mt-0.5">Ports of Auckland</strong>
-                          <span className="text-[10px] text-blue-300 font-mono font-bold">ETA: Nov 08 (Berth 3)</span>
-                        </div>
-                      </div>
-
-                      <div className="relative pt-2 pb-1">
-                        <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-blue-500 via-rose-500 to-emerald-400 rounded-full w-[78%]" />
-                        </div>
-                        <div className="absolute top-0 left-[76%] -translate-x-1/2 flex flex-col items-center">
-                          <div className="w-6 h-6 rounded-full bg-white text-slate-900 flex items-center justify-center shadow-lg border border-slate-200">
-                            <Ship className="w-3.5 h-3.5 text-blue-600" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1">
-                        <span>Speed: 18.2 knots</span>
-                        <span className="text-slate-300">Transit: 78% Completed</span>
-                        <span>Corridor: South Pacific Route</span>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Defect Remediation & Additional Cost Action */}
                   {selectedOrder.additionalCosts.length > 0 && (
@@ -761,99 +778,29 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                     </div>
                   )}
 
-                  {/* 8-Stage Agreed Milestone Stepper */}
-                  <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-sm space-y-6">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  {/* Order Delivery Timeline (Matching Reference Layout & Authentic Nissan NZ Corridor Data) */}
+                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                       <div>
-                        <h3 className="font-bold text-sm text-slate-900">
-                          Agreed Order Delivery Milestones
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+                          Order Delivery Timeline
                         </h3>
-                        <p className="text-xs text-slate-500">
-                          Traceable sign-offs from Yokohama export terminal to franchise yard delivery.
+                        <p className="text-xs text-slate-500 font-medium">
+                          End-to-end Pacific corridor tracking from Yokohama export hub to dealership handover.
                         </p>
                       </div>
 
-                      <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-                        8 Agreed Stages
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+                          5 Programme Stages
+                        </span>
+                        <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                          Live RoRo Tracking
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="space-y-4 pl-2">
-                      {MILESTONE_STEPS.map((step, idx) => {
-                        const currentIdx = getMilestoneIndex(selectedOrder.currentMilestone);
-                        const isPassed = idx < currentIdx;
-                        const isCurrent = idx === currentIdx;
-                        const log = selectedOrder.milestones.find((m) => m.key === step.key);
-
-                        return (
-                          <div key={step.key} className="flex items-start gap-4 relative">
-                            {idx < MILESTONE_STEPS.length - 1 && (
-                              <div
-                                className={`absolute left-3 top-7 bottom-0 w-0.5 ${isPassed ? "bg-slate-900" : "bg-slate-200"
-                                  }`}
-                              />
-                            )}
-
-                            <div
-                              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 shadow-2xs z-10 ${isPassed
-                                ? "bg-slate-900 text-white"
-                                : isCurrent
-                                  ? "bg-[#C3002F] text-white ring-4 ring-rose-100 animate-pulse"
-                                  : "bg-slate-100 text-slate-400 border border-slate-200"
-                                }`}
-                            >
-                              {isPassed ? "✓" : idx + 1}
-                            </div>
-
-                            <div className="flex-1 pb-4 text-xs">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                                <div className="flex items-center gap-2">
-                                  <span
-                                    className={`font-bold text-sm ${isCurrent
-                                      ? "text-[#C3002F]"
-                                      : isPassed
-                                        ? "text-slate-900"
-                                        : "text-slate-400"
-                                      }`}
-                                  >
-                                    {step.label}
-                                  </span>
-                                  {isCurrent && (
-                                    <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-rose-50 text-[#C3002F] border border-rose-200">
-                                      Active Current
-                                    </span>
-                                  )}
-                                </div>
-
-                                <div className="text-right">
-                                  {log?.completedAt ? (
-                                    <span className="text-[11px] text-slate-500 font-mono font-medium">
-                                      Completed: {new Date(log.completedAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
-                                    </span>
-                                  ) : log?.eta ? (
-                                    <span className="text-[11px] text-blue-600 font-mono font-bold bg-blue-50 px-2 py-0.5 rounded">
-                                      ETA: {log.eta}
-                                    </span>
-                                  ) : (
-                                    <span className="text-[11px] text-slate-400 font-mono">
-                                      Pending prior milestone
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                                {log?.notes || step.desc}
-                              </p>
-
-                              <div className="flex items-center gap-3 mt-1.5 text-[10px] text-slate-400 font-mono">
-                                <span>Sign-off Actor: <strong className="text-slate-600">{log?.updatedBy || step.actor}</strong></span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <OrderCorridorTimeline order={selectedOrder} />
                   </div>
 
                   {/* Compliance & Shipping Documents Vault */}
@@ -1108,7 +1055,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                             }}
                             className="btn-outline py-2 px-3.5 rounded-xl text-xs font-bold text-slate-800 hover:text-[#C3002F] hover:border-[#C3002F]/40 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
                           >
-                            <span>View Dossier</span>
+                            <span>View</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                           </button>
                         </div>

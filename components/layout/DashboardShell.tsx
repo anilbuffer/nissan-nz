@@ -117,7 +117,7 @@ export default function DashboardShell({
       if (pathname === "/programme/stock" || initialTab === "programme-stock" || initialTab === "stock") return "programme-stock";
       if (pathname === "/programme/reservations" || initialTab === "programme-reservations" || initialTab === "reservations") return "programme-reservations";
       if (pathname === "/programme/orders" || initialTab === "programme-orders" || initialTab === "orders") return "programme-orders";
-      if (pathname === "/programme/reports" || initialTab === "programme-reports" || initialTab === "reports") return "programme-reports";
+      if (pathname === "/programme/reports" || initialTab === "programme-reports" || initialTab === "reports") return "programme-stock";
       return "programme-stock";
     }
 
@@ -201,7 +201,7 @@ export default function DashboardShell({
           return "/programme/orders";
         case "programme-reports":
         case "reports":
-          return "/programme/reports";
+          return "/programme/stock";
         default:
           return "/programme/stock";
       }
@@ -490,7 +490,7 @@ export default function DashboardShell({
         !pathname.startsWith('/japan'))
     ) {
       const subTab = activeTab.startsWith("programme-")
-        ? (activeTab.replace("programme-", "") as "stock" | "reservations" | "orders" | "reports")
+        ? (activeTab.replace("programme-", "") as "stock" | "reservations" | "orders")
         : "stock";
       return <ProgrammeUserPortalView initialSubTab={subTab} />;
     }

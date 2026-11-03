@@ -107,7 +107,7 @@ export default function AllocationMilestonesView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-            Wholesale Orders
+            Orders Milestones
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Monitor confirmed dealer allocations, Pacific maritime transit, entry compliance certification, and dispatch.

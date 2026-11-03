@@ -471,17 +471,17 @@ export default function JapanInventoryDetailsView({
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
-                  Japanese Wholesale Baseline
+                  Japanese Acquisition Pricing ({vehicle.purchasePriceBasis || "FOB"})
                 </span>
                 <span className="px-2 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 text-[10px] font-mono font-bold">
-                  FOB JPY
+                  {vehicle.purchasePriceBasis || "FOB"} · {vehicle.currency || "JPY"}
                 </span>
               </div>
 
               <div>
                 <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
                   ¥{vehicle.fobPriceJPY.toLocaleString()}
-                  <span className="text-xs font-sans text-slate-400 font-semibold ml-2">JPY (FOB)</span>
+                  <span className="text-xs font-sans text-slate-400 font-semibold ml-2">{vehicle.currency || "JPY"} ({vehicle.purchasePriceBasis || "FOB"})</span>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5">
                   Raw acquisition cost at Tokyo/Yokohama auction terminal prior to ocean shipping (~${estimatedNZD.toLocaleString()} NZD equiv.)
@@ -498,7 +498,7 @@ export default function JapanInventoryDetailsView({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Vehicle Technical Parameters
+                  Vehicle Specifications &amp; Listing Record
                 </h3>
                 <button
                   type="button"
@@ -531,17 +531,22 @@ export default function JapanInventoryDetailsView({
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Package / Grade:</span>
+                  <span className="text-slate-500">Make &amp; Model:</span>
+                  <span className="font-bold text-slate-800">{vehicle.make || "Nissan"} {vehicle.model}</span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Variant / Trim:</span>
                   <span className="font-bold text-slate-800">{vehicle.grade}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Powertrain:</span>
-                  <span className="font-semibold text-slate-800">{vehicle.fuelType}</span>
+                  <span className="text-slate-500">Model Year:</span>
+                  <span className="font-mono font-bold text-slate-900">{vehicle.year}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Verified Mileage:</span>
+                  <span className="text-slate-500">Odometer Reading:</span>
                   <span className="font-mono font-bold text-slate-900">
                     {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
                   </span>
@@ -555,22 +560,36 @@ export default function JapanInventoryDetailsView({
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Engine Displacement:</span>
-                  <span className="font-mono text-slate-700">
-                    {vehicle.engineCc ? `${vehicle.engineCc} cc` : "Pure EV"}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Body Color:</span>
+                  <span className="text-slate-500">Exterior Colour:</span>
                   <span className="font-semibold text-slate-800">
                     {vehicle.color || "Factory Original"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Model Year:</span>
-                  <span className="font-mono font-bold text-slate-900">{vehicle.year}</span>
+                  <span className="text-slate-500">Powertrain / Fuel:</span>
+                  <span className="font-semibold text-slate-800">{vehicle.fuelType}</span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Relevant Stock Ref:</span>
+                  <span className="font-mono text-slate-700 font-semibold">
+                    {vehicle.stockReference || `USS-JAA-${vehicle.stockId.slice(-4)}`}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Listing Status:</span>
+                  <span className="font-bold text-slate-900 font-mono text-[11px]">
+                    {vehicle.status}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Created / Updated:</span>
+                  <span className="font-mono text-slate-500 text-[11px]">
+                    {vehicle.createdAt || vehicle.inspectionDate || "2026-10-22"} · {vehicle.updatedAt || new Date().toISOString().slice(0, 10)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -597,15 +616,26 @@ export default function JapanInventoryDetailsView({
                 <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
                 <span>Inspection Condition Dossier &amp; Known Defects</span>
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-bold">
-                MR2A Pre-Verified
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-bold">
+                  ★ Grade {vehicle.auctionGrade} / {vehicle.interiorGrade || "A"}
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+                  MR2A Pre-Verified
+                </span>
+              </div>
             </div>
 
-            <p className="text-slate-700 leading-relaxed text-xs bg-slate-50 p-4 rounded-xl border border-slate-200/70">
-              {vehicle.conditionSummary ||
-                "Showroom demonstration grade. Zero structural panel damage detected. Fully compliant for NZTA MR2A border entry with genuine Japanese documentation."}
-            </p>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-800">
+                <span>Overall Vehicle Condition:</span>
+                <span className="text-emerald-700 font-bold">{vehicle.overallCondition || `★ ${vehicle.auctionGrade} - Clean Japanese Pre-Export Condition`}</span>
+              </div>
+              <p className="text-slate-600 leading-relaxed text-xs">
+                {vehicle.conditionSummary ||
+                  "Showroom demonstration grade. Zero structural panel damage detected. Fully compliant for NZTA MR2A border entry with genuine Japanese documentation."}
+              </p>
+            </div>
 
             {vehicle.knownDefects && vehicle.knownDefects.length > 0 && (
               <div className="space-y-2">
@@ -646,14 +676,17 @@ export default function JapanInventoryDetailsView({
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[#C3002F]" />
-                  <span>Official Supporting Documents &amp; Reports</span>
+                  <span>Images &amp; Supporting Documents</span>
                 </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Cryptographically hashed Japanese export certificates and passes.
-                </p>
+                <ul className="text-[11px] text-slate-500 mt-1.5 space-y-0.5 list-disc list-inside">
+                  <li>Upload multiple vehicle photographs.</li>
+                  <li>Upload condition report.</li>
+                  <li>Upload supporting vehicle documents.</li>
+                  <li>Associate all images and documents with the correct stock record.</li>
+                </ul>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono border border-emerald-200">
-                4/4 Compliant
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono border border-emerald-200 shrink-0 self-start">
+                4/4 Verified
               </span>
             </div>
 

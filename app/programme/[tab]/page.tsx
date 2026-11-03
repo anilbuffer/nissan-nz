@@ -9,7 +9,8 @@ import { useAuth } from "@/lib/auth-context";
 function ProgrammeTabPageContent() {
   const { currentUser, isLoading } = useAuth();
   const params = useParams();
-  const tab = Array.isArray(params?.tab) ? params.tab[0] : (params?.tab as string) || "stock";
+  const rawTab = Array.isArray(params?.tab) ? params.tab[0] : (params?.tab as string) || "stock";
+  const tab = rawTab === "reports" ? "stock" : rawTab;
 
   if (isLoading) {
     return (

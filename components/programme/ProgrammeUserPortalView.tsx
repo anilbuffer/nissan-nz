@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import OrderCorridorTimeline from "@/components/dealer/OrderCorridorTimeline";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
@@ -11,15 +12,12 @@ import {
   Car,
   Lock,
   Ship,
-  Building2,
-  Download,
   Eye,
   CheckCircle2,
   Clock,
   Search,
   ShieldCheck,
   X,
-  FileSpreadsheet,
   Check,
   Copy,
   ChevronRight,
@@ -27,7 +25,13 @@ import {
 } from "lucide-react";
 
 interface ProgrammeUserPortalViewProps {
-  initialSubTab?: "stock" | "reservations" | "orders" | "reports";
+  initialSubTab?: "stock" | "reservations" | "orders";
+}
+
+function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
+  if (vehicle.allocationMode) return vehicle.allocationMode;
+  const num = parseInt(vehicle.stockId.replace(/\D/g, "") || "0", 10);
+  return num % 2 === 0 ? "RESERVE" : "ALLOCATION";
 }
 
 export default function ProgrammeUserPortalView({
@@ -35,9 +39,9 @@ export default function ProgrammeUserPortalView({
 }: ProgrammeUserPortalViewProps) {
   const router = useRouter();
   const { currentUser } = useAuth();
-  const { vehicles, reservations, orders, dealers } = useProgramme();
+  const { vehicles, reservations, orders, updateVehicle, setVehicleStatus } = useProgramme();
 
-  const [activeTab, setActiveTab] = useState<"stock" | "reservations" | "orders" | "reports">(
+  const [activeTab, setActiveTab] = useState<"stock" | "reservations" | "orders">(
     initialSubTab
   );
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,7 +49,6 @@ export default function ProgrammeUserPortalView({
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedVehicleForDossier, setSelectedVehicleForDossier] = useState<Vehicle | null>(null);
   const [selectedOrderForDossier, setSelectedOrderForDossier] = useState<Order | null>(null);
-  const [downloadToast, setDownloadToast] = useState<string | null>(null);
   const [copiedVin, setCopiedVin] = useState(false);
 
   // Sync state if route changes
@@ -55,7 +58,7 @@ export default function ProgrammeUserPortalView({
     }
   }, [initialSubTab]);
 
-  const handleTabChange = (tabId: "stock" | "reservations" | "orders" | "reports") => {
+  const handleTabChange = (tabId: "stock" | "reservations" | "orders") => {
     audio.playSubtleClick();
     setActiveTab(tabId);
     router.push(`/programme/${tabId}`);
@@ -123,77 +126,6 @@ export default function ProgrammeUserPortalView({
     setTimeout(() => setCopiedVin(false), 2000);
   };
 
-  // CSV & XLSX Export Helpers
-  const handleExportCSV = (filename: string, headers: string[], rows: (string | number)[][]) => {
-    audio.playSubtleClick();
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(","))].join(
-        "\n"
-      );
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${filename}_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setDownloadToast(`Exported ${filename}.csv successfully.`);
-    setTimeout(() => setDownloadToast(null), 3500);
-  };
-
-  const handleExportXLSX = (sheetName: string, headers: string[], rows: (string | number)[][]) => {
-    audio.playSubtleClick();
-    const xmlHeader = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:o="urn:schemas-microsoft-com:office:office"
- xmlns:x="urn:schemas-microsoft-com:office:excel"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:html="http://www.w3.org/TR/REC-html40">
- <Styles>
-  <Style ss:ID="Header">
-   <Font ss:Bold="1" ss:Color="#FFFFFF"/>
-   <Interior ss:Color="#0A0A0A" ss:Pattern="Solid"/>
-  </Style>
-  <Style ss:ID="Cell">
-   <Font ss:Color="#1E293B"/>
-  </Style>
- </Styles>
- <Worksheet ss:Name="${sheetName}">
-  <Table>`;
-
-    const xmlRows = [
-      `<Row ss:StyleID="Header">${headers
-        .map((h) => `<Cell><Data ss:Type="String">${h}</Data></Cell>`)
-        .join("")}</Row>`,
-      ...rows.map(
-        (r) =>
-          `<Row ss:StyleID="Cell">${r
-            .map((val) => {
-              const isNum = typeof val === "number";
-              return `<Cell><Data ss:Type="${isNum ? "Number" : "String"}">${val}</Data></Cell>`;
-            })
-            .join("")}</Row>`
-      ),
-    ].join("\n");
-
-    const xmlFooter = `</Table></Worksheet></Workbook>`;
-    const blob = new Blob([xmlHeader + xmlRows + xmlFooter], {
-      type: "application/vnd.ms-excel",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${sheetName}_${new Date().toISOString().split("T")[0]}.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setDownloadToast(`Exported ${sheetName}.xlsx with native styling.`);
-    setTimeout(() => setDownloadToast(null), 3500);
-  };
-
   // 8 Milestones Definition
   const MILESTONES_ORDER = [
     "JAPAN_EXPORT_PREPARATION",
@@ -229,10 +161,18 @@ export default function ProgrammeUserPortalView({
             )}
           </div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-            Programme Portal
+            {activeTab === "stock"
+              ? "Authorised Programme Stock"
+              : activeTab === "reservations"
+              ? "Exclusivity Reservations Queue"
+              : "Programme Orders & Shipping"}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 font-normal max-w-2xl leading-relaxed">
-            Centralized National Sales Company governance for authorised Japanese vehicle inventory, dealer exclusivity holds, and RoRo door-to-door shipping milestones.
+            {activeTab === "stock"
+              ? "Centralised National Sales Company governance for authorised Japanese vehicle inventory, specifications, and dealer allocation."
+              : activeTab === "reservations"
+              ? "Live monitoring of 24-hour franchise dealership exclusivity holds with locked landed price snapshots."
+              : "Confirmed wholesale vehicle orders, RoRo ocean transit logistics, and door-to-door delivery milestones."}
           </p>
         </div>
 
@@ -245,100 +185,114 @@ export default function ProgrammeUserPortalView({
         </div>
       </div>
 
-      {/* Download Notification Toast */}
-      {downloadToast && (
-        <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{downloadToast}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setDownloadToast(null)}
-            className="text-emerald-700 hover:text-emerald-900 text-xs cursor-pointer p-0.5"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Sub-Navigation Tabs & Universal Toolbar                  */}
+      {/* 2. Executive 4-KPI Metric Strip: Total Vehicles, Available Stock, Reserved, Active Orders */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-2.5 sm:p-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-3">
-        {/* Navigation Tabs with Clean Metric Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          {[
-            { id: "stock", label: "Stock Catalogue", icon: Car, count: vehicles.length },
-            { id: "reservations", label: "Active Holds", icon: Lock, count: activeHolds.length },
-            { id: "orders", label: "Orders & Shipping", icon: Ship, count: orders.length },
-            { id: "reports", label: "Reports & Exports", icon: FileSpreadsheet, count: null },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleTabChange(tab.id as any)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${active
-                    ? "bg-[#0A0A0A] text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                  }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${active ? "text-[#C3002F]" : "text-slate-400"}`} />
-                <span>{tab.label}</span>
-                {tab.count !== null && (
-                  <span
-                    className={`text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-md font-bold ${active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
-                      }`}
-                  >
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search & Zone Pricing Selector */}
-        <div className="flex items-center gap-2">
-          {activeTab === "stock" && (
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Pricing:</span>
-              <select
-                value={selectedZone}
-                onChange={(e) => setSelectedZone(e.target.value as ZoneId)}
-                className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] cursor-pointer"
-              >
-                <option value="ZONE_1">Zone 1 (Auckland Metro)</option>
-                <option value="ZONE_2">Zone 2 (Upper North Island)</option>
-                <option value="ZONE_3">Zone 3 (Central North Island)</option>
-                <option value="ZONE_4">Zone 4 (Wellington &amp; South)</option>
-                <option value="ZONE_5">Zone 5 (South Island)</option>
-              </select>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* 1. Total Vehicles */}
+        <div
+          onClick={() => {
+            audio.playSubtleClick();
+            handleTabChange("stock");
+            setStatusFilter("ALL");
+          }}
+          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
+            activeTab === "stock" && statusFilter === "ALL" ? "ring-1 ring-[#0A0A0A]" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Total Vehicles
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700">
+              <Car className="w-4 h-4 text-[#0A0A0A]" />
             </div>
-          )}
-
-          <div className="relative min-w-[210px] w-full md:w-auto">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search make, model, stock ID..."
-              className="w-full pl-9 pr-8 py-1.5 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] focus:border-[#0A0A0A] font-sans transition-colors"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
-              >
-                ✕
-              </button>
-            )}
           </div>
+          <div className="text-2xl font-bold text-slate-900 font-mono">
+            {vehicles.length}
+          </div>
+          <span className="text-xs text-slate-500 font-medium block truncate">
+            Catalogue stock inventory
+          </span>
+        </div>
+
+        {/* 2. Available Stock */}
+        <div
+          onClick={() => {
+            audio.playSubtleClick();
+            handleTabChange("stock");
+            setStatusFilter("AVAILABLE");
+          }}
+          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
+            activeTab === "stock" && statusFilter === "AVAILABLE" ? "ring-1 ring-emerald-500" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Available Stock
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-emerald-600 font-mono">
+            {availableVehicles.length}
+          </div>
+          <span className="text-xs text-slate-500 font-medium block truncate">
+            Ready for dealer allocation
+          </span>
+        </div>
+
+        {/* 3. Reserved */}
+        <div
+          onClick={() => {
+            audio.playSubtleClick();
+            handleTabChange("reservations");
+          }}
+          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
+            activeTab === "reservations" ? "ring-1 ring-amber-500" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Reserved
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+              <Lock className="w-4 h-4 text-amber-600" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-amber-600 font-mono">
+            {activeHolds.length}
+          </div>
+          <span className="text-xs text-slate-500 font-medium block truncate">
+            Active 24h exclusivity holds
+          </span>
+        </div>
+
+        {/* 4. Active Orders */}
+        <div
+          onClick={() => {
+            audio.playSubtleClick();
+            handleTabChange("orders");
+          }}
+          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
+            activeTab === "orders" ? "ring-1 ring-blue-500" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Active Orders
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+              <Ship className="w-4 h-4 text-blue-600" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-blue-600 font-mono">
+            {activeOrders.length}
+          </div>
+          <span className="text-xs text-slate-500 font-medium block truncate">
+            In RoRo transit to NZ
+          </span>
         </div>
       </div>
 
@@ -347,8 +301,8 @@ export default function ProgrammeUserPortalView({
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "stock" && (
         <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-          {/* Subheader */}
-          <div className="px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          {/* Subheader Toolbar */}
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
                 Authorised Central Vehicle Stock
@@ -358,21 +312,64 @@ export default function ProgrammeUserPortalView({
               </span>
             </div>
 
-            {/* Status Filter Pills */}
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-              {["ALL", "AVAILABLE", "RESERVED", "ALLOCATED"].map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${statusFilter === status
-                      ? "bg-[#0A0A0A] text-white"
-                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Status Filter Pills */}
+              <div className="flex items-center gap-1">
+                {["ALL", "AVAILABLE", "RESERVED", "ALLOCATED"].map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setStatusFilter(status);
+                    }}
+                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                      statusFilter === status
+                        ? "bg-[#0A0A0A] text-white shadow-2xs"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                     }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+
+              {/* Pricing Zone Selector */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Pricing:</span>
+                <select
+                  value={selectedZone}
+                  onChange={(e) => setSelectedZone(e.target.value as ZoneId)}
+                  className="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] cursor-pointer shadow-2xs"
                 >
-                  {status}
-                </button>
-              ))}
+                  <option value="ZONE_1">Zone 1 (Auckland Metro)</option>
+                  <option value="ZONE_2">Zone 2 (Upper North Island)</option>
+                  <option value="ZONE_3">Zone 3 (Central North Island)</option>
+                  <option value="ZONE_4">Zone 4 (Wellington &amp; South)</option>
+                  <option value="ZONE_5">Zone 5 (South Island)</option>
+                </select>
+              </div>
+
+              {/* Search Box */}
+              <div className="relative min-w-[200px] flex-1 sm:flex-none">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search make, model, stock ID..."
+                  className="w-full pl-9 pr-8 py-1.5 text-xs bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] focus:border-[#0A0A0A] font-sans shadow-2xs transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -447,20 +444,48 @@ export default function ProgrammeUserPortalView({
                           </div>
                         </td>
 
-                        {/* 4. Catalogue Status */}
+                        {/* 4. Catalogue Status & Admin Assigned Action */}
                         <td className="py-3.5 px-5">
-                          <span
-                            className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${vehicle.status === "AVAILABLE"
+                          <div className="flex flex-col gap-1 items-start">
+                            <span
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${vehicle.status === "AVAILABLE"
                                 ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                                 : vehicle.status === "RESERVED"
                                   ? "bg-amber-50 text-amber-800 border border-amber-200"
                                   : vehicle.status === "ALLOCATED"
                                     ? "bg-blue-50 text-blue-800 border border-blue-200"
                                     : "bg-slate-100 text-slate-700 border border-slate-200"
-                              }`}
-                          >
-                            {vehicle.status}
-                          </span>
+                                }`}
+                            >
+                              {vehicle.status}
+                            </span>
+
+                            {vehicle.status === "AVAILABLE" && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  audio.playSubtleClick();
+                                  const currentMode = getVehicleAction(vehicle);
+                                  const nextMode = currentMode === "ALLOCATION" ? "RESERVE" : "ALLOCATION";
+                                  updateVehicle(vehicle.id, { allocationMode: nextMode });
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold border transition-colors cursor-pointer hover:opacity-80 bg-slate-50 border-slate-200 text-slate-700"
+                                title="Click to toggle Admin assigned action mode for dealers"
+                              >
+                                {getVehicleAction(vehicle) === "ALLOCATION" ? (
+                                  <>
+                                    <Ship className="w-2.5 h-2.5 text-emerald-600" />
+                                    <span>Assigned: Allocation</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Lock className="w-2.5 h-2.5 text-amber-600" />
+                                    <span>Assigned: Reserve</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </td>
 
                         {/* 5. Dossier Action */}
@@ -492,7 +517,7 @@ export default function ProgrammeUserPortalView({
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "reservations" && (
         <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-          <div className="px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
                 Authorised 24-Hour Exclusivity Holds
@@ -501,8 +526,29 @@ export default function ProgrammeUserPortalView({
                 · {filteredHolds.length} Active Records
               </span>
             </div>
-            <div className="text-xs font-mono text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
-              Total Hold Value: <strong>${totalHoldValue.toLocaleString()} NZD</strong>
+            <div className="flex items-center gap-2.5">
+              <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                Total Hold Value: <strong>${totalHoldValue.toLocaleString()} NZD</strong>
+              </div>
+              <div className="relative min-w-[200px]">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search hold, dealer, vehicle..."
+                  className="w-full pl-9 pr-8 py-1.5 text-xs bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] focus:border-[#0A0A0A] font-sans shadow-2xs transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -603,7 +649,7 @@ export default function ProgrammeUserPortalView({
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "orders" && (
         <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-          <div className="px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
                 Wholesale Order Records &amp; RoRo Logistics Pipeline
@@ -612,8 +658,29 @@ export default function ProgrammeUserPortalView({
                 · {filteredOrders.length} Shipments Recorded
               </span>
             </div>
-            <div className="text-xs font-mono text-slate-600 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
-              Active In-Transit: <strong>{activeOrders.length}</strong>
+            <div className="flex items-center gap-2.5">
+              <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                Active In-Transit: <strong>{activeOrders.length}</strong>
+              </div>
+              <div className="relative min-w-[200px]">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search order, vessel, dealer..."
+                  className="w-full pl-9 pr-8 py-1.5 text-xs bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] focus:border-[#0A0A0A] font-sans shadow-2xs transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -712,248 +779,6 @@ export default function ProgrammeUserPortalView({
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 6. TAB 4: Operational Reports & Exports                    */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {activeTab === "reports" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
-          <div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-              Operational Reporting &amp; Data Exports
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-              Export real-time platform data feeds in standard CSV or Microsoft Excel (XLSX) format for executive review, logistics auditing, and border compliance.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Dataset 1: Japanese Stock Roster */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors">
-              <div className="space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-2xs">
-                  <Car className="w-4 h-4 text-[#C3002F]" />
-                </div>
-                <h4 className="font-bold text-sm text-slate-900">Japanese Stock Inventory</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Full vehicle catalogue with Stock ID, VIN, year, grade, odometer, FOB JPY, and status.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportCSV(
-                      "Nissan_Stock_Catalogue",
-                      ["Stock ID", "Model", "Year", "VIN", "Grade", "Odometer KM", "FOB JPY", "Status"],
-                      vehicles.map((v) => [v.stockId, v.model, v.year, v.vinChassis, v.grade, v.odometerKm, v.fobPriceJPY, v.status])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5 text-slate-400" />
-                  <span>CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportXLSX(
-                      "Stock_Catalogue",
-                      ["Stock ID", "Model", "Year", "VIN", "Grade", "Odometer KM", "FOB JPY", "Status"],
-                      vehicles.map((v) => [v.stockId, v.model, v.year, v.vinChassis, v.grade, v.odometerKm, v.fobPriceJPY, v.status])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
-                  <span>XLSX</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Dataset 2: 24h Exclusivity Holds */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors">
-              <div className="space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-2xs">
-                  <Lock className="w-4 h-4 text-[#C3002F]" />
-                </div>
-                <h4 className="font-bold text-sm text-slate-900">Exclusivity Holds Queue</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Active and historical hold requests, dealer identification, locked price snapshots, and expiry timestamps.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportCSV(
-                      "Nissan_Exclusivity_Holds",
-                      ["Reservation ID", "Vehicle ID", "Model", "Dealer", "Expires At", "Total Buy NZD", "Status"],
-                      reservations.map((r) => [
-                        r.id,
-                        r.vehicleId,
-                        r.vehicle?.model || "",
-                        r.dealerName,
-                        r.expiresAt,
-                        r.priceSnapshot?.totalBuyPriceNZD || 0,
-                        r.status,
-                      ])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5 text-slate-400" />
-                  <span>CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportXLSX(
-                      "Exclusivity_Holds",
-                      ["Reservation ID", "Vehicle ID", "Model", "Dealer", "Expires At", "Total Buy NZD", "Status"],
-                      reservations.map((r) => [
-                        r.id,
-                        r.vehicleId,
-                        r.vehicle?.model || "",
-                        r.dealerName,
-                        r.expiresAt,
-                        r.priceSnapshot?.totalBuyPriceNZD || 0,
-                        r.status,
-                      ])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
-                  <span>XLSX</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Dataset 3: Wholesale Orders Pipeline */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors">
-              <div className="space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-2xs">
-                  <Ship className="w-4 h-4 text-[#C3002F]" />
-                </div>
-                <h4 className="font-bold text-sm text-slate-900">Wholesale Orders &amp; RoRo</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Allocated orders, ocean vessels, 8 door-to-door milestones, delivery ETAs, and landed pricing.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportCSV(
-                      "Nissan_Wholesale_Orders",
-                      ["Order Number", "Model", "Dealer", "Vessel", "Milestone", "ETA Delivery", "Total Landed NZD"],
-                      orders.map((o) => [
-                        o.orderNumber,
-                        o.vehicle?.model || "",
-                        o.dealerName,
-                        o.vesselName || "",
-                        o.currentMilestone,
-                        o.etaDeliveryDate || "",
-                        o.priceBreakdown?.totalBuyPriceNZD || 0,
-                      ])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5 text-slate-400" />
-                  <span>CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportXLSX(
-                      "Wholesale_Orders",
-                      ["Order Number", "Model", "Dealer", "Vessel", "Milestone", "ETA Delivery", "Total Landed NZD"],
-                      orders.map((o) => [
-                        o.orderNumber,
-                        o.vehicle?.model || "",
-                        o.dealerName,
-                        o.vesselName || "",
-                        o.currentMilestone,
-                        o.etaDeliveryDate || "",
-                        o.priceBreakdown?.totalBuyPriceNZD || 0,
-                      ])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
-                  <span>XLSX</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Dataset 4: Franchise Dealer Directory */}
-            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors">
-              <div className="space-y-2">
-                <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-2xs">
-                  <Building2 className="w-4 h-4 text-[#C3002F]" />
-                </div>
-                <h4 className="font-bold text-sm text-slate-900">Franchise Dealerships</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Network directory, legal entity names, NZBN codes, pricing zone schedules, and primary contacts.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportCSV(
-                      "Nissan_Franchise_Dealers",
-                      ["Dealer Code", "Trading Name", "NZBN", "Pricing Zone", "Primary Contact", "Email", "Status"],
-                      dealers.map((d) => [
-                        d.dealerCode,
-                        d.legalTradingName,
-                        d.nzbn,
-                        d.pricingZoneId,
-                        d.primaryContactName,
-                        d.primaryContactEmail,
-                        d.status,
-                      ])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5 text-slate-400" />
-                  <span>CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleExportXLSX(
-                      "Franchise_Dealers",
-                      ["Dealer Code", "Trading Name", "NZBN", "Pricing Zone", "Primary Contact", "Email", "Status"],
-                      dealers.map((d) => [
-                        d.dealerCode,
-                        d.legalTradingName,
-                        d.nzbn,
-                        d.pricingZoneId,
-                        d.primaryContactName,
-                        d.primaryContactEmail,
-                        d.status,
-                      ])
-                    )
-                  }
-                  className="flex-1 py-2 px-3 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-white" />
-                  <span>XLSX</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────── */}
       {/* 7. ENRICHED MODAL: Comprehensive Vehicle Spec Dossier       */}
       {/* ─────────────────────────────────────────────────────────── */}
       {selectedVehicleForDossier && (
@@ -968,10 +793,10 @@ export default function ProgrammeUserPortalView({
                   </span>
                   <span
                     className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${selectedVehicleForDossier.status === "AVAILABLE"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                        : selectedVehicleForDossier.status === "RESERVED"
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : selectedVehicleForDossier.status === "RESERVED"
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-blue-50 text-blue-700 border-blue-200"
                       }`}
                   >
                     {selectedVehicleForDossier.status}
@@ -1118,7 +943,7 @@ export default function ProgrammeUserPortalView({
               <button
                 type="button"
                 onClick={() => setSelectedVehicleForDossier(null)}
-                className="px-5 py-2 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+                className="px-5 py-2 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
               >
                 Close Spec
               </button>
@@ -1187,47 +1012,17 @@ export default function ProgrammeUserPortalView({
               </div>
             </div>
 
-            {/* Door to Door 8-Stage Stepper */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
-                Door-to-Door RoRo Logistics Milestones (8 Stages)
-              </span>
-              <div className="space-y-1.5">
-                {MILESTONES_ORDER.map((stage, idx) => {
-                  const currentIdx = MILESTONES_ORDER.indexOf(selectedOrderForDossier.currentMilestone);
-                  const isCompleted = idx < currentIdx;
-                  const isCurrent = idx === currentIdx;
-
-                  return (
-                    <div
-                      key={stage}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs ${isCurrent
-                          ? "bg-[#0A0A0A] text-white border-[#0A0A0A] font-bold"
-                          : isCompleted
-                            ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-                            : "bg-slate-50 text-slate-400 border-slate-200"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono border ${isCurrent
-                              ? "bg-white text-slate-900 border-white font-bold"
-                              : isCompleted
-                                ? "bg-emerald-600 text-white border-emerald-600 font-bold"
-                                : "border-slate-300"
-                            }`}
-                        >
-                          {isCompleted ? "✓" : idx + 1}
-                        </span>
-                        <span>{stage.replace(/_/g, " ")}</span>
-                      </div>
-                      <span className="font-mono text-[10px]">
-                        {isCurrent ? "Current Active Stage" : isCompleted ? "Completed" : "Scheduled"}
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* Door to Door Order Delivery Corridor (Matching Reference Layout) */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+                  Delivery Corridor Milestones (5 Programme Stages)
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  Live RoRo Status
+                </span>
               </div>
+              <OrderCorridorTimeline order={selectedOrderForDossier} />
             </div>
 
             {/* Modal Footer */}
@@ -1235,7 +1030,7 @@ export default function ProgrammeUserPortalView({
               <button
                 type="button"
                 onClick={() => setSelectedOrderForDossier(null)}
-                className="px-5 py-2 bg-[#0A0A0A] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
+                className="px-5 py-2 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
               >
                 Close Details
               </button>
