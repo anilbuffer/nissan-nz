@@ -600,11 +600,11 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                           </h4>
                         </div>
                         <div className="space-y-1.5 text-xs">
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Listing Status:</span><span className="font-mono font-bold text-slate-900">{selectedOrder.status}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Listing Status:</span><span className="font-mono font-bold text-slate-900">{selectedOrder.vehicle.status}</span></div>
                           <div className="flex justify-between py-0.5"><span className="text-slate-400">RoRo Status:</span><span className="font-mono font-bold text-blue-700">RoRo: {selectedOrder.currentMilestone.replace(/_/g, " ")}</span></div>
                           <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Reference:</span><span className="font-mono font-semibold text-slate-800">{selectedOrder.orderNumber}</span></div>
                           <div className="flex justify-between py-0.5"><span className="text-slate-400">Stock Reference:</span><span className="font-mono text-slate-800">{selectedOrder.vehicle.stockReference || `USS-JAA-${selectedOrder.vehicle.stockId.slice(-4)}`}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Date:</span><span className="font-mono text-slate-600">{selectedOrder.orderDate ? new Date(selectedOrder.orderDate).toLocaleDateString() : "2026-10-24"}</span></div>
+                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Date:</span><span className="font-mono text-slate-600">{selectedOrder.orderedAt ? new Date(selectedOrder.orderedAt).toLocaleDateString() : "2026-10-24"}</span></div>
                           <div className="flex justify-between py-0.5"><span className="text-slate-400">Last Updated:</span><span className="font-mono text-slate-600">{new Date().toISOString().slice(0, 10)}</span></div>
                         </div>
                       </div>
@@ -805,21 +805,24 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
 
                   {/* Compliance & Shipping Documents Vault */}
                   <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <div className="flex items-center gap-2.5">
-                        <FileCheck2 className="w-5 h-5 text-emerald-600" />
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-3 border-b border-slate-100 gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <FileCheck2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                         <div>
                           <h3 className="font-bold text-sm text-slate-900">
                             Compliance &amp; Shipping Documents Vault
                           </h3>
-                          <p className="text-xs text-slate-500">
-                            Legally binding auction reports, JEVIC certificates, and MR2A compliance papers.
-                          </p>
+                          <ul className="text-[11px] text-slate-500 mt-1.5 space-y-0.5 list-disc list-inside">
+                            <li>Upload multiple vehicle photographs.</li>
+                            <li>Upload condition report.</li>
+                            <li>Upload supporting vehicle documents.</li>
+                            <li>Associate all images and documents with the correct stock record.</li>
+                          </ul>
                         </div>
                       </div>
 
-                      <span className="text-[10px] font-mono text-slate-400">
-                        {selectedOrder.documents?.length || 0} Verified Documents
+                      <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                        {selectedOrder.documents?.length || 4} Verified Documents
                       </span>
                     </div>
 
@@ -1008,9 +1011,9 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                                 <span>Approval Needed</span>
                               </span>
                             ) : (
-                              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-mono flex items-center gap-1">
-                                <Ship className="w-3 h-3 text-slate-500" />
-                                <span>{order.currentMilestone.replace(/_/g, " ")}</span>
+                              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-mono flex items-center gap-1">
+                                <Ship className="w-3 h-3 text-blue-600" />
+                                <span>RoRo: {order.currentMilestone.replace(/_/g, " ")}</span>
                               </span>
                             )}
                           </div>

@@ -104,7 +104,6 @@ export default function FullPageVehicleDetail({
   const [selectedZone, setSelectedZone] = useState<ZoneId>(dealerZone);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
-  const [fullWidthTab, setFullWidthTab] = useState<"ADDITIONAL_COSTS" | "SPECS">("ADDITIONAL_COSTS");
   const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
 
@@ -732,75 +731,144 @@ export default function FullPageVehicleDetail({
                       <span>•</span>
                       <span>✓ JEVIC &amp; MR2A Included</span>
                     </div>
+                  </div>
+                </div>
+              )}
 
-                    {/* Admin Status & Allocation Mode Assignment Controls */}
-                    {isAdmin && (
-                      <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3 mt-4 shadow-sm border border-slate-800">
-                        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                            <span className="text-xs font-bold text-white tracking-tight">Admin Assignment</span>
-                          </div>
-                          <span className="text-[10px] font-mono text-slate-400">NSC Authority</span>
-                        </div>
+              {/* Admin Status & Allocation Mode Assignment Controls */}
+              {isAdmin && (
+                <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3 mt-4 shadow-sm border border-slate-800">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-bold text-white tracking-tight">Admin Assignment</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400">NSC Authority</span>
+                  </div>
 
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div>
-                            <label className="text-[10px] text-slate-400 block mb-1 font-medium">Dealer Action Mode:</label>
-                            <div className="flex rounded-lg overflow-hidden border border-slate-700 bg-slate-800 p-0.5">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  audio.playSubtleClick();
-                                  updateVehicle(vehicle.id, { allocationMode: "RESERVE" });
-                                }}
-                                className={`flex-1 py-1 px-1.5 rounded text-[10px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
-                                  getVehicleAction(vehicle) === "RESERVE"
-                                    ? "bg-white text-slate-950 shadow-xs"
-                                    : "text-slate-400 hover:text-white"
-                                }`}
-                              >
-                                <Lock className="w-3 h-3" />
-                                <span>Reserve</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  audio.playSubtleClick();
-                                  updateVehicle(vehicle.id, { allocationMode: "ALLOCATION" });
-                                }}
-                                className={`flex-1 py-1 px-1.5 rounded text-[10px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
-                                  getVehicleAction(vehicle) === "ALLOCATION"
-                                    ? "bg-white text-slate-950 shadow-xs"
-                                    : "text-slate-400 hover:text-white"
-                                }`}
-                              >
-                                <Ship className="w-3 h-3 text-emerald-600" />
-                                <span>Allocation</span>
-                              </button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="text-[10px] text-slate-400 block mb-1 font-medium">Vehicle Status:</label>
-                            <select
-                              value={vehicle.status}
-                              onChange={(e) => {
-                                audio.playSubtleClick();
-                                setVehicleStatus(vehicle.id, e.target.value as any, "Updated by Admin");
-                              }}
-                              className="w-full bg-slate-800 border border-slate-700 rounded-lg py-1.5 px-2 text-xs font-mono text-white focus:outline-none cursor-pointer"
-                            >
-                              <option value="AVAILABLE">AVAILABLE</option>
-                              <option value="RESERVED">RESERVED</option>
-                              <option value="ALLOCATED">ALLOCATED</option>
-                              <option value="WITHDRAWN">WITHDRAWN</option>
-                              <option value="SOLD">SOLD</option>
-                            </select>
-                          </div>
-                        </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-medium">Dealer Action Mode:</label>
+                      <div className="flex rounded-lg overflow-hidden border border-slate-700 bg-slate-800 p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            updateVehicle(vehicle.id, { allocationMode: "RESERVE" });
+                          }}
+                          className={`flex-1 py-1 px-1.5 rounded text-[10px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                            getVehicleAction(vehicle) === "RESERVE"
+                              ? "bg-white text-slate-950 shadow-xs"
+                              : "text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <Lock className="w-3 h-3" />
+                          <span>Reserve</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            updateVehicle(vehicle.id, { allocationMode: "ALLOCATION" });
+                          }}
+                          className={`flex-1 py-1 px-1.5 rounded text-[10px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                            getVehicleAction(vehicle) === "ALLOCATION"
+                              ? "bg-white text-slate-950 shadow-xs"
+                              : "text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <Ship className="w-3 h-3 text-emerald-600" />
+                          <span>Allocation</span>
+                        </button>
                       </div>
-                    )}
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-medium">Vehicle Status:</label>
+                      <select
+                        value={vehicle.status}
+                        onChange={(e) => {
+                          audio.playSubtleClick();
+                          setVehicleStatus(vehicle.id, e.target.value as any, "Updated by Admin");
+                        }}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg py-1.5 px-2 text-xs font-mono text-white focus:outline-none cursor-pointer"
+                      >
+                        <option value="AVAILABLE">AVAILABLE</option>
+                        <option value="RESERVED">RESERVED</option>
+                        <option value="ALLOCATED">ALLOCATED</option>
+                        <option value="WITHDRAWN">WITHDRAWN</option>
+                        <option value="SOLD">SOLD</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Admin Status & Allocation Mode Assignment Controls */}
+              {isAdmin && (
+                <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-3 mt-4 shadow-sm border border-slate-800">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-bold text-white tracking-tight">Admin Assignment</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400">NSC Authority</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-medium">Dealer Action Mode:</label>
+                      <div className="flex rounded-lg overflow-hidden border border-slate-700 bg-slate-800 p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            updateVehicle(vehicle.id, { allocationMode: "RESERVE" });
+                          }}
+                          className={`flex-1 py-1 px-1.5 rounded text-[10px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                            getVehicleAction(vehicle) === "RESERVE"
+                              ? "bg-white text-slate-950 shadow-xs"
+                              : "text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <Lock className="w-3 h-3" />
+                          <span>Reserve</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            updateVehicle(vehicle.id, { allocationMode: "ALLOCATION" });
+                          }}
+                          className={`flex-1 py-1 px-1.5 rounded text-[10px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                            getVehicleAction(vehicle) === "ALLOCATION"
+                              ? "bg-white text-slate-950 shadow-xs"
+                              : "text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <Ship className="w-3 h-3 text-emerald-600" />
+                          <span>Allocation</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-1 font-medium">Vehicle Status:</label>
+                      <select
+                        value={vehicle.status}
+                        onChange={(e) => {
+                          audio.playSubtleClick();
+                          setVehicleStatus(vehicle.id, e.target.value as any, "Updated by Admin");
+                        }}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg py-1.5 px-2 text-xs font-mono text-white focus:outline-none cursor-pointer"
+                      >
+                        <option value="AVAILABLE">AVAILABLE</option>
+                        <option value="RESERVED">RESERVED</option>
+                        <option value="ALLOCATED">ALLOCATED</option>
+                        <option value="WITHDRAWN">WITHDRAWN</option>
+                        <option value="SOLD">SOLD</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               )}
@@ -810,283 +878,122 @@ export default function FullPageVehicleDetail({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 4. FULL-WIDTH WORKSPACE: Technical Specs vs Additional Costs */}
+      {/* 4. FULL-WIDTH WORKSPACE: Specifications & Additional Costs   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="space-y-4">
-        {/* Full-Width Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-3 flex-wrap">
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              setFullWidthTab("ADDITIONAL_COSTS");
-            }}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${fullWidthTab === "ADDITIONAL_COSTS"
-                ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs"
-              }`}
-          >
-            <DollarSign className="w-3.5 h-3.5" />
-            <span>Additional Costs Ledger</span>
-            {additionalCostsTotal > 0 ? (
-              <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-rose-500 text-white font-bold">
-                +${additionalCostsTotal.toLocaleString()}
-              </span>
-            ) : (
-              <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-emerald-100 text-emerald-800 font-bold">
-                $0
-              </span>
-            )}
-          </button>
+      <div className="space-y-6">
 
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              setFullWidthTab("SPECS");
-            }}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${fullWidthTab === "SPECS"
-                ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs"
-              }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Japanese Export Verification &amp; Technical Specs</span>
-          </button>
-        </div>
 
-        {/* TAB 1: ADDITIONAL COSTS LEDGER */}
-        {fullWidthTab === "ADDITIONAL_COSTS" && (
-          <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5 animate-in fade-in duration-200">
-            {/* Header with Title & Add Cost Button for Admin */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <div className="space-y-0.5">
+
+        {/* ───────────────────────────────────────────────────────── */}
+        {/* 1st CARD: Specifications                                  */}
+        {/* ───────────────────────────────────────────────────────── */}
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                  Additional Costs Ledger
+                  Specifications
                 </h2>
-                <p className="text-xs text-slate-500">
-                  Itemized administrative adjustments, inspection surcharges, and landing fee reconciliation.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Certified Japanese export verification and mechanical specification dossier.
                 </p>
               </div>
-
-              {/* Admin Action: Add Additional Cost */}
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    audio.playSubtleClick();
-                    setIsAddCostModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 self-start sm:self-auto active:scale-[0.98]"
-                >
-                  <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>+ Add Additional Cost</span>
-                </button>
-              )}
             </div>
 
-            {/* 4-Card Executive Pricing Summary Strip */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Effective Region
-                </span>
-                <span className="font-bold text-slate-900 text-xs sm:text-sm block truncate">
-                  {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
-                </span>
-                <span className="font-mono text-[10px] text-slate-500 block">
-                  Pricing Zone: {activeZoneId}
-                </span>
-              </div>
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    title: "JEVIC Pre-Shipment Inspection Certificate",
+                    type: "JEVIC",
+                    refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
+                    details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash verified 100% · Radiation test: Passed (0.08 µSv/h).`,
+                  });
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-pointer transition-colors"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>JEVIC Certified</span>
+              </button>
 
-              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Fixed Cost Profile
-                </span>
-                <span className="font-bold text-slate-900 text-xs sm:text-sm block font-mono">
-                  ${basePriceNZD.toLocaleString()} NZD
-                </span>
-                <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  <span>Guaranteed Profile</span>
-                </span>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Additional Cost
-                </span>
-                <span className={`font-mono font-bold text-xs sm:text-sm block ${additionalCostsTotal > 0 ? "text-rose-600" : "text-emerald-700"}`}>
-                  {additionalCostsTotal > 0 ? `+${additionalCostsTotal.toLocaleString()} NZD` : "additional cost = 0"}
-                </span>
-                <span className="text-[10px] text-slate-500 block truncate">
-                  {additionalCosts.length > 0 ? `${additionalCosts.length} items attached` : "No surcharges added"}
-                </span>
-              </div>
-
-              <div className="p-3.5 rounded-2xl bg-[#0A0A0A] text-white space-y-0.5 shadow-xs">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Total Buy Price
-                </span>
-                <span className="font-mono font-bold text-xs sm:text-sm block tracking-tight text-white">
-                  ${totalBuyPriceNZD.toLocaleString()} NZD
-                </span>
-                <span className="text-[10px] text-slate-400 block truncate">
-                  Fixed Landed + Additional Costs
-                </span>
-              </div>
-            </div>
-
-            {/* Additional Costs Ledger Records */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-slate-400" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                    Additional Costs Records:
-                  </h3>
-                </div>
-                <span className="font-mono text-xs font-semibold text-slate-500">
-                  Total Additional Costs: ${additionalCostsTotal.toLocaleString()} NZD
-                </span>
-              </div>
-
-              {additionalCosts.length === 0 ? (
-                /* When not admin added -> additional cost = 0 */
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-bold text-slate-900 font-mono">
-                      additional cost = 0
-                    </span>
-                    <p className="text-xs text-slate-500 max-w-lg mx-auto mt-0.5">
-                      No additional costs have been attached by the Autohub Administrator. All inspection, biosecurity, and standard delivery fees remain strictly guaranteed within the Total Buy Price.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                /* When admin has attached additional costs */
-                <div className="overflow-x-auto rounded-2xl border border-slate-200">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px]">
-                      <tr>
-                        <th className="py-3 px-4 font-bold">Category</th>
-                        <th className="py-3 px-4 font-bold">Description</th>
-                        <th className="py-3 px-4 font-bold">Notes / Evidence</th>
-                        <th className="py-3 px-4 font-bold">Status</th>
-                        <th className="py-3 px-4 font-bold text-right">Amount (NZD)</th>
-                        {isAdmin && <th className="py-3 px-4 font-bold text-right">Action</th>}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {additionalCosts.map((cost) => (
-                        <tr key={cost.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">
-                            {cost.type.replace(/_/g, " ")}
-                          </td>
-                          <td className="py-3 px-4 text-slate-700">
-                            {cost.description}
-                          </td>
-                          <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                            {cost.notes || "Official Inspection Item"}
-                          </td>
-                          <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                              {cost.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
-                            +${cost.amountNZD.toLocaleString()}
-                          </td>
-                          {isAdmin && (
-                            <td className="py-3 px-4 text-right whitespace-nowrap">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveAdditionalCost(cost.id)}
-                                className="text-rose-600 hover:text-rose-800 p-1 rounded hover:bg-rose-50 cursor-pointer transition-colors"
-                                title="Remove cost item"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="bg-slate-50 border-t border-slate-200 font-bold">
-                      <tr>
-                        <td colSpan={isAdmin ? 4 : 4} className="py-3 px-4 text-slate-900">
-                          Total Buy Price (Fixed Landed Base ${basePriceNZD.toLocaleString()} + Additional Costs ${additionalCostsTotal.toLocaleString()}):
-                        </td>
-                        <td className="py-3 px-4 text-right font-mono text-sm text-slate-900">
-                          ${totalBuyPriceNZD.toLocaleString()} NZD
-                        </td>
-                        {isAdmin && <td></td>}
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    title: "USS Tokyo Official Auction Sheet",
+                    type: "AUCTION_SHEET",
+                    refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
+                    details: `Overall Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · USS Tokyo pre-export inspection certified.`,
+                  });
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5 text-slate-500" />
+                <span>Auction Sheet (PDF)</span>
+              </button>
             </div>
           </div>
-        )}
 
-        {/* TAB 2: TECHNICAL SPECIFICATIONS & JAPANESE VERIFICATION */}
-        {fullWidthTab === "SPECS" && (
-          <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                    Japanese Export Verification &amp; Technical Specifications
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Certified USS/JAA Japanese export documentation, digital odometer verification, and mechanical specification dossier.
-                  </p>
-                </div>
+          {/* 4 Inner Stats Cards Strip (Matching Image 2 Reference) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* 1. ODOMETER (JEVIC) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                ODOMETER (JEVIC)
+              </span>
+              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
               </div>
-
-              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
-                <button
-                  type="button"
-                  onClick={() => {
-                    audio.playSubtleClick();
-                    setActiveDocPreview({
-                      title: "JEVIC Pre-Shipment Inspection Certificate",
-                      type: "JEVIC",
-                      refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
-                      details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash verified 100% · Radiation test: Passed (0.08 µSv/h).`,
-                    });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-pointer transition-colors"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>JEVIC Certified</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    audio.playSubtleClick();
-                    setActiveDocPreview({
-                      title: "USS Tokyo Official Auction Sheet",
-                      type: "AUCTION_SHEET",
-                      refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
-                      details: `Overall Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · USS Tokyo pre-export inspection certified.`,
-                    });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
-                >
-                  <FileText className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Auction Sheet (PDF)</span>
-                </button>
-              </div>
+              <span className="text-[11px] text-emerald-600 font-semibold block truncate">
+                Digitally Certified
+              </span>
             </div>
+
+            {/* 2. AUCTION GRADE */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                AUCTION GRADE
+              </span>
+              <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+                ★ {vehicle.auctionGrade || "4.5"} / {vehicle.interiorGrade || "A"}
+              </div>
+              <span className="text-[11px] text-slate-500 block truncate">
+                USS / JAA Inspection
+              </span>
+            </div>
+
+            {/* 3. FOB BASELINE (JPY) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                FOB BASELINE (JPY)
+              </span>
+              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                ¥{vehicle.fobPriceJPY.toLocaleString()}
+              </div>
+              <span className="text-[11px] text-slate-500 block truncate">
+                Japan Acquisition Cost
+              </span>
+            </div>
+
+            {/* 4. YARD STAGING */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                YARD STAGING
+              </span>
+              <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+                {vehicle.location || "Yokohama Yard"}
+              </div>
+              <span className="text-[11px] text-slate-500 block truncate">
+                Export Bay Ready
+              </span>
+            </div>
+          </div>
 
             {/* 4-Column Technical Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -1233,7 +1140,105 @@ export default function FullPageVehicleDetail({
               </div>
             </div>
           </div>
-        )}
+
+        {/* ───────────────────────────────────────────────────────── */}
+        {/* 2nd CARD: Additional Costs                                */}
+        {/* ───────────────────────────────────────────────────────── */}
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                Additional Costs
+              </h2>
+            </div>
+
+            {/* Admin Action: Add Additional Cost */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setIsAddCostModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 self-start sm:self-auto active:scale-[0.98]"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>+ Add Additional Cost</span>
+              </button>
+            )}
+          </div>
+
+          {additionalCosts.length === 0 ? (
+            /* Blank card saying "No Additional Costs", no extra information */
+            <div className="p-8 sm:p-12 rounded-2xl bg-slate-50/60 border border-dashed border-slate-200 text-center">
+              <span className="text-sm sm:text-base font-bold text-slate-500">
+                No Additional Costs
+              </span>
+            </div>
+          ) : (
+            /* When admin has attached additional costs */
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th className="py-3 px-4 font-bold">Category</th>
+                    <th className="py-3 px-4 font-bold">Description</th>
+                    <th className="py-3 px-4 font-bold">Notes / Evidence</th>
+                    <th className="py-3 px-4 font-bold">Status</th>
+                    <th className="py-3 px-4 font-bold text-right">Amount (NZD)</th>
+                    {isAdmin && <th className="py-3 px-4 font-bold text-right">Action</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {additionalCosts.map((cost) => (
+                    <tr key={cost.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">
+                        {cost.type.replace(/_/g, " ")}
+                      </td>
+                      <td className="py-3 px-4 text-slate-700">
+                        {cost.description}
+                      </td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
+                        {cost.notes || "Official Inspection Item"}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          {cost.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                        +${cost.amountNZD.toLocaleString()} NZD
+                      </td>
+                      {isAdmin && (
+                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAdditionalCost(cost.id)}
+                            className="text-rose-600 hover:text-rose-800 p-1 rounded hover:bg-rose-50 cursor-pointer transition-colors"
+                            title="Remove cost item"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-slate-50 border-t border-slate-200 font-bold">
+                  <tr>
+                    <td colSpan={isAdmin ? 4 : 4} className="py-3 px-4 text-slate-900">
+                      Total Additional Costs:
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-sm text-slate-900">
+                      +${additionalCostsTotal.toLocaleString()} NZD
+                    </td>
+                    {isAdmin && <td></td>}
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
