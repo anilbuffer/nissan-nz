@@ -609,33 +609,61 @@ export default function FullPageVehicleDetail({
                   )}
                 </div>
 
-                {/* 2. Fixed Cost Profile Pricing - Prominently Displayed */}
-                <div className="py-2.5 px-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 my-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                      <span>Fixed Cost Profile Pricing</span>
-                      <span className="text-[10px] font-normal text-slate-500 font-mono">
-                        ({selectedZoneConfig.zoneName.split("-")[0]?.trim()})
-                      </span>
-                    </span>
-                    <span className="font-mono font-bold text-slate-950">
-                      +${(landedPrice.fixedCostProfileNZD || (landedPrice.oceanFreightNZD + landedPrice.customsProcessingNZD + landedPrice.complianceInspectionNZD + landedPrice.zoneDeliveryNZD + landedPrice.programmeFeeNZD)).toLocaleString()} NZD
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] text-slate-500 font-mono pt-1 border-t border-slate-200/60">
-                    <span>• Freight &amp; Port: ${landedPrice.oceanFreightNZD.toLocaleString()}</span>
-                    <span>• Customs Processing: ${landedPrice.customsProcessingNZD.toLocaleString()}</span>
-                    <span>• MR2A Compliance: ${landedPrice.complianceInspectionNZD.toLocaleString()}</span>
-                    <span>• Zone Carrier Delivery: ${landedPrice.zoneDeliveryNZD.toLocaleString()}</span>
-                    <span className="col-span-2">• Programme Governance: ${landedPrice.programmeFeeNZD.toLocaleString()}</span>
-                  </div>
+                {/* 2. Ocean Freight & Port Handling */}
+                <div className="py-2 flex items-center justify-between gap-3">
+                  <span className="text-slate-600 font-medium">Ocean Freight &amp; Port Handling:</span>
+                  <span className="font-mono font-medium text-slate-900 text-right">
+                    ${landedPrice.oceanFreightNZD.toLocaleString()} NZD
+                  </span>
                 </div>
 
-                {/* 3. Customs Processing & Import GST */}
+                {/* 3. Customs Processing & NZ GST */}
                 <div className="py-2 flex items-center justify-between gap-3">
                   <span className="text-slate-600 font-medium">Customs Processing &amp; NZ GST (15% CIF):</span>
                   <span className="font-mono font-medium text-slate-900 text-right">
                     ${(landedPrice.customsProcessingNZD + landedPrice.gstNZD).toLocaleString()} NZD
+                  </span>
+                </div>
+
+                {/* 4. MR2A Compliance & Inspection */}
+                <div className="py-2 flex items-center justify-between gap-3">
+                  <span className="text-slate-600 font-medium">MR2A Compliance &amp; Inspection:</span>
+                  <span className="font-mono font-medium text-slate-900 text-right">
+                    ${landedPrice.complianceInspectionNZD.toLocaleString()} NZD
+                  </span>
+                </div>
+
+                {/* 5. Domestic NZ Delivery */}
+                <div className="py-2 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-600 font-medium">Domestic NZ Delivery:</span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      ({selectedZoneConfig.zoneName.split("-")[0]?.trim() || selectedZone})
+                    </span>
+                  </div>
+                  <span className="font-mono font-medium text-slate-900 text-right">
+                    ${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD
+                  </span>
+                </div>
+
+                {/* 6. Nissan Programme Component */}
+                <div className="py-2 flex items-center justify-between gap-3">
+                  <span className="text-slate-600 font-medium">Nissan Programme Component:</span>
+                  <span className="font-mono font-medium text-slate-900 text-right">
+                    ${landedPrice.programmeFeeNZD.toLocaleString()} NZD
+                  </span>
+                </div>
+
+                {/* 7. Fixed Cost Profile (Added Parameter) */}
+                <div className="py-2 px-2.5 flex items-center justify-between gap-3 bg-slate-50 rounded-lg border border-slate-200/80 my-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-900 font-bold">Fixed Cost Profile:</span>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      ({selectedZoneConfig.zoneName.split("-")[0]?.trim()})
+                    </span>
+                  </div>
+                  <span className="font-mono font-bold text-slate-950 text-right">
+                    +${(landedPrice.fixedCostProfileNZD || (landedPrice.oceanFreightNZD + landedPrice.customsProcessingNZD + landedPrice.complianceInspectionNZD + landedPrice.zoneDeliveryNZD + landedPrice.programmeFeeNZD)).toLocaleString()} NZD
                   </span>
                 </div>
               </div>
@@ -724,7 +752,7 @@ export default function FullPageVehicleDetail({
                       <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between">
                         <span className="font-semibold flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
-                          <span>Buyed · Purchase Finalized</span>
+                          <span>Paid · Purchase Finalized</span>
                         </span>
                         <button
                           type="button"
@@ -770,7 +798,7 @@ export default function FullPageVehicleDetail({
                             ? "bg-amber-100 text-amber-800"
                             : "bg-emerald-100 text-emerald-800"
                     }`}>
-                      {vehicle.status}
+                      {vehicle.status === "BUYED" ? "PAID" : vehicle.status}
                     </span>
                   </div>
 
@@ -834,7 +862,7 @@ export default function FullPageVehicleDetail({
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Next Step:</span>
-                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Buyed</span>
+                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Paid</span>
                         </div>
                       </div>
                       <div className="pt-1">
@@ -844,7 +872,7 @@ export default function FullPageVehicleDetail({
                           className="w-full py-3 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                         >
                           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>✓ Mark as Buyed</span>
+                          <span>✓ Mark as Paid</span>
                         </button>
                       </div>
                     </div>
@@ -855,10 +883,10 @@ export default function FullPageVehicleDetail({
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-purple-950 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                          <span>Vehicle Finalized (Buyed)</span>
+                          <span>Vehicle Marked as Paid</span>
                         </span>
                         <span className="text-[10px] font-mono font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">
-                          BUYED
+                          PAID
                         </span>
                       </div>
                       <p className="text-xs text-slate-600">
@@ -868,31 +896,11 @@ export default function FullPageVehicleDetail({
                   )}
 
                   {vehicle.status === "AVAILABLE" && (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-600">Catalogue Status:</span>
-                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                          Available for Dealer Reservation
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between pt-1">
-                        <label className="text-[11px] text-slate-500 font-medium">Manual Status Override:</label>
-                        <select
-                          value={vehicle.status}
-                          onChange={(e) => {
-                            audio.playSubtleClick();
-                            setVehicleStatus(vehicle.id, e.target.value as any, "Updated by Admin");
-                          }}
-                          className="bg-white border border-slate-300 rounded-lg py-1 px-2 text-xs font-mono text-slate-900 focus:outline-none cursor-pointer"
-                        >
-                          <option value="AVAILABLE">AVAILABLE</option>
-                          <option value="RESERVED">RESERVED</option>
-                          <option value="ALLOCATED">ALLOCATED</option>
-                          <option value="BUYED">BUYED</option>
-                          <option value="WITHDRAWN">WITHDRAWN</option>
-                          <option value="SOLD">SOLD</option>
-                        </select>
-                      </div>
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+                      <span className="text-slate-500 font-medium">Reservation Status:</span>
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+                        Available · Awaiting Dealer Reservation
+                      </span>
                     </div>
                   )}
                 </div>

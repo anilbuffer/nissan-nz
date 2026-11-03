@@ -292,7 +292,7 @@ export default function DealerStockCatalog({
                 }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
-              <span>Buyed</span>
+              <span>Paid</span>
               <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "BUYED" ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"
                 }`}>
                 {vehicles.filter((v) => v.status === "BUYED").length}
@@ -490,7 +490,7 @@ export default function DealerStockCatalog({
                         {vehicle.status === "BUYED" ? (
                           <>
                             <CheckCircle2 className="w-3 h-3 text-purple-400 shrink-0" />
-                            <span className="text-purple-300">Buyed</span>
+                            <span className="text-purple-300">Paid</span>
                           </>
                         ) : vehicle.status === "ALLOCATED" ? (
                           <>
@@ -555,7 +555,7 @@ export default function DealerStockCatalog({
                     ) : vehicle.status === "BUYED" ? (
                       <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
                         <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
-                        <span>Buyed</span>
+                        <span>Paid</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
                       <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
@@ -604,7 +604,7 @@ export default function DealerStockCatalog({
                       {vehicle.status === "BUYED" ? (
                         <>
                           <CheckCircle2 className="w-2.5 h-2.5 text-purple-400" />
-                          <span className="text-purple-300">Buyed</span>
+                          <span className="text-purple-300">Paid</span>
                         </>
                       ) : vehicle.status === "ALLOCATED" ? (
                         <>
@@ -724,7 +724,7 @@ export default function DealerStockCatalog({
                     ) : vehicle.status === "BUYED" ? (
                       <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
-                        <span>Buyed</span>
+                        <span>Paid</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
                       <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
