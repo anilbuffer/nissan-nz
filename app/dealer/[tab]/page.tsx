@@ -14,7 +14,7 @@ function DealerTabPageContent() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#E11D48] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#C3002F] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -31,7 +31,7 @@ export default function DealerTabPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#E11D48] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#C3002F] border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

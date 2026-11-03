@@ -54,7 +54,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
         </p>
         <button
           onClick={onBack}
-          className="px-4 py-2 bg-[#0A1322] text-white rounded-xl text-xs font-semibold cursor-pointer"
+          className="px-4 py-2 bg-[#0A0A0A] text-white rounded-xl text-xs font-semibold cursor-pointer"
         >
           Return to Users Listing
         </button>
@@ -112,8 +112,8 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
       case "AUTOHUB_ADMIN":
         return {
           label: "Operations Central Controller",
-          bg: "bg-rose-50 text-[#E11D48] border-rose-200",
-          dot: "bg-[#E11D48]",
+          bg: "bg-rose-50 text-[#C3002F] border-rose-200",
+          dot: "bg-[#C3002F]",
         };
       case "NISSAN_JAPAN":
         return {
@@ -154,7 +154,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
     <div className="space-y-6 pb-12">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-[#0A1322] text-white rounded-xl shadow-xl border border-slate-700 text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-[#0A0A0A] text-white rounded-xl shadow-xl border border-slate-700 text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
@@ -196,7 +196,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
           <button
             onClick={handleToggleStatus}
             className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs ${user.active
-              ? "border-rose-200 bg-rose-50 hover:bg-rose-100 text-[#E11D48]"
+              ? "border-rose-200 bg-rose-50 hover:bg-rose-100 text-[#C3002F]"
               : "border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700"
               }`}
           >
@@ -217,7 +217,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
             <button
               onClick={handleImpersonate}
               title="Test platform as this user"
-              className="px-3.5 py-1.5 rounded-xl bg-[#0A1322] hover:bg-[#1B2A42] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5 text-rose-400" />
               <span>Login As User</span>
@@ -256,7 +256,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.active
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : "bg-rose-50 text-[#E11D48] border border-rose-200"
+                    : "bg-rose-50 text-[#C3002F] border border-rose-200"
                     }`}
                 >
                   {user.active ? "Active Platform Member" : "Account Suspended"}
@@ -306,7 +306,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
         {/* Column 1: Commercial & Dealership Assignment */}
         <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <Building2 className="w-4 h-4 text-[#E11D48]" />
+            <Building2 className="w-4 h-4 text-[#C3002F]" />
             <h3 className="font-bold text-sm text-slate-900">Commercial & Zone Profile</h3>
           </div>
 
@@ -367,7 +367,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
         {/* Column 2: Security & Authentication Health */}
         <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-            <ShieldCheck className="w-4 h-4 text-[#E11D48]" />
+            <ShieldCheck className="w-4 h-4 text-[#C3002F]" />
             <h3 className="font-bold text-sm text-slate-900">Security & Access Health</h3>
           </div>
 
@@ -436,7 +436,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
       <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-[#E11D48]" />
+            <History className="w-4 h-4 text-[#C3002F]" />
             <h3 className="font-bold text-sm text-slate-900">
               User Activity & Transaction History
             </h3>
@@ -455,7 +455,7 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
             {userEvents.slice(0, 8).map((evt) => (
               <div key={evt.id} className="py-3 flex items-start justify-between gap-4 text-xs">
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-[#E11D48] mt-1.5 shrink-0"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#C3002F] mt-1.5 shrink-0"></div>
                   <div>
                     <div className="font-semibold text-slate-900">{evt.action.replace(/_/g, " ")}</div>
                     <p className="text-slate-500 mt-0.5">{evt.details}</p>

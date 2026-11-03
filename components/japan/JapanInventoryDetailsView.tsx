@@ -142,7 +142,7 @@ export default function JapanInventoryDetailsView({
       <div className="bg-white text-slate-900 rounded-3xl p-6 border border-slate-200/90 shadow-soft relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#E11D48] shrink-0 shadow-2xs">
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F] shrink-0 shadow-2xs">
               <Car className="w-7 h-7" />
             </div>
 
@@ -203,7 +203,7 @@ export default function JapanInventoryDetailsView({
                 className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 ${
                   isAvailable
                     ? "bg-rose-50 hover:bg-rose-100/80 text-rose-700 border border-rose-200"
-                    : "bg-[#E11D48] hover:bg-[#BE123C] text-white"
+                    : "bg-[#C3002F] hover:bg-[#A10026] text-white"
                 }`}
               >
                 {isAvailable ? "Withdraw from Catalogue" : "Publish to Catalogue"}
@@ -268,7 +268,7 @@ export default function JapanInventoryDetailsView({
 
               {/* Yard Location Pill (Clean Light Theme) */}
               <div className="absolute bottom-4 right-4 z-20 px-3 py-1 rounded-xl bg-white/95 backdrop-blur-sm text-slate-800 border border-slate-200/90 font-mono text-xs flex items-center gap-1.5 shadow-soft">
-                <MapPin className="w-3.5 h-3.5 text-[#E11D48]" />
+                <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
                 <span>{vehicle.location || "Yokohama Yard"}</span>
               </div>
             </div>
@@ -290,7 +290,7 @@ export default function JapanInventoryDetailsView({
                       }}
                       className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${
                         activeImageIdx === idx
-                          ? "border-[#E11D48] ring-2 ring-[#E11D48]/20 bg-white"
+                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
                           : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
                       }`}
                     >
@@ -306,7 +306,7 @@ export default function JapanInventoryDetailsView({
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-soft">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
-                <FileCheck2 className="w-4 h-4 text-[#E11D48]" />
+                <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
                 <span>Inspection Condition Dossier &amp; Defects Mapping</span>
               </h3>
               <span className="text-[11px] font-mono text-slate-400">
@@ -346,7 +346,7 @@ export default function JapanInventoryDetailsView({
           <div className="p-5 sm:p-6 rounded-3xl bg-white text-slate-900 border border-slate-200/90 shadow-soft space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
                 Japanese Wholesale Baseline
               </span>
               <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-mono font-bold">

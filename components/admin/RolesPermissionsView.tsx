@@ -220,7 +220,7 @@ const ROLES_META: {
     title: "Operations Central Controller",
     subtitle: "Full Platform Administration",
     badgeBg: "bg-rose-50 border-rose-200",
-    badgeText: "text-[#E11D48]",
+    badgeText: "text-[#C3002F]",
     tier: "Tier 1 · Full Authority",
     tierLabel: "Tier 1",
     description: "Central platform management, RoRo transit scheduling, dealer approvals, and cost overrides.",
@@ -442,7 +442,7 @@ export default function RolesPermissionsView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
               Governance & Security Framework
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -468,7 +468,7 @@ export default function RolesPermissionsView() {
 
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md hover:shadow-lg cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>Save RBAC Matrix</span>
@@ -504,13 +504,13 @@ export default function RolesPermissionsView() {
                   }}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
                     isSelected
-                      ? "bg-white border-slate-300 ring-2 ring-[#E11D48]/15 shadow-sm"
+                      ? "bg-white border-slate-300 ring-2 ring-[#C3002F]/15 shadow-sm"
                       : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
                   }`}
                 >
                   {/* Subtle top brand indicator for active role */}
                   {isSelected && (
-                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#E11D48] via-[#FB7185] to-[#E11D48]" />
+                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#C3002F]" />
                   )}
 
                   <div className="space-y-2">
@@ -526,7 +526,7 @@ export default function RolesPermissionsView() {
 
                     <div className="pt-0.5">
                       <h3 className={`font-black text-sm tracking-tight leading-tight transition-colors ${
-                        isSelected ? "text-slate-900" : "text-slate-800 group-hover:text-[#E11D48]"
+                        isSelected ? "text-slate-900" : "text-slate-800 group-hover:text-[#C3002F]"
                       }`}>
                         {meta.title}
                       </h3>
@@ -542,7 +542,7 @@ export default function RolesPermissionsView() {
                     </span>
                     <span className={`px-2 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-colors ${
                       isSelected
-                        ? "bg-[#E11D48]/10 text-[#E11D48] border border-[#E11D48]/20"
+                        ? "bg-[#C3002F]/10 text-[#C3002F] border border-[#C3002F]/20"
                         : "bg-slate-100 text-slate-700 border border-slate-200/60"
                     }`}>
                       {permCount}/{PERMISSION_DEFINITIONS.length} Perms
@@ -589,7 +589,7 @@ export default function RolesPermissionsView() {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl font-medium transition-all whitespace-nowrap cursor-pointer ${
                   filterCategory === cat.id
-                    ? "bg-[#0A1322] text-white shadow-2xs font-semibold"
+                    ? "bg-[#0A0A0A] text-white shadow-2xs font-semibold"
                     : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -602,7 +602,7 @@ export default function RolesPermissionsView() {
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
             <div className="overflow-x-auto touch-scroll navy-scrollbar">
               <table className="w-full text-left text-xs border-collapse min-w-[780px]">
-                <thead className="bg-[#0A1322] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
                   <tr>
                     <th className="py-3.5 px-4 font-semibold w-[360px]">
                       Operational Capability &amp; Scope
@@ -611,7 +611,7 @@ export default function RolesPermissionsView() {
                       <th
                         key={meta.role}
                         className={`py-3.5 px-3 font-semibold text-center min-w-[130px] ${
-                          selectedRole === meta.role ? "bg-[#1B2A42]" : ""
+                          selectedRole === meta.role ? "bg-[#27272A]" : ""
                         }`}
                       >
                         <div className="truncate">{meta.title}</div>
@@ -656,7 +656,7 @@ export default function RolesPermissionsView() {
                                   className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
                                     isAllowed
                                       ? meta.role === "AUTOHUB_ADMIN"
-                                        ? "bg-[#E11D48] text-white shadow-2xs"
+                                        ? "bg-[#C3002F] text-white shadow-2xs"
                                         : "bg-emerald-500 text-white shadow-2xs"
                                       : "border border-slate-200 text-transparent group-hover:border-slate-300"
                                   }`}

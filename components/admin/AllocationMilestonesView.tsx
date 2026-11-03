@@ -83,8 +83,8 @@ export default function AllocationMilestonesView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
               Wholesale Logistics Control
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
@@ -228,7 +228,7 @@ export default function AllocationMilestonesView() {
                   <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400">
                     <span>Logistics Progression Milestone</span>
                     <span className="font-mono text-slate-900 font-bold lowercase">
-                      current: <strong className="text-[#E11D48] uppercase">{order.currentMilestone.replace(/_/g, " ")}</strong>
+                      current: <strong className="text-[#C3002F] uppercase">{order.currentMilestone.replace(/_/g, " ")}</strong>
                     </span>
                   </div>
 
@@ -309,7 +309,7 @@ export default function AllocationMilestonesView() {
                         audio.playSubtleClick();
                         setEditingMilestoneOrderId(isEditingThis ? null : order.id);
                       }}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(225,29,72,0.3)] hover:shadow-[0_6px_18px_rgba(225,29,72,0.4)] cursor-pointer active:scale-[0.98]"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(225,29,72,0.3)] hover:shadow-[0_6px_18px_rgba(225,29,72,0.4)] cursor-pointer active:scale-[0.98]"
                     >
                       <span>Advance Milestone</span>
                       <ArrowRight className="w-3.5 h-3.5" />

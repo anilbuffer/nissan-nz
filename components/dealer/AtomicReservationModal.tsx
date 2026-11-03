@@ -53,7 +53,7 @@ export default function AtomicReservationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-lg max-h-[92vh] flex flex-col bg-white rounded-3xl shadow-hover border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#0A1322] text-white flex items-center justify-between border-b border-[#1B2A42]">
+        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-crimson-600 flex items-center justify-center font-bold text-white text-sm">
               <Lock className="w-4 h-4" />
@@ -67,7 +67,7 @@ export default function AtomicReservationModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-[#1B2A42] transition-colors cursor-pointer"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-[#27272A] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -172,7 +172,7 @@ export default function AtomicReservationModal({
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleConfirmReservation}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-semibold transition-all shadow-soft shadow-crimson-600/20 cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-all shadow-soft shadow-crimson-600/20 cursor-pointer"
               >
                 {isSubmitting ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

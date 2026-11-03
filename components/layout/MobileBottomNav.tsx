@@ -135,11 +135,11 @@ export default function MobileBottomNav({
               }`}
             >
               {active && (
-                <span className="absolute -top-1 w-8 h-1 rounded-full bg-[#E11D48] shadow-[0_0_10px_rgba(225,29,72,0.8)]" />
+                <span className="absolute -top-1 w-8 h-1 rounded-full bg-[#C3002F] shadow-[0_0_10px_rgba(225,29,72,0.8)]" />
               )}
               <div
                 className={`p-1.5 rounded-xl transition-all ${
-                  active ? "bg-white/10 text-[#E11D48]" : ""
+                  active ? "bg-white/10 text-[#C3002F]" : ""
                 }`}
               >
                 <Icon className={`w-5 h-5 ${active ? "stroke-[2.5]" : "stroke-[1.75]"}`} />

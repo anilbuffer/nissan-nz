@@ -45,7 +45,7 @@ export default function DealerRegistrationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-2xl sm:rounded-3xl shadow-hover border border-slate-200 overflow-hidden my-auto">
         {/* Header */}
-        <div className="bg-[#0A1322] px-6 py-5 text-white flex items-center justify-between border-b border-[#1B2A42]">
+        <div className="bg-[#0A0A0A] px-6 py-5 text-white flex items-center justify-between border-b border-[#27272A]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-crimson-600 flex items-center justify-center font-bold text-lg text-white shadow-soft">
               D

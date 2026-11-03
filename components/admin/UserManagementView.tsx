@@ -91,8 +91,8 @@ export default function UserManagementView() {
       case "AUTOHUB_ADMIN":
         return {
           label: "Operations Controller",
-          bg: "bg-rose-50 text-[#E11D48] border-rose-200",
-          dot: "bg-[#E11D48]",
+          bg: "bg-rose-50 text-[#C3002F] border-rose-200",
+          dot: "bg-[#C3002F]",
         };
       case "NISSAN_JAPAN":
         return {
@@ -135,7 +135,7 @@ export default function UserManagementView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
               Platform Operations Admin
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -155,7 +155,7 @@ export default function UserManagementView() {
             audio.playSubtleClick();
             setIsInviteModalOpen(true);
           }}
-          className="px-4 py-2.5 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-lg cursor-pointer self-start sm:self-auto shrink-0"
+          className="px-4 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-lg cursor-pointer self-start sm:self-auto shrink-0"
         >
           <UserPlus className="w-4 h-4" />
           <span>Invite New User</span>
@@ -187,10 +187,10 @@ export default function UserManagementView() {
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-medium">Operations Controllers</span>
-            <Shield className="w-4 h-4 text-[#E11D48]" />
+            <Shield className="w-4 h-4 text-[#C3002F]" />
           </div>
           <div className="text-2xl font-bold tracking-tight text-slate-900">{adminUsersCount}</div>
-          <div className="text-[10px] text-[#E11D48] font-medium mt-1">Central Authority</div>
+          <div className="text-[10px] text-[#C3002F] font-medium mt-1">Central Authority</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
@@ -225,7 +225,7 @@ export default function UserManagementView() {
               placeholder="Search users by legal name, email, dealership, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#E11D48] focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F] focus:border-transparent"
             />
           </div>
 
@@ -234,7 +234,7 @@ export default function UserManagementView() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#E11D48] cursor-pointer"
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#C3002F] cursor-pointer"
             >
               <option value="ALL">All Platform Roles</option>
               <option value="DEALER_USER">Dealer Buyer</option>
@@ -248,7 +248,7 @@ export default function UserManagementView() {
             <select
               value={zoneFilter}
               onChange={(e) => setZoneFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#E11D48] cursor-pointer"
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#C3002F] cursor-pointer"
             >
               <option value="ALL">All Pricing Zones</option>
               <option value="ZONE_1">Zone 1 (Auckland)</option>
@@ -262,7 +262,7 @@ export default function UserManagementView() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#E11D48] cursor-pointer"
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#C3002F] cursor-pointer"
             >
               <option value="ALL">All Statuses</option>
               <option value="ACTIVE">Active Users</option>
@@ -283,7 +283,7 @@ export default function UserManagementView() {
                 setZoneFilter("ALL");
                 setStatusFilter("ALL");
               }}
-              className="text-[#E11D48] hover:underline font-semibold cursor-pointer text-[11px]"
+              className="text-[#C3002F] hover:underline font-semibold cursor-pointer text-[11px]"
             >
               Reset Filters
             </button>
@@ -296,7 +296,7 @@ export default function UserManagementView() {
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs min-w-[760px]">
-            <thead className="bg-[#0A1322] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
               <tr>
                 <th className="py-3 px-4 font-semibold">User & Contact</th>
                 <th className="py-3 px-4 font-semibold">Role Authority</th>
@@ -337,7 +337,7 @@ export default function UserManagementView() {
                             className="w-9 h-9 rounded-xl object-cover border border-slate-200 shrink-0"
                           />
                           <div>
-                            <div className="font-bold text-slate-900 group-hover:text-[#E11D48] transition-colors flex items-center gap-1.5">
+                            <div className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors flex items-center gap-1.5">
                               <span>{user.name}</span>
                               {currentUser?.id === user.id && (
                                 <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded">
@@ -410,7 +410,7 @@ export default function UserManagementView() {
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             user.active
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-rose-50 text-[#E11D48] border border-rose-200"
+                              : "bg-rose-50 text-[#C3002F] border border-rose-200"
                           }`}
                         >
                           <span
@@ -447,7 +447,7 @@ export default function UserManagementView() {
                             title={user.active ? "Suspend User" : "Activate User"}
                             className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                               user.active
-                                ? "border-slate-200 text-slate-600 hover:text-[#E11D48] hover:bg-rose-50"
+                                ? "border-slate-200 text-slate-600 hover:text-[#C3002F] hover:bg-rose-50"
                                 : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                             }`}
                           >
@@ -465,7 +465,7 @@ export default function UserManagementView() {
                                 loginAs(user.email);
                               }}
                               title="Login As This User (Session Switch)"
-                              className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-[#E11D48] hover:bg-rose-50 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-[#C3002F] hover:bg-rose-50 transition-colors cursor-pointer"
                             >
                               <LogIn className="w-3.5 h-3.5" />
                             </button>

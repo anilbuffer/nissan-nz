@@ -297,7 +297,7 @@ export default function DealerApprovalsView() {
             {/* Wholesale Allocation & Exclusivity Limits */}
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
               <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-                <FileCheck2 className="w-4 h-4 text-[#E11D48]" />
+                <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
                 <span>Commercial Floorplan &amp; Capacity Boundary</span>
               </div>
 
@@ -403,7 +403,7 @@ export default function DealerApprovalsView() {
                   <span className="text-slate-500 font-medium">Direct Email:</span>
                   <a
                     href={`mailto:${dealer.primaryContactEmail}`}
-                    className="text-[#E11D48] hover:underline font-medium flex items-center gap-1 font-mono"
+                    className="text-[#C3002F] hover:underline font-medium flex items-center gap-1 font-mono"
                   >
                     <Mail className="w-3.5 h-3.5 text-slate-400" />
                     <span>{dealer.primaryContactEmail}</span>
@@ -457,7 +457,7 @@ export default function DealerApprovalsView() {
                       }}
                       className={`w-full p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                         isSelected
-                          ? "bg-slate-50 border-[#E11D48] ring-2 ring-[#E11D48]/10 shadow-2xs"
+                          ? "bg-slate-50 border-[#C3002F] ring-2 ring-[#C3002F]/10 shadow-2xs"
                           : "bg-white border-slate-200 hover:border-slate-300"
                       }`}
                     >
@@ -476,7 +476,7 @@ export default function DealerApprovalsView() {
                           ${z.deliveryCostNZD} <span className="text-[10px] font-normal text-slate-400">NZD</span>
                         </div>
                         {isSelected && (
-                          <span className="text-[10px] font-bold text-[#E11D48] flex items-center justify-end gap-1">
+                          <span className="text-[10px] font-bold text-[#C3002F] flex items-center justify-end gap-1">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>Active</span>
                           </span>
@@ -554,8 +554,8 @@ export default function DealerApprovalsView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
               Nissan New Zealand Network
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
@@ -831,7 +831,7 @@ export default function DealerApprovalsView() {
 
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs text-slate-600 min-w-[760px]">
-            <thead className="bg-[#0A1322] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#1B2A42]">
+            <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
               <tr>
                 <th className="py-3.5 px-6 text-slate-200">Dealership Legal Entity</th>
                 <th className="py-3.5 px-4 text-slate-200">NZBN</th>
@@ -857,7 +857,7 @@ export default function DealerApprovalsView() {
                     className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                   >
                     <td className="py-4 px-6 font-semibold text-slate-900">
-                      <div className="group-hover:text-[#E11D48] transition-colors font-bold text-sm">
+                      <div className="group-hover:text-[#C3002F] transition-colors font-bold text-sm">
                         {d.legalTradingName}
                       </div>
                       <div className="text-[11px] font-mono text-slate-400 font-normal mt-0.5">

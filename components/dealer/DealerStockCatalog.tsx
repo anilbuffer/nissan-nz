@@ -261,7 +261,7 @@ export default function DealerStockCatalog({
               </div>
               <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs">
                 <span className="text-slate-400 font-normal">Pricing Zone:</span>
-                <span className="font-extrabold font-mono text-[#0A1322]">{dealerZone}</span>
+                <span className="font-extrabold font-mono text-[#0A0A0A]">{dealerZone}</span>
               </div>
             </>
           )}
@@ -277,7 +277,7 @@ export default function DealerStockCatalog({
             setStatusFilter("ALL");
           }}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "ALL"
-            ? "bg-[#0A1322] text-white shadow-xs"
+            ? "bg-[#0A0A0A] text-white shadow-xs"
             : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
             }`}
         >
@@ -296,7 +296,7 @@ export default function DealerStockCatalog({
             setStatusFilter("AVAILABLE");
           }}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "AVAILABLE"
-            ? "bg-[#0A1322] text-white shadow-xs"
+            ? "bg-[#0A0A0A] text-white shadow-xs"
             : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
             }`}
         >
@@ -315,7 +315,7 @@ export default function DealerStockCatalog({
             setStatusFilter("HELD");
           }}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "HELD"
-            ? "bg-[#0A1322] text-white shadow-xs"
+            ? "bg-[#0A0A0A] text-white shadow-xs"
             : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
             }`}
         >
@@ -342,7 +342,7 @@ export default function DealerStockCatalog({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Note, X-Trail, Serena, stock ID, or chassis..."
-              className="w-full pl-9 pr-8 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/20 focus:border-[#E11D48] transition-all font-medium"
+              className="w-full pl-9 pr-8 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all font-medium"
             />
             {searchQuery && (
               <button
@@ -366,7 +366,7 @@ export default function DealerStockCatalog({
                   setSelectedFuel(e.target.value);
                 }}
                 aria-label="Filter by Powertrain"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#E11D48]/20 focus:border-[#E11D48] transition-all cursor-pointer shadow-2xs"
+                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
               >
                 <option value="ALL">All Powertrains</option>
                 <option value="e-Power">e-Power Hybrid</option>
@@ -385,7 +385,7 @@ export default function DealerStockCatalog({
                   setSelectedGrade(e.target.value);
                 }}
                 aria-label="Filter by Auction Grade"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#E11D48]/20 focus:border-[#E11D48] transition-all cursor-pointer shadow-2xs"
+                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
               >
                 <option value="ALL">All Auction Grades</option>
                 <option value="5.0">Grade 5.0 (Showroom)</option>
@@ -404,7 +404,7 @@ export default function DealerStockCatalog({
                   setSelectedBudget(e.target.value);
                 }}
                 aria-label="Filter by Budget"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#E11D48]/20 focus:border-[#E11D48] transition-all cursor-pointer shadow-2xs"
+                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
               >
                 <option value="ALL">Any Budget</option>
                 <option value="UNDER_25K">&lt; $25,000 NZD</option>
@@ -423,7 +423,7 @@ export default function DealerStockCatalog({
                   setSortBy(e.target.value as "PRICE_ASC" | "PRICE_DESC" | "KM_ASC" | "YEAR_DESC");
                 }}
                 aria-label="Sort inventory"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#E11D48]/20 focus:border-[#E11D48] transition-all cursor-pointer shadow-2xs"
+                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
               >
                 <option value="PRICE_ASC">Price: Low to High</option>
                 <option value="PRICE_DESC">Price: High to Low</option>
@@ -488,7 +488,7 @@ export default function DealerStockCatalog({
                   setSelectedModel(item.key);
                 }}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${isSelected
-                  ? "bg-[#E11D48] text-white shadow-xs"
+                  ? "bg-[#C3002F] text-white shadow-xs"
                   : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/70"
                   }`}
               >
@@ -507,7 +507,7 @@ export default function DealerStockCatalog({
             <button
               type="button"
               onClick={handleResetFilters}
-              className="text-xs text-[#E11D48] hover:text-[#BE123C] font-bold flex items-center gap-1 cursor-pointer shrink-0 ml-auto transition-colors"
+              className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer shrink-0 ml-auto transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset ({activeFiltersCount})</span>
@@ -555,7 +555,7 @@ export default function DealerStockCatalog({
                   {/* Card Top Row: Full Width Name + Model, with Arrow & Favorite on Right */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#E11D48] transition-colors leading-snug">
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#C3002F] transition-colors leading-snug">
                         {vehicle.make} - {vehicle.model}
                       </h3>
                       <p className="text-xs text-slate-400 font-medium mt-1">
@@ -569,14 +569,14 @@ export default function DealerStockCatalog({
                         onClick={(e) => toggleFavorite(e, vehicle.id)}
                         aria-label="Add to favorites"
                         className={`p-2 rounded-full transition-all cursor-pointer ${isFav
-                            ? "text-[#E11D48] bg-[#E11D48]/10"
-                            : "text-slate-300 hover:text-[#E11D48] hover:bg-slate-50"
+                            ? "text-[#C3002F] bg-[#C3002F]/10"
+                            : "text-slate-300 hover:text-[#C3002F] hover:bg-slate-50"
                           }`}
                       >
-                        <Heart className={`w-4 h-4 ${isFav ? "fill-[#E11D48]" : ""}`} />
+                        <Heart className={`w-4 h-4 ${isFav ? "fill-[#C3002F]" : ""}`} />
                       </button>
                       <div
-                        className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#E11D48] text-slate-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0"
+                        className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#C3002F] text-slate-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0"
                         title="View Full Vehicle Details"
                       >
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -641,7 +641,7 @@ export default function DealerStockCatalog({
                           audio.playSubtleClick();
                           setReserveVehicle(vehicle);
                         }}
-                        className="py-2.5 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+                        className="py-2.5 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Hold (24h)</span>
@@ -714,7 +714,7 @@ export default function DealerStockCatalog({
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#E11D48] transition-colors truncate">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
                     {vehicle.make} {vehicle.model}
                   </h3>
 
@@ -795,7 +795,7 @@ export default function DealerStockCatalog({
                           audio.playSubtleClick();
                           setReserveVehicle(vehicle);
                         }}
-                        className="flex-1 py-2 px-3 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                        className="flex-1 py-2 px-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Hold</span>

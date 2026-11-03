@@ -147,7 +147,7 @@ export default function CatalogueDetailsModal({
                       }}
                       className={`w-16 h-12 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${
                         activeImageIdx === idx
-                          ? "border-[#E11D48] ring-2 ring-[#E11D48]/20 bg-white"
+                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
                           : "border-slate-200 hover:border-slate-300 opacity-70"
                       }`}
                     >
@@ -319,7 +319,7 @@ export default function CatalogueDetailsModal({
 
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
                 <span className="text-[10px] text-rose-700 font-bold uppercase tracking-wider block">Total Landed NZD</span>
-                <div className="font-mono font-black text-[#E11D48] text-base mt-0.5">
+                <div className="font-mono font-black text-[#C3002F] text-base mt-0.5">
                   ${landedPrice.totalBuyPriceNZD.toLocaleString()}
                 </div>
                 <span className="text-[10px] text-rose-600 font-semibold">Excl. GST</span>

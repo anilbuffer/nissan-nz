@@ -147,7 +147,7 @@ export default function Header({
           }}
         >
           <div className="relative flex items-center">
-            <Search className="w-4 h-4 text-slate-400 group-hover:text-[#E11D48] absolute left-3.5 pointer-events-none transition-colors" />
+            <Search className="w-4 h-4 text-slate-400 group-hover:text-[#C3002F] absolute left-3.5 pointer-events-none transition-colors" />
             <input
               ref={searchInputRef}
               type="text"
@@ -206,7 +206,7 @@ export default function Header({
             className="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100/80 transition-colors cursor-pointer"
           >
             <Bell className="w-5 h-5 text-slate-600" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#E11D48] ring-2 ring-white animate-pulse" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#C3002F] ring-2 ring-white animate-pulse" />
           </button>
 
           {isNotificationsOpen && (
@@ -263,7 +263,7 @@ export default function Header({
                     setIsNotificationsOpen(false);
                     router.push("/dealer/orders");
                   }}
-                  className="text-xs font-semibold text-[#E11D48] hover:text-[#BE123C] cursor-pointer"
+                  className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] cursor-pointer"
                 >
                   View All Programme Activity →
                 </button>

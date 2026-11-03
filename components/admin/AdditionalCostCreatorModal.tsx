@@ -60,7 +60,7 @@ export default function AdditionalCostCreatorModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-hover border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#0A1322] text-white flex items-center justify-between border-b border-[#1B2A42]">
+        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center font-bold text-white text-sm">
               <AlertTriangle className="w-4 h-4" />
@@ -74,7 +74,7 @@ export default function AdditionalCostCreatorModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-[#1B2A42] transition-colors cursor-pointer"
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-[#27272A] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -86,7 +86,7 @@ export default function AdditionalCostCreatorModal({
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
             <div className="flex justify-between font-mono font-bold text-slate-900">
               <span>{order.orderNumber}</span>
-              <span className="text-[#E11D48]">{order.dealerName}</span>
+              <span className="text-[#C3002F]">{order.dealerName}</span>
             </div>
             <div className="text-slate-600">
               {order.vehicle.year} {order.vehicle.make} {order.vehicle.model} ({order.vehicle.vinChassis})
@@ -161,7 +161,7 @@ export default function AdditionalCostCreatorModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-bold transition-all shadow-xs cursor-pointer"
+              className="px-6 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold transition-all shadow-xs cursor-pointer"
             >
               {isSubmitting ? "Submitting..." : "Submit Variation for Dealer Approval"}
             </button>

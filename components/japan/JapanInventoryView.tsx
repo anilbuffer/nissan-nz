@@ -90,8 +90,8 @@ export default function JapanInventoryView({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
               Japan Export Stock Control
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
@@ -125,7 +125,7 @@ export default function JapanInventoryView({
               audio.playSubtleClick();
               onNavigateAdd();
             }}
-            className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white text-xs font-bold transition-all shadow-[0_4px_16px_rgba(225,29,72,0.3)] cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+            className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-bold transition-all shadow-[0_4px_16px_rgba(225,29,72,0.3)] cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Add Vehicle</span>
@@ -272,7 +272,7 @@ export default function JapanInventoryView({
                           className="w-14 h-10 object-contain rounded-xl border border-slate-200 bg-slate-50 p-0.5 shrink-0 select-none group-hover:scale-105 transition-transform"
                         />
                         <div>
-                          <div className="font-bold text-slate-900 group-hover:text-[#E11D48] transition-colors">
+                          <div className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors">
                             {vehicle.year} {vehicle.model}
                           </div>
                           <div className="text-[11px] text-slate-400 font-mono mt-0.5">

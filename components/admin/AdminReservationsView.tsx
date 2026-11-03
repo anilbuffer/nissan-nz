@@ -341,7 +341,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                     <button
                       type="button"
                       onClick={() => openActionDialog("CONFIRM", res)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>Confirm Wholesale Allocation</span>
@@ -451,8 +451,8 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
               Wholesale Allocation Control
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
@@ -578,7 +578,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                     {/* Top Header: Title & Stock ID */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-black text-slate-900 group-hover:text-[#E11D48] transition-colors leading-tight truncate">
+                        <h3 className="text-base font-black text-slate-900 group-hover:text-[#C3002F] transition-colors leading-tight truncate">
                           {vehicle.make} - {vehicle.model}
                         </h3>
                         <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">
@@ -665,7 +665,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-black text-slate-900 group-hover:text-[#E11D48] transition-colors leading-tight truncate">
+                      <h3 className="text-base font-black text-slate-900 group-hover:text-[#C3002F] transition-colors leading-tight truncate">
                         {res.vehicle.make} - {res.vehicle.model}
                       </h3>
                       <p className="text-xs text-slate-400 font-medium mt-0.5 truncate">

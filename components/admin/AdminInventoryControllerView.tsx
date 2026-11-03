@@ -237,7 +237,7 @@ export default function AdminInventoryControllerView() {
                       onClick={() => setActiveImageIdx(idx)}
                       className={`w-16 h-12 rounded-xl overflow-hidden border-2 transition-all p-1 bg-white shrink-0 ${
                         activeImageIdx === idx
-                          ? "border-[#E11D48] ring-2 ring-[#E11D48]/20 shadow-xs"
+                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 shadow-xs"
                           : "border-slate-200 hover:border-slate-300 opacity-70 hover:opacity-100"
                       }`}
                     >
@@ -458,7 +458,7 @@ export default function AdminInventoryControllerView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
               Central Stock Control
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
@@ -591,7 +591,7 @@ export default function AdminInventoryControllerView() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <div className="font-bold text-slate-900 group-hover:text-[#E11D48] transition-colors truncate">
+                          <div className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
                             {vehicle.year} {vehicle.make} {vehicle.model}
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">

@@ -69,7 +69,7 @@ export default function DealerDetailsModal({
     >
       <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#0A1322] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-amber-400">
               <Building2 className="w-5 h-5" />
@@ -259,13 +259,13 @@ export default function DealerDetailsModal({
                       setSelectedZone(zoneKey);
                     }}
                     className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
-                      ? "bg-white border-[#E11D48] ring-2 ring-[#E11D48]/20 shadow-xs"
+                      ? "bg-white border-[#C3002F] ring-2 ring-[#C3002F]/20 shadow-xs"
                       : "bg-white/80 border-slate-200 hover:border-slate-300"
                       }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-mono font-bold text-xs text-slate-900">{zoneKey}</span>
-                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#E11D48]" />}
+                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#C3002F]" />}
                     </div>
                     <p className="text-[11px] font-semibold text-slate-700 truncate">{z.zoneName}</p>
                     <div className="mt-2 font-mono font-bold text-slate-900 text-xs">

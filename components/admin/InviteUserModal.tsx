@@ -107,9 +107,9 @@ export default function InviteUserModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-5 bg-[#0A1322] text-white flex items-center justify-between border-b border-[#1B2A42]">
+        <div className="px-6 py-5 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E11D48] to-[#BE123C] flex items-center justify-center text-white shadow-soft">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C3002F] to-[#A10026] flex items-center justify-center text-white shadow-soft">
               <UserPlus className="w-5 h-5" />
             </div>
             <div>
@@ -137,7 +137,7 @@ export default function InviteUserModal({
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4 text-xs">
           {error && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-[#E11D48]" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-[#C3002F]" />
               <span>{error}</span>
             </div>
           )}
@@ -146,7 +146,7 @@ export default function InviteUserModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Full Legal Name <span className="text-[#E11D48]">*</span>
+                Full Legal Name <span className="text-[#C3002F]">*</span>
               </label>
               <div className="relative">
                 <User className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
@@ -156,14 +156,14 @@ export default function InviteUserModal({
                   placeholder="e.g. Liam Macpherson"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E11D48] focus:border-transparent text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] focus:border-transparent text-xs"
                 />
               </div>
             </div>
 
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Business Email Address <span className="text-[#E11D48]">*</span>
+                Business Email Address <span className="text-[#C3002F]">*</span>
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
@@ -173,7 +173,7 @@ export default function InviteUserModal({
                   placeholder="e.g. liam@otagonissan.co.nz"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E11D48] focus:border-transparent text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] focus:border-transparent text-xs"
                 />
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function InviteUserModal({
                   placeholder="+64 9 520 8899"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E11D48] focus:border-transparent text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] focus:border-transparent text-xs"
                 />
               </div>
             </div>
@@ -206,7 +206,7 @@ export default function InviteUserModal({
                 placeholder="e.g. Senior Inventory Buyer"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E11D48] focus:border-transparent text-xs"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] focus:border-transparent text-xs"
               />
             </div>
           </div>
@@ -214,7 +214,7 @@ export default function InviteUserModal({
           {/* Role Selection */}
           <div>
             <label className="block font-semibold text-slate-700 mb-1">
-              Platform Role & Security Level <span className="text-[#E11D48]">*</span>
+              Platform Role & Security Level <span className="text-[#C3002F]">*</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[
@@ -252,14 +252,14 @@ export default function InviteUserModal({
                   }}
                   className={`p-2.5 rounded-xl border cursor-pointer transition-all ${
                     role === r.id
-                      ? "border-[#E11D48] bg-rose-50/50 shadow-xs ring-1 ring-[#E11D48]"
+                      ? "border-[#C3002F] bg-rose-50/50 shadow-xs ring-1 ring-[#C3002F]"
                       : "border-slate-200 hover:border-slate-300 bg-white"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-slate-900 text-xs">{r.label}</span>
                     {role === r.id && (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#E11D48]" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C3002F]" />
                     )}
                   </div>
                   <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{r.desc}</p>
@@ -273,14 +273,14 @@ export default function InviteUserModal({
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">
-                  Assigned Certified Dealership <span className="text-[#E11D48]">*</span>
+                  Assigned Certified Dealership <span className="text-[#C3002F]">*</span>
                 </label>
                 <div className="relative">
                   <Building2 className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
                   <select
                     value={dealerId}
                     onChange={(e) => setDealerId(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E11D48] text-xs cursor-pointer"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] text-xs cursor-pointer"
                   >
                     {dealers.map((d) => (
                       <option key={d.id} value={d.id}>
@@ -297,7 +297,7 @@ export default function InviteUserModal({
                     <MapPin className="w-3.5 h-3.5 text-slate-400" />
                     <span>{selectedDealer.region}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-semibold text-[#0A1322]">
+                  <div className="flex items-center gap-1.5 font-semibold text-[#0A0A0A]">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span>Zone: {selectedDealer.pricingZoneId}</span>
                   </div>
@@ -345,7 +345,7 @@ export default function InviteUserModal({
               id="mfa"
               checked={mfaEnabled}
               onChange={(e) => setMfaEnabled(e.target.checked)}
-              className="w-4 h-4 rounded text-[#E11D48] focus:ring-[#E11D48] border-slate-300 cursor-pointer"
+              className="w-4 h-4 rounded text-[#C3002F] focus:ring-[#C3002F] border-slate-300 cursor-pointer"
             />
             <label htmlFor="mfa" className="text-xs text-slate-700 cursor-pointer">
               <span className="font-semibold block text-slate-900">
@@ -372,7 +372,7 @@ export default function InviteUserModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

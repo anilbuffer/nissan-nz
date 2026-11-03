@@ -4,24 +4,24 @@
   --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: var(--font-inter), "Inter", ui-monospace, monospace;
 
-  --color-crimson-50: #fff1f2;
-  --color-crimson-100: #ffe4e6;
-  --color-crimson-200: #fecdd3;
-  --color-crimson-300: #fda4af;
-  --color-crimson-400: #fb7185;
-  --color-crimson-500: #f43f5e;
-  --color-crimson-600: #e11d48;
-  --color-crimson-700: #be123c;
-  --color-crimson-800: #9f1239;
-  --color-crimson-900: #881337;
-  --color-crimson-950: #4c0519;
+  --color-crimson-50: #fff5f5;
+  --color-crimson-100: #ffe3e3;
+  --color-crimson-200: #ffc9c9;
+  --color-crimson-300: #ffa8a8;
+  --color-crimson-400: #ff8787;
+  --color-crimson-500: #e60037;
+  --color-crimson-600: #c3002f;
+  --color-crimson-700: #a10026;
+  --color-crimson-800: #85001f;
+  --color-crimson-900: #680018;
+  --color-crimson-950: #3b000d;
 
-  --color-navy-950: #070d18;
-  --color-navy-900: #0a1322;
-  --color-navy-850: #0f1b2e;
-  --color-navy-800: #142239;
-  --color-navy-700: #1b2a42;
-  --color-navy-600: #253957;
+  --color-navy-950: #000000;
+  --color-navy-900: #0a0a0a;
+  --color-navy-850: #121212;
+  --color-navy-800: #18181b;
+  --color-navy-700: #27272a;
+  --color-navy-600: #3f3f46;
 
   --color-canvas-bg: #f8fafc;
   --color-card-bg: #ffffff;
@@ -38,7 +38,7 @@
 
 :root {
   --background: #f8fafc;
-  --foreground: #0a1322;
+  --foreground: #0a0a0a;
 }
 
 /* ───────────────────────────────────────────────────────────────── */
@@ -97,15 +97,15 @@ body {
   top: 15%;
   bottom: 15%;
   width: 3.5px;
-  background: #e11d48;
+  background: #c3002f;
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 10px 2px rgba(225, 29, 72, 0.7);
+  box-shadow: 0 0 10px 2px rgba(195, 0, 47, 0.7);
 }
 
 /* Focus Rings */
 *:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px #f8fafc, 0 0 0 4px #e11d48;
+  box-shadow: 0 0 0 2px #f8fafc, 0 0 0 4px #c3002f;
 }
 
 /* Custom Dark Navy Scrollbar */
@@ -119,12 +119,12 @@ body {
 }
 
 .navy-scrollbar::-webkit-scrollbar-thumb {
-  background: #1b2a42;
+  background: #27272A;
   border-radius: 4px;
 }
 
 .navy-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #253957;
+  background: #27272A;
 }
 
 /* Studio Floor Pedestal Shadow for Vehicle Cutouts */
@@ -171,7 +171,7 @@ body {
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
   border-radius: 0.75rem;
-  background: #e11d48;
+  background: #c3002f;
   color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -182,7 +182,7 @@ body {
 }
 
 .btn-primary:hover {
-  background: #be123c;
+  background: #A10026;
   box-shadow: 0 4px 16px rgba(225, 29, 72, 0.38);
   transform: translateY(-1px);
 }
@@ -198,7 +198,7 @@ body {
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
   border-radius: 0.75rem;
-  background: #0a1322;
+  background: #0A0A0A;
   color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -209,7 +209,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background: #142239;
+  background: #18181B;
   transform: translateY(-1px);
 }
 
@@ -244,7 +244,7 @@ body {
 .btn-secondary-outline:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
-  color: #0a1322;
+  color: #0A0A0A;
   box-shadow: 0 2px 6px -1px rgba(10, 19, 34, 0.08);
 }
 
@@ -265,7 +265,7 @@ body {
 }
 
 .table-luxury-header {
-  background: #0a1322;
+  background: #0A0A0A;
   color: #ffffff;
   font-size: 0.625rem;
   font-weight: 700;

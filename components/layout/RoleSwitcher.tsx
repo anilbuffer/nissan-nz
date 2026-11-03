@@ -23,18 +23,18 @@ const ROLES: RoleOption[] = [
     label: "Auckland Nissan",
     sublabel: "David Miller · Sales Buyer",
     badge: "BUYER",
-    badgeColor: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    badgeColor: "bg-emerald-500/15 text-[#C3002F] border-emerald-500/30",
     icon: Car,
-    iconBg: "bg-emerald-500/10 text-emerald-400",
+    iconBg: "bg-emerald-500/10 text-[#C3002F]",
   },
   {
     role: "DEALER_ADMIN",
     label: "Bay of Plenty Nissan",
     sublabel: "Marcus Vance · Dealer Principal",
     badge: "PRINCIPAL",
-    badgeColor: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    badgeColor: "bg-emerald-500/15 text-[#C3002F] border-emerald-500/30",
     icon: Car,
-    iconBg: "bg-emerald-500/10 text-emerald-400",
+    iconBg: "bg-emerald-500/10 text-[#C3002F]",
   },
   {
     role: "AUTOHUB_ADMIN",
@@ -112,7 +112,7 @@ export default function RoleSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Switch active workspace role"
-        className="flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 py-1.5 rounded-xl bg-[#0F1B2E] hover:bg-[#142239] border border-[#1B2A42] hover:border-slate-600 text-white transition-all text-xs focus-visible:ring-2 focus-visible:ring-crimson-500 cursor-pointer shadow-soft"
+        className="flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3 py-1.5 rounded-xl bg-[#121212] hover:bg-[#18181B] border border-[#27272A] hover:border-slate-600 text-white transition-all text-xs focus-visible:ring-2 focus-visible:ring-crimson-500 cursor-pointer shadow-soft"
       >
         <div className={`p-1.5 rounded-lg ${activeRoleOption.iconBg}`}>
           <ActiveIcon className="w-3.5 h-3.5" />
@@ -137,9 +137,9 @@ export default function RoleSwitcher() {
       {isOpen && (
         <div
           role="listbox"
-          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-72 max-w-xs rounded-2xl bg-[#0F1B2E] border border-[#1B2A42] shadow-hover py-2 z-50 text-white backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200"
+          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-72 max-w-xs rounded-2xl bg-[#121212] border border-[#27272A] shadow-hover py-2 z-50 text-white backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200"
         >
-          <div className="px-3.5 py-2 border-b border-[#1B2A42] mb-1">
+          <div className="px-3.5 py-2 border-b border-[#27272A] mb-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Switch Workspace View
             </p>
@@ -180,15 +180,15 @@ export default function RoleSwitcher() {
                       <div className="text-[11px] text-slate-400 truncate">{option.sublabel}</div>
                     </div>
                   </div>
-                  {isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0 ml-2" />}
+                  {isSelected && <Check className="w-4 h-4 text-[#C3002F] shrink-0 ml-2" />}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-2 pt-2 px-3 border-t border-[#1B2A42] text-[10px] text-slate-400 flex items-center justify-between">
+          <div className="mt-2 pt-2 px-3 border-t border-[#27272A] text-[10px] text-slate-400 flex items-center justify-between">
             <span>Audio Chime Enabled</span>
-            <span className="text-emerald-400 font-mono">Web Audio API</span>
+            <span className="text-[#C3002F] font-mono">Web Audio API</span>
           </div>
         </div>
       )}

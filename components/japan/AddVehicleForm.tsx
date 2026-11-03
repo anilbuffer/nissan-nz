@@ -207,7 +207,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             <button
               type="button"
               onClick={onSuccessReturn}
-              className="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
+              className="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               <span>Return to Inventory Listing</span>
             </button>
@@ -223,7 +223,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* Section 1: Identification & Provenance */}
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
               <div className="flex items-center gap-2 font-black text-sm text-slate-900">
-                <Hash className="w-4 h-4 text-[#E11D48]" />
+                <Hash className="w-4 h-4 text-[#C3002F]" />
                 <span>1. Identification &amp; Japanese Yard Staging</span>
               </div>
 
@@ -514,7 +514,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   type="button"
                   disabled={isSubmitting}
                   onClick={(e) => handleSubmit(e, "AVAILABLE")}
-                  className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center gap-2 active:scale-[0.98]"
+                  className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center gap-2 active:scale-[0.98]"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>Publish to Programme</span>

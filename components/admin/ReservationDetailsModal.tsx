@@ -337,7 +337,7 @@ export default function ReservationDetailsModal({
 
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
                 <span className="text-[10px] text-rose-700 font-bold uppercase tracking-wider block">Total Landed Price</span>
-                <div className="font-mono font-black text-[#E11D48] text-base mt-0.5">
+                <div className="font-mono font-black text-[#C3002F] text-base mt-0.5">
                   ${price.totalBuyPriceNZD.toLocaleString()} NZD
                 </div>
                 <span className="text-[10px] text-rose-600 font-semibold">Excl. GST (Protected)</span>

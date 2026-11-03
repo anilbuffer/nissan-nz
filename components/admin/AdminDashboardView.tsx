@@ -126,8 +126,8 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#E11D48] animate-pulse" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#C3002F] animate-pulse" />
               Autohub Platform Operations
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
@@ -149,7 +149,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
             <span>{pendingDealers.length} Approvals Pending</span>
           </div>
           <div className="px-3.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
-            <Lock className="w-3.5 h-3.5 text-[#E11D48]" />
+            <Lock className="w-3.5 h-3.5 text-[#C3002F]" />
             <span>{heldVehicles.length} Exclusivity Locks</span>
           </div>
         </div>
@@ -374,12 +374,12 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
         {/* ========================================================= */}
         <div className="relative w-full bg-white rounded-3xl border border-rose-200/90 shadow-[0_8px_30px_rgba(225,29,72,0.06)] p-6 sm:p-7 transition-all space-y-5 overflow-hidden">
           {/* Top Rose Radiant Strip */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239]" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F]" />
 
           {/* Alert Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-[#E11D48] shadow-2xs shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-[#C3002F] shadow-2xs shrink-0">
                 <Lock className="w-6 h-6" />
               </div>
               <div>
@@ -388,7 +388,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     Atomic Reservation Queue Requests
                   </h2>
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-900 border border-rose-300 font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48] animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F] animate-pulse" />
                     24H LOCK ACTIVE
                   </span>
                 </div>
@@ -541,7 +541,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                         <button
                           type="button"
                           onClick={() => handleConfirmReservation(vehicle.id)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_18px_rgba(225,29,72,0.45)] cursor-pointer active:scale-[0.98]"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_18px_rgba(225,29,72,0.45)] cursor-pointer active:scale-[0.98]"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Confirm Allocation</span>
@@ -560,7 +560,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
             <button
               type="button"
               onClick={() => onNavigateTab("admin-reservations")}
-              className="text-[#E11D48] hover:text-[#BE123C] font-bold flex items-center gap-1 cursor-pointer"
+              className="text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer"
             >
               <span>Manage Full Reservations Queue</span>
               <ArrowRight className="w-3.5 h-3.5" />

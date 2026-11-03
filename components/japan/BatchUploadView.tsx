@@ -256,7 +256,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                   <button
                     onClick={handlePublishBatch}
                     disabled={validCount === 0 || isProcessing}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-colors shadow-soft cursor-pointer"
                   >
                     <span>Publish {validCount} Valid Units</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -268,7 +268,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto touch-scroll navy-scrollbar">
                   <table className="w-full text-left text-xs min-w-[680px]">
-                    <thead className="bg-[#0A1322] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#1B2A42]">
+                    <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
                       <tr>
                         <th className="py-3 px-3.5 text-slate-200">Row</th>
                         <th className="py-3 px-3.5 text-slate-200">Stock ID</th>

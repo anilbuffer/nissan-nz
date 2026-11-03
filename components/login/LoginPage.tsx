@@ -73,42 +73,33 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
       {/* LEFT HALF: Minimal & Clean Dark Brand Canvas */}
-      <div className="relative w-full lg:w-1/2 bg-[#000000] flex flex-col justify-between p-6 sm:p-10 lg:p-16 overflow-hidden text-white border-b lg:border-b-0 lg:border-r border-[#1B2A42]">
+      <div className="relative w-full lg:w-1/2 bg-[#000000] flex flex-col justify-between p-6 sm:p-10 lg:p-16 overflow-hidden text-white border-b lg:border-b-0 lg:border-r border-[#27272A]">
         {/* Subtle background ambient glow */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Top: Project Name & Programme Badge */}
         <div className="relative z-10 flex items-center gap-3.5">
-          <div className="w-11 h-11 flex items-center justify-center shrink-0">
+          <div className="w-24 h-24 flex items-center justify-center shrink-0">
             <img
               src="/nissan-logo.png"
               alt="Nissan Logo"
-              className="w-10 h-10 object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.25)]"
+              className="w-20 h-20 object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.25)]"
             />
           </div>
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block leading-tight">
+            <h1 className="font-bold text-xl text-white">
               Nissan New Zealand
-            </span>
-            <h1 className="font-extrabold text-base tracking-tight text-white leading-tight mt-0.5">
-              Dealer Order Platform
             </h1>
           </div>
         </div>
 
         {/* Center: Clean & Minimal Hero (Short, Ultra-Premium Style) */}
         <div className="relative z-10 my-10 lg:my-0 space-y-4 max-w-md">
-          {/* Subtle live indicator badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-slate-300 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-medium tracking-wide">Direct Japan Wholesale Channel</span>
-          </div>
-
           {/* Main Headline */}
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight text-white leading-[1.12]">
+          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight text-white leading-[1.12]">
             Direct Japan Stock.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E11D48] via-[#FB7185] to-[#FDA4AF]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
               Landed &amp; Protected.
             </span>
           </h2>
@@ -117,18 +108,6 @@ export default function LoginPage() {
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
             Guaranteed landed pricing and 24-hour atomic exclusivity locks for authorized Nissan New Zealand franchise dealers.
           </p>
-
-          {/* 2 Clean Glass Spec Pills */}
-          <div className="pt-2 flex flex-wrap gap-2.5 text-xs text-slate-300">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-              <span className="font-medium">JEVIC Certified</span>
-            </span>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48] shadow-[0_0_8px_rgba(225,29,72,0.8)]" />
-              <span className="font-medium">24h Atomic Exclusivity</span>
-            </span>
-          </div>
         </div>
 
         {/* Minimal Footer */}
@@ -164,7 +143,7 @@ export default function LoginPage() {
                 : "text-slate-500 hover:text-slate-800"
                 }`}
             >
-              <Car className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <Car className={`w-3.5 h-3.5 shrink-0 ${activeTab === "DEALER" ? "text-[#C3002F]" : "text-slate-400"}`} />
               <span className="truncate">Dealer<span className="hidden sm:inline"> Login</span></span>
             </button>
             <button
@@ -175,7 +154,7 @@ export default function LoginPage() {
                 : "text-slate-500 hover:text-slate-800"
                 }`}
             >
-              <Shield className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <Shield className={`w-3.5 h-3.5 shrink-0 ${activeTab === "ADMIN" ? "text-[#C3002F]" : "text-slate-400"}`} />
               <span className="truncate">Admin<span className="hidden sm:inline"> Ops</span></span>
             </button>
             <button
@@ -186,7 +165,7 @@ export default function LoginPage() {
                 : "text-slate-500 hover:text-slate-800"
                 }`}
             >
-              <Globe2 className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+              <Globe2 className={`w-3.5 h-3.5 shrink-0 ${activeTab === "JAPAN" ? "text-[#C3002F]" : "text-slate-400"}`} />
               <span className="truncate">Japan<span className="hidden sm:inline"> HQ</span></span>
             </button>
           </div>
@@ -212,7 +191,7 @@ export default function LoginPage() {
                     if (activeTab === "ADMIN") setEmail("ops@autohub.co.nz");
                     if (activeTab === "JAPAN") setEmail("kenji.sato@nissan.co.jp");
                   }}
-                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                  className="text-[11px] font-semibold text-[#C3002F] hover:text-[#A10026] hover:underline cursor-pointer"
                 >
                   Auto-fill demo
                 </button>
@@ -266,7 +245,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-[#E11D48] hover:bg-[#BE123C] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-crimson-600/20 flex items-center justify-center gap-2 group cursor-pointer"
+              className="w-full py-3 px-4 bg-[#C3002F] hover:bg-[#A10026] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-[#C3002F]/20 flex items-center justify-center gap-2 group cursor-pointer"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -297,7 +276,7 @@ export default function LoginPage() {
               className="w-full py-2.5 px-4 rounded-xl border border-slate-200/90 hover:border-slate-300 bg-white hover:bg-slate-50/80 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-2xs hover:shadow-xs active:scale-[0.99] group cursor-pointer"
             >
               <span>Register Dealership Application</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#E11D48] transition-transform duration-200 group-hover:translate-x-1" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#C3002F] transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </div>
 

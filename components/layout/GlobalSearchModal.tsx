@@ -203,7 +203,7 @@ export default function GlobalSearchModal({
         {/* 1. Modal Top Bar with Search Input */}
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#E11D48] flex items-center justify-center shrink-0 border border-rose-100">
+            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#C3002F] flex items-center justify-center shrink-0 border border-rose-100">
               <Search className="w-5 h-5" />
             </div>
 
@@ -260,7 +260,7 @@ export default function GlobalSearchModal({
                     setSelectedIndex(0);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 flex items-center gap-1.5 shrink-0 cursor-pointer ${isActive
-                      ? "bg-[#E11D48] text-white shadow-xs shadow-rose-200"
+                      ? "bg-[#C3002F] text-white shadow-xs shadow-rose-200"
                       : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/60"
                     }`}
                 >
@@ -312,7 +312,7 @@ export default function GlobalSearchModal({
                 onClick={() => handleSelectVehicle(vehicle.id)}
                 onMouseEnter={() => setSelectedIndex(idx)}
                 className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-150 border ${isSelected
-                    ? "bg-rose-50/40 border-[#E11D48]/40 shadow-xs"
+                    ? "bg-rose-50/40 border-[#C3002F]/40 shadow-xs"
                     : "bg-white hover:bg-slate-50/80 border-slate-100 hover:border-slate-200"
                   }`}
               >
@@ -331,7 +331,7 @@ export default function GlobalSearchModal({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-black text-sm sm:text-base text-slate-900 group-hover:text-[#E11D48] transition-colors truncate">
+                      <h4 className="font-black text-sm sm:text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </h4>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold border border-slate-200/80 shrink-0">
@@ -390,7 +390,7 @@ export default function GlobalSearchModal({
 
                     <div
                       className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${isSelected
-                          ? "bg-[#E11D48] text-white shadow-xs"
+                          ? "bg-[#C3002F] text-white shadow-xs"
                           : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-900"
                         }`}
                     >
@@ -480,7 +480,7 @@ export default function GlobalSearchModal({
                   router.push("/dealer/stocks");
                 }
               }}
-              className="text-[#E11D48] hover:underline font-bold text-xs flex items-center gap-1 cursor-pointer"
+              className="text-[#C3002F] hover:underline font-bold text-xs flex items-center gap-1 cursor-pointer"
             >
               <span>Explore Complete Catalogue</span>
               <ArrowUpRight className="w-3.5 h-3.5" />

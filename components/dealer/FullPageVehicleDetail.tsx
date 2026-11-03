@@ -220,7 +220,7 @@ export default function FullPageVehicleDetail({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 sm:p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
             {/* 1. Odometer */}
             <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-rose-50 text-[#E11D48] flex items-center justify-center shrink-0 border border-rose-100">
+              <div className="w-9 h-9 rounded-xl bg-rose-50 text-[#C3002F] flex items-center justify-center shrink-0 border border-rose-100">
                 <Gauge className="w-4 h-4" />
               </div>
               <div className="min-w-0">
@@ -300,7 +300,7 @@ export default function FullPageVehicleDetail({
                     }}
                     className={`group relative flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all cursor-pointer ${
                       isActive
-                        ? "bg-slate-100 ring-2 ring-[#0A1322] shadow-xs"
+                        ? "bg-slate-100 ring-2 ring-[#0A0A0A] shadow-xs"
                         : "bg-white hover:bg-slate-50 border border-slate-200/80 opacity-80 hover:opacity-100"
                     }`}
                   >
@@ -330,7 +330,7 @@ export default function FullPageVehicleDetail({
             {/* Header: Make & Model Title + Spec Subtitle */}
             <div>
               <div className="flex items-center justify-between text-xs font-semibold text-slate-400 mb-1.5">
-                <span className="uppercase tracking-wider font-extrabold text-[#E11D48]">
+                <span className="uppercase tracking-wider font-extrabold text-[#C3002F]">
                   Nissan Certified Pre-Owned
                 </span>
                 <span className="font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded text-[11px] font-bold border border-slate-200/60">
@@ -438,7 +438,7 @@ export default function FullPageVehicleDetail({
                   <span>Est. NZ Retail: <strong className="text-emerald-700 font-mono font-bold">${retailEstimateNZD.toLocaleString()}</strong></span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-200/80 overflow-hidden flex">
-                  <div style={{ width: `${Math.round((price.totalBuyPriceNZD / retailEstimateNZD) * 100)}%` }} className="bg-[#0A1322] h-full" />
+                  <div style={{ width: `${Math.round((price.totalBuyPriceNZD / retailEstimateNZD) * 100)}%` }} className="bg-[#0A0A0A] h-full" />
                   <div style={{ width: `${Math.round((dealerMarginNZD / retailEstimateNZD) * 100)}%` }} className="bg-emerald-500 h-full" />
                 </div>
               </div>
@@ -482,7 +482,7 @@ export default function FullPageVehicleDetail({
                             alert("Wholesale allocation confirmed for " + vehicle.stockId + ". Dispatched to shipping pipeline.");
                             router.push("/admin/orders");
                           }}
-                          className="py-2.5 px-3 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                          className="py-2.5 px-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Confirm Order</span>
@@ -544,7 +544,7 @@ export default function FullPageVehicleDetail({
                     audio.playSubtleClick();
                     setIsReserveModalOpen(true);
                   }}
-                  className="w-full py-4 px-6 rounded-2xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-bold text-sm tracking-wide transition-all shadow-[0_4px_16px_rgba(225,29,72,0.30)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.40)] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-4 px-6 rounded-2xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-sm tracking-wide transition-all shadow-[0_4px_16px_rgba(225,29,72,0.30)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.40)] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Lock className="w-4 h-4" />
                   <span>Hold Vehicle (24h)</span>
@@ -622,10 +622,10 @@ export default function FullPageVehicleDetail({
             <button
               type="button"
               onClick={() => toggleAccordion("PERFORMANCE")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#E11D48] transition-colors py-1 cursor-pointer"
+              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-[#E11D48]" />
+                <Zap className="w-4 h-4 text-[#C3002F]" />
                 <span>PERFORMANCE &amp; POWERTRAIN</span>
               </div>
               <ChevronDown
@@ -681,10 +681,10 @@ export default function FullPageVehicleDetail({
             <button
               type="button"
               onClick={() => toggleAccordion("INSPECTION")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#E11D48] transition-colors py-1 cursor-pointer"
+              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <FileCheck2 className="w-4 h-4 text-[#E11D48]" />
+                <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
                 <span>JAPAN INSPECTION &amp; CONDITION</span>
               </div>
               <ChevronDown
@@ -754,10 +754,10 @@ export default function FullPageVehicleDetail({
             <button
               type="button"
               onClick={() => toggleAccordion("SAFETY")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#E11D48] transition-colors py-1 cursor-pointer"
+              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#E11D48]" />
+                <ShieldCheck className="w-4 h-4 text-[#C3002F]" />
                 <span>SAFETY &amp; ADAS SPECIFICATIONS</span>
               </div>
               <ChevronDown
@@ -797,10 +797,10 @@ export default function FullPageVehicleDetail({
             <button
               type="button"
               onClick={() => toggleAccordion("COMPLIANCE")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#E11D48] transition-colors py-1 cursor-pointer"
+              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Ship className="w-4 h-4 text-[#E11D48]" />
+                <Ship className="w-4 h-4 text-[#C3002F]" />
                 <span>COMPLIANCE &amp; BORDER SPECIFICATIONS</span>
               </div>
               <ChevronDown
@@ -840,10 +840,10 @@ export default function FullPageVehicleDetail({
             <button
               type="button"
               onClick={() => toggleAccordion("DIMENSIONS")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#E11D48] transition-colors py-1 cursor-pointer"
+              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Car className="w-4 h-4 text-[#E11D48]" />
+                <Car className="w-4 h-4 text-[#C3002F]" />
                 <span>DIMENSIONS &amp; CAPACITIES</span>
               </div>
               <ChevronDown

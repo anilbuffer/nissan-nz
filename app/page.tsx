@@ -25,9 +25,9 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-[#070D18] text-white">
+      <div className="h-screen w-full flex items-center justify-center bg-[#000000] text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#E11D48] flex items-center justify-center font-bold text-lg animate-pulse">
+          <div className="w-10 h-10 rounded-xl bg-[#C3002F] flex items-center justify-center font-bold text-lg animate-pulse">
             D
           </div>
           <p className="text-xs text-slate-400 font-mono">Loading Dealer Order Platform...</p>
@@ -44,7 +44,7 @@ export default function Home() {
   // Brief redirecting splash
   return (
     <div className="h-screen w-full flex items-center justify-center bg-[#F8FAFC]">
-      <div className="w-8 h-8 border-2 border-[#E11D48] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[#C3002F] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }

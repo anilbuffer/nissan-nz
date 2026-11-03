@@ -75,7 +75,7 @@ export default function DealershipProfileView() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#E11D48] bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#C3002F] bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">
                 Nissan Franchise Dealership
               </span>
               <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
@@ -116,7 +116,7 @@ export default function DealershipProfileView() {
                 }}
                 className={`btn-outline px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
                   isActive
-                    ? "bg-[#0A1322] text-white border-[#0A1322] shadow-xs"
+                    ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
                     : "bg-white text-slate-700 hover:bg-slate-50"
                 }`}
               >
@@ -226,7 +226,7 @@ export default function DealershipProfileView() {
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-sm space-y-5">
               <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#E11D48]">
+                <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F]">
                   <CreditCard className="w-4 h-4" />
                 </div>
                 <div>
@@ -242,7 +242,7 @@ export default function DealershipProfileView() {
                 </div>
 
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-rose-500 to-[#E11D48] rounded-full w-[28%]" />
+                  <div className="h-full bg-gradient-to-r from-rose-500 to-[#C3002F] rounded-full w-[28%]" />
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
@@ -287,7 +287,7 @@ export default function DealershipProfileView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
                   Section 4 Commercial Model
                 </span>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
@@ -326,7 +326,7 @@ export default function DealershipProfileView() {
           {/* Active Zone Detail Card */}
           <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100/60 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-bold text-[#E11D48] uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-[#C3002F] uppercase tracking-wider block">
                 Selected Schedule
               </span>
               <h3 className="text-base font-extrabold text-slate-900 mt-0.5">
@@ -410,7 +410,7 @@ export default function DealershipProfileView() {
 
             <div className="overflow-x-auto rounded-2xl border border-slate-200 touch-scroll navy-scrollbar">
               <table className="w-full text-xs text-left min-w-[720px]">
-                <thead className="bg-[#0A1322] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#1B2A42]">
+                <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
                   <tr>
                     <th className="py-3.5 px-4 text-slate-200">Zone ID</th>
                     <th className="py-3.5 px-4 text-slate-200">Territory</th>
@@ -440,7 +440,7 @@ export default function DealershipProfileView() {
                           <span className="flex items-center gap-1.5">
                             {zid}
                             {isMyZone && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#E11D48] text-white uppercase font-sans">
+                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#C3002F] text-white uppercase font-sans">
                                 Assigned
                               </span>
                             )}
@@ -473,7 +473,7 @@ export default function DealershipProfileView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
                   Dealer Governance (US-05)
                 </span>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
@@ -538,7 +538,7 @@ export default function DealershipProfileView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
                   Contractual Evidence
                 </span>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">

@@ -206,7 +206,7 @@ export default function Sidebar({
       return {
         section: "AUDIT PORTAL",
         badge: "REGULATORY AUDITOR",
-        badgeColor: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+        badgeColor: "bg-white/10 text-white border-white/20",
         roleDesc: "NZTA & Customs Audit",
       };
     }
@@ -214,7 +214,7 @@ export default function Sidebar({
       return {
         section: "ADMIN PORTAL",
         badge: "AUTOHUB OPERATIONS",
-        badgeColor: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+        badgeColor: "bg-white/10 text-white border-white/20",
         roleDesc: "Autohub NZ Operations",
       };
     }
@@ -228,14 +228,14 @@ export default function Sidebar({
       return {
         section: "DEALER PORTAL",
         badge: shortName,
-        badgeColor: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+        badgeColor: "bg-white/10 text-white border-white/20",
         roleDesc: currentDealer?.legalTradingName || currentUser?.dealershipName || "Auckland Nissan City",
       };
     }
     return {
       section: "JAPAN PORTAL",
       badge: "NISSAN JAPAN HQ",
-      badgeColor: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+      badgeColor: "bg-white/10 text-white border-white/20",
       roleDesc: "Yokohama Export Control",
     };
   };
@@ -266,7 +266,7 @@ export default function Sidebar({
     return (
       <div className="flex flex-col h-full justify-between select-none">
         {/* Ambient glow */}
-        <div className="pointer-events-none absolute -top-16 -left-16 w-48 h-48 bg-rose-600/10 rounded-full blur-2xl" />
+        <div className="pointer-events-none absolute -top-16 -left-16 w-48 h-48 bg-[#C3002F]/10 rounded-full blur-2xl" />
 
         {/* Top Branding Section */}
         <div className="relative z-10">
@@ -341,11 +341,11 @@ export default function Sidebar({
                   >
                     {/* Glowing left pip on active tab */}
                     {active && !collapsed && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-[#E11D48] shadow-[0_0_8px_rgba(225,29,72,0.8)]" />
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-[#C3002F] shadow-[0_0_8px_rgba(195,0,47,0.7)]" />
                     )}
 
                     <Icon
-                      className={`w-4 h-4 shrink-0 transition-transform ${active ? "text-[#E11D48] scale-110" : "text-slate-400 group-hover:text-slate-300"
+                      className={`w-4 h-4 shrink-0 transition-transform ${active ? "text-[#C3002F] scale-110" : "text-slate-400 group-hover:text-slate-300"
                         }`}
                     />
 
@@ -391,7 +391,7 @@ export default function Sidebar({
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border border-slate-700 font-bold text-xs text-white shadow-xs flex items-center justify-center shrink-0">
                       {currentUser?.name.charAt(0) || "U"}
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#070D18]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#000000]" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-white truncate group-hover:text-rose-200 transition-colors">
@@ -436,7 +436,7 @@ export default function Sidebar({
                         router.push("/settings");
                       }}
                       className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${pathname === "/settings" || activeTab === "settings"
-                        ? "bg-[#E11D48] text-white"
+                        ? "bg-[#C3002F] text-white"
                         : "text-slate-200 hover:text-white hover:bg-white/10"
                         }`}
                     >
@@ -473,12 +473,12 @@ export default function Sidebar({
                 title="Click for Settings & Logout"
                 aria-label="User account & options"
                 className={`relative w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs text-white transition-all cursor-pointer ${pathname === "/settings" || activeTab === "settings"
-                  ? "ring-2 ring-[#E11D48]"
+                  ? "ring-2 ring-[#C3002F]"
                   : "hover:ring-2 hover:ring-rose-500/50"
                   }`}
               >
                 {currentUser?.name.charAt(0) || "U"}
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#070D18]" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#000000]" />
               </button>
 
               {/* Collapsed Popover Menu */}
@@ -508,7 +508,7 @@ export default function Sidebar({
                         router.push("/settings");
                       }}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer text-left ${pathname === "/settings" || activeTab === "settings"
-                        ? "bg-[#E11D48] text-white"
+                        ? "bg-[#C3002F] text-white"
                         : "text-slate-200 hover:text-white hover:bg-white/10"
                         }`}
                     >

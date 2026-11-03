@@ -125,7 +125,7 @@ export default function AuditExportView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
               Compliance &amp; Reporting
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
@@ -153,7 +153,7 @@ export default function AuditExportView() {
           <button
             type="button"
             onClick={handleExportAuditCSV}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-xs hover:shadow active:scale-[0.98]"
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C3002F] to-[#A10026] hover:from-[#A10026] hover:to-[#85001F] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-xs hover:shadow active:scale-[0.98]"
           >
             <Download className="w-4 h-4" />
             <span>Export Audit Trail (CSV)</span>
@@ -211,7 +211,7 @@ export default function AuditExportView() {
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs text-slate-600 min-w-[840px]">
-            <thead className="bg-[#0A1322] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#1B2A42]">
+            <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
               <tr>
                 <th className="py-3.5 px-5 text-slate-200">Timestamp</th>
                 <th className="py-3.5 px-4 text-slate-200">Actor &amp; Role</th>

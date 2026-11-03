@@ -273,7 +273,7 @@ export default function DealerRegistrationWizard() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* LEFT SIDEBAR: Pinned Desktop Canvas (Fixed Height & Sticky)  */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <aside className="relative overflow-hidden w-full lg:w-[350px] xl:w-[380px] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto bg-[#000000] border-b lg:border-b-0 lg:border-r border-[#1B2A42] text-white flex flex-col justify-between p-6 sm:p-8 lg:p-8 shrink-0">
+      <aside className="relative overflow-hidden w-full lg:w-[350px] xl:w-[380px] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto bg-[#000000] border-b lg:border-b-0 lg:border-r border-[#27272A] text-white flex flex-col justify-between p-6 sm:p-8 lg:p-8 shrink-0">
         {/* Subtle background ambient glow */}
         <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl" />
@@ -281,7 +281,7 @@ export default function DealerRegistrationWizard() {
         <div className="relative z-10 space-y-6">
           {/* Brand Header */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E11D48] via-[#BE123C] to-[#881337] flex items-center justify-center font-black text-lg text-white shadow-soft shadow-crimson-600/30 ring-1 ring-white/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C3002F] via-[#A10026] to-[#680018] flex items-center justify-center font-black text-lg text-white shadow-soft shadow-crimson-600/30 ring-1 ring-white/20">
               D
             </div>
             <div>
@@ -310,7 +310,7 @@ export default function DealerRegistrationWizard() {
             </div>
             <div className="w-full h-1.5 bg-slate-800/90 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#E11D48] via-[#F43F5E] to-[#FB7185] transition-all duration-500 rounded-full shadow-[0_0_10px_rgba(225,29,72,0.6)]"
+                className="h-full bg-gradient-to-r from-[#C3002F] via-[#F43F5E] to-[#FB7185] transition-all duration-500 rounded-full shadow-[0_0_10px_rgba(225,29,72,0.6)]"
                 style={{ width: `${Math.max(progressPercent, 10)}%` }}
               />
             </div>
@@ -339,7 +339,7 @@ export default function DealerRegistrationWizard() {
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-all ${
                       isActive
-                        ? "bg-[#E11D48] text-white shadow-xs"
+                        ? "bg-[#C3002F] text-white shadow-xs"
                         : isPassed
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                         : "bg-slate-800 text-slate-500"
@@ -353,7 +353,7 @@ export default function DealerRegistrationWizard() {
                   </span>
 
                   {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E11D48] shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F] shrink-0" />
                   )}
                 </button>
               );
@@ -432,7 +432,7 @@ export default function DealerRegistrationWizard() {
                     audio.playSubtleClick();
                     router.push("/");
                   }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white text-xs font-bold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] cursor-pointer active:scale-[0.99]"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-bold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] cursor-pointer active:scale-[0.99]"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Return to Sign In Portal</span>
@@ -455,7 +455,7 @@ export default function DealerRegistrationWizard() {
               {/* Step Header */}
               <div className="mb-8 pb-5 border-b border-slate-100 flex items-start justify-between">
                 <div>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-50 border border-rose-200/80 text-[10px] font-bold uppercase tracking-wider text-[#E11D48]">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-rose-50 border border-rose-200/80 text-[10px] font-bold uppercase tracking-wider text-[#C3002F]">
                     Step {currentStep} of {STEPS.length}
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-2 tracking-tight">
@@ -475,7 +475,7 @@ export default function DealerRegistrationWizard() {
                   {/* Subsection A: Dealership Entity */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100/80 text-[#E11D48] border border-rose-200/70 flex items-center justify-center shadow-xs">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100/80 text-[#C3002F] border border-rose-200/70 flex items-center justify-center shadow-xs">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div>
@@ -493,7 +493,7 @@ export default function DealerRegistrationWizard() {
                         Legal / Trading Dealership Name *
                       </label>
                       <div className="relative group">
-                        <Building2 className="w-4 h-4 text-slate-400 group-focus-within:text-[#E11D48] absolute left-3.5 top-3 transition-colors" />
+                        <Building2 className="w-4 h-4 text-slate-400 group-focus-within:text-[#C3002F] absolute left-3.5 top-3 transition-colors" />
                         <input
                           type="text"
                           value={formData.dealershipName}
@@ -502,7 +502,7 @@ export default function DealerRegistrationWizard() {
                           className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.dealershipName
                               ? "border-crimson-500 ring-2 ring-crimson-500/20 bg-rose-50/20"
                               : "border-slate-200/90 hover:border-slate-300"
-                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs`}
+                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs`}
                         />
                       </div>
                       {errors.dealershipName && (
@@ -523,7 +523,7 @@ export default function DealerRegistrationWizard() {
                           className={`w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.dealerCode
                               ? "border-crimson-500 ring-2 ring-crimson-500/20 bg-rose-50/20"
                               : "border-slate-200/90 hover:border-slate-300"
-                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs`}
+                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs`}
                         />
                         {errors.dealerCode && (
                           <p className="text-[11px] text-crimson-600">{errors.dealerCode}</p>
@@ -539,7 +539,7 @@ export default function DealerRegistrationWizard() {
                           value={formData.nzbn}
                           onChange={(e) => updateField("nzbn", e.target.value)}
                           placeholder="942903829..."
-                          className="w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs"
+                          className="w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs"
                         />
                       </div>
                     </div>
@@ -552,7 +552,7 @@ export default function DealerRegistrationWizard() {
                         <select
                           value={formData.region}
                           onChange={(e) => updateField("region", e.target.value)}
-                          className="w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 text-slate-900 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all cursor-pointer shadow-xs"
+                          className="w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 text-slate-900 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all cursor-pointer shadow-xs"
                         >
                           {NZ_LOCATIONS.map((loc) => (
                             <option key={loc.city} value={loc.city}>
@@ -569,7 +569,7 @@ export default function DealerRegistrationWizard() {
                           value={formData.postalCode}
                           onChange={(e) => updateField("postalCode", e.target.value)}
                           placeholder="e.g. 1051"
-                          className="w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs"
+                          className="w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs"
                         />
                       </div>
                     </div>
@@ -579,7 +579,7 @@ export default function DealerRegistrationWizard() {
                         Dealership Physical Delivery Address *
                       </label>
                       <div className="relative group">
-                        <MapPin className="w-4 h-4 text-slate-400 group-focus-within:text-[#E11D48] absolute left-3.5 top-3 transition-colors" />
+                        <MapPin className="w-4 h-4 text-slate-400 group-focus-within:text-[#C3002F] absolute left-3.5 top-3 transition-colors" />
                         <input
                           type="text"
                           value={formData.physicalAddress}
@@ -588,7 +588,7 @@ export default function DealerRegistrationWizard() {
                           className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.physicalAddress
                               ? "border-crimson-500 ring-2 ring-crimson-500/20 bg-rose-50/20"
                               : "border-slate-200/90 hover:border-slate-300"
-                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs`}
+                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs`}
                         />
                       </div>
                       {errors.physicalAddress && (
@@ -628,7 +628,7 @@ export default function DealerRegistrationWizard() {
                         className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactName
                             ? "border-crimson-500 ring-2 ring-crimson-500/20 bg-rose-50/20"
                             : "border-slate-200/90 hover:border-slate-300"
-                          } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs`}
+                          } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs`}
                       />
                       {errors.contactName && (
                         <p className="text-[11px] text-crimson-600">{errors.contactName}</p>
@@ -641,7 +641,7 @@ export default function DealerRegistrationWizard() {
                           Business Email *
                         </label>
                         <div className="relative group">
-                          <Mail className="w-4 h-4 text-slate-400 group-focus-within:text-[#E11D48] absolute left-3.5 top-3 transition-colors" />
+                          <Mail className="w-4 h-4 text-slate-400 group-focus-within:text-[#C3002F] absolute left-3.5 top-3 transition-colors" />
                           <input
                             type="email"
                             value={formData.contactEmail}
@@ -650,7 +650,7 @@ export default function DealerRegistrationWizard() {
                             className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactEmail
                                 ? "border-crimson-500 ring-2 ring-crimson-500/20 bg-rose-50/20"
                                 : "border-slate-200/90 hover:border-slate-300"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs`}
+                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs`}
                           />
                         </div>
                         {errors.contactEmail && (
@@ -663,7 +663,7 @@ export default function DealerRegistrationWizard() {
                           Direct Phone / Mobile *
                         </label>
                         <div className="relative group">
-                          <Phone className="w-4 h-4 text-slate-400 group-focus-within:text-[#E11D48] absolute left-3.5 top-3 transition-colors" />
+                          <Phone className="w-4 h-4 text-slate-400 group-focus-within:text-[#C3002F] absolute left-3.5 top-3 transition-colors" />
                           <input
                             type="tel"
                             value={formData.contactPhone}
@@ -672,7 +672,7 @@ export default function DealerRegistrationWizard() {
                             className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactPhone
                                 ? "border-crimson-500 ring-2 ring-crimson-500/20 bg-rose-50/20"
                                 : "border-slate-200/90 hover:border-slate-300"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#E11D48] transition-all shadow-xs`}
+                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-[#C3002F] transition-all shadow-xs`}
                           />
                         </div>
                         {errors.contactPhone && (
@@ -694,7 +694,7 @@ export default function DealerRegistrationWizard() {
                     {/* Header */}
                     <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 to-slate-100/70 border-b border-slate-200/80 flex items-center justify-between text-xs font-bold text-slate-800">
                       <span className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-rose-50 border border-rose-200/60 flex items-center justify-center text-[#E11D48]">
+                        <div className="w-6 h-6 rounded-lg bg-rose-50 border border-rose-200/60 flex items-center justify-center text-[#C3002F]">
                           <FileText className="w-3.5 h-3.5" />
                         </div>
                         <span>Dealer-Visible Commercial Boundary</span>
@@ -802,7 +802,7 @@ export default function DealerRegistrationWizard() {
                           updateField("acceptTerms", e.target.checked);
                           updateField("acceptCostBoundary", e.target.checked);
                         }}
-                        className="w-4 h-4 rounded text-[#E11D48] focus:ring-rose-500 border-slate-300 shrink-0 cursor-pointer"
+                        className="w-4 h-4 rounded text-[#C3002F] focus:ring-rose-500 border-slate-300 shrink-0 cursor-pointer"
                       />
                       <span className="text-xs text-slate-700 leading-snug">
                         I accept the <strong className="text-slate-900 font-bold">Nissan NZ Terms of Trade (v2026.1)</strong> and acknowledge the <strong className="text-slate-900 font-bold">Commercial Cost Boundary</strong>. *
@@ -829,7 +829,7 @@ export default function DealerRegistrationWizard() {
                       <button
                         type="button"
                         onClick={() => setCurrentStep(1)}
-                        className="text-xs text-[#E11D48] hover:text-[#BE123C] font-semibold cursor-pointer hover:underline"
+                        className="text-xs text-[#C3002F] hover:text-[#A10026] font-semibold cursor-pointer hover:underline"
                       >
                         Edit
                       </button>
@@ -846,7 +846,7 @@ export default function DealerRegistrationWizard() {
                       <div>
                         <span className="text-slate-400 block text-[11px]">Location &amp; Pricing Profile:</span>
                         <span className="text-slate-900 font-medium">
-                          {formData.region} · {selectedLocation.island} (<strong className="text-[#E11D48] font-mono">{selectedLocation.zoneId}</strong>)
+                          {formData.region} · {selectedLocation.island} (<strong className="text-[#C3002F] font-mono">{selectedLocation.zoneId}</strong>)
                         </span>
                       </div>
                       <div>
@@ -862,7 +862,7 @@ export default function DealerRegistrationWizard() {
                       <button
                         type="button"
                         onClick={() => setCurrentStep(1)}
-                        className="text-xs text-[#E11D48] hover:text-[#BE123C] font-semibold cursor-pointer hover:underline"
+                        className="text-xs text-[#C3002F] hover:text-[#A10026] font-semibold cursor-pointer hover:underline"
                       >
                         Edit
                       </button>
@@ -892,7 +892,7 @@ export default function DealerRegistrationWizard() {
                       <button
                         type="button"
                         onClick={() => setCurrentStep(2)}
-                        className="text-xs text-[#E11D48] hover:text-[#BE123C] font-semibold cursor-pointer hover:underline"
+                        className="text-xs text-[#C3002F] hover:text-[#A10026] font-semibold cursor-pointer hover:underline"
                       >
                         Edit
                       </button>
@@ -929,7 +929,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white text-xs font-semibold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] active:scale-[0.99] group cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-semibold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] active:scale-[0.99] group cursor-pointer"
                   >
                     <span>Continue to Step {currentStep + 1}</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -938,7 +938,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] hover:from-[#BE123C] hover:to-[#881337] text-white text-xs font-semibold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] active:scale-[0.99] cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-semibold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] active:scale-[0.99] cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>Submit Dealership Application</span>

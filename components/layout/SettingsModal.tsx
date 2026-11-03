@@ -149,7 +149,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   setActiveTab(tab.id as any);
                 }}
                 className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${isActive
-                  ? "border-[#E11D48] text-[#E11D48]"
+                  ? "border-[#C3002F] text-[#C3002F]"
                   : "border-transparent text-slate-500 hover:text-slate-800"
                   }`}
               >
@@ -183,7 +183,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       type="button"
                       onClick={() => handleRoleSelect(item.role)}
                       className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${isActive
-                        ? "bg-slate-900 text-white border-slate-900 shadow-sm ring-2 ring-[#E11D48]/30"
+                        ? "bg-slate-900 text-white border-slate-900 shadow-sm ring-2 ring-[#C3002F]/30"
                         : "bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300"
                         }`}
                     >
@@ -223,7 +223,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       </div>
 
                       {isActive ? (
-                        <div className="px-2.5 py-1 rounded-full bg-[#E11D48] text-white font-mono text-[10px] font-bold flex items-center gap-1 shrink-0">
+                        <div className="px-2.5 py-1 rounded-full bg-[#C3002F] text-white font-mono text-[10px] font-bold flex items-center gap-1 shrink-0">
                           <Check className="w-3 h-3" />
                           <span>ACTIVE</span>
                         </div>
@@ -243,7 +243,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           {activeTab === "ACCOUNT" && (
             <div className="space-y-4 text-xs">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#0A1322] text-white font-black text-lg flex items-center justify-center shrink-0 border border-slate-700">
+                <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-black text-lg flex items-center justify-center shrink-0 border border-slate-700">
                   {currentUser?.name.charAt(0) || "U"}
                 </div>
                 <div className="min-w-0 flex-1">

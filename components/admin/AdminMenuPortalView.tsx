@@ -106,7 +106,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
       statLabel: "5 NZ Geographic Zones",
       href: "/admin/dealers",
       accent: "from-rose-500/10 via-transparent to-transparent hover:border-rose-300",
-      iconBg: "bg-[#E11D48] text-white",
+      iconBg: "bg-[#C3002F] text-white",
     },
     {
       num: "06",
@@ -170,7 +170,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#E11D48]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
                 Platform Operations Admin
               </span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -233,7 +233,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
                 </div>
 
                 {/* Title & Description */}
-                <h2 className="text-xl font-black text-slate-900 group-hover:text-[#E11D48] transition-colors tracking-tight">
+                <h2 className="text-xl font-black text-slate-900 group-hover:text-[#C3002F] transition-colors tracking-tight">
                   {item.title}
                 </h2>
                 <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -252,7 +252,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs font-bold text-slate-700 group-hover:text-[#E11D48] transition-colors">
+                <div className="flex items-center gap-1 text-xs font-bold text-slate-700 group-hover:text-[#C3002F] transition-colors">
                   <span>Open</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </div>
