@@ -30,6 +30,7 @@ import {
   Wrench,
   PlusCircle,
   X,
+  Paperclip,
 } from "lucide-react";
 
 interface FullPageVehicleDetailProps {
@@ -728,7 +729,7 @@ export default function FullPageVehicleDetail({
                       <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between">
                         <span className="font-semibold flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
-                          <span>Paid · Purchase Finalized</span>
+                          <span>Buyed · Purchase Finalized</span>
                         </span>
                         <button
                           type="button"
@@ -837,7 +838,7 @@ export default function FullPageVehicleDetail({
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Next Step:</span>
-                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Paid</span>
+                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Buyed</span>
                         </div>
                       </div>
                       <div className="pt-1">
@@ -847,7 +848,7 @@ export default function FullPageVehicleDetail({
                           className="w-full py-3 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                         >
                           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>✓ Mark as Paid</span>
+                          <span>Mark as Buyed</span>
                         </button>
                       </div>
                     </div>
@@ -858,10 +859,10 @@ export default function FullPageVehicleDetail({
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-purple-950 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                          <span>Vehicle Marked as Paid</span>
+                          <span>Vehicle Marked as Buyed</span>
                         </span>
                         <span className="text-[10px] font-mono font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">
-                          PAID
+                          Buyed
                         </span>
                       </div>
                       <p className="text-xs text-slate-600">
@@ -1175,8 +1176,16 @@ export default function FullPageVehicleDetail({
                       <td className="py-3 px-4 text-slate-700">
                         {cost.description}
                       </td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                        {cost.notes || "Official Inspection Item"}
+                      <td className="py-3 px-4 text-[11px]">
+                        <div className="font-mono text-slate-600 truncate max-w-xs">
+                          {cost.notes || "Official Inspection Item"}
+                        </div>
+                        {cost.evidenceDocumentUrl && (
+                          <div className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200">
+                            <Paperclip className="w-2.5 h-2.5 text-slate-500 shrink-0" />
+                            <span className="truncate max-w-[150px]">{cost.evidenceDocumentUrl}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
