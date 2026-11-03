@@ -114,11 +114,11 @@ export default function DashboardShell({
         !pathname.startsWith("/admin") &&
         !pathname.startsWith("/japan"))
     ) {
-      if (pathname === "/programme/stock" || initialTab === "programme-stock" || initialTab === "stock") return "programme-reservations";
+      if (pathname === "/programme/stock" || initialTab === "programme-stock" || initialTab === "stock") return "programme-stock";
       if (pathname === "/programme/reservations" || initialTab === "programme-reservations" || initialTab === "reservations") return "programme-reservations";
       if (pathname === "/programme/orders" || initialTab === "programme-orders" || initialTab === "orders") return "programme-orders";
-      if (pathname === "/programme/reports" || initialTab === "programme-reports" || initialTab === "reports") return "programme-reservations";
-      return "programme-reservations";
+      if (pathname === "/programme/reports" || initialTab === "programme-reports" || initialTab === "reports") return "programme-stock";
+      return "programme-stock";
     }
 
     // 3. Dealer Portal routes
@@ -131,7 +131,7 @@ export default function DashboardShell({
     // Default by user role if on root or ambiguous
     if (currentUser?.role === "AUTOHUB_ADMIN") return "admin-dashboard";
     if (currentUser?.role === "NISSAN_JAPAN") return "japan-inventory";
-    if (currentUser?.role === "READONLY_PROGRAMME_USER") return "programme-reservations";
+    if (currentUser?.role === "READONLY_PROGRAMME_USER") return "programme-stock";
     return "dealer-stock";
   };
 
@@ -489,7 +489,7 @@ export default function DashboardShell({
         !pathname.startsWith('/admin') &&
         !pathname.startsWith('/japan'))
     ) {
-      const subTab = activeTab === "programme-orders" ? "orders" : "reservations";
+      const subTab = activeTab.startsWith("programme-") ? (activeTab.replace("programme-", "") as "stock" | "reservations" | "orders") : "stock";
       return <ProgrammeUserPortalView initialSubTab={subTab} />;
     }
 

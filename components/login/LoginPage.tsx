@@ -157,7 +157,7 @@ export default function LoginPage() {
           (u) => u.email.toLowerCase() === email.toLowerCase().trim()
         );
         if (foundUser?.role === "READONLY_PROGRAMME_USER" || activeTab === "PROGRAMME") {
-          router.push("/programme/reservations");
+          router.push("/programme/stock");
         } else if (foundUser?.role === "NISSAN_JAPAN" || activeTab === "JAPAN") {
           router.push("/japan/inventory");
         } else if (foundUser?.role === "AUTOHUB_ADMIN" || activeTab === "ADMIN") {

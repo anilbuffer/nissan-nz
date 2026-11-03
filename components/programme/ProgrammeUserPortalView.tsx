@@ -22,11 +22,10 @@ import {
   Copy,
   ChevronRight,
   ExternalLink,
-  Package,
 } from "lucide-react";
 
 interface ProgrammeUserPortalViewProps {
-  initialSubTab?: "reservations" | "orders";
+  initialSubTab?: "stock" | "reservations" | "orders";
 }
 
 function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
@@ -36,14 +35,14 @@ function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
 }
 
 export default function ProgrammeUserPortalView({
-  initialSubTab = "reservations",
+  initialSubTab = "stock",
 }: ProgrammeUserPortalViewProps) {
   const router = useRouter();
   const { currentUser } = useAuth();
   const { vehicles, reservations, orders, updateVehicle, setVehicleStatus } = useProgramme();
 
-  const [activeTab, setActiveTab] = useState<"reservations" | "orders">(
-    initialSubTab === "orders" ? "orders" : "reservations"
+  const [activeTab, setActiveTab] = useState<"stock" | "reservations" | "orders">(
+    initialSubTab
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedZone, setSelectedZone] = useState<ZoneId>("ZONE_1");
@@ -59,7 +58,7 @@ export default function ProgrammeUserPortalView({
     }
   }, [initialSubTab]);
 
-  const handleTabChange = (tabId: "reservations" | "orders") => {
+  const handleTabChange = (tabId: "stock" | "reservations" | "orders") => {
     audio.playSubtleClick();
     setActiveTab(tabId);
     router.push(`/programme/${tabId}`);
@@ -141,11 +140,64 @@ export default function ProgrammeUserPortalView({
 
   return (
     <div className="space-y-5 max-w-7xl mx-auto font-sans text-slate-800 pb-16">
-            {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Executive 4-KPI Metric Strip: Active Holds, Hold Value, Confirmed Orders, RoRo Transit */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 2. Executive 4-KPI Metric Strip: Total Vehicles, Available Stock, Reserved, Active Orders */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* 1. Active Exclusivity Holds */}
+        {/* 1. Total Vehicles */}
+        <div
+          onClick={() => {
+            audio.playSubtleClick();
+            handleTabChange("stock");
+            setStatusFilter("ALL");
+          }}
+          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "stock" && statusFilter === "ALL" ? "ring-1 ring-[#0A0A0A]" : ""
+            }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Total Vehicles
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700">
+              <Car className="w-4 h-4 text-[#0A0A0A]" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 font-mono">
+            {vehicles.length}
+          </div>
+          <span className="text-xs text-slate-500 font-medium block truncate">
+            Catalogue stock inventory
+          </span>
+        </div>
+
+        {/* 2. Available Stock */}
+        <div
+          onClick={() => {
+            audio.playSubtleClick();
+            handleTabChange("stock");
+            setStatusFilter("AVAILABLE");
+          }}
+          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "stock" && statusFilter === "AVAILABLE" ? "ring-1 ring-emerald-500" : ""
+            }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Available Stock
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-emerald-600 font-mono">
+            {availableVehicles.length}
+          </div>
+          <span className="text-xs text-slate-500 font-medium block truncate">
+            Ready for dealer allocation
+          </span>
+        </div>
+
+        {/* 3. Reserved */}
         <div
           onClick={() => {
             audio.playSubtleClick();
@@ -156,7 +208,7 @@ export default function ProgrammeUserPortalView({
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Active Holds
+              Reserved
             </span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
               <Lock className="w-4 h-4 text-amber-600" />
@@ -170,31 +222,7 @@ export default function ProgrammeUserPortalView({
           </span>
         </div>
 
-        {/* 2. Total Hold Value */}
-        <div
-          onClick={() => {
-            audio.playSubtleClick();
-            handleTabChange("reservations");
-          }}
-          className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Hold Value
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700">
-              <ShieldCheck className="w-4 h-4 text-slate-700" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-slate-900 font-mono">
-            ${totalHoldValue.toLocaleString()}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Locked landed wholesale NZD
-          </span>
-        </div>
-
-        {/* 3. Confirmed Orders */}
+        {/* 4. Active Orders */}
         <div
           onClick={() => {
             audio.playSubtleClick();
@@ -208,45 +236,233 @@ export default function ProgrammeUserPortalView({
               Active Orders
             </span>
             <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
-              <Package className="w-4 h-4 text-blue-600" />
+              <Ship className="w-4 h-4 text-blue-600" />
             </div>
           </div>
           <div className="text-2xl font-bold text-blue-600 font-mono">
-            {orders.length}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Total wholesale orders placed
-          </span>
-        </div>
-
-        {/* 4. Ocean Shipping & Transit */}
-        <div
-          onClick={() => {
-            audio.playSubtleClick();
-            handleTabChange("orders");
-          }}
-          className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              In RoRo Transit
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
-              <Ship className="w-4 h-4 text-indigo-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-indigo-600 font-mono">
             {activeOrders.length}
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
-            En route to New Zealand
+            In RoRo transit to NZ
           </span>
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. TAB: Exclusivity Holds (Clean, Spacious 5 Columns)       */}
-      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3. TAB 1: Stock Catalogue (Clean, Spacious 5 Columns)       */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {activeTab === "stock" && (
+        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+          {/* Subheader Toolbar */}
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
+                Authorised Central Vehicle Stock
+              </span>
+              <span className="text-[11px] font-mono text-slate-400">
+                · {filteredVehicles.length} of {vehicles.length} Units Listed
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Status Filter Pills */}
+              <div className="flex items-center gap-1">
+                {["ALL", "AVAILABLE", "RESERVED", "ALLOCATED"].map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setStatusFilter(status);
+                    }}
+                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${statusFilter === status
+                        ? "bg-[#0A0A0A] text-white shadow-2xs"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                      }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+
+              {/* Pricing Zone Selector */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Pricing:</span>
+                <select
+                  value={selectedZone}
+                  onChange={(e) => setSelectedZone(e.target.value as ZoneId)}
+                  className="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] cursor-pointer shadow-2xs"
+                >
+                  <option value="ZONE_1">Zone 1 (Auckland Metro)</option>
+                  <option value="ZONE_2">Zone 2 (Upper North Island)</option>
+                  <option value="ZONE_3">Zone 3 (Central North Island)</option>
+                  <option value="ZONE_4">Zone 4 (Wellington &amp; South)</option>
+                  <option value="ZONE_5">Zone 5 (South Island)</option>
+                </select>
+              </div>
+
+              {/* Search Box */}
+              <div className="relative min-w-[200px] flex-1 sm:flex-none">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search make, model, stock ID..."
+                  className="w-full pl-9 pr-8 py-1.5 text-xs bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] focus:border-[#0A0A0A] font-sans shadow-2xs transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto touch-scroll navy-scrollbar">
+            <table className="w-full text-left text-xs text-slate-700 min-w-[700px]">
+              <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3 px-5">Vehicle &amp; Stock ID</th>
+                  <th className="py-3 px-5">Grade &amp; Mileage</th>
+                  <th className="py-3 px-5">{selectedZone.replace("_", " ")} Landed Price</th>
+                  <th className="py-3 px-5">Catalogue Status</th>
+                  <th className="py-3 px-5 text-right">Dossier</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-sans">
+                {filteredVehicles.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-slate-400">
+                      No vehicles found matching current criteria.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredVehicles.map((vehicle) => {
+                    const price = calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
+                    return (
+                      <tr key={vehicle.id} className="hover:bg-slate-50/70 transition-colors">
+                        {/* 1. Vehicle & Stock ID */}
+                        <td className="py-3.5 px-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                              <img
+                                src={vehicle.images?.[0] || "/images/cars/note.png"}
+                                alt={vehicle.model}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                                {vehicle.year} {vehicle.make} {vehicle.model}
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="font-mono text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
+                                  #{vehicle.stockId}
+                                </span>
+                                <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                                  {vehicle.grade}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* 2. Grade & Mileage */}
+                        <td className="py-3.5 px-5">
+                          <div className="font-mono text-xs font-bold text-slate-800 flex items-center gap-1">
+                            <span className="px-1.5 py-0.2 bg-slate-100 text-slate-900 rounded border border-slate-200 text-[11px]">
+                              Grade {vehicle.grade || vehicle.auctionGrade || "4.5"}
+                            </span>
+                          </div>
+                          <div className="font-mono text-[11px] text-slate-500 mt-0.5">
+                            {vehicle.odometerKm.toLocaleString()} km
+                          </div>
+                        </td>
+
+                        {/* 3. Landed Price */}
+                        <td className="py-3.5 px-5">
+                          <div className="font-mono font-bold text-slate-900 text-xs sm:text-sm">
+                            ${price.totalBuyPriceNZD.toLocaleString()} NZD
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            Fixed Profile ({selectedZone.replace("_", " ")})
+                          </div>
+                        </td>
+
+                        {/* 4. Catalogue Status & Admin Assigned Action */}
+                        <td className="py-3.5 px-5">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${vehicle.status === "AVAILABLE"
+                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                : vehicle.status === "RESERVED"
+                                  ? "bg-amber-50 text-amber-800 border border-amber-200"
+                                  : vehicle.status === "ALLOCATED"
+                                    ? "bg-blue-50 text-blue-800 border border-blue-200"
+                                    : "bg-slate-100 text-slate-700 border border-slate-200"
+                                }`}
+                            >
+                              {vehicle.status}
+                            </span>
+
+                            {vehicle.status === "AVAILABLE" && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  audio.playSubtleClick();
+                                  const currentMode = getVehicleAction(vehicle);
+                                  const nextMode = currentMode === "ALLOCATION" ? "RESERVE" : "ALLOCATION";
+                                  updateVehicle(vehicle.id, { allocationMode: nextMode });
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold border transition-colors cursor-pointer hover:opacity-80 bg-slate-50 border-slate-200 text-slate-700"
+                                title="Click to toggle Admin assigned action mode for dealers"
+                              >
+                                {getVehicleAction(vehicle) === "ALLOCATION" ? (
+                                  <>
+                                    <Ship className="w-2.5 h-2.5 text-emerald-600" />
+                                    <span>Assigned: Allocation</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Lock className="w-2.5 h-2.5 text-amber-600" />
+                                    <span>Assigned: Reserve</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* 5. Dossier Action */}
+                        <td className="py-3.5 px-5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              audio.playSubtleClick();
+                              setSelectedVehicleForDossier(vehicle);
+                            }}
+                            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-slate-500" />
+                            <span>View Spec</span>
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. TAB 2: Exclusivity Holds (Clean, Spacious 5 Columns)     */}
       {/* ─────────────────────────────────────────────────────────── */}
