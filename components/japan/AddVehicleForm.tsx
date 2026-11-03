@@ -26,7 +26,6 @@ import {
   Image as ImageIcon,
   Paperclip,
   Trash2,
-  Sparkles,
 } from "lucide-react";
 
 interface AddVehicleFormProps {
@@ -281,29 +280,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     }, 400);
   };
 
-  const handleAutoFillDemo = () => {
-    audio.playSubtleClick();
-    setStockId(nextSerialStockId);
-    setVinChassis("FE0-008924");
-    setMake("Nissan");
-    setModel("Ariya B6 e-4ORCE");
-    setGrade("Premier 4WD High Spec");
-    setYear(2023);
-    setOdometerKm(11400);
-    setOdometerUnit("km");
-    setTransmission("Direct Drive e-4ORCE");
-    setColor("Akatsuki Copper / Black Roof");
-    setFuelType("100% Electric");
-    setDriveType("4WD");
-    setEngineCc(0);
-    setOverallCondition("★ 4.5 - Excellent Clean Japanese Condition");
-    setAuctionGrade("4.5");
-    setInteriorGrade("A");
-    setExteriorGrade("A");
-    setKnownDefects("Clean pre-export pass. Certified 66kWh battery pack with 100% State of Health.");
-    setFobPriceJPY(3850000);
-    setImages(["/images/cars/ariya.png", "/images/cars/note.png"]);
-  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300 font-sans pb-12">
@@ -333,14 +309,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleAutoFillDemo}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#C3002F]" />
-            <span>Auto-fill Demo Vehicle</span>
-          </button>
           <span className="px-3 py-1.5 rounded-full bg-slate-100 font-mono text-xs font-bold text-slate-700 border border-slate-200 shadow-2xs">
             Export Terminal Staging
           </span>
@@ -900,45 +868,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 )}
               </div>
 
-              {/* Quick Sample Photos for Instant Testing */}
-              <div className="flex items-center gap-2 pt-1 flex-wrap">
-                <span className="text-[10px] font-bold uppercase text-slate-400">Quick Sample Photos:</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImages(["/images/cars/note.png"]);
-                    setActivePreviewIdx(0);
-                    audio.playSubtleClick();
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
-                >
-                  + Note e-Power
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImages(["/images/cars/kicks.png", "/images/cars/note.png"]);
-                    setActivePreviewIdx(0);
-                    audio.playSubtleClick();
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
-                >
-                  + Multi-Angle (Kicks + Note)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImages(["/images/cars/leaf.png"]);
-                    setActivePreviewIdx(0);
-                    audio.playSubtleClick();
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
-                >
-                  + Leaf EV
-                </button>
-              </div>
-
-{/* Upload Supporting Documents: Hidden for now as requested */}
+              {/* Upload Supporting Documents: Hidden for now as requested */}
             </div>
 
             {/* ───────────────────────────────────────────────────────── */}
@@ -1099,8 +1029,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                           setActivePreviewIdx(idx);
                         }}
                         className={`w-12 h-9 rounded-lg overflow-hidden border p-0.5 shrink-0 transition-all cursor-pointer bg-slate-50 ${activePreviewIdx === idx
-                            ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/20 bg-white"
-                            : "border-slate-200 opacity-60 hover:opacity-100"
+                          ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/20 bg-white"
+                          : "border-slate-200 opacity-60 hover:opacity-100"
                           }`}
                       >
                         <img src={img} alt={`Angle ${idx + 1}`} className="w-full h-full object-contain" />
