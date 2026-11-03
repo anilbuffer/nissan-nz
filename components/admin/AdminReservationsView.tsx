@@ -30,7 +30,6 @@ import {
   ShieldAlert,
   Sliders,
   Sparkles,
-  Zap,
   RotateCcw,
   Ban,
 } from "lucide-react";
@@ -49,7 +48,6 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
     rejectReservation,
     cancelReservation,
     expireReservation,
-    simulateExpiryWarning,
     reservationConfig,
     updateReservationConfig,
   } = useProgramme();
@@ -217,63 +215,26 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
             <span>Back to Reservations Queue</span>
           </button>
 
-          {/* Quick Simulation controls in detail view */}
-          {!isAuditor && res.status === "ACTIVE_HOLD" && (
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-mono">Simulation:</span>
-              <button
-                type="button"
-                onClick={() => {
-                  audio.playSoftChime();
-                  simulateExpiryWarning(res.id);
-                  setNotification(`Simulated warning for ${res.requestId}: expires in 55m (< 2h).`);
-                  setSelectedResForDetails({
-                    ...res,
-                    expiresAt: new Date(Date.now() + 55 * 60 * 1000).toISOString(),
-                  });
-                }}
-                className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
-                title="Force time remaining to 55 minutes for warning threshold simulation"
-              >
-                <Clock className="w-3 h-3 text-amber-600" />
-                <span>Simulate 1h Warning</span>
-              </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  audio.playWarningChime();
-                  expireReservation(res.id, "Simulated auto-release expiry");
-                  setNotification(`Simulated auto-release for ${res.requestId}: hold expired.`);
-                  setSelectedResForDetails({ ...res, status: "EXPIRED" });
-                }}
-                className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
-                title="Immediately expire hold and auto-release stock back to catalogue"
-              >
-                <Zap className="w-3 h-3 text-rose-600" />
-                <span>Simulate Auto-Release</span>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Detailed Dossier Card */}
-        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-          {/* Dossier Header Banner */}
-          <div className="bg-[#0A0A0A] p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272A]">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white border border-white/15">
+        <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+          {/* Dossier Header Banner (Clean White Theme) */}
+          <div className="bg-white p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
                   {res.requestId}
                 </span>
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${res.status === "ACTIVE_HOLD"
                     ? remaining.isWarning
-                      ? "bg-amber-500 text-black border border-amber-300 font-bold"
-                      : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
+                      ? "bg-amber-50 text-amber-900 border border-amber-300 font-bold"
+                      : "bg-amber-50 text-amber-800 border border-amber-200"
                     : res.status === "CONFIRMED_ALLOCATED"
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-slate-700 text-slate-300 border border-slate-600"
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-slate-100 text-slate-700 border border-slate-200"
                     }`}
                 >
                   {res.status === "ACTIVE_HOLD"
@@ -283,22 +244,22 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                     : res.status}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 {vehicle.year} {vehicle.make} {vehicle.model}
               </h2>
-              <p className="text-xs text-slate-400 font-mono">
+              <p className="text-xs text-slate-500 font-mono">
                 VIN: {vehicle.vinChassis} · Stock #{vehicle.stockId} · Grade {vehicle.auctionGrade}
               </p>
             </div>
 
-            <div className="text-right sm:self-center">
+            <div className="sm:text-right shrink-0 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                 Guaranteed Landed Price
               </span>
-              <span className="text-2xl font-bold text-white font-mono">
-                ${price.totalBuyPriceNZD.toLocaleString()} NZD
+              <span className="text-2xl font-bold text-slate-900 font-mono">
+                ${price.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-sans text-slate-500 font-normal">NZD</span>
               </span>
-              <span className="text-[10px] text-emerald-400 block font-mono">
+              <span className="text-[11px] text-emerald-700 block font-mono font-medium">
                 {price.zoneId} Landed &amp; Complied
               </span>
             </div>
@@ -769,40 +730,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                       </div>
                     </div>
 
-                    {/* Simulator Quick Action Pills */}
-                    {!isAuditor && (
-                      <div className="pt-2 flex items-center justify-between gap-1 text-[10px]">
-                        <span className="text-slate-400 font-mono">Simulate:</span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              audio.playSoftChime();
-                              simulateExpiryWarning(res.id);
-                              setNotification(`Simulated 1h warning for #${vehicle.stockId} (< 2h).`);
-                            }}
-                            className="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold cursor-pointer"
-                            title="Simulate < 2h remaining"
-                          >
-                            ⏱ 1h Warning
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              audio.playWarningChime();
-                              expireReservation(res.id, "Interactive auto-release expiry");
-                              setNotification(`Auto-released hold on #${vehicle.stockId}. Stock is Available.`);
-                            }}
-                            className="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-bold cursor-pointer"
-                            title="Simulate auto-release on expiry"
-                          >
-                            ⚡ Auto-Release
-                          </button>
-                        </div>
-                      </div>
-                    )}
+
                   </div>
 
                   {/* Bottom Row: Guaranteed Landed Price on Left & Action on Right */}

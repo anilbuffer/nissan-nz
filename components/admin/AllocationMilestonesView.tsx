@@ -313,7 +313,7 @@ export default function AllocationMilestonesView() {
                       className="btn-outline text-xs py-2 px-3.5"
                     >
                       <PlusCircle className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Attach Variation</span>
+                      <span>Additional Cost</span>
                     </button>
 
                     <button
