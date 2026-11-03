@@ -272,11 +272,11 @@ export default function Sidebar({
         <div className="relative z-10">
           <div className="h-[64px] flex items-center justify-between px-4 border-b border-white/10 bg-black/40">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 flex items-center justify-center shrink-0">
                 <img
                   src="/nissan-logo.png"
                   alt="Nissan Logo"
-                  className="w-9 h-9 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+                  className="w-12 h-12 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
                 />
               </div>
               {!collapsed && (
@@ -284,7 +284,6 @@ export default function Sidebar({
                   <h1 className="font-extrabold text-sm tracking-tight text-white truncate leading-tight">
                     Nissan New Zealand
                   </h1>
-                  <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">Dealer Order Platform</p>
                 </div>
               )}
             </div>
@@ -536,21 +535,7 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* Powered by AutoHub Credit in Sidebar */}
-          {!collapsed ? (
-            <div className="px-4 py-2.5 text-[11px] text-slate-400 flex items-center justify-between border-t border-white/10 font-sans mt-2">
-              <span className="text-slate-400">Nissan NZ © 2026</span>
-              <span className="text-slate-400">
-                Powered by <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>
-              </span>
-            </div>
-          ) : (
-            <div className="py-2 text-center border-t border-white/10 mt-2">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider" title="Powered by AutoHub">
-                AUTOHUB
-              </span>
-            </div>
-          )}
+
         </div>
       </div>
     );

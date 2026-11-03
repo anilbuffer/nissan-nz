@@ -18,7 +18,6 @@ import {
   List,
   Sparkles,
   ShieldCheck,
-  Heart,
   ArrowUpRight,
   ArrowRight,
   Lock,
@@ -41,6 +40,7 @@ interface DealerStockCatalogProps {
   onSelectVehicle?: (vehicleId: string) => void;
   externalSearchQuery?: string;
 }
+
 
 export default function DealerStockCatalog({
   onSelectVehicle,
@@ -68,11 +68,7 @@ export default function DealerStockCatalog({
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState("ALL");
-  const [selectedFuel, setSelectedFuel] = useState("ALL");
-  const [selectedGrade, setSelectedGrade] = useState("ALL");
-  const [selectedBudget, setSelectedBudget] = useState("ALL");
-  const [sortBy, setSortBy] = useState<"PRICE_ASC" | "PRICE_DESC" | "KM_ASC" | "YEAR_DESC">("PRICE_ASC");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "AVAILABLE" | "HELD">("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "HELD">("ALL");
   const [dossierVehicle, setDossierVehicle] = useState<Vehicle | null>(null);
 
   // Layout View Mode (Grid vs List) with Smooth Transition
@@ -95,10 +91,6 @@ export default function DealerStockCatalog({
     audio.playSubtleClick();
     setSearchQuery("");
     setSelectedModel("ALL");
-    setSelectedFuel("ALL");
-    setSelectedGrade("ALL");
-    setSelectedBudget("ALL");
-    setSortBy("PRICE_ASC");
     setStatusFilter("ALL");
   };
 
@@ -106,11 +98,8 @@ export default function DealerStockCatalog({
     let count = 0;
     if (searchQuery) count++;
     if (selectedModel !== "ALL") count++;
-    if (selectedFuel !== "ALL") count++;
-    if (selectedGrade !== "ALL") count++;
-    if (selectedBudget !== "ALL") count++;
     return count;
-  }, [searchQuery, selectedModel, selectedFuel, selectedGrade, selectedBudget]);
+  }, [searchQuery, selectedModel]);
 
   // Model Counts for Pills
   const modelStats = useMemo(() => {
@@ -149,7 +138,6 @@ export default function DealerStockCatalog({
       .filter((v) => {
         // Hide withdrawn stock from dealer catalog
         if (v.status === "WITHDRAWN") return false;
-        if (statusFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
         if (statusFilter === "HELD" && v.status !== "RESERVED") return false;
 
         if (effectiveSearch) {
@@ -167,34 +155,14 @@ export default function DealerStockCatalog({
           return false;
         }
 
-        if (selectedFuel !== "ALL" && v.fuelType !== selectedFuel) {
-          return false;
-        }
-
-        if (selectedGrade !== "ALL") {
-          const numGrade = parseFloat(v.auctionGrade);
-          if (selectedGrade === "5.0" && numGrade < 5.0) return false;
-          if (selectedGrade === "4.5" && numGrade < 4.5) return false;
-          if (selectedGrade === "4.0" && numGrade < 4.0) return false;
-        }
-
-        const price = calculateLandedPrice(v.fobPriceJPY, dealerZone).totalBuyPriceNZD;
-        if (selectedBudget === "UNDER_25K" && price >= 25000) return false;
-        if (selectedBudget === "25K_35K" && (price < 25000 || price > 35000)) return false;
-        if (selectedBudget === "OVER_35K" && price <= 35000) return false;
-
         return true;
       })
       .sort((a, b) => {
         const priceA = calculateLandedPrice(a.fobPriceJPY, dealerZone).totalBuyPriceNZD;
         const priceB = calculateLandedPrice(b.fobPriceJPY, dealerZone).totalBuyPriceNZD;
-
-        if (sortBy === "PRICE_ASC") return priceA - priceB;
-        if (sortBy === "PRICE_DESC") return priceB - priceA;
-        if (sortBy === "KM_ASC") return a.odometerKm - b.odometerKm;
-        return b.year - a.year;
+        return priceA - priceB;
       });
-  }, [vehicles, searchQuery, selectedModel, selectedFuel, selectedGrade, selectedBudget, sortBy, dealerZone, statusFilter]);
+  }, [vehicles, searchQuery, selectedModel, dealerZone, statusFilter]);
 
   // Navigate directly to FULL PAGE Vehicle Details (INSIDE PORTAL)
   const handleOpenFullPageDetails = (vehicleId: string) => {
@@ -221,111 +189,77 @@ export default function DealerStockCatalog({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header with In Stock count (mirroring reference)        */}
+      {/* 1. Header with Vehicle Stock Title & Right-Aligned Tabs     */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
         <div>
-          <div className="pb-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              {isAdminView ? "Vehicle Catalogue" : "Vehicle Stock"} ({filteredVehicles.length})
-            </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            {isAdminView ? "Vehicle Catalogue" : "Vehicle Stock"} ({filteredVehicles.length})
+          </h1>
+          {isAdminView && (
             <p className="text-xs text-slate-500 mt-0.5">
-              {isAdminView
-                ? "Certified Japanese export inventory, condition grades, and landed pricing for New Zealand franchise dealers."
-                : `Landed wholesale inventory for ${currentDealer?.legalTradingName || "Auckland Nissan City Ltd"} (${dealerZone})`}
+              Certified Japanese export inventory, condition grades, and landed pricing for New Zealand franchise dealers.
             </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto">
-          {isAdminView ? (
-            <>
-              <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                <span><strong className="text-slate-900 font-mono font-bold">{vehicles.length}</strong> Total Fleet</span>
-              </div>
-              <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
-              </div>
-              <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
-                <Lock className="w-3.5 h-3.5 text-amber-600" />
-                <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available for Hold</span>
-              </div>
-              <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs">
-                <span className="text-slate-400 font-normal">Pricing Zone:</span>
-                <span className="font-extrabold font-mono text-[#0A0A0A]">{dealerZone}</span>
-              </div>
-            </>
           )}
         </div>
-      </div>
 
-      {/* Scope Status Tabs: All Stock vs Available for Hold vs On Exclusivity Hold */}
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            audio.playSubtleClick();
-            setStatusFilter("ALL");
-          }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "ALL"
-            ? "bg-[#0A0A0A] text-white shadow-xs"
-            : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-            }`}
-        >
-          <Car className="w-3.5 h-3.5" />
-          <span>All Stock</span>
-          <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "ALL" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
-            }`}>
-            {vehicles.filter((v) => v.status !== "WITHDRAWN").length}
-          </span>
-        </button>
+        {/* Right-Aligned Status Tabs in Dealer View (or Admin Fleet Badges) */}
+        {!isAdminView ? (
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setStatusFilter("ALL");
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "ALL"
+                ? "bg-[#0A0A0A] text-white shadow-xs"
+                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
+                }`}
+            >
+              <Car className="w-3.5 h-3.5" />
+              <span>All Stock</span>
+              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "ALL" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
+                }`}>
+                {vehicles.filter((v) => v.status !== "WITHDRAWN").length}
+              </span>
+            </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            audio.playSubtleClick();
-            setStatusFilter("AVAILABLE");
-          }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "AVAILABLE"
-            ? "bg-[#0A0A0A] text-white shadow-xs"
-            : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-            }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Available for Hold</span>
-          <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "AVAILABLE" ? "bg-white/20 text-white" : "bg-emerald-50 text-emerald-800 border border-emerald-200"
-            }`}>
-            {vehicles.filter((v) => v.status === "AVAILABLE").length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            audio.playSubtleClick();
-            setStatusFilter("HELD");
-          }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "HELD"
-            ? "bg-[#0A0A0A] text-white shadow-xs"
-            : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-            }`}
-        >
-          <Lock className="w-3.5 h-3.5 text-amber-500" />
-          <span>On Exclusivity Hold</span>
-          <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "HELD" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"
-            }`}>
-            {vehicles.filter((v) => v.status === "RESERVED").length}
-          </span>
-        </button>
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setStatusFilter("HELD");
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "HELD"
+                ? "bg-[#0A0A0A] text-white shadow-xs"
+                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
+                }`}
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-500" />
+              <span>On Exclusivity Hold</span>
+              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "HELD" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"
+                }`}>
+                {vehicles.filter((v) => v.status === "RESERVED").length}
+              </span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto">
+            <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span><strong className="text-slate-900 font-mono font-bold">{vehicles.length}</strong> Total Fleet</span>
+            </div>
+            <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
+            </div>
+            <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
@@ -355,85 +289,43 @@ export default function DealerStockCatalog({
             )}
           </div>
 
-          {/* Quick Filter Selectors & Sort */}
+          {/* Models Dropdown Filter & View Mode */}
           <div className="flex items-center flex-wrap gap-2.5">
-            {/* Powertrain Selector */}
+            {/* Models Dropdown Selector */}
             <div className="relative">
               <select
-                value={selectedFuel}
+                value={selectedModel}
                 onChange={(e) => {
                   audio.playSubtleClick();
-                  setSelectedFuel(e.target.value);
+                  setSelectedModel(e.target.value);
                 }}
-                aria-label="Filter by Powertrain"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
+                aria-label="Filter by Model"
+                className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
               >
-                <option value="ALL">All Powertrains</option>
-                <option value="e-Power">e-Power Hybrid</option>
-                <option value="Hybrid">Standard Hybrid</option>
-                <option value="100% Electric">100% Electric (EV)</option>
+                <option value="ALL">All Models ({modelStats[0]?.count || 0})</option>
+                {modelStats.slice(1).map((item) => (
+                  <option key={item.key} value={item.key}>
+                    {item.name} ({item.count})
+                  </option>
+                ))}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
             </div>
 
-            {/* Auction Grade Selector */}
-            <div className="relative">
-              <select
-                value={selectedGrade}
-                onChange={(e) => {
-                  audio.playSubtleClick();
-                  setSelectedGrade(e.target.value);
-                }}
-                aria-label="Filter by Auction Grade"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
+            {/* Reset Button */}
+            {activeFiltersCount > 0 && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1.5"
+                title="Reset filters"
               >
-                <option value="ALL">All Auction Grades</option>
-                <option value="5.0">Grade 5.0 (Showroom)</option>
-                <option value="4.5">Grade 4.5+ (Immaculate)</option>
-                <option value="4.0">Grade 4.0+ (Verified)</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
-            </div>
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset</span>
+              </button>
+            )}
 
-            {/* Budget Selector */}
-            <div className="relative">
-              <select
-                value={selectedBudget}
-                onChange={(e) => {
-                  audio.playSubtleClick();
-                  setSelectedBudget(e.target.value);
-                }}
-                aria-label="Filter by Budget"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
-              >
-                <option value="ALL">Any Budget</option>
-                <option value="UNDER_25K">&lt; $25,000 NZD</option>
-                <option value="25K_35K">$25,000 – $35,000</option>
-                <option value="OVER_35K">&gt; $35,000 NZD</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
-            </div>
-
-            {/* Sort Selector */}
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => {
-                  audio.playSubtleClick();
-                  setSortBy(e.target.value as "PRICE_ASC" | "PRICE_DESC" | "KM_ASC" | "YEAR_DESC");
-                }}
-                aria-label="Sort inventory"
-                className="appearance-none pl-3 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
-              >
-                <option value="PRICE_ASC">Price: Low to High</option>
-                <option value="PRICE_DESC">Price: High to Low</option>
-                <option value="KM_ASC">Lowest Mileage</option>
-                <option value="YEAR_DESC">Newest Year</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
-            </div>
-
-            {/* Grid vs List Layout Toggle in Top Right */}
+            {/* Grid vs List Layout Toggle */}
             <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
               <button
                 type="button"
@@ -471,49 +363,6 @@ export default function DealerStockCatalog({
             </div>
           </div>
         </div>
-
-        {/* Bottom Filter Row: Model Pills Strip */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar border-t border-slate-100">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
-            Models:
-          </span>
-          {modelStats.map((item) => {
-            const isSelected = selectedModel === item.key;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setSelectedModel(item.key);
-                }}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${isSelected
-                  ? "bg-[#C3002F] text-white shadow-xs"
-                  : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/70"
-                  }`}
-              >
-                <span>{item.name}</span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-md font-mono text-[10px] ${isSelected ? "bg-white/25 text-white" : "bg-white text-slate-600 border border-slate-200/80"
-                    }`}
-                >
-                  {item.count}
-                </span>
-              </button>
-            );
-          })}
-
-          {activeFiltersCount > 0 && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer shrink-0 ml-auto transition-colors"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Reset ({activeFiltersCount})</span>
-            </button>
-          )}
-        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
@@ -540,11 +389,10 @@ export default function DealerStockCatalog({
         /* (Names Full-Width, Hero Studio Car, Price Left & Action Button Right) */
         /* ───────────────────────────────────────────────────────── */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4 min-[2200px]:grid-cols-5 gap-5 sm:gap-6 animate-in fade-in duration-300">
-          {filteredVehicles.map((vehicle) => {
+          {filteredVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
-            const isFav = !!favorites[vehicle.id];
-
+            
             return (
               <div
                 key={vehicle.id}
@@ -552,7 +400,7 @@ export default function DealerStockCatalog({
                 className="bg-white rounded-[28px] border border-slate-200/80 hover:border-slate-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer p-6 sm:p-7 relative overflow-hidden"
               >
                 <div>
-                  {/* Card Top Row: Full Width Name + Model, with Arrow & Favorite on Right */}
+                  {/* Card Top Row: Full Width Name + Model, with Arrow on Right */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#C3002F] transition-colors leading-snug">
@@ -561,20 +409,11 @@ export default function DealerStockCatalog({
                       <p className="text-xs text-slate-400 font-medium mt-1">
                         {vehicle.year} · {vehicle.fuelType} · Grade {vehicle.auctionGrade}
                       </p>
+
+
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={(e) => toggleFavorite(e, vehicle.id)}
-                        aria-label="Add to favorites"
-                        className={`p-2 rounded-full transition-all cursor-pointer ${isFav
-                            ? "text-[#C3002F] bg-[#C3002F]/10"
-                            : "text-slate-300 hover:text-[#C3002F] hover:bg-slate-50"
-                          }`}
-                      >
-                        <Heart className={`w-4 h-4 ${isFav ? "fill-[#C3002F]" : ""}`} />
-                      </button>
+                    <div className="flex items-center shrink-0">
                       <div
                         className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#C3002F] text-slate-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0"
                         title="View Full Vehicle Details"
@@ -602,7 +441,7 @@ export default function DealerStockCatalog({
                             ? (vehicle.reservedByDealerId === "DEALER_002" ? "Held by BOP Nissan" : "Held by Auckland Nissan")
                             : vehicle.reservedByDealerId === currentDealer?.id
                               ? "Your Active Hold (18h left)"
-                              : "24h Exclusivity Lock Active"}
+                              : "On Exclusivity Hold (18h left)"}
                         </span>
                       </div>
                     )}
@@ -661,7 +500,7 @@ export default function DealerStockCatalog({
                     ) : (
                       <span className="py-2.5 px-4 rounded-xl bg-slate-100 border border-slate-200/80 text-slate-400 text-xs font-semibold flex items-center gap-1.5 cursor-not-allowed">
                         <Lock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Unavailable</span>
+                        <span>On Exclusivity Hold</span>
                       </span>
                     )}
                   </div>
@@ -674,11 +513,10 @@ export default function DealerStockCatalog({
         /* 4B. LIST LAYOUT: Clean Luxury Automotive Rows             */
         /* ───────────────────────────────────────────────────────── */
         <div className="space-y-4 animate-in fade-in duration-300">
-          {filteredVehicles.map((vehicle) => {
+          {filteredVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
-            const isFav = !!favorites[vehicle.id];
-            const retailEstimate = Math.round(price.totalBuyPriceNZD * 1.28);
+                        const retailEstimate = Math.round(price.totalBuyPriceNZD * 1.28);
             const grossMargin = retailEstimate - price.totalBuyPriceNZD;
 
             return (
@@ -699,7 +537,7 @@ export default function DealerStockCatalog({
                   {!isAvailable && (
                     <div className="absolute bottom-1 z-20 px-2.5 py-0.5 rounded-full bg-slate-900/90 text-amber-300 border border-amber-500/30 font-bold text-[9px] font-mono flex items-center gap-1 shadow-md">
                       <Lock className="w-2.5 h-2.5 text-amber-400" />
-                      <span>{vehicle.reservedByDealerId === currentDealer?.id ? "Your Hold" : "Locked"}</span>
+                      <span>{vehicle.reservedByDealerId === currentDealer?.id ? "Your Active Hold (18h left)" : "On Exclusivity Hold (18h left)"}</span>
                     </div>
                   )}
                 </div>
@@ -707,7 +545,10 @@ export default function DealerStockCatalog({
                 {/* Middle: Clean Info Block & 3 Columns */}
                 <div className="flex-1 min-w-0 space-y-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-medium">{vehicle.year} · {vehicle.fuelType} · #{vehicle.stockId}</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium">{vehicle.year} · {vehicle.fuelType} · #{vehicle.stockId}</span>
+                      
+                    </div>
                     <span className="flex items-center gap-1 text-slate-400 text-xs">
                       <MapPin className="w-3 h-3 text-slate-400" />
                       <span>{vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}</span>
@@ -819,7 +660,7 @@ export default function DealerStockCatalog({
                         className="flex-1 py-2 px-3 rounded-xl bg-slate-100 border border-slate-200/80 text-slate-400 text-xs font-semibold cursor-not-allowed text-center flex items-center justify-center gap-1"
                       >
                         <Lock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Locked</span>
+                        <span>On Exclusivity Hold</span>
                       </button>
                     )}
                   </div>

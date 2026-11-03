@@ -1,45 +1,48 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Vehicle, LandedPriceBreakdown } from "@/lib/types";
+import { Vehicle, LandedPriceBreakdown, ZoneId } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { MOCK_VEHICLES } from "@/lib/mock-data";
-import { calculateLandedPrice } from "@/lib/pricing-calculator";
+import { calculateLandedPrice, OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
 import {
   ArrowLeft,
-  Gauge,
-  Zap,
-  Calendar,
-  Lock,
-  Unlock,
-  User,
-  ShieldCheck,
   CheckCircle2,
-  Car,
-  TrendingUp,
-  Ship,
-  FileCheck2,
-  FileText,
-  Sparkles,
-  MapPin,
+  Copy,
   Check,
-  ChevronDown,
-  Download,
-  ShieldAlert,
-  HelpCircle,
-  Radio,
-  SlidersHorizontal,
+  Lock,
+  ShieldCheck,
   Star,
+  MapPin,
+  Gauge,
+  Eye,
+  AlertCircle,
+  FileText,
 } from "lucide-react";
 
 interface FullPageVehicleDetailProps {
   vehicleId?: string;
   vehicleData?: Vehicle;
   onBack?: () => void;
+}
+
+function ZeroEmissionBadge() {
+  return (
+    <div className="flex flex-col items-center select-none pointer-events-none">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 p-0.5 shadow-md flex items-center justify-center">
+        <div className="w-full h-full rounded-full bg-white flex items-center justify-center shadow-inner">
+          <span className="text-sky-500 font-black text-2xl font-sans leading-none lowercase italic -translate-x-0.5">e</span>
+        </div>
+      </div>
+      <span className="text-[10px] font-black tracking-tight text-slate-800 uppercase mt-1">
+        Zero Emission
+      </span>
+    </div>
+  );
 }
 
 export default function FullPageVehicleDetail({
@@ -51,7 +54,7 @@ export default function FullPageVehicleDetail({
   const { vehicles, reserveVehicle: atomicReserve } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
   const isAdmin = currentUser?.role === "AUTOHUB_ADMIN";
-  const dealerZone = currentDealer?.pricingZoneId || "ZONE_1";
+  const defaultZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
 
   // Find vehicle from live programme context
   const rawVehicle =
@@ -67,21 +70,32 @@ export default function FullPageVehicleDetail({
     images: mockMatch?.images || rawVehicle.images,
   };
 
+  const images =
+    vehicle.images && vehicle.images.length > 0
+      ? vehicle.images
+      : ["/images/cars/note.png"];
+
   const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [selectedZone, setSelectedZone] = useState<ZoneId>(defaultZone);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
+  const [copiedVin, setCopiedVin] = useState(false);
 
-  // Specifications Accordions state (PERFORMANCE open by default matching reference)
-  const [openAccordion, setOpenAccordion] = useState<Record<string, boolean>>({
-    PERFORMANCE: true,
-    INSPECTION: false,
-    SAFETY: false,
-    COMPLIANCE: false,
-    DIMENSIONS: false,
-  });
+  const selectedZoneConfig = OFFICIAL_PRICING_ZONES[selectedZone] || OFFICIAL_PRICING_ZONES.ZONE_1;
+  const selectedZonePrice: LandedPriceBreakdown = useMemo(() => {
+    return calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
+  }, [vehicle.fobPriceJPY, selectedZone]);
 
-  const toggleAccordion = (key: string) => {
+  const isAvailable = vehicle.status === "AVAILABLE";
+  const isHeldByCurrentDealer = vehicle.reservedByDealerId === currentDealer?.id;
+
+  const handleCopyVin = (e: React.MouseEvent) => {
+    e.stopPropagation();
     audio.playSubtleClick();
-    setOpenAccordion((prev) => ({ ...prev, [key]: !prev[key] }));
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(vehicle.vinChassis);
+      setCopiedVin(true);
+      setTimeout(() => setCopiedVin(false), 2000);
+    }
   };
 
   const handleBack = () => {
@@ -95,22 +109,36 @@ export default function FullPageVehicleDetail({
     }
   };
 
-  const images = vehicle.images && vehicle.images.length > 0
-    ? vehicle.images
-    : ["/images/cars/kicks.png"];
+  const handleReservationSuccess = (vId: string) => {
+    atomicReserve(
+      vId,
+      currentDealer?.id || "DEALER_001",
+      currentUser ? { id: currentUser.id, name: currentUser.name, email: currentUser.email } : undefined
+    );
+    setIsReserveModalOpen(false);
+  };
 
-  const price: LandedPriceBreakdown = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
-  const retailEstimateNZD = Math.round(price.totalBuyPriceNZD * 1.28);
-  const dealerMarginNZD = retailEstimateNZD - price.totalBuyPriceNZD;
-  const marginPercentage = ((dealerMarginNZD / price.totalBuyPriceNZD) * 100).toFixed(1);
+  // 5 Delivery Zones for the Price Schedule Matrix
+  const zonesList: { id: ZoneId; code: string; cost: number }[] = [
+    { id: "ZONE_1", code: "Z1", cost: 650 },
+    { id: "ZONE_2", code: "Z2", cost: 900 },
+    { id: "ZONE_3", code: "Z3", cost: 1150 },
+    { id: "ZONE_4", code: "Z4", cost: 1450 },
+    { id: "ZONE_5", code: "Z5", cost: 1750 },
+  ];
+
+  const isElectricOrHybrid =
+    vehicle.fuelType === "100% Electric" ||
+    vehicle.fuelType === "e-Power" ||
+    vehicle.model.toLowerCase().includes("leaf") ||
+    vehicle.model.toLowerCase().includes("power");
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300 pb-12 font-sans">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Portal Navigation & Action Bar                           */}
+      {/* 1. Header Navigation & Breadcrumbs Bar                      */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Left: Back button & Breadcrumbs */}
         <div className="flex items-center gap-3 flex-wrap">
           <button
             type="button"
@@ -142,154 +170,131 @@ export default function FullPageVehicleDetail({
           </div>
         </div>
 
-        {/* Right: Clean Status & Pricing Tier Profile */}
-        <div className="flex items-center gap-2.5">
-          {isAdmin ? (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200 font-mono shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                <span>Autohub Operations Authority</span>
-              </span>
-              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200">
-                Zone 1–5 Schedule Active
-              </span>
-            </div>
+        {/* Right Status Indicator */}
+        <div className="flex items-center gap-2">
+          {isAvailable ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Available for Allocation</span>
+            </span>
+          ) : isHeldByCurrentDealer ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span>Your Active Hold (18h left)</span>
+            </span>
           ) : (
-            <>
-              <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1 rounded-full">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Profile:</span>
-                <span className="text-slate-800">{dealerZone} Landed</span>
-              </div>
-
-              {vehicle.status === "AVAILABLE" ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Available for Allocation</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/80">
-                  <Lock className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Active 24-Hour Hold</span>
-                </span>
-              )}
-            </>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+              <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <span>On Exclusivity Hold</span>
+            </span>
           )}
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Top Stage: Studio Vehicle View + Acquisition Card        */}
+      {/* 2. Top 4 KPI Metric Cards (As in reference screenshot)      */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: ODOMETER (JEVIC) */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+            ODOMETER (JEVIC)
+          </span>
+          <div className="text-2xl font-black font-mono text-slate-900 tracking-tight">
+            {vehicle.odometerKm.toLocaleString()} km
+          </div>
+          <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-600">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Digitally Certified</span>
+          </div>
+        </div>
+
+        {/* KPI 2: AUCTION GRADE */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+            AUCTION GRADE
+          </span>
+          <div className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+            <span className="text-amber-500">★</span>
+            <span>{vehicle.auctionGrade} / {vehicle.interiorGrade}</span>
+          </div>
+          <div className="mt-2 text-xs font-medium text-slate-500">
+            USS / JAA Inspection
+          </div>
+        </div>
+
+        {/* KPI 3: FOB BASELINE (JPY) */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+            FOB BASELINE (JPY)
+          </span>
+          <div className="text-2xl font-black font-mono text-slate-900 tracking-tight">
+            ¥{vehicle.fobPriceJPY.toLocaleString()}
+          </div>
+          <div className="mt-2 text-xs font-medium text-slate-500">
+            Japan Acquisition Cost
+          </div>
+        </div>
+
+        {/* KPI 4: YARD STAGING */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+            YARD STAGING
+          </span>
+          <div className="text-2xl font-black text-slate-900 tracking-tight truncate" title={vehicle.location || "Yokohama Yard"}>
+            {vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}
+          </div>
+          <div className="mt-2 text-xs font-medium text-slate-500">
+            Export Bay Ready
+          </div>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3. Main Body: 2 Columns (Showcase + Landed Schedule)        */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ───────────────────────────────────────────────────────── */}
-        {/* LEFT COLUMN: Vehicle Showcase + Quick Specs + Angles      */}
-        {/* (Matching clean multi-angle studio reference)             */}
+        {/* LEFT COLUMN: Vehicle Showcase + Japanese Export Specs     */}
         {/* ───────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-7 space-y-4">
-          {/* Main Vehicle Studio Showcase (Clean White Canvas) */}
-          <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-white border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.03)] group flex items-center justify-center p-6 sm:p-8">
-            {/* Realistic studio floor contact shadow beneath tires */}
-            <div className="absolute bottom-6 w-4/5 h-6 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
-
-            <img
-              src={images[activeImageIdx] || images[0]}
-              alt={`${vehicle.make} ${vehicle.model}`}
-              className="w-full h-full select-none transition-all duration-300 relative z-10 object-contain filter drop-shadow-[0_12px_18px_rgba(0,0,0,0.12)]"
-            />
-
-            {/* Top-Left: Discrete Auction Grade Pill */}
-            <div className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-xs font-bold border border-slate-200/80 shadow-2xs flex items-center gap-1.5">
-              <span className="text-amber-500 font-bold">★</span>
+        <div className="lg:col-span-7 space-y-6">
+          {/* Main Studio Car Showcase Card */}
+          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs relative">
+            {/* Top-Left: Auction Grade Pill */}
+            <div className="absolute top-5 left-5 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-xs font-bold border border-slate-200/80 shadow-2xs flex items-center gap-1.5">
+              <span className="text-amber-500">★</span>
               <span>Grade {vehicle.auctionGrade} / {vehicle.interiorGrade}</span>
             </div>
 
-            {/* Top-Right: Photo Index & Angle Label */}
-            <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-700 font-mono text-[11px] font-bold border border-slate-200/80 shadow-2xs">
-              {activeImageIdx + 1} / {images.length} · {["Front 3/4", "Side View", "Rear 3/4", "Interior", "Front Face"][activeImageIdx] || "Studio Angle"}
+            {/* Top-Right: Stock ID */}
+            <div className="absolute top-5 right-5 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-700 font-mono text-xs font-bold border border-slate-200/80 shadow-2xs">
+              #{vehicle.stockId}
             </div>
 
-            {vehicle.status !== "AVAILABLE" && (
-              <div className="absolute bottom-4 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/90 text-amber-300 font-bold text-xs shadow-xl border border-amber-500/30 backdrop-blur-md">
-                <Lock className="w-3.5 h-3.5 text-amber-400" />
-                <span>24-Hour Exclusivity Lock Active</span>
-              </div>
-            )}
-          </div>
+            {/* Car Canvas */}
+            <div className="relative aspect-[16/10] w-full flex items-center justify-center my-4">
+              {/* Studio floor shadow */}
+              <div className="absolute bottom-4 w-4/5 h-6 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
 
-          {/* 4 Required Specifications Highlights (Odometer, Auction Grade, Est. Margin, Yard Location) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 sm:p-4 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
-            {/* 1. Odometer */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-rose-50 text-[#C3002F] flex items-center justify-center shrink-0 border border-rose-100">
-                <Gauge className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Odometer
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 font-mono block truncate">
-                  {vehicle.odometerKm.toLocaleString()} km
-                </strong>
-              </div>
+              {/* High-res Studio Cutout Car */}
+              <img
+                src={images[activeImageIdx] || images[0]}
+                alt={`${vehicle.make} ${vehicle.model}`}
+                className="w-full h-full select-none transition-all duration-300 relative z-10 object-contain filter drop-shadow-[0_12px_20px_rgba(0,0,0,0.12)]"
+              />
+
+              {/* Zero Emission Emblem (Right of Car) */}
+              {isElectricOrHybrid && (
+                <div className="absolute top-8 right-8 z-20 hidden sm:block">
+                  <ZeroEmissionBadge />
+                </div>
+              )}
             </div>
 
-            {/* 2. Auction Grade */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
-                <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Auction Grade
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 block truncate">
-                  ★ {vehicle.auctionGrade} / {vehicle.interiorGrade}
-                </strong>
-              </div>
-            </div>
-
-            {/* 3. Est. Margin / FOB Baseline */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  {isAdmin ? "FOB Baseline (JPY)" : "Est. Margin"}
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-emerald-600 font-mono block truncate">
-                  {isAdmin ? `¥${vehicle.fobPriceJPY.toLocaleString()}` : `+$${dealerMarginNZD.toLocaleString()}`}
-                </strong>
-              </div>
-            </div>
-
-            {/* 4. Yard Location */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
-                <MapPin className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Yard Location
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 block truncate" title={vehicle.location || "Yokohama Yard"}>
-                  {vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}
-                </strong>
-              </div>
-            </div>
-          </div>
-
-          {/* Clean Multi-Angle Thumbnails Selector (Same Vehicle, Multiple Perspectives) */}
-          <div className="space-y-1.5 pt-1">
-            <div className="flex items-center justify-between px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              <span>Studio Inspection Angles</span>
-              <span className="text-slate-400 font-normal">Click to switch perspective</span>
-            </div>
-            <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-1">
+            {/* Horizontal Angle Thumbnails Row */}
+            <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pt-4 border-t border-slate-100">
               {images.map((img, idx) => {
                 const isActive = activeImageIdx === idx;
-                const angleLabels = ["Front 3/4", "Side View", "Rear 3/4", "Interior", "Front Face"];
-                const label = angleLabels[idx] || `Angle ${idx + 1}`;
                 return (
                   <button
                     key={idx}
@@ -298,585 +303,262 @@ export default function FullPageVehicleDetail({
                       audio.playSubtleClick();
                       setActiveImageIdx(idx);
                     }}
-                    className={`group relative flex flex-col items-center gap-1.5 p-2 rounded-2xl transition-all cursor-pointer ${
+                    className={`w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden p-1 transition-all cursor-pointer flex items-center justify-center bg-white shrink-0 ${
                       isActive
-                        ? "bg-slate-100 ring-2 ring-[#0A0A0A] shadow-xs"
-                        : "bg-white hover:bg-slate-50 border border-slate-200/80 opacity-80 hover:opacity-100"
+                        ? "border-2 border-[#C3002F] shadow-xs"
+                        : "border border-slate-200 hover:border-slate-400 opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <div className="w-16 h-11 sm:w-20 sm:h-13 flex items-center justify-center overflow-hidden rounded-xl">
-                      <img
-                        src={img}
-                        alt={label}
-                        className="w-full h-full object-contain filter drop-shadow-2xs group-hover:scale-105 transition-transform duration-200"
-                      />
-                    </div>
-                    <span className={`text-[10px] font-bold tracking-tight truncate ${isActive ? "text-slate-900 font-extrabold" : "text-slate-500"}`}>
-                      {label}
-                    </span>
+                    <img
+                      src={img}
+                      alt={`Angle ${idx + 1}`}
+                      className="w-full h-full object-contain"
+                    />
                   </button>
                 );
               })}
             </div>
           </div>
+
+          {/* Japanese Export Verification & Technical Specifications Card */}
+          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                Japanese Export Verification &amp; Technical Specifications
+              </h2>
+            </div>
+
+            <div className="divide-y divide-slate-100 text-xs sm:text-sm">
+              {/* Row 1: Chassis / VIN */}
+              <div className="py-3 flex items-center justify-between gap-4">
+                <span className="text-slate-500 font-medium">Chassis / VIN:</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-slate-900 tracking-wide">
+                    {vehicle.vinChassis}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyVin}
+                    title="Copy VIN"
+                    className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  >
+                    {copiedVin ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Row 2: JEVIC Odometer Certification */}
+              <div className="py-3 flex items-center justify-between gap-4">
+                <span className="text-slate-500 font-medium">JEVIC Odometer Certification:</span>
+                <span className="text-emerald-600 font-bold flex items-center gap-1.5 font-mono text-xs">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>VERIFIED {vehicle.odometerKm.toLocaleString()} KM</span>
+                </span>
+              </div>
+
+              {/* Row 3: Battery State of Health (SOH) */}
+              <div className="py-3 flex items-center justify-between gap-4">
+                <span className="text-slate-500 font-medium">Battery State of Health (SOH):</span>
+                <span className="font-semibold text-slate-900 text-right">
+                  {vehicle.fuelType === "100% Electric"
+                    ? "Certified 94.8% SOH (12/12 Bars Verified)"
+                    : "Certified Hybrid e-Power System"}
+                </span>
+              </div>
+
+              {/* Row 4: MR2A Compliance & WoF */}
+              <div className="py-3 flex items-center justify-between gap-4">
+                <span className="text-slate-500 font-medium">MR2A Compliance &amp; WoF:</span>
+                <span className="text-emerald-600 font-bold flex items-center gap-1.5 text-right">
+                  Pre-Inspected Pass Guaranteed
+                </span>
+              </div>
+
+              {/* Row 5: Powertrain / Fuel */}
+              <div className="py-3 flex items-center justify-between gap-4">
+                <span className="text-slate-500 font-medium">Powertrain / Fuel:</span>
+                <span className="font-semibold text-slate-900 text-right">
+                  {vehicle.fuelType} · {vehicle.transmission}
+                </span>
+              </div>
+
+              {/* Row 6: Engine Displacement */}
+              <div className="py-3 flex items-center justify-between gap-4">
+                <span className="text-slate-500 font-medium">Engine Displacement:</span>
+                <span className="font-mono font-semibold text-slate-900 text-right">
+                  {vehicle.engineCc > 0 ? `${vehicle.engineCc.toLocaleString()} cc` : "Dual Inverter EV Motor"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ───────────────────────────────────────────────────────── */}
-        {/* RIGHT COLUMN: Clean Light Executive Acquisition Card       */}
-        {/* (No Dark Boxes - Pure Clean Light Aesthetics)             */}
+        {/* RIGHT COLUMN: Wholesale Landed Schedule + Dealer Actions  */}
         {/* ───────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white rounded-[28px] border border-slate-200/80 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.03)] space-y-5">
-            {/* Header: Make & Model Title + Spec Subtitle */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Card 1: WHOLESALE LANDED PRICE SCHEDULE */}
+          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-5">
             <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-400 mb-1.5">
-                <span className="uppercase tracking-wider font-extrabold text-[#C3002F]">
-                  Nissan Certified Pre-Owned
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                WHOLESALE LANDED PRICE SCHEDULE
+              </span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-3xl sm:text-4xl font-black font-mono text-slate-900 tracking-tight">
+                  ${selectedZonePrice.totalBuyPriceNZD.toLocaleString()}
                 </span>
-                <span className="font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded text-[11px] font-bold border border-slate-200/60">
-                  {vehicle.vinChassis}
+                <span className="text-xs font-semibold text-slate-500">
+                  NZD Landed
                 </span>
               </div>
-
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                {vehicle.make} - {vehicle.model}
-              </h1>
-
-              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                {vehicle.grade} · {vehicle.engineCc || 1200}cc {vehicle.fuelType} · Auction Grade {vehicle.auctionGrade}
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Guaranteed landed wholesale cost schedule across New Zealand geographic delivery zones.
               </p>
             </div>
 
-            {/* Landed Pricing Display */}
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono tracking-tight">
-                  ${price.totalBuyPriceNZD.toLocaleString()}
-                </span>
-                <span className="text-xs font-semibold text-slate-400">
-                  NZD Guaranteed Landed ({dealerZone})
+            {/* 5 Delivery Zones Switcher Pills */}
+            <div className="bg-slate-100/90 p-1.5 rounded-2xl flex items-center gap-1">
+              {zonesList.map((z) => {
+                const isSelected = selectedZone === z.id;
+                return (
+                  <button
+                    key={z.id}
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setSelectedZone(z.id);
+                    }}
+                    className={`flex-1 py-2 px-1 rounded-xl text-center transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-white text-slate-900 font-black shadow-xs ring-1 ring-slate-200"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium"
+                    }`}
+                  >
+                    <span className="block text-xs font-bold leading-tight">{z.code}</span>
+                    <span className="block text-[10px] font-mono text-slate-400 leading-tight mt-0.5">
+                      ${z.cost}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Price Line Items Table */}
+            <div className="divide-y divide-slate-100 text-xs sm:text-sm">
+              <div className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-medium">Selected Zone Territory:</span>
+                <strong className="text-slate-900 font-semibold text-right truncate max-w-[200px]">
+                  {selectedZoneConfig.zoneName}
+                </strong>
+              </div>
+
+              <div className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-medium">FOB Acquisition (JPY):</span>
+                <span className="font-mono font-bold text-slate-900 text-right">
+                  ¥{vehicle.fobPriceJPY.toLocaleString()}
                 </span>
               </div>
-              {isAdmin ? (
-                <div className="flex items-center gap-2 text-xs font-mono text-slate-500 mt-1">
-                  <span>Japanese FOB Baseline: <strong className="text-slate-800">¥{vehicle.fobPriceJPY.toLocaleString()} JPY</strong></span>
-                  <span>•</span>
-                  <span className="text-emerald-700 font-semibold">Standard Fixed Landed Formula Applied</span>
-                </div>
-              ) : (
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Fixed commercial landed allocation price. Standard MR2A pass &amp; 15% GST fully covered.
-                </p>
-              )}
+
+              <div className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-medium">Ocean Freight &amp; Port Handling:</span>
+                <span className="font-mono font-bold text-slate-900 text-right">
+                  ${selectedZonePrice.oceanFreightNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              <div className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-medium">NZ Customs &amp; 15% GST:</span>
+                <span className="font-mono font-bold text-slate-900 text-right">
+                  ${selectedZonePrice.gstNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              <div className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-medium">MR2A Compliance &amp; Inspection:</span>
+                <span className="font-mono font-bold text-slate-900 text-right">
+                  ${selectedZonePrice.complianceInspectionNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              <div className="py-2.5 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-medium">Domestic Carrier Towing:</span>
+                <span className="font-mono font-bold text-slate-900 text-right">
+                  ${selectedZonePrice.zoneDeliveryNZD.toLocaleString()} NZD
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Dealer Role Action / Procurement Box */}
+          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                {isAdmin ? "ADMINISTRATIVE CENTRAL STOCK AUTHORITY" : "DEALER PROCUREMENT & EXCLUSIVITY AUTHORITY"}
+              </span>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                This vehicle is live on the dealer purchasing catalogue and eligible for 24h atomic exclusivity holds.
+              </p>
             </div>
 
             {isAdmin ? (
-              /* Admin Authority: 5-Zone Landed Pricing Schedule */
-              <div className="p-5 rounded-2xl bg-slate-50/90 border border-slate-200/90 space-y-3 shadow-2xs">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200/70">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block">
-                      Comparative Landed Price Matrix
-                    </span>
-                    <strong className="text-xs text-slate-900">Standard Formula (15% GST + MR2A Included)</strong>
-                  </div>
-                  <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-white text-slate-700 border border-slate-200 shadow-2xs">
-                    Fixed Landed
-                  </span>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  {[
-                    { zone: "ZONE_1", name: "Upper North Island (Auckland Direct)" },
-                    { zone: "ZONE_2", name: "Central North Island (Waikato / BOP)" },
-                    { zone: "ZONE_3", name: "Lower North Island (Wellington / Hawkes Bay)" },
-                    { zone: "ZONE_4", name: "Upper South Island (Canterbury / Nelson)" },
-                    { zone: "ZONE_5", name: "Lower South Island (Otago / Southland)" },
-                  ].map((z) => {
-                    const zPrice = calculateLandedPrice(vehicle.fobPriceJPY, z.zone as any);
-                    return (
-                      <div key={z.zone} className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200/70">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">
-                            {z.zone}
-                          </span>
-                          <span className="text-[11px] text-slate-600 truncate max-w-[180px]">{z.name}</span>
-                        </div>
-                        <strong className="font-mono font-bold text-slate-900 text-xs">
-                          ${zPrice.totalBuyPriceNZD.toLocaleString()} NZD
-                        </strong>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3.5 shadow-2xs">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                    Wholesale Economics
-                  </span>
-                  <div className="text-xl font-black font-mono tracking-tight text-slate-900 mt-0.5">
-                    ${price.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-normal text-slate-500">Landed</span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400 block">Projected Dealer Margin</span>
-                  <div className="inline-flex items-center gap-1.5 mt-1 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/90 font-mono text-xs font-bold shadow-2xs">
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>+${dealerMarginNZD.toLocaleString()} NZD ({marginPercentage}%)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Indicator for Margin */}
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span>Landed Buy: <strong className="text-slate-900 font-mono">${price.totalBuyPriceNZD.toLocaleString()}</strong></span>
-                  <span>Est. NZ Retail: <strong className="text-emerald-700 font-mono font-bold">${retailEstimateNZD.toLocaleString()}</strong></span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-slate-200/80 overflow-hidden flex">
-                  <div style={{ width: `${Math.round((price.totalBuyPriceNZD / retailEstimateNZD) * 100)}%` }} className="bg-[#0A0A0A] h-full" />
-                  <div style={{ width: `${Math.round((dealerMarginNZD / retailEstimateNZD) * 100)}%` }} className="bg-emerald-500 h-full" />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-200/70">
-                <span className="text-[11px] text-slate-500 font-medium">
-                  Delivery Zone: <strong className="text-slate-900 font-mono font-bold">{dealerZone}</strong>
-                </span>
-                <span className="text-emerald-700 font-medium flex items-center gap-1 text-[11px]">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  All duties &amp; MR2A pass included
-                </span>
-              </div>
-            </div>
-            )}
-
-            {/* Primary Action Button: Simple, High-Conversion Naming */}
-            <div className="space-y-3 pt-1">
-              {isAdmin ? (
-                <div className="space-y-3">
-                  {vehicle.status === "RESERVED" ? (
-                    <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-300 text-xs text-amber-950 space-y-3 shadow-2xs">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 font-bold text-amber-900">
-                          <Lock className="w-4 h-4 text-amber-600" />
-                          <span>Active 24h Exclusivity Hold</span>
-                        </div>
-                        <span className="font-mono text-[11px] font-bold bg-white text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-200 shadow-2xs">
-                          18h 42m Left
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-amber-800 leading-relaxed">
-                        Locked by <strong className="text-amber-950">Auckland Nissan City Ltd (NZ-NIS-AKL01)</strong>. Price is guaranteed under Section 4 Commercial Boundary.
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSuccessChime();
-                            alert("Wholesale allocation confirmed for " + vehicle.stockId + ". Dispatched to shipping pipeline.");
-                            router.push("/admin/orders");
-                          }}
-                          className="py-2.5 px-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Confirm Order</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSubtleClick();
-                            alert("Exclusivity hold released for " + vehicle.stockId + ". Vehicle returned to wholesale catalog.");
-                            router.push("/admin/reservations");
-                          }}
-                          className="btn-outline py-2.5 px-3 rounded-xl text-slate-700 font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5"
-                        >
-                          <Unlock className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Release Lock</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-700">Administrative Operational Status:</span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold text-[11px]">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          Available in Japan Stock
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSubtleClick();
-                            router.push("/admin/inventory");
-                          }}
-                          className="btn-outline py-3 px-3 rounded-xl text-slate-800 font-bold text-xs transition-colors cursor-pointer text-center"
-                        >
-                          Inventory Controller
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSubtleClick();
-                            router.push("/admin/orders");
-                          }}
-                          className="py-3 px-3 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs transition-colors cursor-pointer text-center shadow-xs"
-                        >
-                          Orders Pipeline
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : vehicle.status === "AVAILABLE" ? (
+              <div className="pt-2 space-y-3">
                 <button
                   type="button"
                   onClick={() => {
                     audio.playSubtleClick();
-                    setIsReserveModalOpen(true);
+                    alert("Vehicle " + vehicle.stockId + " withdrawn from dealer access.");
                   }}
-                  className="w-full py-4 px-6 rounded-2xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-sm tracking-wide transition-all shadow-[0_4px_16px_rgba(225,29,72,0.30)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.40)] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-rose-50 text-[#C3002F] border border-rose-200 font-bold text-xs transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Lock className="w-4 h-4" />
-                  <span>Hold Vehicle (24h)</span>
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Withdraw from Dealer Access</span>
                 </button>
-              ) : (
-                <div className="w-full py-4 px-6 rounded-2xl bg-slate-100 text-slate-400 font-bold text-xs text-center flex items-center justify-center gap-2 border border-slate-200">
-                  <Lock className="w-4 h-4 text-slate-400" />
-                  <span>Vehicle Held Under 24-Hour Exclusivity Lock</span>
-                </div>
-              )}
-
-              {/* Trust Guarantee Badges */}
-              <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400 pt-1 flex-wrap font-medium">
-                <span className="flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-emerald-500" /> Zero initial deposit
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-emerald-500" /> 24h floorplan hold
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-emerald-500" /> 100% Fixed Landed Price
-                </span>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Bottom Stage: Specifications & Verification Documents   */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
-          <div>
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">
-              Vehicle Specifications
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Comprehensive factory technical data, auction evaluation, and pre-export certification.
-            </p>
-          </div>
-
-          {/* Official Verification Document Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                alert("Opening Japan Auction Sheet PDF for " + vehicle.stockId);
-              }}
-              className="px-3.5 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
-            >
-              <Download className="w-3.5 h-3.5 text-slate-400" />
-              <span>Auction Sheet (PDF)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                alert("Opening JEVIC Odometer Certificate for " + vehicle.stockId);
-              }}
-              className="px-3.5 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
-            >
-              <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>JEVIC Certificate</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="divide-y divide-slate-100">
-          {/* ACCORDION 1: PERFORMANCE (Open by default) */}
-          <div className="py-3.5">
-            <button
-              type="button"
-              onClick={() => toggleAccordion("PERFORMANCE")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-[#C3002F]" />
-                <span>PERFORMANCE &amp; POWERTRAIN</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${openAccordion.PERFORMANCE ? "rotate-180 text-slate-900" : ""
-                  }`}
-              />
-            </button>
-
-            {openAccordion.PERFORMANCE && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4 pt-3.5 pb-2 text-xs">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">0–100 km/h</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">7.90 seconds</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Top Speed</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">185 km/h</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">System / Engine</span>
-                  <strong className="text-slate-900 text-sm block mt-0.5 truncate">{vehicle.fuelType} (HR12DE + EM47)</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Displacement</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">{vehicle.engineCc || 1200} cc</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Power Output</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">100 kW (136 PS)</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Instant Torque</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">280 Nm</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Drivetrain</span>
-                  <strong className="text-slate-900 text-sm block mt-0.5">{vehicle.driveType}</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Transmission</span>
-                  <strong className="text-slate-900 text-sm block mt-0.5">{vehicle.transmission}</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Fuel / Battery</span>
-                  <strong className="text-slate-900 text-sm block mt-0.5">{vehicle.fuelType}</strong>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ACCORDION 2: JAPAN INSPECTION & CONDITION */}
-          <div className="py-3.5">
-            <button
-              type="button"
-              onClick={() => toggleAccordion("INSPECTION")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
-                <span>JAPAN INSPECTION &amp; CONDITION</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${openAccordion.INSPECTION ? "rotate-180 text-slate-900" : ""
-                  }`}
-              />
-            </button>
-
-            {openAccordion.INSPECTION && (
-              <div className="space-y-3 pt-3.5 pb-2 text-xs">
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase block">Auction Grade</span>
-                    <strong className="text-base font-black text-slate-900 font-mono block mt-0.5">★ {vehicle.auctionGrade}</strong>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase block">Interior Grade</span>
-                    <strong className="text-base font-black text-slate-900 block mt-0.5">Grade {vehicle.interiorGrade}</strong>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase block">Exterior Grade</span>
-                    <strong className="text-base font-black text-slate-900 block mt-0.5">Grade {vehicle.exteriorGrade}</strong>
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="font-medium text-slate-800">JEVIC Odometer Certification</span>
-                    </div>
-                    <span className="text-emerald-700 font-mono font-bold text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      100% Verified
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span className="font-medium text-slate-800">Yokohama Port Radiation Screening (&lt;0.08 μSv/h)</span>
-                    </div>
-                    <span className="text-emerald-700 font-mono font-bold text-[11px] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      Zero Detected
-                    </span>
-                  </div>
-                </div>
-
-                {vehicle.knownDefects && vehicle.knownDefects.length > 0 && (
-                  <div className="pt-1">
-                    <span className="text-[11px] font-bold text-slate-700 block mb-1.5">Pre-Export Condition Log:</span>
-                    <ul className="space-y-1">
-                      {vehicle.knownDefects.map((defect, i) => (
-                        <li key={i} className="flex items-center gap-2 text-slate-600 text-xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                          <span>{defect}</span>
-                        </li>
-                      ))}
-                    </ul>
+            ) : (
+              <div className="pt-2 space-y-3">
+                {isAvailable ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setIsReserveModalOpen(true);
+                    }}
+                    className="w-full py-4 px-6 rounded-2xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-sm tracking-wide transition-all shadow-[0_4px_16px_rgba(195,0,47,0.25)] hover:shadow-[0_6px_22px_rgba(195,0,47,0.35)] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <Lock className="w-4 h-4" />
+                    <span>Hold Vehicle (24h Exclusivity Lock)</span>
+                  </button>
+                ) : isHeldByCurrentDealer ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      router.push("/dealer/orders");
+                    }}
+                    className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm tracking-wide transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Your Active Hold (18h left) - Complete Order</span>
+                  </button>
+                ) : (
+                  <div className="w-full py-4 px-6 rounded-2xl bg-slate-100 text-slate-500 font-bold text-xs text-center flex items-center justify-center gap-2 border border-slate-200">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                    <span>Locked Under 24h Exclusivity Hold by Network</span>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
 
-          {/* ACCORDION 3: SAFETY & ADAS */}
-          <div className="py-3.5">
-            <button
-              type="button"
-              onClick={() => toggleAccordion("SAFETY")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#C3002F]" />
-                <span>SAFETY &amp; ADAS SPECIFICATIONS</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${openAccordion.SAFETY ? "rotate-180 text-slate-900" : ""
-                  }`}
-              />
-            </button>
-
-            {openAccordion.SAFETY && (
-              <div className="space-y-2 pt-3.5 pb-2 text-xs">
-                <div className="flex items-center gap-2.5 py-1 text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>ProPILOT Autonomous Highway Cruise &amp; Steering Assist</span>
-                </div>
-                <div className="flex items-center gap-2.5 py-1 text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Intelligent Emergency Autonomous Forward Braking</span>
-                </div>
-                <div className="flex items-center gap-2.5 py-1 text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Around View 360° Monitor with Moving Object Detection</span>
-                </div>
-                <div className="flex items-center gap-2.5 py-1 text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Lane Departure Prevention &amp; Blind Spot Intervention</span>
-                </div>
-                <div className="flex items-center gap-2.5 py-1 text-slate-700">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Full Curtain &amp; Dual Front SRS Airbags (ANCAP 5-Star Equivalent)</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ACCORDION 4: COMPLIANCE & BORDER SPECIFICATIONS */}
-          <div className="py-3.5">
-            <button
-              type="button"
-              onClick={() => toggleAccordion("COMPLIANCE")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <Ship className="w-4 h-4 text-[#C3002F]" />
-                <span>COMPLIANCE &amp; BORDER SPECIFICATIONS</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${openAccordion.COMPLIANCE ? "rotate-180 text-slate-900" : ""
-                  }`}
-              />
-            </button>
-
-            {openAccordion.COMPLIANCE && (
-              <div className="space-y-2 pt-3.5 pb-2 text-xs">
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-500">Departure Port:</span>
-                  <strong className="text-slate-900">Yokohama RoRo Terminal, Japan</strong>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-500">Destination Port:</span>
-                  <strong className="text-slate-900">Ports of Auckland (Fergusson Wharf)</strong>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-500">NZTA Entry Compliance:</span>
-                  <strong className="text-emerald-700 font-semibold">MR2A Certification Pass Included</strong>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-500">Warrant of Fitness:</span>
-                  <strong className="text-slate-900">1-Year NZ WoF Issued</strong>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-slate-500">Biosecurity Clearance:</span>
-                  <strong className="text-slate-900">MPI Decontaminated &amp; Steam Cleared</strong>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ACCORDION 5: DIMENSIONS & CAPACITIES */}
-          <div className="py-3.5">
-            <button
-              type="button"
-              onClick={() => toggleAccordion("DIMENSIONS")}
-              className="w-full flex items-center justify-between text-left font-black text-xs uppercase tracking-wider text-slate-900 hover:text-[#C3002F] transition-colors py-1 cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <Car className="w-4 h-4 text-[#C3002F]" />
-                <span>DIMENSIONS &amp; CAPACITIES</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${openAccordion.DIMENSIONS ? "rotate-180 text-slate-900" : ""
-                  }`}
-              />
-            </button>
-
-            {openAccordion.DIMENSIONS && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-4 pt-3.5 pb-2 text-xs">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Length</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">4,770 mm</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Width</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">1,740 mm</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Height</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">1,865 mm</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Wheelbase</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">2,860 mm</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Curb Weight</span>
-                  <strong className="text-slate-900 font-mono text-sm block mt-0.5">1,670 kg</strong>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Seating</span>
-                  <strong className="text-slate-900 text-sm block mt-0.5">5–7 Seats</strong>
+                {/* Trust Badges */}
+                <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400 pt-1 flex-wrap font-medium">
+                  <span>✓ Zero Initial Deposit</span>
+                  <span>•</span>
+                  <span>✓ 24h Price Guarantee</span>
+                  <span>•</span>
+                  <span>✓ JEVIC &amp; MR2A Included</span>
                 </div>
               </div>
             )}
@@ -884,20 +566,16 @@ export default function FullPageVehicleDetail({
         </div>
       </div>
 
-      {/* Atomic Reservation Modal */}
-      <AtomicReservationModal
-        vehicle={isReserveModalOpen ? vehicle : null}
-        onClose={() => setIsReserveModalOpen(false)}
-        onSuccess={(vId) => {
-          atomicReserve(
-            vId,
-            currentDealer?.id || "DEALER_001",
-            currentUser ? { id: currentUser.id, name: currentUser.name, email: currentUser.email } : undefined
-          );
-          setIsReserveModalOpen(false);
-          handleBack();
-        }}
-      />
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 4. Atomic Exclusivity Reservation Modal                     */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {isReserveModalOpen && (
+        <AtomicReservationModal
+          vehicle={vehicle}
+          onClose={() => setIsReserveModalOpen(false)}
+          onSuccess={handleReservationSuccess}
+        />
+      )}
     </div>
   );
 }
