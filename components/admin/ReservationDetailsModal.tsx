@@ -12,14 +12,8 @@ import {
   Car,
   Building2,
   CheckCircle2,
-  AlertCircle,
-  FileCheck2,
   Copy,
   Check,
-  Calendar,
-  ShieldCheck,
-  ArrowRight,
-  RefreshCw,
 } from "lucide-react";
 
 interface ReservationDetailsModalProps {
@@ -107,34 +101,27 @@ export default function ReservationDetailsModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="reservation-details-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150 font-sans"
     >
-      <div className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        {/* Header */}
-        <div className="px-6 py-4 bg-[#0F172A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+      <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
+        {/* Header - Nissan Obsidian Black */}
+        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Lock className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white shrink-0">
+              <Lock className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-amber-400">
+                <span className="text-xs font-mono font-medium text-slate-300">
                   {reservation.requestId}
                 </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${reservation.status === "ACTIVE_HOLD"
-                      ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                      : reservation.status === "CONFIRMED_ALLOCATED"
-                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                        : "bg-slate-700 text-slate-300 border-slate-600"
-                    }`}
-                >
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-white/10 text-white border border-white/15">
                   {reservation.status === "ACTIVE_HOLD"
                     ? "24-Hour Exclusivity Active"
                     : reservation.status}
                 </span>
               </div>
-              <h2 id="reservation-details-title" className="text-lg font-bold text-white tracking-tight">
+              <h2 id="reservation-details-title" className="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5">
                 Reservation Dossier · {vehicle?.year} {vehicle?.make} {vehicle?.model}
               </h2>
             </div>
@@ -146,7 +133,7 @@ export default function ReservationDetailsModal({
               audio.playSubtleClick();
               onClose();
             }}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title="Close dossier"
           >
             <X className="w-5 h-5" />
@@ -154,64 +141,66 @@ export default function ReservationDetailsModal({
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-slate-800">
           {/* 24-Hour Exclusivity Countdown Banner */}
           {reservation.status === "ACTIVE_HOLD" && timeLeft && (
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5 animate-pulse" />
+                <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-900 shrink-0 shadow-2xs">
+                  <Clock className="w-4 h-4 text-[#C3002F]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">
                     Atomic Hold Exclusivity Window
                   </h3>
-                  <p className="text-slate-500 text-[11px]">
+                  <p className="text-slate-500 text-xs mt-0.5">
                     Vehicle is exclusive to {reservation.dealerName}. Other dealers cannot reserve or purchase.
                   </p>
                 </div>
               </div>
 
               {/* Countdown Digits */}
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-amber-200/90 shadow-2xs self-start sm:self-auto font-mono">
-                <div className="text-center">
-                  <div className="text-base font-black text-amber-700 leading-tight">
+              <div className="flex items-center gap-2.5 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-2xs self-start sm:self-auto font-mono">
+                <div className="text-center min-w-[28px]">
+                  <div className="text-base font-bold text-slate-900 leading-tight">
                     {String(timeLeft.hours).padStart(2, "0")}
                   </div>
-                  <div className="text-[9px] text-slate-400 uppercase">Hours</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold">Hours</div>
                 </div>
-                <span className="text-amber-500 font-bold">:</span>
-                <div className="text-center">
-                  <div className="text-base font-black text-amber-700 leading-tight">
+                <span className="text-slate-300 font-bold">:</span>
+                <div className="text-center min-w-[28px]">
+                  <div className="text-base font-bold text-slate-900 leading-tight">
                     {String(timeLeft.minutes).padStart(2, "0")}
                   </div>
-                  <div className="text-[9px] text-slate-400 uppercase">Mins</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold">Mins</div>
                 </div>
-                <span className="text-amber-500 font-bold">:</span>
-                <div className="text-center">
-                  <div className="text-base font-black text-amber-700 leading-tight">
+                <span className="text-slate-300 font-bold">:</span>
+                <div className="text-center min-w-[28px]">
+                  <div className="text-base font-bold text-[#C3002F] leading-tight">
                     {String(timeLeft.seconds).padStart(2, "0")}
                   </div>
-                  <div className="text-[9px] text-slate-400 uppercase">Secs</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-semibold">Secs</div>
                 </div>
               </div>
             </div>
           )}
 
           {/* 2-Column: Vehicle Details & Reserving Dealer */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Vehicle Card */}
-            <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-4 shadow-2xs">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                   <Car className="w-3.5 h-3.5 text-slate-400" />
                   <span>Locked Stock Specification</span>
                 </h3>
-                <span className="font-mono text-xs font-bold text-slate-700">#{vehicle?.stockId}</span>
+                <span className="font-mono text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                  #{vehicle?.stockId}
+                </span>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-28 h-20 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0">
+                <div className="w-24 sm:w-28 h-18 sm:h-20 rounded-lg bg-slate-50 border border-slate-200 p-1.5 flex items-center justify-center shrink-0">
                   <img
                     src={vehicleImage}
                     alt={vehicle?.model || "Vehicle"}
@@ -222,20 +211,20 @@ export default function ReservationDetailsModal({
                   <h4 className="font-bold text-slate-900 text-sm truncate">
                     {vehicle?.year} {vehicle?.make} {vehicle?.model}
                   </h4>
-                  <p className="text-slate-500 text-xs">
+                  <p className="text-slate-600 text-xs">
                     {vehicle?.grade} · {vehicle?.fuelType}
                   </p>
-                  <p className="text-slate-500 font-mono text-[11px]">
+                  <p className="text-slate-500 font-mono text-xs">
                     {vehicle?.odometerKm?.toLocaleString()} km · Grade {vehicle?.auctionGrade}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-slate-200/60">
-                <div className="flex items-center justify-between">
+              <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Chassis / VIN:</span>
-                  <div className="flex items-center gap-1">
-                    <span className="font-mono font-bold text-slate-900">{vehicle?.vinChassis}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono font-semibold text-slate-900">{vehicle?.vinChassis}</span>
                     <button
                       type="button"
                       onClick={handleCopyVin}
@@ -247,56 +236,58 @@ export default function ReservationDetailsModal({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Japanese Location:</span>
-                  <span className="font-semibold text-slate-800">{vehicle?.location || "Yokohama Yard (Bay 2)"}</span>
+                  <span className="font-medium text-slate-800">{vehicle?.location || "Yokohama Yard (Bay 2)"}</span>
                 </div>
               </div>
             </div>
 
             {/* Reserving Dealership Card */}
-            <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-4 shadow-2xs">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                   <Building2 className="w-3.5 h-3.5 text-slate-400" />
                   <span>Reserving Franchisee</span>
                 </h3>
-                <span className="font-mono text-xs font-bold text-slate-700">{reservation.dealerCode}</span>
+                <span className="font-mono text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                  {reservation.dealerCode}
+                </span>
               </div>
 
               <div className="space-y-1">
                 <h4 className="font-bold text-slate-900 text-sm">
                   {reservation.dealerName}
                 </h4>
-                <p className="text-slate-500 text-xs">
-                  Authorized Buyer: <strong className="text-slate-800">{reservation.userName}</strong> ({reservation.userEmail})
+                <p className="text-slate-600 text-xs">
+                  Authorized Buyer: <span className="font-medium text-slate-800">{reservation.userName}</span> ({reservation.userEmail})
                 </p>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-slate-200/60">
-                <div className="flex items-center justify-between">
+              <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Assigned Pricing Zone:</span>
-                  <span className="font-mono font-bold text-slate-900">{price.zoneId}</span>
+                  <span className="font-mono font-semibold text-slate-900">{price.zoneId}</span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Requested Timestamp:</span>
                   <span className="font-mono text-slate-700">
                     {new Date(reservation.requestedAt).toLocaleString("en-NZ")}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Lock Expiry:</span>
-                  <span className="font-mono font-bold text-amber-700">
+                  <span className="font-mono font-semibold text-slate-900">
                     {new Date(reservation.expiresAt).toLocaleString("en-NZ")}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Boundary Acknowledged:</span>
-                  <span className="font-bold text-emerald-700 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Yes (Section 4 Rate)
+                  <span className="font-medium text-slate-800 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-700" /> Yes (Section 4 Rate)
                   </span>
                 </div>
               </div>
@@ -304,50 +295,50 @@ export default function ReservationDetailsModal({
           </div>
 
           {/* Section 4 Landed Buy Price Breakdown */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3 shadow-2xs">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Guaranteed Landed Price Snapshot (Section 4 Commercial Contract)
             </h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Locked FOB JPY</span>
-                <div className="font-mono font-bold text-slate-900 text-sm mt-1">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Locked FOB JPY</span>
+                <div className="font-mono font-bold text-slate-900 text-sm sm:text-base mt-1">
                   ¥{(vehicle?.fobPriceJPY || 2000000).toLocaleString()}
                 </div>
-                <span className="text-[10px] text-slate-500">${price.fobNZD.toLocaleString()} NZD</span>
+                <span className="text-xs font-mono text-slate-500 mt-0.5 block">${price.fobNZD.toLocaleString()} NZD</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Logistics &amp; Freight</span>
-                <div className="font-mono font-bold text-slate-900 text-sm mt-1">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Logistics &amp; Freight</span>
+                <div className="font-mono font-bold text-slate-900 text-sm sm:text-base mt-1">
                   ${(price.oceanFreightNZD + price.zoneDeliveryNZD).toLocaleString()} NZD
                 </div>
-                <span className="text-[10px] text-slate-500">Ocean + {price.zoneId} Tow</span>
+                <span className="text-xs text-slate-500 mt-0.5 block">Ocean + {price.zoneId} Tow</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Customs &amp; Compliance</span>
-                <div className="font-mono font-bold text-slate-900 text-sm mt-1">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Customs &amp; Compliance</span>
+                <div className="font-mono font-bold text-slate-900 text-sm sm:text-base mt-1">
                   ${(price.customsProcessingNZD + price.complianceInspectionNZD).toLocaleString()} NZD
                 </div>
-                <span className="text-[10px] text-slate-500">Border + MR2A Pass</span>
+                <span className="text-xs text-slate-500 mt-0.5 block">Border + MR2A Pass</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200">
-                <span className="text-[10px] text-rose-700 font-bold uppercase tracking-wider block">Total Landed Price</span>
-                <div className="font-mono font-black text-[#C3002F] text-base mt-0.5">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-700 block">Total Landed Price</span>
+                <div className="font-mono font-bold text-[#C3002F] text-sm sm:text-base mt-1">
                   ${price.totalBuyPriceNZD.toLocaleString()} NZD
                 </div>
-                <span className="text-[10px] text-rose-600 font-semibold">Excl. GST (Protected)</span>
+                <span className="text-xs text-slate-500 mt-0.5 block">Excl. GST (Protected)</span>
               </div>
             </div>
           </div>
 
           {/* Confirm Dialog Input */}
           {confirmDialog && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-3 animate-in fade-in">
-              <h4 className="font-bold text-slate-900 text-xs">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 animate-in fade-in">
+              <h4 className="font-bold text-slate-900 text-xs sm:text-sm">
                 {confirmDialog === "CONFIRM"
                   ? "Confirm Wholesale Allocation & Generate Order"
                   : confirmDialog === "RELEASE"
@@ -359,25 +350,20 @@ export default function ReservationDetailsModal({
                 value={reasonInput}
                 onChange={(e) => setReasonInput(e.target.value)}
                 placeholder="Enter operational note or audit reason..."
-                className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                className="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setConfirmDialog(null)}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-bold text-xs cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleExecuteAction}
-                  className={`px-4 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer shadow-xs ${confirmDialog === "CONFIRM"
-                      ? "bg-emerald-600 hover:bg-emerald-700"
-                      : confirmDialog === "RELEASE"
-                        ? "bg-slate-900 hover:bg-slate-800"
-                        : "bg-rose-600 hover:bg-rose-700"
-                    }`}
+                  className="px-4 py-1.5 rounded-lg text-white font-semibold text-xs cursor-pointer shadow-2xs bg-[#0A0A0A] hover:bg-slate-800 transition-colors"
                 >
                   Execute {confirmDialog}
                 </button>
@@ -387,11 +373,11 @@ export default function ReservationDetailsModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-          <div className="text-xs text-slate-500">
+        <div className="px-6 py-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+          <div className="text-xs text-slate-600">
             {reservation.status === "ACTIVE_HOLD" ? (
-              <span className="text-amber-800 font-bold flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span className="font-medium flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-slate-500" />
                 <span>Central Wholesale Authority: Dealer locked against price escalation for 24h</span>
               </span>
             ) : (
@@ -410,7 +396,7 @@ export default function ReservationDetailsModal({
                     setConfirmDialog("RELEASE");
                     setReasonInput("Released back to catalogue by Autohub Ops.");
                   }}
-                  className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-lg border border-slate-200 hover:text-rose-600 hover:bg-rose-50 text-slate-700 font-medium text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
                   <Unlock className="w-3.5 h-3.5 text-slate-400" />
                   <span>Release Hold</span>
@@ -422,9 +408,9 @@ export default function ReservationDetailsModal({
                     setConfirmDialog("CONFIRM");
                     setReasonInput("Wholesale allocation confirmed by Autohub Ops.");
                   }}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-slate-800 text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-4 h-4 text-white" />
                   <span>Confirm Allocation</span>
                 </button>
               </>
@@ -436,7 +422,7 @@ export default function ReservationDetailsModal({
                 audio.playSubtleClick();
                 onClose();
               }}
-              className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition-colors cursor-pointer shadow-2xs"
             >
               Close
             </button>

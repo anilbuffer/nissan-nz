@@ -8,19 +8,13 @@ import { audio } from "@/lib/sound";
 import {
   X,
   Building2,
-  MapPin,
   Mail,
   Phone,
   ShieldCheck,
   CheckCircle2,
-  Clock,
-  Car,
-  ShoppingBag,
   Users,
-  CreditCard,
   FileText,
   AlertTriangle,
-  ExternalLink,
 } from "lucide-react";
 
 interface DealerDetailsModalProps {
@@ -65,30 +59,25 @@ export default function DealerDetailsModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="dealer-details-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150 font-sans"
     >
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        {/* Header */}
+      <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
+        {/* Header - Nissan Obsidian Black */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-amber-400">
-              <Building2 className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white shrink-0">
+              <Building2 className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-amber-400">
+                <span className="text-xs font-mono font-medium text-slate-300">
                   {dealer.dealerCode}
                 </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${dealer.status === "APPROVED"
-                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                    : "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                    }`}
-                >
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-white/10 text-white border border-white/15">
                   {dealer.status === "APPROVED" ? "Approved Franchise" : "Pending Authorization"}
                 </span>
               </div>
-              <h2 id="dealer-details-title" className="text-lg font-bold text-white tracking-tight">
+              <h2 id="dealer-details-title" className="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5">
                 {dealer.legalTradingName}
               </h2>
             </div>
@@ -100,7 +89,7 @@ export default function DealerDetailsModal({
               audio.playSubtleClick();
               onClose();
             }}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title="Close details"
           >
             <X className="w-5 h-5" />
@@ -108,54 +97,54 @@ export default function DealerDetailsModal({
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-slate-800">
           {/* Top 4 KPI Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Assigned Zone</span>
-              <div className="font-mono font-black text-slate-900 text-lg mt-1">{dealer.pricingZoneId}</div>
-              <span className="text-[10px] text-slate-500">${currentZoneConfig.deliveryCostNZD} Delivery</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Assigned Zone</span>
+              <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealer.pricingZoneId}</div>
+              <span className="text-xs text-slate-500 mt-0.5 block">${currentZoneConfig.deliveryCostNZD} Delivery</span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Active Holds</span>
-              <div className="font-mono font-black text-amber-600 text-lg mt-1">{dealerHolds.length} Units</div>
-              <span className="text-[10px] text-slate-500">24h Exclusivity</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Active Holds</span>
+              <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealerHolds.length} Units</div>
+              <span className="text-xs text-slate-500 mt-0.5 block">24h Exclusivity</span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Total Orders</span>
-              <div className="font-mono font-black text-slate-900 text-lg mt-1">{dealerOrders.length} Shipments</div>
-              <span className="text-[10px] text-slate-500">Confirmed RoRo</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Total Orders</span>
+              <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealerOrders.length} Shipments</div>
+              <span className="text-xs text-slate-500 mt-0.5 block">Confirmed RoRo</span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Registered Staff</span>
-              <div className="font-mono font-black text-slate-900 text-lg mt-1">{dealerUsers.length || 1} Users</div>
-              <span className="text-[10px] text-emerald-600 font-semibold">MFA Enabled</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Registered Staff</span>
+              <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealerUsers.length || 1} Users</div>
+              <span className="text-xs text-slate-600 font-medium mt-0.5 block">MFA Enabled</span>
             </div>
           </div>
 
           {/* Legal & Corporate Profile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-xs">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3 shadow-2xs">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 pb-2 border-b border-slate-100">
                 <FileText className="w-3.5 h-3.5 text-slate-400" />
                 <span>Legal &amp; Business Profile</span>
               </h3>
 
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2 pt-1 text-xs">
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">NZBN:</span>
-                  <span className="font-mono font-bold text-slate-900 flex items-center gap-1">
+                  <span className="font-mono font-semibold text-slate-900 flex items-center gap-1">
                     {dealer.nzbn}
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">Dealer Code:</span>
-                  <span className="font-mono font-bold text-slate-800">{dealer.dealerCode}</span>
+                  <span className="font-mono font-semibold text-slate-800">{dealer.dealerCode}</span>
                 </div>
 
                 <div className="flex items-start justify-between py-1 border-b border-slate-100 gap-2">
@@ -165,13 +154,13 @@ export default function DealerDetailsModal({
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">Operating Region:</span>
-                  <span className="font-semibold text-slate-700">{dealer.region}</span>
+                  <span className="font-medium text-slate-700">{dealer.region}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Terms Version:</span>
-                  <span className="font-mono text-emerald-700 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span className="font-mono text-slate-800 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-slate-700" />
                     <span>{dealer.termsAcceptedVersion || "v2026.1 (Accepted)"}</span>
                   </span>
                 </div>
@@ -179,25 +168,25 @@ export default function DealerDetailsModal({
             </div>
 
             {/* Primary Principal & Contacts */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-xs">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3 shadow-2xs">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 pb-2 border-b border-slate-100">
                 <Users className="w-3.5 h-3.5 text-slate-400" />
                 <span>Primary Dealership Principal</span>
               </h3>
 
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2 pt-1 text-xs">
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">Primary Contact:</span>
-                  <strong className="text-slate-900">{dealer.primaryContactName}</strong>
+                  <span className="font-semibold text-slate-900">{dealer.primaryContactName}</span>
                 </div>
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">Email Address:</span>
                   <a
                     href={`mailto:${dealer.primaryContactEmail}`}
-                    className="text-blue-600 hover:underline font-medium flex items-center gap-1"
+                    className="text-slate-800 hover:text-black font-medium flex items-center gap-1 hover:underline"
                   >
-                    <Mail className="w-3 h-3 text-slate-400" />
+                    <Mail className="w-3.5 h-3.5 text-slate-400" />
                     <span>{dealer.primaryContactEmail}</span>
                   </a>
                 </div>
@@ -206,28 +195,28 @@ export default function DealerDetailsModal({
                   <span className="text-slate-500">Direct Phone:</span>
                   <a
                     href={`tel:${dealer.primaryContactPhone}`}
-                    className="text-slate-700 hover:text-slate-900 font-mono flex items-center gap-1"
+                    className="text-slate-800 hover:text-black font-mono flex items-center gap-1"
                   >
-                    <Phone className="w-3 h-3 text-slate-400" />
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />
                     <span>{dealer.primaryContactPhone}</span>
                   </a>
                 </div>
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">Holding Credit Limit:</span>
-                  <span className="font-mono font-bold text-slate-900">$350,000 NZD</span>
+                  <span className="font-mono font-semibold text-slate-900">$350,000 NZD</span>
                 </div>
 
                 <div className="flex items-center justify-between py-1">
                   <span className="text-slate-500">Max Concurrent Holds:</span>
-                  <span className="font-mono font-bold text-slate-800">3 Vehicles Max</span>
+                  <span className="font-mono font-medium text-slate-800">3 Vehicles Max</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Pricing Zone Assignment Control */}
-          <div className="bg-slate-50 rounded-2xl border border-slate-200/90 p-5 space-y-4">
+          <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h3 className="text-sm font-bold text-slate-900">
@@ -239,14 +228,14 @@ export default function DealerDetailsModal({
               </div>
 
               {hasSavedZone && (
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl flex items-center gap-1.5 animate-in fade-in">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Pricing Zone Updated!</span>
+                <span className="text-xs font-semibold text-slate-900 bg-white border border-slate-300 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs animate-in fade-in">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#C3002F]" />
+                  <span>Pricing Zone Updated</span>
                 </span>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
               {(Object.keys(OFFICIAL_PRICING_ZONES) as ZoneId[]).map((zoneKey) => {
                 const z = OFFICIAL_PRICING_ZONES[zoneKey];
                 const isSelected = selectedZone === zoneKey;
@@ -258,17 +247,18 @@ export default function DealerDetailsModal({
                       audio.playSubtleClick();
                       setSelectedZone(zoneKey);
                     }}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
-                      ? "bg-white border-[#C3002F] ring-2 ring-[#C3002F]/20 shadow-xs"
-                      : "bg-white/80 border-slate-200 hover:border-slate-300"
-                      }`}
+                    className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-white border-slate-900 ring-1 ring-slate-900 shadow-2xs"
+                        : "bg-white/80 border-slate-200 hover:border-slate-300"
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono font-bold text-xs text-slate-900">{zoneKey}</span>
+                      <span className="font-mono font-semibold text-xs text-slate-900">{zoneKey}</span>
                       {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#C3002F]" />}
                     </div>
-                    <p className="text-[11px] font-semibold text-slate-700 truncate">{z.zoneName}</p>
-                    <div className="mt-2 font-mono font-bold text-slate-900 text-xs">
+                    <p className="text-xs font-medium text-slate-700 truncate">{z.zoneName}</p>
+                    <div className="mt-1 font-mono font-semibold text-slate-900 text-xs">
                       ${z.deliveryCostNZD} <span className="text-[10px] text-slate-400 font-sans">NZD</span>
                     </div>
                   </button>
@@ -281,7 +271,7 @@ export default function DealerDetailsModal({
                 <button
                   type="button"
                   onClick={handleSaveZone}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs"
+                  className="px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-slate-800 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
                 >
                   Save New Zone Assignment
                 </button>
@@ -291,11 +281,11 @@ export default function DealerDetailsModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-          <div className="text-xs text-slate-500">
+        <div className="px-6 py-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+          <div className="text-xs text-slate-600">
             {dealer.status === "PENDING_APPROVAL" ? (
-              <span className="text-amber-800 font-bold flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+              <span className="font-medium flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-slate-500" />
                 <span>Pending initial franchise authorization and pricing zone sign-off.</span>
               </span>
             ) : (
@@ -315,7 +305,7 @@ export default function DealerDetailsModal({
                       onReject(dealer.id);
                       onClose();
                     }}
-                    className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-rose-50 hover:text-rose-600 font-bold text-xs transition-colors cursor-pointer"
+                    className="px-3.5 py-2 rounded-lg border border-slate-200 hover:bg-rose-50 hover:text-rose-600 font-medium text-xs transition-colors cursor-pointer shadow-2xs"
                   >
                     Decline
                   </button>
@@ -327,9 +317,9 @@ export default function DealerDetailsModal({
                       onApprove(dealer.id, selectedZone);
                       onClose();
                     }}
-                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-slate-800 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-4 h-4 text-white" />
                     <span>Authorize Franchise</span>
                   </button>
                 )}
@@ -342,7 +332,7 @@ export default function DealerDetailsModal({
                 audio.playSubtleClick();
                 onClose();
               }}
-              className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition-colors cursor-pointer shadow-2xs"
             >
               Close
             </button>
