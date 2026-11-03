@@ -258,7 +258,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
         </div>
 
         {/* Detailed Dossier Card */}
-        <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
           {/* Dossier Header Banner */}
           <div className="bg-[#0A0A0A] p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272A]">
             <div className="space-y-1">
@@ -268,12 +268,12 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 </span>
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${res.status === "ACTIVE_HOLD"
-                      ? remaining.isWarning
-                        ? "bg-amber-500 text-black border border-amber-300 font-bold"
-                        : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
-                      : res.status === "CONFIRMED_ALLOCATED"
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : "bg-slate-700 text-slate-300 border border-slate-600"
+                    ? remaining.isWarning
+                      ? "bg-amber-500 text-black border border-amber-300 font-bold"
+                      : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
+                    : res.status === "CONFIRMED_ALLOCATED"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-slate-700 text-slate-300 border border-slate-600"
                     }`}
                 >
                   {res.status === "ACTIVE_HOLD"
@@ -618,8 +618,8 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 setActiveTab("ACTIVE");
               }}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "ACTIVE"
-                  ? "bg-white text-slate-900 shadow-2xs"
-                  : "text-slate-500 hover:text-slate-800"
+                ? "bg-white text-slate-900 shadow-2xs"
+                : "text-slate-500 hover:text-slate-800"
                 }`}
             >
               <Lock className="w-3.5 h-3.5 text-amber-600" />
@@ -636,8 +636,8 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 setActiveTab("HISTORY");
               }}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "HISTORY"
-                  ? "bg-white text-slate-900 shadow-2xs"
-                  : "text-slate-500 hover:text-slate-800"
+                ? "bg-white text-slate-900 shadow-2xs"
+                : "text-slate-500 hover:text-slate-800"
                 }`}
             >
               <Clock className="w-3.5 h-3.5 text-slate-500" />
@@ -693,7 +693,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "ACTIVE" ? (
         filteredActive.length === 0 ? (
-          <div className="bg-white rounded-[24px] border border-slate-200 p-12 text-center space-y-2 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+          <div className="bg-white rounded-[16px] border border-slate-200 p-12 text-center space-y-2 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
             <Clock className="w-10 h-10 text-slate-300 mx-auto" />
             <h3 className="font-bold text-sm text-slate-800">No Active Exclusivity Holds</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -714,7 +714,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                     audio.playSubtleClick();
                     setSelectedResForDetails(res);
                   }}
-                  className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4 relative overflow-hidden"
+                  className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4 relative overflow-hidden"
                 >
                   <div>
                     {/* Top Header: Title & Dynamic Expiry Badge (US-15) */}
@@ -730,8 +730,8 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
 
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${remaining.isWarning
-                            ? "bg-amber-100 text-amber-900 border border-amber-300 ring-2 ring-amber-400/30 animate-pulse"
-                            : "bg-slate-100 text-slate-800 border border-slate-200"
+                          ? "bg-amber-100 text-amber-900 border border-amber-300 ring-2 ring-amber-400/30 animate-pulse"
+                          : "bg-slate-100 text-slate-800 border border-slate-200"
                           }`}
                         title={
                           remaining.isWarning
@@ -860,7 +860,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                   audio.playSubtleClick();
                   setSelectedResForDetails(res);
                 }}
-                className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4"
+                className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
@@ -875,12 +875,12 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
 
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold inline-flex items-center gap-1 ${isAllocated
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : res.status === "CANCELLED"
-                            ? "bg-amber-50 text-amber-800 border border-amber-200"
-                            : res.status === "EXPIRED"
-                              ? "bg-rose-50 text-rose-700 border border-rose-200"
-                              : "bg-slate-100 text-slate-700 border border-slate-200"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : res.status === "CANCELLED"
+                          ? "bg-amber-50 text-amber-800 border border-amber-200"
+                          : res.status === "EXPIRED"
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-slate-100 text-slate-700 border border-slate-200"
                         }`}
                     >
                       {isAllocated ? "CONFIRMED" : res.status}

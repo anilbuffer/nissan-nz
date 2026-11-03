@@ -147,7 +147,7 @@ export default function UserManagementView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Search & Filter Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
+      <div className="p-4 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -225,7 +225,7 @@ export default function UserManagementView() {
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Users Table */}
-      <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs min-w-[760px]">
             <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
@@ -340,8 +340,8 @@ export default function UserManagementView() {
                       <td className="py-3.5 px-4">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${user.active
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-rose-50 text-[#C3002F] border border-rose-200"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-rose-50 text-[#C3002F] border border-rose-200"
                             }`}
                         >
                           <span
@@ -376,8 +376,8 @@ export default function UserManagementView() {
                             }}
                             title={user.active ? "Suspend User" : "Activate User"}
                             className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${user.active
-                                ? "border-slate-200 text-slate-600 hover:text-[#C3002F] hover:bg-rose-50"
-                                : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                              ? "border-slate-200 text-slate-600 hover:text-[#C3002F] hover:bg-rose-50"
+                              : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                               }`}
                           >
                             {user.active ? (

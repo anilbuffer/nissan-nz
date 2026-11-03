@@ -320,7 +320,7 @@ export default function DealerStockCatalog({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Simplified Controls Bar (Search + [ All Models ] Selector) */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -452,7 +452,7 @@ export default function DealerStockCatalog({
               <div
                 key={vehicle.id}
                 onClick={() => handleOpenFullPageDetails(vehicle.id)}
-                className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer p-6 sm:p-7 relative overflow-hidden"
+                className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer p-6 sm:p-7 relative overflow-hidden"
               >
                 <div>
                   {/* Card Top Row: Full Width Name + Model, with Arrow on Right */}
@@ -588,7 +588,7 @@ export default function DealerStockCatalog({
               <div
                 key={vehicle.id}
                 onClick={() => handleOpenFullPageDetails(vehicle.id)}
-                className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all duration-300 p-5 sm:p-6 flex flex-col md:flex-row items-stretch md:items-center gap-6 group cursor-pointer"
+                className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all duration-300 p-5 sm:p-6 flex flex-col md:flex-row items-stretch md:items-center gap-6 group cursor-pointer"
               >
                 {/* Left: Floating Cutout Thumbnail (No Inner Box) */}
                 <div className="relative w-full md:w-56 h-36 flex items-center justify-center shrink-0">

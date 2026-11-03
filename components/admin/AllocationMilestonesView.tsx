@@ -140,7 +140,7 @@ export default function AllocationMilestonesView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Filter & Search Controls (Unified Clean Canvas)          */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -192,7 +192,7 @@ export default function AllocationMilestonesView() {
             return (
               <div
                 key={order.id}
-                className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all"
+                className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all"
               >
                 {/* Order Meta Header */}
                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pb-5 border-b border-slate-100">

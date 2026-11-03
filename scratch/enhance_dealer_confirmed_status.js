@@ -42,7 +42,7 @@ const targetEmptyHolds = `{dealerHolds.length === 0 ? (
           ) : (`;
 
 const newEmptyHolds = `{dealerConfirmedHolds.length > 0 && (
-            <div className="p-5 sm:p-6 rounded-[24px] bg-emerald-50/90 border border-emerald-200 shadow-sm space-y-4">
+            <div className="p-5 sm:p-6 rounded-[16px] bg-emerald-50/90 border border-emerald-200 shadow-sm space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">

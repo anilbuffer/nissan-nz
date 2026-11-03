@@ -203,7 +203,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Simple Top Header & View Tabs (Soft Shadow + Outline) */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             {mode === "RESERVE" ? `Vehicle Reservations (${dealerHolds.length})` : `Wholesale Orders (${dealerOrders.length})`}
@@ -304,7 +304,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
       {(mode === "RESERVE" || (!mode && activeTab === "HOLDS")) && (
         <div className="space-y-6 animate-in fade-in">
           {dealerConfirmedHolds.length > 0 && (
-            <div className="p-5 sm:p-6 rounded-[24px] bg-emerald-50/90 border border-emerald-200 shadow-sm space-y-4">
+            <div className="p-5 sm:p-6 rounded-[16px] bg-emerald-50/90 border border-emerald-200 shadow-sm space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -399,7 +399,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                 return (
                   <div
                     key={res.id}
-                    className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all flex flex-col justify-between space-y-5"
+                    className="bg-white rounded-[16px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all flex flex-col justify-between space-y-5"
                   >
                     <div className="space-y-3">
                       {/* Top tags */}
@@ -496,7 +496,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
           {viewingOrderId ? (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* Back to Orders Grid Action Bar */}
-              <div className="flex items-center justify-between bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex-wrap gap-3">
+              <div className="flex items-center justify-between bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -524,7 +524,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
               {selectedOrder && (
                 <div className="space-y-6">
                   {/* Hero Vehicle & Identification Block */}
-                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-slate-100">
                       <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
@@ -861,7 +861,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   )}
 
                   {/* Order Delivery Timeline (Matching Reference Layout & Authentic Nissan NZ Corridor Data) */}
-                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                       <div>
                         <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
@@ -886,7 +886,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   </div>
 
                   {/* Compliance & Shipping Documents Vault */}
-                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-3 border-b border-slate-100 gap-3">
                       <div className="flex items-start gap-2.5">
                         <FileCheck2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
@@ -994,7 +994,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
             /* Orders Grid Cards View */
             <div className="space-y-6 animate-in fade-in">
               {/* Search & Filter Strip */}
-              <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-1 items-center gap-3">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -1073,7 +1073,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                           setSelectedOrderId(order.id);
                           setViewingOrderId(order.id);
                         }}
-                        className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group"
+                        className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group"
                       >
                         <div>
                           {/* Card Top Row: Order # + Status Pill */}

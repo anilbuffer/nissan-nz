@@ -525,7 +525,7 @@ export default function RolesPermissionsView() {
         </div>
 
         {/* 4. Granular Permissions Matrix Table */}
-        <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+        <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="overflow-x-auto touch-scroll navy-scrollbar">
             <table className="w-full text-left text-xs border-collapse min-w-[780px]">
               <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">

@@ -332,7 +332,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
       {/* Success Feedback Screen                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
       {isSuccess ? (
-        <div className="bg-white rounded-[24px] border border-slate-200 p-8 sm:p-12 text-center space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-2xl mx-auto animate-in fade-in">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-8 sm:p-12 text-center space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-2xl mx-auto animate-in fade-in">
           <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
             <CheckCircle2 className="w-8 h-8" />
           </div>
@@ -419,7 +419,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION A. VEHICLE IDENTIFICATION                         */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <Hash className="w-4 h-4 text-[#C3002F]" />
@@ -585,7 +585,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION B. VEHICLE CONDITION                              */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <FileCheck2 className="w-4 h-4 text-emerald-600" />
@@ -723,7 +723,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION C. VEHICLE PRICING INPUTS                         */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <DollarSign className="w-4 h-4 text-emerald-600" />
@@ -800,7 +800,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION D. IMAGES AND DOCUMENTS                           */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <ImageIcon className="w-4 h-4 text-purple-600" />
@@ -825,8 +825,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   onDrop={handleImageDrop}
                   onClick={() => imageInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-2xl p-6 sm:p-7 text-center transition-all cursor-pointer ${isDraggingImage
-                      ? "border-[#0A0A0A] bg-slate-100 ring-2 ring-[#0A0A0A]/10"
-                      : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                    ? "border-[#0A0A0A] bg-slate-100 ring-2 ring-[#0A0A0A]/10"
+                    : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                     }`}
                 >
                   <input
@@ -1082,7 +1082,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION E. LISTING INFORMATION                            */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <Tag className="w-4 h-4 text-blue-600" />
@@ -1182,18 +1182,18 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
           {/* Right Column (4 cols): Live Interactive Catalogue Preview   */}
           {/* ─────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                   Live Catalogue Preview
                 </span>
                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${status === "AVAILABLE"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : status === "RESERVED"
-                      ? "bg-amber-50 text-amber-800 border-amber-200"
-                      : status === "ALLOCATED"
-                        ? "bg-sky-50 text-sky-700 border-sky-200"
-                        : "bg-slate-100 text-slate-700 border-slate-200"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : status === "RESERVED"
+                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    : status === "ALLOCATED"
+                      ? "bg-sky-50 text-sky-700 border-sky-200"
+                      : "bg-slate-100 text-slate-700 border-slate-200"
                   }`}>
                   {status}
                 </span>
@@ -1236,11 +1236,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                           audio.playSubtleClick();
                           setActivePreviewIdx(idx);
                         }}
-                        className={`w-12 h-9 rounded-lg overflow-hidden border p-0.5 shrink-0 transition-all cursor-pointer bg-slate-50 ${
-                          activePreviewIdx === idx
+                        className={`w-12 h-9 rounded-lg overflow-hidden border p-0.5 shrink-0 transition-all cursor-pointer bg-slate-50 ${activePreviewIdx === idx
                             ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/20 bg-white"
                             : "border-slate-200 opacity-60 hover:opacity-100"
-                        }`}
+                          }`}
                       >
                         <img src={img} alt={`Angle ${idx + 1}`} className="w-full h-full object-contain" />
                       </button>

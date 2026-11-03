@@ -122,7 +122,7 @@ export default function DealershipProfileView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header & Sub-Tabs (Soft Shadow + Outline)     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
 
@@ -180,7 +180,7 @@ export default function DealershipProfileView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "DETAILS" && (
         <div className="space-y-6">
-          <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+          <div className="bg-white rounded-[16px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
@@ -265,7 +265,7 @@ export default function DealershipProfileView() {
       {/* 3. SUBTAB: Pricing Schedule (Zone 1 - 5 Comparison)         */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "PRICING" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -451,7 +451,7 @@ export default function DealershipProfileView() {
       {/* 4. SUBTAB: Permitted Staff Users (US-05)                   */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "USERS" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -516,7 +516,7 @@ export default function DealershipProfileView() {
       {/* 5. SUBTAB: Commercial Terms Agreement & Version Snapshot    */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "COMPLIANCE" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">

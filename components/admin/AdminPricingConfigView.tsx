@@ -139,7 +139,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Pricing Configuration
@@ -195,7 +195,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Core Pricing Component Table                              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <table className="w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -428,7 +428,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Fixed Profile Price as per Zone Matrix                   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div>
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
@@ -483,7 +483,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Collapsible 5-Zone Towing Matrix (Minimal)               */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <button
           type="button"
           onClick={() => setShowAllZones(!showAllZones)}
@@ -542,11 +542,11 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
           </div>
         )}
       </div>
-    
+
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 5. Reservation Expiry & Warning Rules (US-15)              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-slate-100 text-[#C3002F]">

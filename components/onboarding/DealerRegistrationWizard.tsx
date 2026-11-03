@@ -312,8 +312,8 @@ export default function DealerRegistrationWizard() {
     category === "DEALER_NZ"
       ? DEALER_NZ_STEPS
       : category === "JAPAN_HQ"
-      ? JAPAN_HQ_STEPS
-      : PROGRAMME_USER_STEPS;
+        ? JAPAN_HQ_STEPS
+        : PROGRAMME_USER_STEPS;
 
   // Selected NZ Location
   const selectedLocation =
@@ -569,8 +569,8 @@ export default function DealerRegistrationWizard() {
                 {category === "DEALER_NZ"
                   ? "Dealer Onboarding"
                   : category === "JAPAN_HQ"
-                  ? "Japan HQ Onboarding"
-                  : "Programme Access"}
+                    ? "Japan HQ Onboarding"
+                    : "Programme Access"}
               </h2>
             </div>
           </div>
@@ -582,8 +582,8 @@ export default function DealerRegistrationWizard() {
               {category === "DEALER_NZ"
                 ? "NZ Franchise Application"
                 : category === "JAPAN_HQ"
-                ? "Japan Export Entity"
-                : "Programme / Others"}
+                  ? "Japan Export Entity"
+                  : "Programme / Others"}
             </span>
           </div>
 
@@ -615,22 +615,20 @@ export default function DealerRegistrationWizard() {
                   type="button"
                   onClick={() => handleStepClick(step.id)}
                   disabled={step.id > currentStep}
-                  className={`w-full flex items-center gap-3 p-2.5 sm:p-3 rounded-xl transition-all duration-200 text-left cursor-pointer ${
-                    isActive
+                  className={`w-full flex items-center gap-3 p-2.5 sm:p-3 rounded-xl transition-all duration-200 text-left cursor-pointer ${isActive
                       ? "bg-white/10 text-white shadow-xs border border-white/15 backdrop-blur-md font-bold"
                       : isPassed
-                      ? "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
-                      : "text-slate-500 cursor-not-allowed opacity-40 border border-transparent"
-                  }`}
+                        ? "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+                        : "text-slate-500 cursor-not-allowed opacity-40 border border-transparent"
+                    }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-all ${
-                      isActive
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-all ${isActive
                         ? "bg-white text-black shadow-xs"
                         : isPassed
-                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                        : "bg-slate-800 text-slate-500"
-                    }`}
+                          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                          : "bg-slate-800 text-slate-500"
+                      }`}
                   >
                     {isPassed && !isActive ? <CheckCircle2 className="w-4 h-4" /> : step.id}
                   </div>
@@ -676,8 +674,8 @@ export default function DealerRegistrationWizard() {
                 {category === "DEALER_NZ"
                   ? "Dealer NZ Registration"
                   : category === "JAPAN_HQ"
-                  ? "User/Dealer Japan HQ Registration"
-                  : "User Others / Programme Registration"}
+                    ? "User/Dealer Japan HQ Registration"
+                    : "User Others / Programme Registration"}
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 Official registration application for the Nissan Used Vehicle Programme
@@ -706,11 +704,10 @@ export default function DealerRegistrationWizard() {
                 <button
                   type="button"
                   onClick={() => handleCategoryChange("DEALER_NZ")}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${
-                    category === "DEALER_NZ"
+                  className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${category === "DEALER_NZ"
                       ? "bg-[#0A0A0A] text-white shadow-xs"
                       : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                  }`}
+                    }`}
                 >
                   <Building2 className="w-3.5 h-3.5 shrink-0" />
                   <span>1. Dealer NZ Registration</span>
@@ -719,11 +716,10 @@ export default function DealerRegistrationWizard() {
                 <button
                   type="button"
                   onClick={() => handleCategoryChange("JAPAN_HQ")}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${
-                    category === "JAPAN_HQ"
+                  className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${category === "JAPAN_HQ"
                       ? "bg-[#0A0A0A] text-white shadow-xs"
                       : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                  }`}
+                    }`}
                 >
                   <Globe className="w-3.5 h-3.5 shrink-0" />
                   <span>2. Japan HQ Registration</span>
@@ -732,11 +728,10 @@ export default function DealerRegistrationWizard() {
                 <button
                   type="button"
                   onClick={() => handleCategoryChange("PROGRAMME_USER")}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${
-                    category === "PROGRAMME_USER"
+                  className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${category === "PROGRAMME_USER"
                       ? "bg-[#0A0A0A] text-white shadow-xs"
                       : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                  }`}
+                    }`}
                 >
                   <User className="w-3.5 h-3.5 shrink-0" />
                   <span>3. User Others / Programme</span>
@@ -749,7 +744,7 @@ export default function DealerRegistrationWizard() {
           {/* SUCCESS CONFIRMATION VIEW                                 */}
           {/* ───────────────────────────────────────────────────────── */}
           {isSubmitted ? (
-            <div className="bg-white rounded-[24px] border border-slate-200 p-8 sm:p-12 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6 text-center animate-in fade-in zoom-in-95 duration-300">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-8 sm:p-12 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6 text-center animate-in fade-in zoom-in-95 duration-300">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 border border-emerald-200/80 flex items-center justify-center mx-auto text-emerald-600 shadow-[0_8px_30px_rgba(16,185,129,0.2)]">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
@@ -763,8 +758,8 @@ export default function DealerRegistrationWizard() {
                   {category === "DEALER_NZ"
                     ? "Dealership Onboarding Received"
                     : category === "JAPAN_HQ"
-                    ? "Japan HQ Onboarding Received"
-                    : "Programme User Application Received"}
+                      ? "Japan HQ Onboarding Received"
+                      : "Programme User Application Received"}
                 </h2>
                 <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
                   {category === "DEALER_NZ" && (
@@ -823,8 +818,8 @@ export default function DealerRegistrationWizard() {
                     {category === "DEALER_NZ"
                       ? dealerData.contactEmail
                       : category === "JAPAN_HQ"
-                      ? japanData.contactEmail
-                      : programmeData.businessEmail}
+                        ? japanData.contactEmail
+                        : programmeData.businessEmail}
                   </strong>
                   .
                 </div>
@@ -860,7 +855,7 @@ export default function DealerRegistrationWizard() {
             /* ───────────────────────────────────────────────────────── */
             /* WIZARD FORM CONTAINER                                     */
             /* ───────────────────────────────────────────────────────── */
-            <div className="bg-white rounded-[24px] border border-slate-200 p-7 sm:p-10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-7 sm:p-10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               {/* Step Header */}
               <div className="mb-7 pb-5 border-b border-slate-100 flex items-start justify-between">
                 <div>
@@ -911,9 +906,8 @@ export default function DealerRegistrationWizard() {
                               value={dealerData.dealershipName}
                               onChange={(e) => updateDealerField("dealershipName", e.target.value)}
                               placeholder="e.g. Auckland Nissan City Ltd"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.dealershipName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.dealershipName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.dealershipName && (
@@ -931,9 +925,8 @@ export default function DealerRegistrationWizard() {
                               value={dealerData.dealerCode}
                               onChange={(e) => updateDealerField("dealerCode", e.target.value.toUpperCase())}
                               placeholder="e.g. NZ-NIS-AKL04"
-                              className={`w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.dealerCode ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.dealerCode ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                             {errors.dealerCode && (
                               <p className="text-[11px] text-rose-600">{errors.dealerCode}</p>
@@ -995,9 +988,8 @@ export default function DealerRegistrationWizard() {
                               value={dealerData.physicalAddress}
                               onChange={(e) => updateDealerField("physicalAddress", e.target.value)}
                               placeholder="Street address where vehicles will be delivered"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.physicalAddress ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.physicalAddress ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.physicalAddress && (
@@ -1034,9 +1026,8 @@ export default function DealerRegistrationWizard() {
                             value={dealerData.contactName}
                             onChange={(e) => updateDealerField("contactName", e.target.value)}
                             placeholder="e.g. Jason Bell"
-                            className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                              errors.contactName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                            className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                           />
                           {errors.contactName && (
                             <p className="text-[11px] text-rose-600">{errors.contactName}</p>
@@ -1055,9 +1046,8 @@ export default function DealerRegistrationWizard() {
                                 value={dealerData.contactEmail}
                                 onChange={(e) => updateDealerField("contactEmail", e.target.value)}
                                 placeholder="jason@dealership.co.nz"
-                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                  errors.contactEmail ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactEmail ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                  } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                               />
                             </div>
                             {errors.contactEmail && (
@@ -1076,9 +1066,8 @@ export default function DealerRegistrationWizard() {
                                 value={dealerData.contactPhone}
                                 onChange={(e) => updateDealerField("contactPhone", e.target.value)}
                                 placeholder="+64 21 000 0000"
-                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                  errors.contactPhone ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactPhone ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                  } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                               />
                             </div>
                             {errors.contactPhone && (
@@ -1177,13 +1166,12 @@ export default function DealerRegistrationWizard() {
 
                       <div className="space-y-1.5 pt-1">
                         <label
-                          className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${
-                            dealerData.acceptTerms && dealerData.acceptCostBoundary
+                          className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${dealerData.acceptTerms && dealerData.acceptCostBoundary
                               ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
                               : errors.acceptTerms
-                              ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
-                              : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
-                          }`}
+                                ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
+                                : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+                            }`}
                         >
                           <input
                             type="checkbox"
@@ -1327,9 +1315,8 @@ export default function DealerRegistrationWizard() {
                               value={japanData.facilityName}
                               onChange={(e) => updateJapanField("facilityName", e.target.value)}
                               placeholder="e.g. Nissan Motor Co. Global HQ / Yokohama Operations"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.facilityName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.facilityName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.facilityName && (
@@ -1347,9 +1334,8 @@ export default function DealerRegistrationWizard() {
                               value={japanData.facilityCode}
                               onChange={(e) => updateJapanField("facilityCode", e.target.value.toUpperCase())}
                               placeholder="e.g. JP-NIS-YOK01"
-                              className={`w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.facilityCode ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full px-3.5 py-2.5 text-sm font-mono bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.facilityCode ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                             {errors.facilityCode && (
                               <p className="text-[11px] text-rose-600">{errors.facilityCode}</p>
@@ -1411,9 +1397,8 @@ export default function DealerRegistrationWizard() {
                               value={japanData.physicalAddress}
                               onChange={(e) => updateJapanField("physicalAddress", e.target.value)}
                               placeholder="1-1-1 Takashima, Nishi-ku, Yokohama, Kanagawa"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.physicalAddress ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.physicalAddress ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.physicalAddress && (
@@ -1447,9 +1432,8 @@ export default function DealerRegistrationWizard() {
                             value={japanData.contactName}
                             onChange={(e) => updateJapanField("contactName", e.target.value)}
                             placeholder="e.g. Kenji Takahashi"
-                            className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                              errors.contactName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                            className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                           />
                           {errors.contactName && (
                             <p className="text-[11px] text-rose-600">{errors.contactName}</p>
@@ -1468,9 +1452,8 @@ export default function DealerRegistrationWizard() {
                                 value={japanData.contactEmail}
                                 onChange={(e) => updateJapanField("contactEmail", e.target.value)}
                                 placeholder="k-takahashi@nissan-global.com"
-                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                  errors.contactEmail ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactEmail ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                  } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                               />
                             </div>
                             {errors.contactEmail && (
@@ -1489,9 +1472,8 @@ export default function DealerRegistrationWizard() {
                                 value={japanData.contactPhone}
                                 onChange={(e) => updateJapanField("contactPhone", e.target.value)}
                                 placeholder="+81 45 523 5523"
-                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                  errors.contactPhone ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                                className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactPhone ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                  } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                               />
                             </div>
                             {errors.contactPhone && (
@@ -1578,13 +1560,12 @@ export default function DealerRegistrationWizard() {
 
                       <div className="space-y-1.5 pt-1">
                         <label
-                          className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${
-                            japanData.acceptTerms && japanData.acceptCostBoundary
+                          className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${japanData.acceptTerms && japanData.acceptCostBoundary
                               ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
                               : errors.acceptTerms
-                              ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
-                              : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
-                          }`}
+                                ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
+                                : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+                            }`}
                         >
                           <input
                             type="checkbox"
@@ -1726,9 +1707,8 @@ export default function DealerRegistrationWizard() {
                               value={programmeData.fullName}
                               onChange={(e) => updateProgrammeField("fullName", e.target.value)}
                               placeholder="e.g. Elena Campbell"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.fullName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.fullName ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.fullName && (
@@ -1748,9 +1728,8 @@ export default function DealerRegistrationWizard() {
                               value={programmeData.organisation}
                               onChange={(e) => updateProgrammeField("organisation", e.target.value)}
                               placeholder="e.g. Nissan New Zealand NSC"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.organisation ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.organisation ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.organisation && (
@@ -1770,9 +1749,8 @@ export default function DealerRegistrationWizard() {
                               value={programmeData.department}
                               onChange={(e) => updateProgrammeField("department", e.target.value)}
                               placeholder="e.g. Customs, Supply Chain & Compliance"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.department ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.department ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.department && (
@@ -1790,9 +1768,8 @@ export default function DealerRegistrationWizard() {
                             value={programmeData.jobTitle}
                             onChange={(e) => updateProgrammeField("jobTitle", e.target.value)}
                             placeholder="e.g. Senior Vehicle Compliance Manager"
-                            className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                              errors.jobTitle ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                            } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                            className={`w-full px-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.jobTitle ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                           />
                           {errors.jobTitle && (
                             <p className="text-[11px] text-rose-600">{errors.jobTitle}</p>
@@ -1811,9 +1788,8 @@ export default function DealerRegistrationWizard() {
                               value={programmeData.businessEmail}
                               onChange={(e) => updateProgrammeField("businessEmail", e.target.value)}
                               placeholder="elena.campbell@nissan.co.nz"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.businessEmail ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.businessEmail ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.businessEmail && (
@@ -1833,9 +1809,8 @@ export default function DealerRegistrationWizard() {
                               value={programmeData.contactNumber}
                               onChange={(e) => updateProgrammeField("contactNumber", e.target.value)}
                               placeholder="+64 9 271 8800"
-                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${
-                                errors.contactNumber ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
-                              } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
+                              className={`w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50/70 hover:bg-slate-50/90 focus:bg-white rounded-xl border ${errors.contactNumber ? "border-rose-500 ring-2 ring-rose-500/20" : "border-slate-200/90"
+                                } text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all shadow-xs`}
                             />
                           </div>
                           {errors.contactNumber && (
@@ -1873,11 +1848,10 @@ export default function DealerRegistrationWizard() {
                             <button
                               type="button"
                               onClick={() => updateProgrammeField("requestedRole", "READONLY_PROGRAMME_USER")}
-                              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer space-y-1.5 ${
-                                programmeData.requestedRole === "READONLY_PROGRAMME_USER"
+                              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer space-y-1.5 ${programmeData.requestedRole === "READONLY_PROGRAMME_USER"
                                   ? "bg-slate-50 border-slate-900 ring-2 ring-slate-900/10 shadow-xs"
                                   : "bg-white border-slate-200 hover:border-slate-300"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold text-slate-900">Programme User</span>
@@ -1911,13 +1885,12 @@ export default function DealerRegistrationWizard() {
                         {/* Governance Agreement Checkbox */}
                         <div className="space-y-1.5 pt-1">
                           <label
-                            className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${
-                              programmeData.acceptCompliance
+                            className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${programmeData.acceptCompliance
                                 ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
                                 : errors.acceptCompliance
-                                ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
-                                : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
-                            }`}
+                                  ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
+                                  : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+                              }`}
                           >
                             <input
                               type="checkbox"
@@ -2072,8 +2045,8 @@ export default function DealerRegistrationWizard() {
                       {category === "DEALER_NZ"
                         ? "Submit Dealership Application"
                         : category === "JAPAN_HQ"
-                        ? "Submit Japan HQ Application"
-                        : "Submit Programme Access Application"}
+                          ? "Submit Japan HQ Application"
+                          : "Submit Programme Access Application"}
                     </span>
                   </button>
                 )}

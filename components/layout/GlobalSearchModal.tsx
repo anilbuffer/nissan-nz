@@ -206,7 +206,7 @@ export default function GlobalSearchModal({
         }
       }}
     >
-      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-4xl w-full overflow-hidden flex flex-col max-h-[88vh] animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-4xl w-full overflow-hidden flex flex-col max-h-[88vh] animate-in zoom-in-95 duration-200">
         {/* 1. Modal Top Bar with Search Input */}
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white sticky top-0 z-20">
           <div className="flex items-center gap-3">
@@ -267,8 +267,8 @@ export default function GlobalSearchModal({
                     setSelectedIndex(0);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 flex items-center gap-1.5 shrink-0 cursor-pointer ${isActive
-                      ? "bg-[#C3002F] text-white shadow-xs shadow-rose-200"
-                      : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/60"
+                    ? "bg-[#C3002F] text-white shadow-xs shadow-rose-200"
+                    : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/60"
                     }`}
                 >
                   <span>{f.label}</span>
@@ -319,8 +319,8 @@ export default function GlobalSearchModal({
                 onClick={() => handleSelectVehicle(vehicle.id)}
                 onMouseEnter={() => setSelectedIndex(idx)}
                 className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-150 border ${isSelected
-                    ? "bg-rose-50/40 border-[#C3002F]/40 shadow-xs"
-                    : "bg-white hover:bg-slate-50/80 border-slate-100 hover:border-slate-200"
+                  ? "bg-rose-50/40 border-[#C3002F]/40 shadow-xs"
+                  : "bg-white hover:bg-slate-50/80 border-slate-100 hover:border-slate-200"
                   }`}
               >
                 {/* Left: Thumbnail & Main Dossier */}
@@ -397,8 +397,8 @@ export default function GlobalSearchModal({
 
                     <div
                       className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${isSelected
-                          ? "bg-[#C3002F] text-white shadow-xs"
-                          : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-900"
+                        ? "bg-[#C3002F] text-white shadow-xs"
+                        : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-900"
                         }`}
                     >
                       <ChevronRight className="w-4 h-4" />

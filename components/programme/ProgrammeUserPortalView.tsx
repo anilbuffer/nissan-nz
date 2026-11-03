@@ -143,7 +143,7 @@ export default function ProgrammeUserPortalView({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Nissan Corporate Title Bar                */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 px-6 py-5 sm:px-7 sm:py-5.5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 px-6 py-5 sm:px-7 sm:py-5.5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#C3002F]">
@@ -164,15 +164,15 @@ export default function ProgrammeUserPortalView({
             {activeTab === "stock"
               ? "Authorised Programme Stock"
               : activeTab === "reservations"
-              ? "Exclusivity Reservations Queue"
-              : "Programme Orders & Shipping"}
+                ? "Exclusivity Reservations Queue"
+                : "Programme Orders & Shipping"}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 font-normal max-w-2xl leading-relaxed">
             {activeTab === "stock"
               ? "Centralised National Sales Company governance for authorised Japanese vehicle inventory, specifications, and dealer allocation."
               : activeTab === "reservations"
-              ? "Live monitoring of 24-hour franchise dealership exclusivity holds with locked landed price snapshots."
-              : "Confirmed wholesale vehicle orders, RoRo ocean transit logistics, and door-to-door delivery milestones."}
+                ? "Live monitoring of 24-hour franchise dealership exclusivity holds with locked landed price snapshots."
+                : "Confirmed wholesale vehicle orders, RoRo ocean transit logistics, and door-to-door delivery milestones."}
           </p>
         </div>
 
@@ -196,9 +196,8 @@ export default function ProgrammeUserPortalView({
             handleTabChange("stock");
             setStatusFilter("ALL");
           }}
-          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
-            activeTab === "stock" && statusFilter === "ALL" ? "ring-1 ring-[#0A0A0A]" : ""
-          }`}
+          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "stock" && statusFilter === "ALL" ? "ring-1 ring-[#0A0A0A]" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -223,9 +222,8 @@ export default function ProgrammeUserPortalView({
             handleTabChange("stock");
             setStatusFilter("AVAILABLE");
           }}
-          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
-            activeTab === "stock" && statusFilter === "AVAILABLE" ? "ring-1 ring-emerald-500" : ""
-          }`}
+          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "stock" && statusFilter === "AVAILABLE" ? "ring-1 ring-emerald-500" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -249,9 +247,8 @@ export default function ProgrammeUserPortalView({
             audio.playSubtleClick();
             handleTabChange("reservations");
           }}
-          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
-            activeTab === "reservations" ? "ring-1 ring-amber-500" : ""
-          }`}
+          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "reservations" ? "ring-1 ring-amber-500" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -275,9 +272,8 @@ export default function ProgrammeUserPortalView({
             audio.playSubtleClick();
             handleTabChange("orders");
           }}
-          className={`p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${
-            activeTab === "orders" ? "ring-1 ring-blue-500" : ""
-          }`}
+          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "orders" ? "ring-1 ring-blue-500" : ""
+            }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -300,7 +296,7 @@ export default function ProgrammeUserPortalView({
       {/* 3. TAB 1: Stock Catalogue (Clean, Spacious 5 Columns)       */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "stock" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
           {/* Subheader Toolbar */}
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -323,11 +319,10 @@ export default function ProgrammeUserPortalView({
                       audio.playSubtleClick();
                       setStatusFilter(status);
                     }}
-                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                      statusFilter === status
+                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${statusFilter === status
                         ? "bg-[#0A0A0A] text-white shadow-2xs"
                         : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                    }`}
+                      }`}
                   >
                     {status}
                   </button>
@@ -516,7 +511,7 @@ export default function ProgrammeUserPortalView({
       {/* 4. TAB 2: Exclusivity Holds (Clean, Spacious 5 Columns)     */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "reservations" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
@@ -648,7 +643,7 @@ export default function ProgrammeUserPortalView({
       {/* 5. TAB 3: Orders & Shipping (Clean, Spacious 5 Columns)     */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "orders" && (
-        <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
@@ -783,7 +778,7 @@ export default function ProgrammeUserPortalView({
       {/* ─────────────────────────────────────────────────────────── */}
       {selectedVehicleForDossier && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-[24px] border border-slate-200 shadow-2xl max-w-3xl w-full p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-2xl max-w-3xl w-full p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
               <div>
@@ -957,7 +952,7 @@ export default function ProgrammeUserPortalView({
       {/* ─────────────────────────────────────────────────────────── */}
       {selectedOrderForDossier && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-[24px] border border-slate-200 shadow-2xl max-w-2xl w-full p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-2xl max-w-2xl w-full p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
               <div>

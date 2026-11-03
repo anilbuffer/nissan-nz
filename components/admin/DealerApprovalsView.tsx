@@ -172,7 +172,7 @@ export default function DealerApprovalsView() {
     return (
       <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
         {/* Navigation Top Bar */}
-        <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
             <button
               type="button"
@@ -233,7 +233,7 @@ export default function DealerApprovalsView() {
 
         {/* 4-Stat Executive Highlights Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+          <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Assigned Pricing Zone
             </span>
@@ -245,7 +245,7 @@ export default function DealerApprovalsView() {
             </span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+          <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Active Exclusivity Holds
             </span>
@@ -257,7 +257,7 @@ export default function DealerApprovalsView() {
             </span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+          <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Total Wholesale Orders
             </span>
@@ -269,7 +269,7 @@ export default function DealerApprovalsView() {
             </span>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+          <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Authorized Staff Accounts
             </span>
@@ -287,7 +287,7 @@ export default function DealerApprovalsView() {
           {/* Left Column: Legal Profile & Allocation Activity */}
           <div className="lg:col-span-7 space-y-6">
             {/* Legal & Business Entity Card */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="space-y-0.5">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
@@ -344,7 +344,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Wholesale Allocation & Exclusivity Limits */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
                 <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
                 <span>Commercial Floorplan &amp; Capacity Boundary</span>
@@ -372,7 +372,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Active Inventory Activity for this Dealership */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
                   <Car className="w-4 h-4 text-slate-600" />
@@ -437,7 +437,7 @@ export default function DealerApprovalsView() {
           {/* Right Column: Contact Dossier, Interactive Zone Config & Admin Actions */}
           <div className="lg:col-span-5 space-y-6">
             {/* Primary Principal Card */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                 Authorized Dealer Principal
               </span>
@@ -473,7 +473,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Interactive Pricing & Towing Zone Configuration */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-bold text-slate-900 text-sm">
@@ -548,7 +548,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Administrative Operational Authority */}
-            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                 Administrative Operational Authority
               </span>
@@ -630,7 +630,7 @@ export default function DealerApprovalsView() {
       {/* 2. Executive Network 3-KPI Metric Strip                     */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+        <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Total Network
           </span>
@@ -642,7 +642,7 @@ export default function DealerApprovalsView() {
           </span>
         </div>
 
-        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+        <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Active Showrooms
           </span>
@@ -654,7 +654,7 @@ export default function DealerApprovalsView() {
           </span>
         </div>
 
-        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
+        <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             National Coverage
           </span>
@@ -670,7 +670,7 @@ export default function DealerApprovalsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Global Network Search Toolbar                            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
           <input
@@ -690,7 +690,7 @@ export default function DealerApprovalsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. Approved Franchise Network Directory   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">

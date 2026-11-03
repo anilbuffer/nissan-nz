@@ -61,7 +61,7 @@ export default function DealerDetailsModal({
       aria-labelledby="dealer-details-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150 font-sans"
     >
-      <div className="relative w-full max-w-5xl bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-5xl bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header - Nissan Obsidian Black */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -248,8 +248,8 @@ export default function DealerDetailsModal({
                       setSelectedZone(zoneKey);
                     }}
                     className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${isSelected
-                        ? "bg-white border-slate-900 ring-1 ring-slate-900 shadow-2xs"
-                        : "bg-white/80 border-slate-200 hover:border-slate-300"
+                      ? "bg-white border-slate-900 ring-1 ring-slate-900 shadow-2xs"
+                      : "bg-white/80 border-slate-200 hover:border-slate-300"
                       }`}
                   >
                     <div className="flex items-center justify-between mb-1">

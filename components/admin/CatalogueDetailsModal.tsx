@@ -63,7 +63,7 @@ export default function CatalogueDetailsModal({
       aria-labelledby="catalogue-details-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-4xl bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-4xl bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -76,19 +76,18 @@ export default function CatalogueDetailsModal({
                   #{vehicle.stockId}
                 </span>
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    vehicle.status === "AVAILABLE"
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${vehicle.status === "AVAILABLE"
                       ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                       : vehicle.status === "RESERVED"
-                      ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                      : "bg-slate-700 text-slate-300 border-slate-600"
-                  }`}
+                        ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                        : "bg-slate-700 text-slate-300 border-slate-600"
+                    }`}
                 >
                   {vehicle.status === "AVAILABLE"
                     ? "Available For Hold"
                     : vehicle.status === "RESERVED"
-                    ? "24h Exclusivity Lock Active"
-                    : vehicle.status}
+                      ? "24h Exclusivity Lock Active"
+                      : vehicle.status}
                 </span>
               </div>
               <h2 id="catalogue-details-title" className="text-lg font-bold text-white tracking-tight">
@@ -145,11 +144,10 @@ export default function CatalogueDetailsModal({
                         audio.playSubtleClick();
                         setActiveImageIdx(idx);
                       }}
-                      className={`w-16 h-12 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${
-                        activeImageIdx === idx
+                      className={`w-16 h-12 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
                           ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
                           : "border-slate-200 hover:border-slate-300 opacity-70"
-                      }`}
+                        }`}
                     >
                       <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
                     </button>
@@ -263,11 +261,10 @@ export default function CatalogueDetailsModal({
                       audio.playSubtleClick();
                       setSelectedZone(z);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                      selectedZone === z
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${selectedZone === z
                         ? "bg-white text-slate-900 shadow-2xs"
                         : "text-slate-500 hover:text-slate-800"
-                    }`}
+                      }`}
                   >
                     {z.replace("_", " ")}
                   </button>

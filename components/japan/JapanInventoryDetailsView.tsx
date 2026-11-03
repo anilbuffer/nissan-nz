@@ -227,7 +227,7 @@ export default function JapanInventoryDetailsView({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Main Vehicle Header Card                                 */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white text-slate-900 rounded-[24px] p-6 sm:p-7 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden">
+      <div className="bg-white text-slate-900 rounded-[16px] p-6 sm:p-7 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F] shrink-0 shadow-2xs">
@@ -470,7 +470,7 @@ export default function JapanInventoryDetailsView({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Column (7 cols): Studio Image Showcase */}
         <div className="lg:col-span-7 h-full flex flex-col">
-          <div className="bg-white rounded-[24px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
+          <div className="bg-white rounded-[16px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
             <div>
               {/* Main Stage Image */}
               <div className="relative w-full h-72 sm:h-84 rounded-2xl bg-gradient-to-b from-slate-50 via-slate-100/70 to-slate-200/50 border border-slate-200/80 p-6 flex items-center justify-center overflow-hidden group">
@@ -509,11 +509,10 @@ export default function JapanInventoryDetailsView({
                           audio.playSubtleClick();
                           setActiveImageIdx(idx);
                         }}
-                        className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${
-                          activeImageIdx === idx
+                        className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
                             ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
                             : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
-                        }`}
+                          }`}
                       >
                         <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
                       </button>
@@ -536,7 +535,7 @@ export default function JapanInventoryDetailsView({
 
         {/* Right Column (5 cols): Japanese Baseline Pricing & Technical Parameters */}
         <div className="lg:col-span-5 h-full flex flex-col">
-          <div className="bg-white rounded-[24px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-5">
+          <div className="bg-white rounded-[16px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-5">
             {/* Top: Baseline Pricing Box */}
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
               <div className="flex items-center justify-between">
@@ -680,7 +679,7 @@ export default function JapanInventoryDetailsView({
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* Card A: Inspection Condition Dossier & JEVIC Verification */}
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
@@ -741,7 +740,7 @@ export default function JapanInventoryDetailsView({
         </div>
 
         {/* Card B: Supporting Documents & Digital Passes */}
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div>
@@ -1042,11 +1041,10 @@ export default function JapanInventoryDetailsView({
                 <label
                   key={idx}
                   onClick={() => setWithdrawReason(reason)}
-                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${
-                    withdrawReason === reason
+                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${withdrawReason === reason
                       ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
                       : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"

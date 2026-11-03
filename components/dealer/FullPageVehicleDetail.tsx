@@ -234,7 +234,7 @@ export default function FullPageVehicleDetail({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Navigation & Dealership Identity Bar              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
@@ -377,7 +377,7 @@ export default function FullPageVehicleDetail({
         {/* ───────────────────────────────────────────────────────── */}
         <div className="lg:col-span-7 flex flex-col h-full">
           {/* Main Studio Car Showcase Card */}
-          <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative flex flex-col justify-between h-full">
+          <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative flex flex-col justify-between h-full">
             {/* Top Row: Auction Grade & Stock ID */}
             <div className="flex items-center justify-between relative z-20 pb-1">
               <div className="px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1">
@@ -444,7 +444,7 @@ export default function FullPageVehicleDetail({
         {/* ───────────────────────────────────────────────────────── */}
         <div className="lg:col-span-5 flex flex-col h-full">
           {/* Card 1: WHOLESALE LANDED PRICE SCHEDULE */}
-          <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between h-full space-y-4">
+          <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between h-full space-y-4">
             <div className="space-y-3.5">
               <div>
                 <div className="flex items-baseline gap-1.5">
@@ -765,15 +765,14 @@ export default function FullPageVehicleDetail({
                       <ShieldCheck className="w-4 h-4 text-slate-900" />
                       <span className="text-xs font-bold text-slate-900 tracking-tight">Admin Operations &amp; Allocation Control</span>
                     </div>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                      vehicle.status === "BUYED"
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${vehicle.status === "BUYED"
                         ? "bg-purple-100 text-purple-800"
                         : vehicle.status === "ALLOCATED"
                           ? "bg-sky-100 text-sky-800"
                           : vehicle.status === "RESERVED"
                             ? "bg-amber-100 text-amber-800"
                             : "bg-emerald-100 text-emerald-800"
-                    }`}>
+                      }`}>
                       {vehicle.status === "BUYED" ? "PAID" : vehicle.status}
                     </span>
                   </div>
@@ -896,7 +895,7 @@ export default function FullPageVehicleDetail({
         {/* ───────────────────────────────────────────────────────── */}
         {/* 1st CARD: Specifications                                  */}
         {/* ───────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4" />
@@ -966,163 +965,163 @@ export default function FullPageVehicleDetail({
             </div>
           </div>
 
-            {/* 4-Column Technical Grid (Cleaned: No Duplicates or Redundant Info) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-              {/* Card 1: Provenance & Identification */}
-              <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Provenance &amp; Identification
-                </span>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Chassis / VIN:</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-mono font-bold text-slate-900">{vehicle.vinChassis}</span>
-                      <button
-                        type="button"
-                        onClick={handleCopyVin}
-                        title="Copy VIN"
-                        className="p-0.5 text-slate-400 hover:text-slate-700 cursor-pointer"
-                      >
-                        {copiedVin ? (
-                          <Check className="w-3 h-3 text-emerald-600" />
-                        ) : (
-                          <Copy className="w-3 h-3" />
-                        )}
-                      </button>
+          {/* 4-Column Technical Grid (Cleaned: No Duplicates or Redundant Info) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            {/* Card 1: Provenance & Identification */}
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Provenance &amp; Identification
+              </span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Chassis / VIN:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono font-bold text-slate-900">{vehicle.vinChassis}</span>
+                    <button
+                      type="button"
+                      onClick={handleCopyVin}
+                      title="Copy VIN"
+                      className="p-0.5 text-slate-400 hover:text-slate-700 cursor-pointer"
+                    >
+                      {copiedVin ? (
+                        <Check className="w-3 h-3 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Make &amp; Model:</span>
+                  <span className="font-bold text-slate-900">{vehicle.make || "Nissan"} {vehicle.model}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Variant / Trim:</span>
+                  <span className="font-semibold text-slate-800">{vehicle.grade}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Drive Type:</span>
+                  <span className="font-mono font-bold text-slate-900">{vehicle.driveType || "2WD"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Powertrain & Mechanical */}
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Powertrain &amp; Mechanical
+              </span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Powertrain:</span>
+                  <span className="font-semibold text-slate-900">{vehicle.fuelType}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Engine / Motor:</span>
+                  <span className="font-mono font-medium text-slate-800">
+                    {vehicle.engineCc && vehicle.engineCc > 0 ? `${vehicle.engineCc.toLocaleString()} cc` : "Electric Drive Motor"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Transmission:</span>
+                  <span className="font-medium text-slate-800">{vehicle.transmission}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Exterior Colour:</span>
+                  <span className="font-medium text-slate-800">{vehicle.color || "Factory Original"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Compliance & Odometer (Cleaned: Removed duplicates of Odometer km, Price Basis, Listing Status) */}
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Compliance &amp; Odometer
+              </span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">JEVIC Odometer:</span>
+                  <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>Certified Hash Pass</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">NZTA Entry:</span>
+                  <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>MR2A Dossier Cleared</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Biosecurity / Rad:</span>
+                  <span className="font-mono font-medium text-slate-700 text-[11px]">
+                    Passed (&lt;0.08 µSv/h)
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Certified Date:</span>
+                  <span className="font-mono text-slate-700">{vehicle.inspectionDate || vehicle.createdAt || "2026-10-24"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Condition Log & Japanese Notes (Cleaned: Removed 3rd duplicate of Auction Grade) */}
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Condition &amp; Inspection Log
+              </span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Interior / Exterior:</span>
+                  <span className="font-medium text-slate-900 text-[11px]">
+                    Int: Grade {vehicle.interiorGrade || "A"} · Ext: Grade {vehicle.exteriorGrade || "A"}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[11px] text-slate-500 block mb-0.5">Overall Condition:</span>
+                  <p className="text-[11px] text-slate-700 leading-snug font-normal">
+                    {vehicle.overallCondition || vehicle.conditionSummary || "Zero panel damage. Verified Japanese one-owner."}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-[11px] text-slate-500 block mb-1">Reported Defects:</span>
+                  {vehicle.knownDefects && vehicle.knownDefects.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {vehicle.knownDefects.map((defect, dIdx) => (
+                        <span
+                          key={dIdx}
+                          className="text-[10px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200"
+                        >
+                          • {defect}
+                        </span>
+                      ))}
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Make &amp; Model:</span>
-                    <span className="font-bold text-slate-900">{vehicle.make || "Nissan"} {vehicle.model}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Variant / Trim:</span>
-                    <span className="font-semibold text-slate-800">{vehicle.grade}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Drive Type:</span>
-                    <span className="font-mono font-bold text-slate-900">{vehicle.driveType || "2WD"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Powertrain & Mechanical */}
-              <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Powertrain &amp; Mechanical
-                </span>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Powertrain:</span>
-                    <span className="font-semibold text-slate-900">{vehicle.fuelType}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Engine / Motor:</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {vehicle.engineCc && vehicle.engineCc > 0 ? `${vehicle.engineCc.toLocaleString()} cc` : "Electric Drive Motor"}
+                  ) : (
+                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                      None Reported (Grade 4.5+ Standard)
                     </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Transmission:</span>
-                    <span className="font-medium text-slate-800">{vehicle.transmission}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Exterior Colour:</span>
-                    <span className="font-medium text-slate-800">{vehicle.color || "Factory Original"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3: Compliance & Odometer (Cleaned: Removed duplicates of Odometer km, Price Basis, Listing Status) */}
-              <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Compliance &amp; Odometer
-                </span>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">JEVIC Odometer:</span>
-                    <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>Certified Hash Pass</span>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">NZTA Entry:</span>
-                    <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>MR2A Dossier Cleared</span>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Biosecurity / Rad:</span>
-                    <span className="font-mono font-medium text-slate-700 text-[11px]">
-                      Passed (&lt;0.08 µSv/h)
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Certified Date:</span>
-                    <span className="font-mono text-slate-700">{vehicle.inspectionDate || vehicle.createdAt || "2026-10-24"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 4: Condition Log & Japanese Notes (Cleaned: Removed 3rd duplicate of Auction Grade) */}
-              <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Condition &amp; Inspection Log
-                </span>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Interior / Exterior:</span>
-                    <span className="font-medium text-slate-900 text-[11px]">
-                      Int: Grade {vehicle.interiorGrade || "A"} · Ext: Grade {vehicle.exteriorGrade || "A"}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="text-[11px] text-slate-500 block mb-0.5">Overall Condition:</span>
-                    <p className="text-[11px] text-slate-700 leading-snug font-normal">
-                      {vehicle.overallCondition || vehicle.conditionSummary || "Zero panel damage. Verified Japanese one-owner."}
-                    </p>
-                  </div>
-
-                  <div>
-                    <span className="text-[11px] text-slate-500 block mb-1">Reported Defects:</span>
-                    {vehicle.knownDefects && vehicle.knownDefects.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {vehicle.knownDefects.map((defect, dIdx) => (
-                          <span
-                            key={dIdx}
-                            className="text-[10px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200"
-                          >
-                            • {defect}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                        None Reported (Grade 4.5+ Standard)
-                      </span>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
         {/* 2nd CARD: Additional Costs                                */}
         {/* ───────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">

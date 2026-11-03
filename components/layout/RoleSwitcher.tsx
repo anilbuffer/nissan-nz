@@ -119,9 +119,8 @@ export default function RoleSwitcher() {
           </div>
         </div>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -129,7 +128,7 @@ export default function RoleSwitcher() {
       {isOpen && (
         <div
           role="listbox"
-          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] py-2 z-50 text-slate-900 animate-in fade-in slide-in-from-top-2 duration-150"
+          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] py-2 z-50 text-slate-900 animate-in fade-in slide-in-from-top-2 duration-150"
         >
           <div className="px-3.5 py-2 border-b border-slate-100 mb-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -151,11 +150,10 @@ export default function RoleSwitcher() {
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelectRole(option.role)}
-                  className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left text-xs cursor-pointer ${
-                    isSelected
+                  className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all text-left text-xs cursor-pointer ${isSelected
                       ? "bg-slate-50 text-slate-900 font-semibold border border-slate-200"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className={`p-1.5 rounded-lg shrink-0 ${option.iconBg}`}>
