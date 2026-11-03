@@ -8,12 +8,9 @@ import { audio } from "@/lib/sound";
 import UserDetailsView from "./UserDetailsView";
 import InviteUserModal from "./InviteUserModal";
 import {
-  Users,
-  UserCheck,
   UserPlus,
   Shield,
   ShieldCheck,
-  Building2,
   Search,
   Filter,
   MoreVertical,
@@ -77,14 +74,7 @@ export default function UserManagementView() {
   });
 
   // KPI calculations
-  const totalUsers = users.length;
-  const dealerUsersCount = users.filter(
-    (u) => u.role === "DEALER_USER" || u.role === "DEALER_ADMIN"
-  ).length;
-  const adminUsersCount = users.filter((u) => u.role === "AUTOHUB_ADMIN").length;
-  const japanUsersCount = users.filter((u) => u.role === "NISSAN_JAPAN").length;
-  const mfaEnabledCount = users.filter((u) => u.mfaEnabled).length;
-  const mfaPercentage = Math.round((mfaEnabledCount / totalUsers) * 100) || 0;
+
 
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
@@ -134,14 +124,6 @@ export default function UserManagementView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
-              Platform Operations Admin
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              ● Directory Synchronized
-            </span>
-          </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             User Management ({users.length})
           </h1>
@@ -163,57 +145,7 @@ export default function UserManagementView() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. KPI Metric Cards                                        */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[11px] font-medium">Total Platform Users</span>
-            <Users className="w-4 h-4 text-slate-400" />
-          </div>
-          <div className="text-2xl font-bold tracking-tight text-slate-900">{totalUsers}</div>
-          <div className="text-[10px] text-emerald-600 font-medium mt-1">100% Identity Verified</div>
-        </div>
-
-        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[11px] font-medium">Dealership Buyers</span>
-            <Building2 className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-bold tracking-tight text-slate-900">{dealerUsersCount}</div>
-          <div className="text-[10px] text-slate-400 mt-1">Across 5 Geographic Zones</div>
-        </div>
-
-        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[11px] font-medium">Operations Controllers</span>
-            <Shield className="w-4 h-4 text-[#C3002F]" />
-          </div>
-          <div className="text-2xl font-bold tracking-tight text-slate-900">{adminUsersCount}</div>
-          <div className="text-[10px] text-[#C3002F] font-medium mt-1">Central Authority</div>
-        </div>
-
-        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[11px] font-medium">Japan Export Leads</span>
-            <UserCheck className="w-4 h-4 text-blue-500" />
-          </div>
-          <div className="text-2xl font-bold tracking-tight text-slate-900">{japanUsersCount}</div>
-          <div className="text-[10px] text-blue-600 mt-1">Yokohama & JEVIC</div>
-        </div>
-
-        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] col-span-2 lg:col-span-1">
-          <div className="flex items-center justify-between text-slate-500 mb-1">
-            <span className="text-[11px] font-medium">MFA Security Rate</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold tracking-tight text-emerald-700">{mfaPercentage}%</div>
-          <div className="text-[10px] text-slate-400 mt-1">{mfaEnabledCount} of {totalUsers} Enforced</div>
-        </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Search & Filter Bar                                     */}
+      {/* 2. Search & Filter Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
@@ -292,7 +224,7 @@ export default function UserManagementView() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 4. Users Table */}
+      {/* 3. Users Table */}
       <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs min-w-[760px]">
@@ -407,16 +339,14 @@ export default function UserManagementView() {
                       {/* Status */}
                       <td className="py-3.5 px-4">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            user.active
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${user.active
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                               : "bg-rose-50 text-[#C3002F] border border-rose-200"
-                          }`}
+                            }`}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              user.active ? "bg-emerald-500" : "bg-rose-500"
-                            }`}
+                            className={`w-1.5 h-1.5 rounded-full ${user.active ? "bg-emerald-500" : "bg-rose-500"
+                              }`}
                           ></span>
                           <span>{user.active ? "Active" : "Suspended"}</span>
                         </span>
@@ -445,11 +375,10 @@ export default function UserManagementView() {
                               toggleUserStatus(user.id);
                             }}
                             title={user.active ? "Suspend User" : "Activate User"}
-                            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                              user.active
+                            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${user.active
                                 ? "border-slate-200 text-slate-600 hover:text-[#C3002F] hover:bg-rose-50"
                                 : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-                            }`}
+                              }`}
                           >
                             {user.active ? (
                               <Lock className="w-3.5 h-3.5" />

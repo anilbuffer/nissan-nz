@@ -47,8 +47,12 @@ export default function DealerRegistrationModal({
         {/* Header */}
         <div className="bg-[#0A0A0A] px-6 py-5 text-white flex items-center justify-between border-b border-[#27272A]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#C3002F] flex items-center justify-center font-bold text-lg text-white shadow-soft">
-              D
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
+              <img
+                src="/nissan-logo.png"
+                alt="Nissan Logo"
+                className="w-9 h-9 object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+              />
             </div>
             <div>
               <h3 className="font-semibold text-lg text-white">Nissan Dealer Onboarding Application</h3>

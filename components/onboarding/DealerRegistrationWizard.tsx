@@ -340,8 +340,12 @@ export default function DealerRegistrationWizard() {
         <div className="relative z-10 space-y-6">
           {/* Brand Header */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C3002F] via-[#A10026] to-[#680018] flex items-center justify-center font-black text-lg text-white shadow-soft shadow-crimson-600/30 ring-1 ring-white/20">
-              D
+            <div className="w-12 h-12 flex items-center justify-center shrink-0">
+              <img
+                src="/nissan-logo.png"
+                alt="Nissan Logo"
+                className="w-10 h-10 object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+              />
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">

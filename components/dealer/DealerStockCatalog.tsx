@@ -68,10 +68,6 @@ export default function DealerStockCatalog({
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState("ALL");
-  const [selectedFuel, setSelectedFuel] = useState("ALL");
-  const [selectedGrade, setSelectedGrade] = useState("ALL");
-  const [selectedMaxKm, setSelectedMaxKm] = useState<number | null>(null);
-  const [sortBy, setSortBy] = useState<"PRICE_ASC" | "PRICE_DESC" | "KM_ASC" | "YEAR_DESC">("PRICE_ASC");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "HELD">("ALL");
   const [dossierVehicle, setDossierVehicle] = useState<Vehicle | null>(null);
 
@@ -95,10 +91,6 @@ export default function DealerStockCatalog({
     audio.playSubtleClick();
     setSearchQuery("");
     setSelectedModel("ALL");
-    setSelectedFuel("ALL");
-    setSelectedGrade("ALL");
-    setSelectedMaxKm(null);
-    setSortBy("PRICE_ASC");
     setStatusFilter("ALL");
   };
 
@@ -106,12 +98,9 @@ export default function DealerStockCatalog({
     let count = 0;
     if (searchQuery) count++;
     if (selectedModel !== "ALL") count++;
-    if (selectedFuel !== "ALL") count++;
-    if (selectedGrade !== "ALL") count++;
-    if (selectedMaxKm !== null) count++;
     if (statusFilter !== "ALL") count++;
     return count;
-  }, [searchQuery, selectedModel, selectedFuel, selectedGrade, selectedMaxKm, statusFilter]);
+  }, [searchQuery, selectedModel, statusFilter]);
 
   // Model Counts for Pills
   const modelStats = useMemo(() => {
@@ -167,42 +156,14 @@ export default function DealerStockCatalog({
           return false;
         }
 
-        if (selectedFuel !== "ALL" && v.fuelType !== selectedFuel) {
-          return false;
-        }
-
-        if (selectedGrade !== "ALL") {
-          if (selectedGrade === "5.0" && v.auctionGrade !== "5.0") return false;
-          if (selectedGrade === "4.5" && !["5.0", "4.5"].includes(v.auctionGrade)) return false;
-          if (selectedGrade === "4.0" && !["5.0", "4.5", "4.0"].includes(v.auctionGrade)) return false;
-        }
-
-        if (selectedMaxKm !== null && v.odometerKm > selectedMaxKm) {
-          return false;
-        }
-
         return true;
       })
       .sort((a, b) => {
-        if (sortBy === "PRICE_ASC") {
-          const priceA = calculateLandedPrice(a.fobPriceJPY, dealerZone).totalBuyPriceNZD;
-          const priceB = calculateLandedPrice(b.fobPriceJPY, dealerZone).totalBuyPriceNZD;
-          return priceA - priceB;
-        }
-        if (sortBy === "PRICE_DESC") {
-          const priceA = calculateLandedPrice(a.fobPriceJPY, dealerZone).totalBuyPriceNZD;
-          const priceB = calculateLandedPrice(b.fobPriceJPY, dealerZone).totalBuyPriceNZD;
-          return priceB - priceA;
-        }
-        if (sortBy === "KM_ASC") {
-          return a.odometerKm - b.odometerKm;
-        }
-        if (sortBy === "YEAR_DESC") {
-          return b.year - a.year;
-        }
-        return 0;
+        const priceA = calculateLandedPrice(a.fobPriceJPY, dealerZone).totalBuyPriceNZD;
+        const priceB = calculateLandedPrice(b.fobPriceJPY, dealerZone).totalBuyPriceNZD;
+        return priceA - priceB;
       });
-  }, [vehicles, searchQuery, selectedModel, selectedFuel, selectedGrade, selectedMaxKm, sortBy, dealerZone, statusFilter]);
+  }, [vehicles, searchQuery, selectedModel, dealerZone, statusFilter, externalSearchQuery, isAdminView]);
 
   // Navigate directly to FULL PAGE Vehicle Details (INSIDE PORTAL)
   const handleOpenFullPageDetails = (vehicleId: string) => {
@@ -303,11 +264,10 @@ export default function DealerStockCatalog({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Modern Filter & Controls Bar (Wide, Unrestricted Layout)  */}
+      {/* 2. Simplified Controls Bar (Search + [ All Models ] Selector) */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3.5">
-        {/* Row 1: Search Box + Extended Dropdowns + Layout Toggle */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 pointer-events-none" />
@@ -323,74 +283,48 @@ export default function DealerStockCatalog({
                 type="button"
                 onClick={() => setSearchQuery("")}
                 className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+                title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Extended Filters Toolbar */}
-          <div className="flex items-center flex-wrap gap-2 text-xs">
-            {/* Powertrain Filter */}
-            <select
-              value={selectedFuel}
-              onChange={(e) => {
-                audio.playSubtleClick();
-                setSelectedFuel(e.target.value);
-              }}
-              className="px-2.5 py-2 text-xs bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer shadow-2xs"
-            >
-              <option value="ALL">All Powertrains</option>
-              <option value="e-Power">e-Power</option>
-              <option value="100% Electric">100% Electric (EV)</option>
-              <option value="Hybrid">Hybrid</option>
-              <option value="Petrol">Petrol</option>
-            </select>
+          {/* Controls: Model Dropdown + Reset + Layout Toggle */}
+          <div className="flex items-center flex-wrap gap-2.5">
+            {/* Models Dropdown Selector (Only dropdown as requested) */}
+            <div className="relative">
+              <select
+                value={selectedModel}
+                onChange={(e) => {
+                  audio.playSubtleClick();
+                  setSelectedModel(e.target.value);
+                }}
+                aria-label="Filter by Model"
+                className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
+              >
+                <option value="ALL">All Models ({modelStats[0]?.count || 0})</option>
+                {modelStats.slice(1).map((item) => (
+                  <option key={item.key} value={item.key}>
+                    {item.name} ({item.count})
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+            </div>
 
-            {/* Auction Grade Filter */}
-            <select
-              value={selectedGrade}
-              onChange={(e) => {
-                audio.playSubtleClick();
-                setSelectedGrade(e.target.value);
-              }}
-              className="px-2.5 py-2 text-xs bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer shadow-2xs"
-            >
-              <option value="ALL">All Grades</option>
-              <option value="5.0">Grade 5.0 (Showroom)</option>
-              <option value="4.5">Grade 4.5+</option>
-              <option value="4.0">Grade 4.0+</option>
-            </select>
-
-            {/* Mileage Filter */}
-            <select
-              value={selectedMaxKm !== null ? String(selectedMaxKm) : "ALL"}
-              onChange={(e) => {
-                audio.playSubtleClick();
-                setSelectedMaxKm(e.target.value === "ALL" ? null : Number(e.target.value));
-              }}
-              className="px-2.5 py-2 text-xs bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer shadow-2xs"
-            >
-              <option value="ALL">Any Mileage</option>
-              <option value="20000">&lt; 20,000 km</option>
-              <option value="35000">&lt; 35,000 km</option>
-              <option value="50000">&lt; 50,000 km</option>
-            </select>
-
-            {/* Sort Selector */}
-            <select
-              value={sortBy}
-              onChange={(e) => {
-                audio.playSubtleClick();
-                setSortBy(e.target.value as any);
-              }}
-              className="px-2.5 py-2 text-xs bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer shadow-2xs"
-            >
-              <option value="PRICE_ASC">Price: Low to High</option>
-              <option value="PRICE_DESC">Price: High to Low</option>
-              <option value="KM_ASC">Mileage: Lowest First</option>
-              <option value="YEAR_DESC">Year: Newest First</option>
-            </select>
+            {/* Reset Button */}
+            {activeFiltersCount > 0 && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1.5"
+                title="Reset filters"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset</span>
+              </button>
+            )}
 
             {/* Grid vs List Layout Toggle */}
             <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
@@ -430,82 +364,6 @@ export default function DealerStockCatalog({
             </div>
           </div>
         </div>
-
-        {/* Row 2: 1-Click Model Quick-Filter Pills Strip */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 navy-scrollbar">
-          {modelStats.map((item) => {
-            const isSelected = selectedModel === item.key;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setSelectedModel(item.key);
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
-                  isSelected
-                    ? "bg-[#0A0A0A] text-white shadow-2xs font-black"
-                    : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold"
-                }`}
-              >
-                <span>{item.name}</span>
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-md ${
-                    isSelected ? "bg-white/20 text-white" : "bg-white text-slate-600 border border-slate-200"
-                  }`}
-                >
-                  {item.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Row 3: Active Filter Badges */}
-        {activeFiltersCount > 0 && (
-          <div className="flex items-center flex-wrap gap-2 pt-1 border-t border-slate-100 text-xs">
-            <span className="text-[11px] font-bold text-slate-400">Active Filters:</span>
-            {selectedModel !== "ALL" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[11px] font-bold border border-slate-200">
-                Model: {selectedModel}
-                <button type="button" onClick={() => setSelectedModel("ALL")} className="hover:text-rose-600">✕</button>
-              </span>
-            )}
-            {selectedFuel !== "ALL" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[11px] font-bold border border-slate-200">
-                Fuel: {selectedFuel}
-                <button type="button" onClick={() => setSelectedFuel("ALL")} className="hover:text-rose-600">✕</button>
-              </span>
-            )}
-            {selectedGrade !== "ALL" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[11px] font-bold border border-slate-200">
-                Grade: {selectedGrade}+
-                <button type="button" onClick={() => setSelectedGrade("ALL")} className="hover:text-rose-600">✕</button>
-              </span>
-            )}
-            {selectedMaxKm !== null && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[11px] font-bold border border-slate-200">
-                Max KM: {selectedMaxKm.toLocaleString()} km
-                <button type="button" onClick={() => setSelectedMaxKm(null)} className="hover:text-rose-600">✕</button>
-              </span>
-            )}
-            {searchQuery && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-[11px] font-bold border border-slate-200">
-                &ldquo;{searchQuery}&rdquo;
-                <button type="button" onClick={() => setSearchQuery("")} className="hover:text-rose-600">✕</button>
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="text-[11px] font-bold text-[#C3002F] hover:underline ml-1 cursor-pointer flex items-center gap-1"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Clear All</span>
-            </button>
-          </div>
-        )}
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
@@ -516,7 +374,7 @@ export default function DealerStockCatalog({
           <Car className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="font-bold text-base text-slate-900">No vehicles match your search filters</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Try adjusting your model selector, powertrain filters, or clearing the keyword search.
+            Try adjusting your model selector or clearing the keyword search.
           </p>
           <button
             type="button"

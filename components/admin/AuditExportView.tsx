@@ -403,18 +403,7 @@ export default function AuditExportView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
-              Compliance &amp; Reporting Module
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-              US-20, US-21
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-              NZTA &amp; Customs Audit Compliant
-            </span>
-          </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
             Programme Audit History &amp; Data Export Hub
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">

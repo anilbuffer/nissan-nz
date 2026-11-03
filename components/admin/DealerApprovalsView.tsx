@@ -110,24 +110,10 @@ export default function DealerApprovalsView() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const pendingDealers = dealers.filter((d) => d.status === "PENDING_APPROVAL");
   const approvedDealers = dealers.filter((d) => d.status === "APPROVED");
 
   // Selected dealer computed from live context
   const selectedDealer = dealers.find((d) => d.id === selectedDealerId) || null;
-
-  // Filtered lists based on search
-  const filteredPending = pendingDealers.filter((d) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      d.legalTradingName.toLowerCase().includes(q) ||
-      d.dealerCode.toLowerCase().includes(q) ||
-      d.nzbn.toLowerCase().includes(q) ||
-      d.region.toLowerCase().includes(q) ||
-      d.primaryContactName.toLowerCase().includes(q)
-    );
-  });
 
   const filteredApproved = approvedDealers.filter((d) => {
     if (!searchQuery) return true;
@@ -518,11 +504,10 @@ export default function DealerApprovalsView() {
                         audio.playSubtleClick();
                         setDetailSelectedZone(zoneKey);
                       }}
-                      className={`w-full p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
-                        isSelected
+                      className={`w-full p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${isSelected
                           ? "bg-slate-50 border-[#C3002F] ring-2 ring-[#C3002F]/10 shadow-2xs"
                           : "bg-white border-slate-200 hover:border-slate-300"
-                      }`}
+                        }`}
                     >
                       <div className="space-y-0.5 pr-2">
                         <div className="flex items-center gap-1.5">
@@ -616,20 +601,11 @@ export default function DealerApprovalsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
-              Nissan New Zealand Network
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-              Franchise Governance
-            </span>
-          </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">
             Franchise Dealers
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Complete franchise network directory, pending onboarding requests, NZBN verification, and domestic towing zone assignments.
+            Complete franchise network directory, authorized dealership entities, NZBN verification, and domestic towing zone assignments.
           </p>
         </div>
       </div>
@@ -651,9 +627,9 @@ export default function DealerApprovalsView() {
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Executive Network 4-KPI Metric Strip                     */}
+      {/* 2. Executive Network 3-KPI Metric Strip                     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Total Network
@@ -663,18 +639,6 @@ export default function DealerApprovalsView() {
           </div>
           <span className="text-xs text-slate-500 font-medium block truncate">
             Dealership Entities
-          </span>
-        </div>
-
-        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            Pending Authorizations
-          </span>
-          <div className="text-2xl font-black text-amber-600 font-mono">
-            {pendingDealers.length}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Awaiting Zone &amp; Sign-off
           </span>
         </div>
 
@@ -724,154 +688,7 @@ export default function DealerApprovalsView() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 4. SECTION 1 (OPEN): Pending Franchise Applications Queue   */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-            <h2 className="text-base font-black text-slate-900 tracking-tight">
-              Pending Onboarding Applications ({pendingDealers.length})
-            </h2>
-          </div>
-          <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-            Requires Zone assignment &amp; legal sign-off before stock catalog access is granted
-          </span>
-        </div>
-
-        {pendingDealers.length === 0 ? (
-          <div className="bg-white rounded-[24px] border border-slate-200 p-8 text-center space-y-2 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-            <CheckCircle2 className="w-9 h-9 text-emerald-500 mx-auto" />
-            <h3 className="font-bold text-sm text-slate-900">All Dealership Applications Reviewed</h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
-              There are no pending franchise authorizations. New onboarding registrations will appear here automatically.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredPending.map((dealer) => {
-              const currentZone = pendingZoneMap[dealer.id] || dealer.pricingZoneId || "ZONE_1";
-
-              return (
-                <div
-                  key={dealer.id}
-                  className="bg-white rounded-[24px] border-2 border-amber-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 space-y-6 hover:shadow-md transition-all"
-                >
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 font-black text-lg shrink-0">
-                        <Building2 className="w-6 h-6" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-black text-slate-900 text-base">
-                            {dealer.legalTradingName}
-                          </h3>
-                          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-mono text-[10px] font-bold border border-amber-200">
-                            PENDING AUTHORIZATION
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 font-mono">
-                          Dealer Code: <strong className="text-slate-800">{dealer.dealerCode}</strong> · NZBN: <strong className="text-slate-800">{dealer.nzbn}</strong>
-                        </p>
-                        <p className="text-xs text-slate-600 flex items-center gap-1.5 pt-0.5">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span>{dealer.address}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="text-left md:text-right space-y-1 text-xs">
-                      <div className="text-slate-600 flex items-center md:justify-end gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-mono">{dealer.primaryContactEmail}</span>
-                      </div>
-                      <div className="text-slate-600 flex items-center md:justify-end gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-mono">{dealer.primaryContactPhone}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 pt-1 font-mono">
-                        Terms Version: {dealer.termsAcceptedVersion || "v2026.1"}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Zone Assignment Selector */}
-                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-0.5">
-                      <label className="text-xs font-black text-slate-900 block">
-                        Assigned Geographic Pricing Zone
-                      </label>
-                      <p className="text-[11px] text-slate-500">
-                        Applies fixed domestic towing schedule ($650 – $1,750 NZD) to all landed quotes for this franchise.
-                      </p>
-                    </div>
-
-                    <div className="w-full md:w-80">
-                      <select
-                        value={currentZone}
-                        onChange={(e) =>
-                          setPendingZoneMap((prev) => ({
-                            ...prev,
-                            [dealer.id]: e.target.value as ZoneId,
-                          }))
-                        }
-                        className="w-full px-3 py-2 text-xs bg-white rounded-xl border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500 cursor-pointer font-medium"
-                      >
-                        {(Object.keys(OFFICIAL_PRICING_ZONES) as ZoneId[]).map((zoneKey) => {
-                          const z = OFFICIAL_PRICING_ZONES[zoneKey];
-                          return (
-                            <option key={zoneKey} value={zoneKey}>
-                              {zoneKey}: {z.zoneName} (${z.deliveryCostNZD.toLocaleString()} NZD)
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        audio.playSubtleClick();
-                        setSelectedDealerId(dealer.id);
-                      }}
-                      className="btn-outline text-xs py-2 px-3.5 self-start sm:self-auto"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Inspect Full Dossier</span>
-                    </button>
-
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => handleReject(dealer.id)}
-                        className="btn-outline text-xs py-2 px-3 text-rose-700 hover:bg-rose-50 hover:border-rose-200"
-                      >
-                        Decline Application
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleApprove(dealer.id, currentZone)}
-                        className="py-2.5 px-5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Authorize Franchise &amp; Assign Zone</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. SECTION 2 (OPEN): Approved Franchise Network Directory   */}
+      {/* 4. Approved Franchise Network Directory   */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -879,7 +696,7 @@ export default function DealerApprovalsView() {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               <h2 className="text-base font-black text-slate-900 tracking-tight">
-                Approved Franchise Network ({approvedDealers.length})
+                Franchise Dealership Network ({approvedDealers.length})
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">

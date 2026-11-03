@@ -106,15 +106,6 @@ export default function AllocationMilestonesView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
-              Wholesale Logistics Control
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-              8-Stage RoRo Progression
-            </span>
-          </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">
             Wholesale Orders
           </h1>
@@ -175,11 +166,10 @@ export default function AllocationMilestonesView() {
                 audio.playSubtleClick();
                 setMilestoneFilter(chip.id);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                milestoneFilter === chip.id
-                  ? "bg-white text-slate-900 shadow-2xs font-bold"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${milestoneFilter === chip.id
+                ? "bg-white text-slate-900 shadow-2xs font-bold"
+                : "text-slate-500 hover:text-slate-800"
+                }`}
             >
               {chip.label}
             </button>
@@ -216,7 +206,7 @@ export default function AllocationMilestonesView() {
                     </div>
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono font-black text-base text-slate-900">
+                        <span className="font-medium text-xs text-slate-900">
                           {order.orderNumber}
                         </span>
                         <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono font-bold border border-slate-200">
@@ -265,13 +255,12 @@ export default function AllocationMilestonesView() {
                       return (
                         <div
                           key={stage.key}
-                          className={`p-2.5 rounded-xl text-center text-xs border transition-all ${
-                            isDone
-                              ? "bg-slate-50 border-slate-200 text-slate-700"
-                              : isCurrent
+                          className={`p-2.5 rounded-xl text-center text-xs border transition-all ${isDone
+                            ? "bg-slate-50 border-slate-200 text-slate-700"
+                            : isCurrent
                               ? "bg-slate-900 text-white border-slate-900 font-bold shadow-xs"
                               : "bg-white border-slate-200/60 text-slate-400"
-                          }`}
+                            }`}
                         >
                           <div className="text-[11px] font-semibold truncate leading-tight">
                             {stage.label}

@@ -16,7 +16,6 @@ import {
   Unlock,
   RotateCcw,
   Save,
-  Users,
   Building2,
   Car,
   DollarSign,
@@ -223,67 +222,67 @@ const ROLES_META: {
   tierLabel: string;
   description: string;
 }[] = [
-  {
-    role: "AUTOHUB_ADMIN",
-    title: "Operations Central Controller",
-    subtitle: "Full Platform Administration",
-    badgeBg: "bg-rose-50 border-rose-200",
-    badgeText: "text-[#C3002F]",
-    tier: "Tier 1 · Full Authority",
-    tierLabel: "Tier 1",
-    description: "Central platform management, RoRo transit scheduling, dealer approvals, and cost overrides.",
-  },
-  {
-    role: "NISSAN_JAPAN",
-    title: "Yokohama Procurement Lead",
-    subtitle: "Japan Export Marshalling",
-    badgeBg: "bg-blue-50 border-blue-200",
-    badgeText: "text-blue-700",
-    tier: "Tier 2 · Export Procurement",
-    tierLabel: "Tier 2",
-    description: "Stock creation, batch manifests, JEVIC odometer verification, and Japan yard marshalling.",
-  },
-  {
-    role: "DEALER_ADMIN",
-    title: "Franchise Dealer Principal",
-    subtitle: "Dealership Executive Governance",
-    badgeBg: "bg-emerald-50 border-emerald-200",
-    badgeText: "text-emerald-700",
-    tier: "Tier 3 · Franchise Executive",
-    tierLabel: "Tier 3",
-    description: "Dealership governance, terms acceptance, gross profit visibility, and sales team invites.",
-  },
-  {
-    role: "DEALER_USER",
-    title: "Dealership Sales & Buyer",
-    subtitle: "Direct Wholesale Purchasing",
-    badgeBg: "bg-slate-100 border-slate-200",
-    badgeText: "text-slate-800",
-    tier: "Tier 4 · Inventory Buyer",
-    tierLabel: "Tier 4",
-    description: "Vehicle search, 360 photography, landed NZD buy prices, and 24-hour atomic hold lock.",
-  },
-  {
-    role: "READONLY_AUDITOR",
-    title: "Border Compliance Auditor",
-    subtitle: "Independent Regulatory Audit",
-    badgeBg: "bg-amber-50 border-amber-200",
-    badgeText: "text-amber-800",
-    tier: "Tier 5 · Regulatory Read-Only",
-    tierLabel: "Tier 5",
-    description: "Independent audit trail inspection, MR2A compliance verification, and customs exports.",
-  },
-  {
-    role: "READONLY_PROGRAMME_USER",
-    title: "Programme Representative",
-    subtitle: "National Sales Company (NSC)",
-    badgeBg: "bg-indigo-50 border-indigo-200",
-    badgeText: "text-indigo-700",
-    tier: "Tier 5 · Programme Read-Only",
-    tierLabel: "Tier 5",
-    description: "Dedicated read-only interface to view authorised stock, reservation queues, door-to-door milestones, and operational reporting.",
-  },
-];
+    {
+      role: "AUTOHUB_ADMIN",
+      title: "Operations Central Controller",
+      subtitle: "Full Platform Administration",
+      badgeBg: "bg-rose-50 border-rose-200",
+      badgeText: "text-[#C3002F]",
+      tier: "Tier 1 · Full Authority",
+      tierLabel: "Tier 1",
+      description: "Central platform management, RoRo transit scheduling, dealer approvals, and cost overrides.",
+    },
+    {
+      role: "NISSAN_JAPAN",
+      title: "Yokohama Procurement Lead",
+      subtitle: "Japan Export Marshalling",
+      badgeBg: "bg-blue-50 border-blue-200",
+      badgeText: "text-blue-700",
+      tier: "Tier 2 · Export Procurement",
+      tierLabel: "Tier 2",
+      description: "Stock creation, batch manifests, JEVIC odometer verification, and Japan yard marshalling.",
+    },
+    {
+      role: "DEALER_ADMIN",
+      title: "Franchise Dealer Principal",
+      subtitle: "Dealership Executive Governance",
+      badgeBg: "bg-emerald-50 border-emerald-200",
+      badgeText: "text-emerald-700",
+      tier: "Tier 3 · Franchise Executive",
+      tierLabel: "Tier 3",
+      description: "Dealership governance, terms acceptance, gross profit visibility, and sales team invites.",
+    },
+    {
+      role: "DEALER_USER",
+      title: "Dealership Sales & Buyer",
+      subtitle: "Direct Wholesale Purchasing",
+      badgeBg: "bg-slate-100 border-slate-200",
+      badgeText: "text-slate-800",
+      tier: "Tier 4 · Inventory Buyer",
+      tierLabel: "Tier 4",
+      description: "Vehicle search, 360 photography, landed NZD buy prices, and 24-hour atomic hold lock.",
+    },
+    {
+      role: "READONLY_AUDITOR",
+      title: "Border Compliance Auditor",
+      subtitle: "Independent Regulatory Audit",
+      badgeBg: "bg-amber-50 border-amber-200",
+      badgeText: "text-amber-800",
+      tier: "Tier 5 · Regulatory Read-Only",
+      tierLabel: "Tier 5",
+      description: "Independent audit trail inspection, MR2A compliance verification, and customs exports.",
+    },
+    {
+      role: "READONLY_PROGRAMME_USER",
+      title: "Programme Representative",
+      subtitle: "National Sales Company (NSC)",
+      badgeBg: "bg-indigo-50 border-indigo-200",
+      badgeText: "text-indigo-700",
+      tier: "Tier 5 · Programme Read-Only",
+      tierLabel: "Tier 5",
+      description: "Dedicated read-only interface to view authorised stock, reservation queues, door-to-door milestones, and operational reporting.",
+    },
+  ];
 
 export const WHO_ENTERS_WHAT = [
   {
@@ -459,14 +458,6 @@ export default function RolesPermissionsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
-              Governance & Security Framework
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              ● RBAC Matrix Active
-            </span>
-          </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Roles & Permissions
           </h1>
@@ -506,214 +497,139 @@ export default function RolesPermissionsView() {
       {/* Granular RBAC Privilege Matrix                              */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="space-y-6 animate-in fade-in duration-200">
-          {/* 2. Clean Executive Platform Roles Selector */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-            {ROLES_META.map((meta) => {
-              const userCount = users.filter((u) => u.role === meta.role).length;
-              const permCount = (rolePermissions[meta.role] || []).length;
-              const isSelected = selectedRole === meta.role;
+        {/* Active Role Focused Scope Strip */}
+        {(() => {
+          const currentMeta = ROLES_META.find((m) => m.role === selectedRole);
+          if (!currentMeta) return null;
+          const currentPermCount = (rolePermissions[selectedRole] || []).length;
 
-              return (
-                <div
-                  key={meta.role}
-                  onClick={() => {
-                    audio.playSubtleClick();
-                    setSelectedRole(meta.role);
-                  }}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
-                    isSelected
-                      ? "bg-white border-slate-300 ring-2 ring-[#C3002F]/15 shadow-sm"
-                      : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs"
-                  }`}
-                >
-                  {/* Subtle top brand indicator for active role */}
-                  {isSelected && (
-                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#C3002F]" />
-                  )}
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold font-mono tracking-wider text-slate-600 uppercase px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200/80">
-                        {meta.tierLabel}
-                      </span>
-                      <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 font-mono">
-                        <Users className="w-3 h-3 text-slate-400" />
-                        <span>{userCount} Users</span>
-                      </span>
-                    </div>
-
-                    <div className="pt-0.5">
-                      <h3 className={`font-black text-sm tracking-tight leading-tight transition-colors ${
-                        isSelected ? "text-slate-900" : "text-slate-800 group-hover:text-[#C3002F]"
-                      }`}>
-                        {meta.title}
-                      </h3>
-                      <p className="text-[11px] text-slate-400 font-medium truncate mt-1">
-                        {meta.subtitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      Privileges
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-lg font-mono text-[11px] font-bold transition-colors ${
-                      isSelected
-                        ? "bg-[#C3002F]/10 text-[#C3002F] border border-[#C3002F]/20"
-                        : "bg-slate-100 text-slate-700 border border-slate-200/60"
-                    }`}>
-                      {permCount}/{PERMISSION_DEFINITIONS.length} Perms
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Active Role Focused Scope Strip */}
-          {(() => {
-            const currentMeta = ROLES_META.find((m) => m.role === selectedRole);
-            if (!currentMeta) return null;
-            const currentPermCount = (rolePermissions[selectedRole] || []).length;
-
-            return (
-              <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in">
-                <div className="flex items-center gap-3">
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 text-[11px] border border-slate-200 shrink-0">
-                    {currentMeta.tierLabel} Scope
-                  </span>
-                  <div>
-                    <strong className="text-slate-900 font-bold mr-1.5">{currentMeta.title}:</strong>
-                    <span className="text-slate-500">{currentMeta.description}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0 font-mono text-[11px] text-slate-600">
-                  <span className="font-bold text-slate-900">{currentPermCount} of {PERMISSION_DEFINITIONS.length}</span>
-                  <span>Perms Active</span>
+          return (
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in">
+              <div className="flex items-center gap-3">
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 text-[11px] border border-slate-200 shrink-0">
+                  {currentMeta.tierLabel} Scope
+                </span>
+                <div>
+                  <strong className="text-slate-900 font-bold mr-1.5">{currentMeta.title}:</strong>
+                  <span className="text-slate-500">{currentMeta.description}</span>
                 </div>
               </div>
-            );
-          })()}
-
-          {/* 3. Category Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setFilterCategory(cat.id);
-                }}
-                className={`px-3.5 py-1.5 rounded-xl font-medium transition-all whitespace-nowrap cursor-pointer ${
-                  filterCategory === cat.id
-                    ? "bg-[#0A0A0A] text-white shadow-2xs font-semibold"
-                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
-          {/* 4. Granular Permissions Matrix Table */}
-          <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-            <div className="overflow-x-auto touch-scroll navy-scrollbar">
-              <table className="w-full text-left text-xs border-collapse min-w-[780px]">
-                <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
-                  <tr>
-                    <th className="py-3.5 px-4 font-semibold w-[360px]">
-                      Operational Capability &amp; Scope
-                    </th>
-                    {ROLES_META.map((meta) => (
-                      <th
-                        key={meta.role}
-                        className={`py-3.5 px-3 font-semibold text-center min-w-[130px] ${
-                          selectedRole === meta.role ? "bg-[#27272A]" : ""
-                        }`}
-                      >
-                        <div className="truncate">{meta.title}</div>
-                        <div className="text-[9px] font-normal text-slate-400 normal-case mt-0.5">
-                          {meta.role}
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-slate-100">
-                  {filteredPermissions.map((perm) => {
-                    return (
-                      <tr key={perm.key} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3.5 px-4 align-top">
-                          <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                            <span>{perm.name}</span>
-                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-normal">
-                              {perm.key}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                            {perm.description}
-                          </p>
-                        </td>
-
-                        {ROLES_META.map((meta) => {
-                          const isAllowed = (rolePermissions[meta.role] || []).includes(perm.key);
-                          const isHighlight = selectedRole === meta.role;
-
-                          return (
-                            <td
-                              key={meta.role}
-                              onClick={() => togglePermission(meta.role, perm.key)}
-                              className={`py-3.5 px-3 text-center align-middle cursor-pointer group transition-colors ${
-                                isHighlight ? "bg-slate-50/80" : ""
-                              }`}
-                            >
-                              <div className="flex items-center justify-center">
-                                <div
-                                  className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
-                                    isAllowed
-                                      ? meta.role === "AUTOHUB_ADMIN"
-                                        ? "bg-[#C3002F] text-white shadow-2xs"
-                                        : "bg-emerald-500 text-white shadow-2xs"
-                                      : "border border-slate-200 text-transparent group-hover:border-slate-300"
-                                  }`}
-                                >
-                                  {isAllowed ? (
-                                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                                  ) : (
-                                    <span className="text-[9px] text-slate-300 opacity-0 group-hover:opacity-100">
-                                      +
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <div className="flex items-center gap-2 shrink-0 font-mono text-[11px] text-slate-600">
+                <span className="font-bold text-slate-900">{currentPermCount} of {PERMISSION_DEFINITIONS.length}</span>
+                <span>Perms Active</span>
+              </div>
             </div>
-          </div>
+          );
+        })()}
+
+        {/* 3. Category Filter Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                audio.playSubtleClick();
+                setFilterCategory(cat.id);
+              }}
+              className={`px-3.5 py-1.5 rounded-xl font-medium transition-all whitespace-nowrap cursor-pointer ${filterCategory === cat.id
+                ? "bg-[#0A0A0A] text-white shadow-2xs font-semibold"
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. Policy Enforcement Notice                               */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="p-5 rounded-[24px] bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-start gap-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-bold text-slate-900 block">
-            Commercial Principle: Zero Blind Purchasing
-          </span>
-          <p className="text-[11px] leading-relaxed text-slate-500">
-            Certified franchise dealers are exclusively permitted to hold vehicles when itemized landed prices are fully calculated in NZD. Only central controllers (AUTOHUB_ADMIN) and export marshalling directors (NISSAN_JAPAN) hold raw JPY FOB wholesale cost visibility.
-          </p>
+        {/* 4. Granular Permissions Matrix Table */}
+        <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+          <div className="overflow-x-auto touch-scroll navy-scrollbar">
+            <table className="w-full text-left text-xs border-collapse min-w-[780px]">
+              <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="py-3.5 px-4 font-semibold w-[360px]">
+                    Operational Capability &amp; Scope
+                  </th>
+                  {ROLES_META.map((meta) => (
+                    <th
+                      key={meta.role}
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSelectedRole(meta.role);
+                      }}
+                      className={`py-3.5 px-3 font-semibold text-center min-w-[130px] cursor-pointer transition-colors ${selectedRole === meta.role
+                        ? "bg-[#27272A] text-white ring-1 ring-white/20"
+                        : "hover:bg-slate-900 text-slate-300"
+                        }`}
+                      title={`Click to focus on ${meta.title}`}
+                    >
+                      <div className="truncate">{meta.title}</div>
+                      <div className="text-[9px] font-normal text-slate-400 normal-case mt-0.5">
+                        {meta.role}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-100">
+                {filteredPermissions.map((perm) => {
+                  return (
+                    <tr key={perm.key} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-4 align-top">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <span>{perm.name}</span>
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-normal">
+                            {perm.key}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                          {perm.description}
+                        </p>
+                      </td>
+
+                      {ROLES_META.map((meta) => {
+                        const isAllowed = (rolePermissions[meta.role] || []).includes(perm.key);
+                        const isHighlight = selectedRole === meta.role;
+
+                        return (
+                          <td
+                            key={meta.role}
+                            onClick={() => togglePermission(meta.role, perm.key)}
+                            className={`py-3.5 px-3 text-center align-middle cursor-pointer group transition-colors ${isHighlight ? "bg-slate-50/80" : ""
+                              }`}
+                          >
+                            <div className="flex items-center justify-center">
+                              <div
+                                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${isAllowed
+                                  ? meta.role === "AUTOHUB_ADMIN"
+                                    ? "bg-[#C3002F] text-white shadow-2xs"
+                                    : "bg-emerald-500 text-white shadow-2xs"
+                                  : "border border-slate-200 text-transparent group-hover:border-slate-300"
+                                  }`}
+                              >
+                                {isAllowed ? (
+                                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                                ) : (
+                                  <span className="text-[9px] text-slate-300 opacity-0 group-hover:opacity-100">
+                                    +
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+
+
     </div>
   );
 }

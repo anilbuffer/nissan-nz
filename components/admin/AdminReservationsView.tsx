@@ -132,10 +132,10 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
       type === "CONFIRM"
         ? "Wholesale allocation confirmed by Autohub Ops. Purchase order issued."
         : type === "RELEASE"
-        ? "Administrative hold released. Stock returned to available catalog."
-        : type === "CANCEL"
-        ? "Cancelled under Section 6.2 cooling-off right prior to allocation."
-        : "Allocation declined during wholesale review.";
+          ? "Administrative hold released. Stock returned to available catalog."
+          : type === "CANCEL"
+            ? "Cancelled under Section 6.2 cooling-off right prior to allocation."
+            : "Allocation declined during wholesale review.";
 
     setActionModal({
       isOpen: true,
@@ -267,15 +267,14 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                   {res.requestId}
                 </span>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                    res.status === "ACTIVE_HOLD"
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${res.status === "ACTIVE_HOLD"
                       ? remaining.isWarning
                         ? "bg-amber-500 text-black border border-amber-300 font-extrabold"
                         : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
                       : res.status === "CONFIRMED_ALLOCATED"
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-slate-700 text-slate-300 border border-slate-600"
-                  }`}
+                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                        : "bg-slate-700 text-slate-300 border border-slate-600"
+                    }`}
                 >
                   {res.status === "ACTIVE_HOLD"
                     ? remaining.isWarning
@@ -584,15 +583,6 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
-              Wholesale Allocation Control
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-              US-14 · US-15 Rules Active
-            </span>
-          </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">
             Reservations &amp; Exclusivity Queue
           </h1>
@@ -604,19 +594,19 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
         {/* Right Header: Rules Config Button + Tab Switcher */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {!isAuditor && (
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              setDraftRules(reservationConfig);
-              setIsRulesModalOpen(true);
-            }}
-            className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
-            title="Configure default hold duration, warning threshold, and auto-release rules"
-          >
-            <Sliders className="w-3.5 h-3.5 text-[#C3002F]" />
-            <span>Expiry Rules (US-15)</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setDraftRules(reservationConfig);
+                setIsRulesModalOpen(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+              title="Configure default hold duration, warning threshold, and auto-release rules"
+            >
+              <Sliders className="w-3.5 h-3.5 text-[#C3002F]" />
+              <span>Expiry Rules (US-15)</span>
+            </button>
           )}
 
           {/* Tab Switcher */}
@@ -627,11 +617,10 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 audio.playSubtleClick();
                 setActiveTab("ACTIVE");
               }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "ACTIVE"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "ACTIVE"
                   ? "bg-white text-slate-900 shadow-2xs"
                   : "text-slate-500 hover:text-slate-800"
-              }`}
+                }`}
             >
               <Lock className="w-3.5 h-3.5 text-amber-600" />
               <span>Active Holds</span>
@@ -646,11 +635,10 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 audio.playSubtleClick();
                 setActiveTab("HISTORY");
               }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "HISTORY"
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === "HISTORY"
                   ? "bg-white text-slate-900 shadow-2xs"
                   : "text-slate-500 hover:text-slate-800"
-              }`}
+                }`}
             >
               <Clock className="w-3.5 h-3.5 text-slate-500" />
               <span>History &amp; Audit</span>
@@ -741,11 +729,10 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                       </div>
 
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${
-                          remaining.isWarning
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${remaining.isWarning
                             ? "bg-amber-100 text-amber-900 border border-amber-300 ring-2 ring-amber-400/30 animate-pulse"
                             : "bg-slate-100 text-slate-800 border border-slate-200"
-                        }`}
+                          }`}
                         title={
                           remaining.isWarning
                             ? `Warning: Hold expiring within ${reservationConfig?.warningThresholdHours || 2}h (US-15)`
@@ -784,37 +771,37 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
 
                     {/* Simulator Quick Testing Pills (US-15) */}
                     {!isAuditor && (
-                    <div className="pt-2 flex items-center justify-between gap-1 text-[10px]">
-                      <span className="text-slate-400 font-mono">Simulate:</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSoftChime();
-                            simulateExpiryWarning(res.id);
-                            setNotification(`Simulated 1h warning for #${vehicle.stockId} (< 2h).`);
-                          }}
-                          className="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold cursor-pointer"
-                          title="Simulate < 2h remaining"
-                        >
-                          ⏱ 1h Warning
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playWarningChime();
-                            expireReservation(res.id, "Interactive auto-release test");
-                            setNotification(`Auto-released hold on #${vehicle.stockId}. Stock is Available.`);
-                          }}
-                          className="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-bold cursor-pointer"
-                          title="Simulate auto-release on expiry"
-                        >
-                          ⚡ Auto-Release
-                        </button>
+                      <div className="pt-2 flex items-center justify-between gap-1 text-[10px]">
+                        <span className="text-slate-400 font-mono">Simulate:</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              audio.playSoftChime();
+                              simulateExpiryWarning(res.id);
+                              setNotification(`Simulated 1h warning for #${vehicle.stockId} (< 2h).`);
+                            }}
+                            className="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold cursor-pointer"
+                            title="Simulate < 2h remaining"
+                          >
+                            ⏱ 1h Warning
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              audio.playWarningChime();
+                              expireReservation(res.id, "Interactive auto-release test");
+                              setNotification(`Auto-released hold on #${vehicle.stockId}. Stock is Available.`);
+                            }}
+                            className="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-bold cursor-pointer"
+                            title="Simulate auto-release on expiry"
+                          >
+                            ⚡ Auto-Release
+                          </button>
+                        </div>
                       </div>
-                    </div>
                     )}
                   </div>
 
@@ -887,15 +874,14 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                     </div>
 
                     <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold inline-flex items-center gap-1 ${
-                        isAllocated
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold inline-flex items-center gap-1 ${isAllocated
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                           : res.status === "CANCELLED"
-                          ? "bg-amber-50 text-amber-800 border border-amber-200"
-                          : res.status === "EXPIRED"
-                          ? "bg-rose-50 text-rose-700 border border-rose-200"
-                          : "bg-slate-100 text-slate-700 border border-slate-200"
-                      }`}
+                            ? "bg-amber-50 text-amber-800 border border-amber-200"
+                            : res.status === "EXPIRED"
+                              ? "bg-rose-50 text-rose-700 border border-rose-200"
+                              : "bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
                     >
                       {isAllocated ? "CONFIRMED" : res.status}
                     </span>

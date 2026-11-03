@@ -126,19 +126,9 @@ export default function DealershipProfileView() {
       <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#C3002F] bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">
-                Nissan Franchise Dealership
-              </span>
-              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
-                Approved &amp; Active
-              </span>
-              <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                Code: {currentDealer?.dealerCode || "NZ-NIS-AKL01"} · {dealerZone}
-              </span>
-            </div>
 
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"}
             </h1>
 
@@ -166,11 +156,10 @@ export default function DealershipProfileView() {
                   audio.playSubtleClick();
                   setActiveSubTab(tab.id as any);
                 }}
-                className={`btn-outline px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
-                  isActive
-                    ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
-                    : "bg-white text-slate-700 hover:bg-slate-50"
-                }`}
+                className={`btn-outline px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${isActive
+                  ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
+                  : "bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
               >
                 <Icon className={`w-3.5 h-3.5 ${isActive ? "text-rose-400" : "text-slate-500"}`} />
                 <span>{tab.label}</span>
