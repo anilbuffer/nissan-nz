@@ -241,7 +241,7 @@ export default function Sidebar({
       },
       {
         id: "japan-upload",
-        label: "Manifest Upload",
+        label: "Batch Upload",
         icon: FileSpreadsheet,
         href: "/japan/upload",
       },

@@ -282,13 +282,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             <span>Back to Inventory</span>
           </button>
           <div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-              <span>Nissan Japan HQ</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span>Export Inventory</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-slate-900 font-bold">Add Single Vehicle</span>
-            </div>
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
               Add Single Export Vehicle
             </h1>
@@ -389,7 +382,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (8 cols): Structured Form Sections A through E */}
           <form className="lg:col-span-8 space-y-6" onSubmit={(e) => handleSubmit(e)}>
-            
+
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION A. VEHICLE IDENTIFICATION                         */}
             {/* ───────────────────────────────────────────────────────── */}
@@ -798,11 +791,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   onDragLeave={handleImageDragLeave}
                   onDrop={handleImageDrop}
                   onClick={() => imageInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-6 sm:p-7 text-center transition-all cursor-pointer ${
-                    isDraggingImage
+                  className={`border-2 border-dashed rounded-2xl p-6 sm:p-7 text-center transition-all cursor-pointer ${isDraggingImage
                       ? "border-[#0A0A0A] bg-slate-100 ring-2 ring-[#0A0A0A]/10"
                       : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
-                  }`}
+                    }`}
                 >
                   <input
                     ref={imageInputRef}
@@ -833,9 +825,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       {images.map((imgUrl, idx) => (
                         <div
                           key={idx}
-                          className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${
-                            idx === 0 ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/10" : "border-slate-200"
-                          }`}
+                          className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${idx === 0 ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/10" : "border-slate-200"
+                            }`}
                         >
                           <img
                             src={imgUrl}
@@ -1005,15 +996,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                   Live Catalogue Preview
                 </span>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${
-                  status === "AVAILABLE"
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${status === "AVAILABLE"
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                     : status === "RESERVED"
-                    ? "bg-amber-50 text-amber-800 border-amber-200"
-                    : status === "ALLOCATED"
-                    ? "bg-sky-50 text-sky-700 border-sky-200"
-                    : "bg-slate-100 text-slate-700 border-slate-200"
-                }`}>
+                      ? "bg-amber-50 text-amber-800 border-amber-200"
+                      : status === "ALLOCATED"
+                        ? "bg-sky-50 text-sky-700 border-sky-200"
+                        : "bg-slate-100 text-slate-700 border-slate-200"
+                  }`}>
                   {status}
                 </span>
               </div>
