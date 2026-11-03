@@ -150,7 +150,7 @@ export default function Sidebar({
         },
         {
           id: "admin-catalogue",
-          label: "Central Catalogue",
+          label: "Vehicle Catalogue",
           icon: Car,
           href: "/admin/catalogue",
         },
