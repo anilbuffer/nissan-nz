@@ -22,6 +22,8 @@ import {
   FileText,
   Building2,
   SlidersHorizontal,
+  Ship,
+  AlertCircle,
 } from "lucide-react";
 
 interface FullPageVehicleDetailProps {
@@ -58,7 +60,6 @@ export default function FullPageVehicleDetail({
     vehicles,
     reserveVehicle: atomicReserve,
     updateVehicle,
-    toggleVehicleStatus,
     pricingConfig,
   } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
@@ -95,6 +96,12 @@ export default function FullPageVehicleDetail({
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [fobInputJPY, setFobInputJPY] = useState(vehicle.fobPriceJPY);
   const [priceUpdatedToast, setPriceUpdatedToast] = useState(false);
+  const [activeDocPreview, setActiveDocPreview] = useState<{
+    title: string;
+    type: "AUCTION_SHEET" | "JEVIC" | "MPI" | "MR2A";
+    refNumber: string;
+    details: string;
+  } | null>(null);
 
   // Keep fobInput synced with vehicle
   React.useEffect(() => {
@@ -181,7 +188,7 @@ export default function FullPageVehicleDetail({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Navigation & Dealership Identity Bar              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
@@ -216,22 +223,41 @@ export default function FullPageVehicleDetail({
         {/* Right: Dealership Profile & Stock State */}
         <div className="flex items-center gap-2 flex-wrap">
           {isAdmin && (
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                toggleVehicleStatus(vehicle.id);
-              }}
-              title="Click to toggle catalogue visibility"
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer border ${
+            <div
+              title="Stock withdrawal & catalogue status are managed exclusively by Nissan Japan Global Fleet Authority"
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${
                 vehicle.status === "WITHDRAWN"
                   ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
+                  : vehicle.status === "AVAILABLE"
+                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                  : vehicle.status === "RESERVED"
+                  ? "bg-amber-50 text-amber-800 border-amber-200"
+                  : vehicle.status === "ALLOCATED"
+                  ? "bg-blue-50 text-blue-800 border-blue-200"
+                  : "bg-slate-100 text-slate-700 border-slate-200"
               }`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${vehicle.status === "WITHDRAWN" ? "bg-amber-400" : "bg-emerald-500"}`} />
-              <span>{vehicle.status === "WITHDRAWN" ? "Withdrawn from Catalogue" : "Live in Catalogue"}</span>
-            </button>
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  vehicle.status === "WITHDRAWN"
+                    ? "bg-amber-400"
+                    : vehicle.status === "AVAILABLE"
+                    ? "bg-emerald-500"
+                    : vehicle.status === "RESERVED"
+                    ? "bg-amber-500"
+                    : vehicle.status === "ALLOCATED"
+                    ? "bg-blue-500"
+                    : "bg-slate-400"
+                }`}
+              />
+              <span>
+                {vehicle.status === "WITHDRAWN"
+                  ? "Withdrawn (Nissan Japan Only)"
+                  : vehicle.status === "AVAILABLE"
+                  ? "Live in Catalogue"
+                  : vehicle.status}
+              </span>
+            </div>
           )}
 
           {!isAdmin && currentDealer && (
@@ -243,20 +269,47 @@ export default function FullPageVehicleDetail({
             </div>
           )}
 
-          {isAvailable ? (
+          {vehicle.status === "AVAILABLE" && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <span>Available</span>
             </span>
-          ) : isHeldByCurrentDealer ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
-              <Lock className="w-3 h-3 text-amber-600" />
-              <span>Your Active Hold (18h left)</span>
+          )}
+          {vehicle.status === "DRAFT" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+              <span>Draft Staging</span>
             </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-              <Lock className="w-3 h-3 text-slate-400" />
-              <span>On Exclusivity Hold</span>
+          )}
+          {vehicle.status === "RESERVED" && (
+            isHeldByCurrentDealer ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+                <Lock className="w-3 h-3 text-amber-600" />
+                <span>Your Active Hold (18h left)</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                <Lock className="w-3 h-3 text-slate-400" />
+                <span>On Exclusivity Hold</span>
+              </span>
+            )
+          )}
+          {vehicle.status === "ALLOCATED" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+              <Ship className="w-3 h-3 text-sky-600" />
+              <span>Allocated to Order</span>
+            </span>
+          )}
+          {vehicle.status === "WITHDRAWN" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+              <span>Withdrawn from Catalogue</span>
+            </span>
+          )}
+          {vehicle.status === "SOLD" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+              <CheckCircle2 className="w-3 h-3 text-purple-600" />
+              <span>Sold &amp; Handed Over</span>
             </span>
           )}
         </div>
@@ -288,7 +341,7 @@ export default function FullPageVehicleDetail({
         {/* ───────────────────────────────────────────────────────── */}
         <div className="lg:col-span-7 space-y-4">
           {/* Main Studio Car Showcase Card */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs relative">
+          <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative">
             {/* Top-Left: Auction Grade Pill */}
             <div className="absolute top-4 left-4 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1">
               <span className="text-amber-500">★</span>
@@ -355,7 +408,7 @@ export default function FullPageVehicleDetail({
         {/* ───────────────────────────────────────────────────────── */}
         <div className="lg:col-span-5 space-y-4">
           {/* Card 1: WHOLESALE LANDED PRICE SCHEDULE */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
             <div>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
                 {isAdmin ? "WHOLESALE LANDED PRICE SCHEDULE" : "GUARANTEED WHOLESALE LANDED SCHEDULE"}
@@ -695,7 +748,7 @@ export default function FullPageVehicleDetail({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. FULL LAYOUT: Japanese Export Verification & Tech Specs   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
@@ -712,16 +765,33 @@ export default function FullPageVehicleDetail({
           </div>
 
           <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setActiveDocPreview({
+                  title: "JEVIC Pre-Shipment Inspection Certificate",
+                  type: "JEVIC",
+                  refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
+                  details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash verified 100% · Radiation test: Passed (0.08 µSv/h).`,
+                });
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 cursor-pointer transition-colors"
+            >
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               <span>JEVIC Certified</span>
-            </span>
+            </button>
 
             <button
               type="button"
               onClick={() => {
                 audio.playSubtleClick();
-                alert(`Opening official verified Japan Auction Sheet for ${vehicle.stockId}`);
+                setActiveDocPreview({
+                  title: "USS Tokyo Official Auction Sheet",
+                  type: "AUCTION_SHEET",
+                  refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
+                  details: `Overall Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · USS Tokyo pre-export inspection certified.`,
+                });
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
             >
@@ -875,7 +945,137 @@ export default function FullPageVehicleDetail({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. Atomic Exclusivity Reservation Modal                     */}
+      {/* 5. Total Buy Price Inclusions & Commercial Cost Boundaries   */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                Total Buy Price Inclusions &amp; Commercial Cost Boundaries
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Official transparency schedule under Nissan NZ Programme Terms of Trade v2026.1.
+              </p>
+            </div>
+          </div>
+          <span className="font-mono text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+            Terms Version: v2026.1
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Column A: Guaranteed Inclusions */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200/70">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <strong className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                  100% Guaranteed Inclusions
+                </strong>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded border border-emerald-200">
+                Fixed Profile Guarantee
+              </span>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-700">
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">Japanese Acquisition &amp; Export:</strong> Verified FOB vehicle cost, yard de-registration, port terminal marshalling in Yokohama/Kobe.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">Odometer Verification:</strong> Digital JEVIC certification with tamper-proof odometer security hash.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">Biosecurity Clearance:</strong> Pre-export heat treatment, radiation scan, and offshore MPI border clearance pass.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">Ocean Shipping &amp; Logistics:</strong> Guaranteed dedicated RoRo marine carriage to Port of Auckland or Lyttelton.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">NZ Border &amp; Customs:</strong> Import customs entry documentation, wharfage, and 15% New Zealand GST processing.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">Entry Inspection &amp; Compliance:</strong> NZTA MR2A structural and safety standards sign-off by accredited compliance facilities.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong className="text-slate-900">Domestic Carrier Delivery:</strong> Inland transportation directly to {currentDealer?.legalTradingName || "dealership"} under {dealerZone} fixed profile rate.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Column B: Potential Additional-Cost Information & Dealer Safeguard */}
+          <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-amber-200/60">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <strong className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                  Potential Additional-Cost Boundaries
+                </strong>
+              </div>
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                Dealer Approval Required
+              </span>
+            </div>
+
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              To protect dealer profit margins, <strong className="text-slate-900">no additional costs may ever be charged</strong> without an Autohub formal written proposal and your dealership&apos;s explicit 1-click platform approval.
+            </p>
+
+            <div className="space-y-2 text-xs text-slate-700">
+              <div className="p-2.5 rounded-lg bg-white/80 border border-amber-200/60 space-y-0.5">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 text-xs">1. Compliance Mechanical Rectification</strong>
+                  <span className="text-[10px] font-mono text-amber-700">WOF Minimums</span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Wear-and-tear items discovered during NZTA entry inspection requiring replacement (e.g. brake pads below 2.0mm, wiper rubbers).
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-white/80 border border-amber-200/60 space-y-0.5">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 text-xs">2. Tyre Replacement Standard</strong>
+                  <span className="text-[10px] font-mono text-amber-700">1.5mm Threshold</span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Tyres measured with tread depth under legal compliance limits will be proposed with brand/pricing before fitting.
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-lg bg-white/80 border border-amber-200/60 space-y-0.5">
+                <div className="flex items-center justify-between">
+                  <strong className="text-slate-900 text-xs">3. Duplicate Smart Key Coding</strong>
+                  <span className="text-[10px] font-mono text-amber-700">Optional Dealer Request</span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  If only one factory electronic smart key is supplied from Japan, a secondary programmed key fob can be requested at wholesale trade rates.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-white border border-amber-200/80 text-[11px] text-slate-700 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                <strong className="text-slate-900">Zero-Risk Protection Guarantee:</strong> If an additional-cost proposal exceeds your target commercial margin, you can decline the proposal and cancel the reservation without penalty.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 6. Atomic Exclusivity Reservation Modal                     */}
       {/* ─────────────────────────────────────────────────────────── */}
       {isReserveModalOpen && (
         <AtomicReservationModal

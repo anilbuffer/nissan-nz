@@ -3,9 +3,10 @@ export type UserRole =
   | "DEALER_ADMIN"
   | "AUTOHUB_ADMIN"
   | "NISSAN_JAPAN"
+  | "READONLY_PROGRAMME_USER"
   | "READONLY_AUDITOR";
 
-export type DealerStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "SUSPENDED";
+export type DealerStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "RETURNED_FOR_INFO" | "SUSPENDED";
 
 export type ZoneId = "ZONE_1" | "ZONE_2" | "ZONE_3" | "ZONE_4" | "ZONE_5";
 
@@ -53,6 +54,11 @@ export interface DealerAccount {
   termsAcceptedVersion: string;
   termsAcceptedAt: string;
   costBoundaryAccepted: boolean;
+  emailVerified?: boolean;
+  returnReason?: string;
+  returnedAt?: string;
+  holdingCreditLimitNZD?: number;
+  maxConcurrentHolds?: number;
 }
 
 export interface UserAccount {
@@ -168,6 +174,13 @@ export interface ReservationRequest {
   decidedBy?: string;
 }
 
+export interface ReservationConfig {
+  defaultHoldHours: number; // default: 24
+  warningThresholdHours: number; // default: 2
+  autoReleaseOnExpiry: boolean; // default: true
+  maxActiveHoldsPerDealer: number; // default: 5
+}
+
 export type OrderMilestone =
   | "ORDER_CONFIRMED"
   | "JAPAN_VERIFICATION"
@@ -244,4 +257,31 @@ export interface AuditEvent {
   timestamp: string;
   beforeValue?: any;
   afterValue?: any;
+}
+
+export type NotificationType =
+  | "STOCK_NEW"
+  | "HOLD_CREATED"
+  | "HOLD_WARNING"
+  | "HOLD_EXPIRED"
+  | "ORDER_CONFIRMED"
+  | "ORDER_MILESTONE"
+  | "COST_PROPOSAL"
+  | "COST_DECISION"
+  | "DEALER_APPLICATION"
+  | "DEALER_APPROVED"
+  | "DEALER_RETURNED";
+
+export interface SystemNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  desc: string;
+  time: string;
+  timestamp: string;
+  unread: boolean;
+  targetRole?: UserRole | "ALL";
+  dealerId?: string;
+  linkTab?: string;
+  linkUrl?: string;
 }

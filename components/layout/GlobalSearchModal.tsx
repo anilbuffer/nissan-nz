@@ -199,7 +199,7 @@ export default function GlobalSearchModal({
         }
       }}
     >
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] max-w-4xl w-full overflow-hidden flex flex-col max-h-[88vh] animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-4xl w-full overflow-hidden flex flex-col max-h-[88vh] animate-in zoom-in-95 duration-200">
         {/* 1. Modal Top Bar with Search Input */}
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white sticky top-0 z-20">
           <div className="flex items-center gap-3">

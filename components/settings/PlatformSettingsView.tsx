@@ -168,7 +168,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. User Identity Card (Clean Executive Header)              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-[#0A0A0A] text-white font-black text-2xl flex items-center justify-center shadow-xs ring-4 ring-slate-100 shrink-0">
             {currentUser?.name?.charAt(0) || "U"}
@@ -197,7 +197,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. CARD 1: Personal Contact Details                         */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs p-6 sm:p-7 space-y-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 sm:p-7 space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
           <User className="w-4 h-4 text-[#C3002F]" />
           <h3 className="text-sm font-black text-slate-900 tracking-tight">
@@ -255,7 +255,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. CARD 2: Organization & Credential Details               */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs p-6 sm:p-7 space-y-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 sm:p-7 space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
           <Building2 className="w-4 h-4 text-[#C3002F]" />
           <h3 className="text-sm font-black text-slate-900 tracking-tight">

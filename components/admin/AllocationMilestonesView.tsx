@@ -39,6 +39,9 @@ export default function AllocationMilestonesView() {
   const [editingMilestoneOrderId, setEditingMilestoneOrderId] = useState<string | null>(null);
   const [nextMilestoneKey, setNextMilestoneKey] = useState<OrderMilestone>("NZ_BORDER_PROCESSING");
   const [milestoneNotes, setMilestoneNotes] = useState("MPI biosecurity heat treatment and border discharge verified.");
+  const [editingEta, setEditingEta] = useState<string>("");
+  const [editingVessel, setEditingVessel] = useState<string>("");
+  const [editingVoyage, setEditingVoyage] = useState<string>("");
   const [notification, setNotification] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [milestoneFilter, setMilestoneFilter] = useState("ALL");
@@ -61,11 +64,32 @@ export default function AllocationMilestonesView() {
     return matchesSearch && matchesMilestone;
   });
 
+  const startEditingMilestone = (order: Order) => {
+    audio.playSubtleClick();
+    if (editingMilestoneOrderId === order.id) {
+      setEditingMilestoneOrderId(null);
+    } else {
+      setEditingMilestoneOrderId(order.id);
+      setNextMilestoneKey(order.currentMilestone);
+      setMilestoneNotes(
+        order.milestones.find((m) => m.key === order.currentMilestone)?.notes ||
+        "Carrier progression verified by Autohub Logistics."
+      );
+      setEditingEta(order.etaDeliveryDate || new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
+      setEditingVessel(order.vesselName || "Trans-Pacific RoRo V.49");
+      setEditingVoyage(order.voyageNumber || "TP-2649");
+    }
+  };
+
   const handleAdvanceMilestone = (orderId: string) => {
     audio.playSuccessChime();
-    advanceOrderMilestone(orderId, nextMilestoneKey, milestoneNotes);
+    advanceOrderMilestone(orderId, nextMilestoneKey, milestoneNotes, {
+      etaDeliveryDate: editingEta,
+      vesselName: editingVessel,
+      voyageNumber: editingVoyage,
+    });
     setEditingMilestoneOrderId(null);
-    setNotification(`Order ${orderId} successfully advanced to ${nextMilestoneKey}.`);
+    setNotification(`Order ${orderId} successfully advanced to ${nextMilestoneKey.replace(/_/g, " ")}.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
@@ -125,7 +149,7 @@ export default function AllocationMilestonesView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Filter & Search Controls (Unified Clean Canvas)          */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -178,7 +202,7 @@ export default function AllocationMilestonesView() {
             return (
               <div
                 key={order.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 space-y-6 shadow-2xs hover:border-slate-300 transition-all"
+                className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all"
               >
                 {/* Order Meta Header */}
                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pb-5 border-b border-slate-100">
@@ -305,26 +329,29 @@ export default function AllocationMilestonesView() {
 
                     <button
                       type="button"
-                      onClick={() => {
-                        audio.playSubtleClick();
-                        setEditingMilestoneOrderId(isEditingThis ? null : order.id);
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_14px_rgba(225,29,72,0.3)] hover:shadow-[0_6px_18px_rgba(225,29,72,0.4)] cursor-pointer active:scale-[0.98]"
+                      onClick={() => startEditingMilestone(order)}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                     >
-                      <span>Advance Milestone</span>
+                      <span>Update Milestone &amp; EDD</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Advance Milestone Inline Drawer */}
+                {/* Advance Milestone & EDD Inline Drawer */}
                 {isEditingThis && (
                   <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4 animate-in fade-in text-xs">
-                    <div className="font-bold text-slate-900 text-sm">
-                      Advance Milestone for Order {order.orderNumber}
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <span>Logistics Progression: Order {order.orderNumber}</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200">
+                          {order.pricingZoneId}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-400 font-mono">Autohub Admin Controls</span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
                           Destination Milestone
@@ -334,41 +361,84 @@ export default function AllocationMilestonesView() {
                           onChange={(e) => setNextMilestoneKey(e.target.value as OrderMilestone)}
                           className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500"
                         >
-                          <option value="NZ_BORDER_PROCESSING">NZ Border Processing</option>
-                          <option value="COMPLIANCE">MR2A Entry Compliance</option>
-                          <option value="READY_FOR_DELIVERY">Ready for Delivery</option>
-                          <option value="DELIVERED">Delivered to Dealership Yard</option>
+                          <option value="ORDER_CONFIRMED">1. Order Confirmed</option>
+                          <option value="JAPAN_VERIFICATION">2. Japan Verification</option>
+                          <option value="BOOKED_FOR_SHIPPING">3. Booked for Shipping</option>
+                          <option value="IN_TRANSIT">4. In Transit (Pacific RoRo)</option>
+                          <option value="NZ_BORDER_PROCESSING">5. NZ Border Processing</option>
+                          <option value="COMPLIANCE">6. MR2A Entry Compliance</option>
+                          <option value="READY_FOR_DELIVERY">7. Ready for Delivery</option>
+                          <option value="DELIVERED">8. Delivered to Dealership Yard</option>
                         </select>
                       </div>
 
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                          Carrier Progress Notes
+                          Estimated Delivery Date (EDD)
+                        </label>
+                        <input
+                          type="date"
+                          value={editingEta}
+                          onChange={(e) => setEditingEta(e.target.value)}
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-slate-800 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                          Carrier Vessel Name
                         </label>
                         <input
                           type="text"
-                          value={milestoneNotes}
-                          onChange={(e) => setMilestoneNotes(e.target.value)}
+                          value={editingVessel}
+                          onChange={(e) => setEditingVessel(e.target.value)}
+                          placeholder="e.g. Trans-Pacific RoRo V.49"
                           className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                          Voyage / Booking Ref
+                        </label>
+                        <input
+                          type="text"
+                          value={editingVoyage}
+                          onChange={(e) => setEditingVoyage(e.target.value)}
+                          placeholder="e.g. TP-2649"
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500"
                         />
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-2.5 pt-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                        Carrier &amp; Verification Progress Notes
+                      </label>
+                      <input
+                        type="text"
+                        value={milestoneNotes}
+                        onChange={(e) => setMilestoneNotes(e.target.value)}
+                        placeholder="e.g. MPI biosecurity clearance completed at Auckland wharf discharge."
+                        className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200/70">
                       <button
                         type="button"
                         onClick={() => setEditingMilestoneOrderId(null)}
-                        className="btn-outline text-xs py-2 px-4"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/60 transition-colors cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
                         onClick={() => handleAdvanceMilestone(order.id)}
-                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Confirm Milestone Advance</span>
+                        <span>Save Milestone &amp; Carrier Progress</span>
                       </button>
                     </div>
                   </div>

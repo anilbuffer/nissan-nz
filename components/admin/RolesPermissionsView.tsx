@@ -196,6 +196,14 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "commercial.view_margins",
     "compliance.view_auction_sheet",
   ],
+  READONLY_PROGRAMME_USER: [
+    "inventory.browse",
+    "inventory.view_fob",
+    "inventory.view_landed",
+    "compliance.view_auction_sheet",
+    "admin.view_audit_log",
+    "admin.export_financials",
+  ],
   READONLY_AUDITOR: [
     "compliance.view_auction_sheet",
     "compliance.jevic_signoff",
@@ -264,6 +272,16 @@ const ROLES_META: {
     tier: "Tier 5 · Regulatory Read-Only",
     tierLabel: "Tier 5",
     description: "Independent audit trail inspection, MR2A compliance verification, and customs exports.",
+  },
+  {
+    role: "READONLY_PROGRAMME_USER",
+    title: "Programme Representative",
+    subtitle: "National Sales Company (NSC)",
+    badgeBg: "bg-indigo-50 border-indigo-200",
+    badgeText: "text-indigo-700",
+    tier: "Tier 5 · Programme Read-Only",
+    tierLabel: "Tier 5",
+    description: "Dedicated read-only interface to view authorised stock, reservation queues, door-to-door milestones, and operational reporting.",
   },
 ];
 
@@ -599,7 +617,7 @@ export default function RolesPermissionsView() {
           </div>
 
           {/* 4. Granular Permissions Matrix Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+          <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
             <div className="overflow-x-auto touch-scroll navy-scrollbar">
               <table className="w-full text-left text-xs border-collapse min-w-[780px]">
                 <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
@@ -685,7 +703,7 @@ export default function RolesPermissionsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 5. Policy Enforcement Notice                               */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 text-xs text-slate-600 flex items-start gap-3">
+      <div className="p-5 rounded-[24px] bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-start gap-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
           <span className="font-bold text-slate-900 block">

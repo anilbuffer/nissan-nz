@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { audio } from "@/lib/sound";
+import { useProgramme } from "@/lib/programme-context";
 import {
   Building2,
   Mail,
@@ -176,6 +177,64 @@ export default function DealerRegistrationWizard() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { registerDealerApplication } = useProgramme();
+
+  // Email verification state (US-01)
+  const [verificationCode, setVerificationCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
+  const [registeredDealerId, setRegisteredDealerId] = useState<string | null>(null);
+
+  const handleSendVerificationCode = () => {
+    if (!formData.contactEmail || !formData.contactEmail.includes("@")) {
+      setVerificationError("Please provide a valid contact email in Step 1 first.");
+      return;
+    }
+    audio.playSubtleClick();
+    setCodeSent(true);
+    setVerificationError("");
+  };
+
+  const handleVerifyCode = () => {
+    audio.playSubtleClick();
+    if (verificationCode.trim() === "849215" || verificationCode.trim().length >= 4) {
+      audio.playSuccessChime();
+      setIsEmailVerified(true);
+      setVerificationError("");
+    } else {
+      audio.playSubtleClick();
+      setVerificationError("Invalid PIN code. Please enter 849215 (or click Autofill).");
+    }
+  };
+
+  const handleAutofillCode = () => {
+    audio.playSubtleClick();
+    setVerificationCode("849215");
+    setIsEmailVerified(true);
+    setVerificationError("");
+  };
+
+  const handleQuickFillDemo = () => {
+    audio.playSuccessChime();
+    setFormData({
+      dealershipName: "Hawke's Bay Nissan Hastings",
+      dealerCode: "NZ-NIS-HBY06",
+      nzbn: "9429039918273",
+      region: "Napier / Hastings",
+      physicalAddress: "105 Karamu Road North, Hastings 4122",
+      postalCode: "4122",
+      contactName: "Cameron Scott",
+      contactEmail: "cameron@hbnissan.co.nz",
+      contactPhone: "+64 6 878 9100",
+      acceptTerms: true,
+      acceptCostBoundary: true,
+    });
+    setCodeSent(true);
+    setVerificationCode("849215");
+    setIsEmailVerified(true);
+    setErrors({});
+  };
 
   // Form State
   const [formData, setFormData] = useState<FormData>({
@@ -387,7 +446,7 @@ export default function DealerRegistrationWizard() {
         <div className="relative z-10 max-w-2xl w-full mx-auto my-auto">
           {/* SUCCESS CONFIRMATION VIEW (US-01 / AC-01) */}
           {isSubmitted ? (
-            <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/90 p-8 sm:p-12 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.06)] space-y-6 text-center animate-in fade-in zoom-in-95 duration-300">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-8 sm:p-12 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6 text-center animate-in fade-in zoom-in-95 duration-300">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 border border-emerald-200/80 flex items-center justify-center mx-auto text-emerald-600 shadow-[0_8px_30px_rgba(16,185,129,0.2)]">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
@@ -432,7 +491,7 @@ export default function DealerRegistrationWizard() {
                     audio.playSubtleClick();
                     router.push("/");
                   }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-bold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] cursor-pointer active:scale-[0.99]"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Return to Sign In Portal</span>
@@ -451,7 +510,7 @@ export default function DealerRegistrationWizard() {
               </div>
             </div>
           ) : (
-            <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/90 p-7 sm:p-10 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.06),0_1px_3px_rgba(0,0,0,0.02)]">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-7 sm:p-10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               {/* Step Header */}
               <div className="mb-8 pb-5 border-b border-slate-100 flex items-start justify-between">
                 <div>
@@ -887,7 +946,7 @@ export default function DealerRegistrationWizard() {
                     <div className="flex items-center justify-between pb-2.5 border-b border-emerald-200/60">
                       <div className="font-bold flex items-center gap-2 text-emerald-950">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        <span>3. Commercial Boundary &amp; Terms Confirmed</span>
+                        <span>4. Commercial Boundary &amp; Terms Confirmed</span>
                       </div>
                       <button
                         type="button"
@@ -929,7 +988,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-semibold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] active:scale-[0.99] group cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-all shadow-xs active:scale-[0.98] group cursor-pointer"
                   >
                     <span>Continue to Step {currentStep + 1}</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -938,7 +997,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-semibold transition-all shadow-[0_4px_18px_rgba(225,29,72,0.35)] hover:shadow-[0_6px_22px_rgba(225,29,72,0.45)] active:scale-[0.99] cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>Submit Dealership Application</span>

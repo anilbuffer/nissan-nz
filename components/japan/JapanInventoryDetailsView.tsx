@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Vehicle } from "@/lib/types";
+import { Vehicle, VehicleStatus } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { audio } from "@/lib/sound";
 import {
@@ -27,6 +27,11 @@ import {
   Ship,
   Printer,
   Share2,
+  Edit3,
+  X,
+  FileText,
+  Download,
+  AlertCircle,
 } from "lucide-react";
 
 interface JapanInventoryDetailsViewProps {
@@ -38,14 +43,37 @@ interface JapanInventoryDetailsViewProps {
 export default function JapanInventoryDetailsView({
   vehicleId,
   onBack,
-  onToggleStatus,
 }: JapanInventoryDetailsViewProps) {
-  const { vehicles, dealers, toggleVehicleStatus } = useProgramme();
+  const { vehicles, dealers, updateVehicle, setVehicleStatus } = useProgramme();
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [copiedVin, setCopiedVin] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
+  // Modal States
+  const [isAmendmentOpen, setIsAmendmentOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [withdrawReason, setWithdrawReason] = useState("Yard Inspection: Cosmetic Paint / Panel Rectification Required");
+  const [activeDocPreview, setActiveDocPreview] = useState<{
+    title: string;
+    type: "AUCTION_SHEET" | "JEVIC" | "MPI" | "MR2A";
+    refNumber: string;
+    details: string;
+  } | null>(null);
+
   const vehicle = vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId);
+
+  // Amendment Form States initialized if vehicle exists
+  const [editModel, setEditModel] = useState(vehicle?.model || "");
+  const [editGrade, setEditGrade] = useState(vehicle?.grade || "");
+  const [editYear, setEditYear] = useState(vehicle?.year || 2022);
+  const [editOdo, setEditOdo] = useState(vehicle?.odometerKm || 25000);
+  const [editTransmission, setEditTransmission] = useState(vehicle?.transmission || "Automatic");
+  const [editFuel, setEditFuel] = useState(vehicle?.fuelType || "e-Power");
+  const [editDrive, setEditDrive] = useState(vehicle?.driveType || "2WD");
+  const [editFobJPY, setEditFobJPY] = useState(vehicle?.fobPriceJPY || 2000000);
+  const [editLocation, setEditLocation] = useState(vehicle?.location || "Yokohama Yard (Bay 2)");
+  const [editCondition, setEditCondition] = useState(vehicle?.conditionSummary || "");
+  const [editDefects, setEditDefects] = useState(vehicle?.knownDefects?.join("\n") || "");
 
   if (!vehicle) {
     return (
@@ -78,6 +106,9 @@ export default function JapanInventoryDetailsView({
   const isAvailable = vehicle.status === "AVAILABLE";
   const isReserved = vehicle.status === "RESERVED";
   const isWithdrawn = vehicle.status === "WITHDRAWN";
+  const isDraft = vehicle.status === "DRAFT";
+  const isAllocated = vehicle.status === "ALLOCATED";
+  const isSold = vehicle.status === "SOLD";
 
   const reservedDealer = vehicle.reservedByDealerId
     ? dealers.find((d) => d.id === vehicle.reservedByDealerId)
@@ -90,24 +121,58 @@ export default function JapanInventoryDetailsView({
     setTimeout(() => setCopiedVin(false), 2000);
   };
 
-  const handleToggle = () => {
+  const handlePublish = () => {
+    audio.playSuccessChime();
+    setVehicleStatus(vehicle.id, "AVAILABLE", "Published unit to central New Zealand dealer catalogue");
+    setActionNotice(`Unit #${vehicle.stockId} is now LIVE in the central catalogue.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleWithdrawConfirm = () => {
     audio.playSubtleClick();
-    if (onToggleStatus) {
-      onToggleStatus(vehicle.id);
-    } else {
-      toggleVehicleStatus(vehicle.id);
-    }
-    setActionNotice(
-      isAvailable
-        ? `Unit #${vehicle.stockId} withdrawn from NZ dealer catalogue.`
-        : `Unit #${vehicle.stockId} published to NZ dealer catalogue.`
-    );
+    setVehicleStatus(vehicle.id, "WITHDRAWN", withdrawReason);
+    setIsWithdrawModalOpen(false);
+    setActionNotice(`Unit #${vehicle.stockId} withdrawn from catalogue.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleSaveAmendment = (e: React.FormEvent) => {
+    e.preventDefault();
+    audio.playSuccessChime();
+    const parsedDefects = editDefects
+      .split("\n")
+      .map((d) => d.trim())
+      .filter(Boolean);
+
+    updateVehicle(vehicle.id, {
+      model: editModel,
+      grade: editGrade,
+      year: editYear,
+      odometerKm: editOdo,
+      transmission: editTransmission as Vehicle["transmission"],
+      fuelType: editFuel as Vehicle["fuelType"],
+      driveType: editDrive as Vehicle["driveType"],
+      fobPriceJPY: editFobJPY,
+      location: editLocation,
+      conditionSummary: editCondition,
+      knownDefects: parsedDefects.length > 0 ? parsedDefects : ["Clean pass verified"],
+    });
+
+    setIsAmendmentOpen(false);
+    setActionNotice(`Specifications & commercial terms updated for unit #${vehicle.stockId}.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleMarkSold = () => {
+    audio.playSuccessChime();
+    setVehicleStatus(vehicle.id, "SOLD", "Delivered and handed over to dealer inventory");
+    setActionNotice(`Unit #${vehicle.stockId} marked as SOLD / DELIVERED.`);
     setTimeout(() => setActionNotice(null), 3500);
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200 pb-12">
-      {/* Top Breadcrumb Bar */}
+      {/* Top Breadcrumb & Action Notice Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
         <div className="flex items-center gap-2 text-xs">
           <button
@@ -138,8 +203,8 @@ export default function JapanInventoryDetailsView({
         )}
       </div>
 
-      {/* Main Vehicle Header Card (Light Theme: Outline + Soft Shadow) */}
-      <div className="bg-white text-slate-900 rounded-3xl p-6 border border-slate-200/90 shadow-soft relative overflow-hidden">
+      {/* Main Vehicle Header Card */}
+      <div className="bg-white text-slate-900 rounded-[24px] p-6 sm:p-7 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F] shrink-0 shadow-2xs">
@@ -152,29 +217,43 @@ export default function JapanInventoryDetailsView({
                   #{vehicle.stockId}
                 </span>
 
-                <span
-                  className={`text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 ${
-                    isAvailable
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      : isReserved
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-slate-100 text-slate-600 border-slate-200"
-                  }`}
-                >
-                  {isReserved ? (
-                    <>
-                      <Lock className="w-3 h-3 text-amber-500" />
-                      <span>Dealer Exclusivity Hold</span>
-                    </>
-                  ) : isAvailable ? (
-                    <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Available to NZ Franchise</span>
-                    </>
-                  ) : (
-                    <span>Withdrawn / Inactive</span>
-                  )}
-                </span>
+                {/* Status Badges for all 6 MVP states */}
+                {isAvailable && (
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Available to NZ Franchise</span>
+                  </span>
+                )}
+                {isDraft && (
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300">
+                    <Edit3 className="w-3 h-3 text-slate-500" />
+                    <span>Draft Intake (Yard Staging)</span>
+                  </span>
+                )}
+                {isReserved && (
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-amber-50 text-amber-800 border-amber-300">
+                    <Lock className="w-3 h-3 text-amber-600" />
+                    <span>Dealer 24h Exclusivity Hold</span>
+                  </span>
+                )}
+                {isAllocated && (
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200">
+                    <Ship className="w-3 h-3 text-sky-600" />
+                    <span>Allocated &amp; Shipping Secured</span>
+                  </span>
+                )}
+                {isWithdrawn && (
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-rose-50 text-rose-700 border-rose-200">
+                    <AlertCircle className="w-3 h-3 text-rose-600" />
+                    <span>Withdrawn from Catalogue</span>
+                  </span>
+                )}
+                {isSold && (
+                  <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-purple-50 text-purple-700 border-purple-200">
+                    <CheckCircle2 className="w-3 h-3 text-purple-600" />
+                    <span>Sold &amp; Handed Over</span>
+                  </span>
+                )}
 
                 <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-slate-400" />
@@ -194,19 +273,77 @@ export default function JapanInventoryDetailsView({
             </div>
           </div>
 
-          {/* Quick Header Actions */}
+          {/* Quick Header Actions: Amendment, Publication & Status Management */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
-            {!isReserved && (
+            {/* 1. Edit Vehicle Details Modal Trigger */}
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setEditModel(vehicle.model);
+                setEditGrade(vehicle.grade);
+                setEditYear(vehicle.year);
+                setEditOdo(vehicle.odometerKm);
+                setEditTransmission(vehicle.transmission);
+                setEditFuel(vehicle.fuelType);
+                setEditDrive(vehicle.driveType);
+                setEditFobJPY(vehicle.fobPriceJPY);
+                setEditLocation(vehicle.location);
+                setEditCondition(vehicle.conditionSummary || "");
+                setEditDefects(vehicle.knownDefects?.join("\n") || "");
+                setIsAmendmentOpen(true);
+              }}
+              className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+              <span>Amend Details</span>
+            </button>
+
+            {/* 2. Publication & Withdrawal Status Action Buttons */}
+            {isDraft && (
               <button
                 type="button"
-                onClick={handleToggle}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 ${
-                  isAvailable
-                    ? "bg-rose-50 hover:bg-rose-100/80 text-rose-700 border border-rose-200"
-                    : "bg-[#C3002F] hover:bg-[#A10026] text-white"
-                }`}
+                onClick={handlePublish}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#C3002F] hover:bg-[#A10026] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
               >
-                {isAvailable ? "Withdraw from Catalogue" : "Publish to Catalogue"}
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Publish to Catalogue</span>
+              </button>
+            )}
+
+            {isAvailable && (
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setIsWithdrawModalOpen(true);
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
+              >
+                <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Withdraw from Catalogue</span>
+              </button>
+            )}
+
+            {isWithdrawn && (
+              <button
+                type="button"
+                onClick={handlePublish}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Re-publish to Catalogue</span>
+              </button>
+            )}
+
+            {isAllocated && (
+              <button
+                type="button"
+                onClick={handleMarkSold}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Mark Handover Completed</span>
               </button>
             )}
 
@@ -216,7 +353,7 @@ export default function JapanInventoryDetailsView({
                 audio.playSubtleClick();
                 window.print();
               }}
-              className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
+              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
               title="Print Vehicle Sheet"
             >
               <Printer className="w-4 h-4" />
@@ -248,9 +385,9 @@ export default function JapanInventoryDetailsView({
 
       {/* Main Content Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Image Showcase & Gallery (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-soft space-y-4">
+        {/* Left Column: Image Showcase, Condition & Supporting Documents (7 cols) */}
+        <div className="lg:col-span-7 space-y-5">
+          <div className="bg-white rounded-[24px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
             {/* Main Stage Image */}
             <div className="relative w-full h-72 sm:h-96 rounded-2xl bg-gradient-to-b from-slate-50 via-slate-100/70 to-slate-200/50 border border-slate-200/80 p-6 flex items-center justify-center overflow-hidden group">
               <div className="absolute bottom-4 w-4/5 h-6 bg-black/15 rounded-[50%] blur-lg pointer-events-none transform scale-y-50" />
@@ -266,7 +403,7 @@ export default function JapanInventoryDetailsView({
                 <span>Auction Grade {vehicle.auctionGrade} / {vehicle.interiorGrade || "A"}</span>
               </div>
 
-              {/* Yard Location Pill (Clean Light Theme) */}
+              {/* Yard Location Pill */}
               <div className="absolute bottom-4 right-4 z-20 px-3 py-1 rounded-xl bg-white/95 backdrop-blur-sm text-slate-800 border border-slate-200/90 font-mono text-xs flex items-center gap-1.5 shadow-soft">
                 <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
                 <span>{vehicle.location || "Yokohama Yard"}</span>
@@ -288,11 +425,10 @@ export default function JapanInventoryDetailsView({
                         audio.playSubtleClick();
                         setActiveImageIdx(idx);
                       }}
-                      className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${
-                        activeImageIdx === idx
-                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
-                          : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
-                      }`}
+                      className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
+                        ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
+                        : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
+                        }`}
                     >
                       <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
                     </button>
@@ -303,11 +439,11 @@ export default function JapanInventoryDetailsView({
           </div>
 
           {/* Inspection Condition Dossier & Defects Mapping */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-soft">
+          <div className="bg-white rounded-[24px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
                 <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
-                <span>Inspection Condition Dossier &amp; Defects Mapping</span>
+                <span>Inspection Condition Dossier &amp; Known Defects</span>
               </h3>
               <span className="text-[11px] font-mono text-slate-400">
                 NZTA MR2A Pre-Verified
@@ -338,12 +474,152 @@ export default function JapanInventoryDetailsView({
               </div>
             )}
           </div>
+
+          {/* Supporting Documents Section (US-07: Verified Inspection Reports & Documents) */}
+          <div className="bg-white rounded-[24px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#C3002F]" />
+                  <span>Official Supporting Documents &amp; Reports</span>
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Cryptographically hashed Japanese export certificates and biosecurity passes.
+                </p>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono border border-emerald-200">
+                4/4 Compliant
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Document 1: Japan Auction Sheet */}
+              <div
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    title: "USS Tokyo Verified Auction Sheet",
+                    type: "AUCTION_SHEET",
+                    refNumber: `USS-TK-${vehicle.vinChassis.slice(-6)}`,
+                    details: `Auction Grade: ${vehicle.auctionGrade} · Interior: ${vehicle.interiorGrade || "A"} · Exterior: ${vehicle.exteriorGrade || "A"} · Genuine Japanese documentation certified.`,
+                  });
+                }}
+                className="p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-[#C3002F]" />
+                    <span className="font-bold text-xs text-slate-900 group-hover:text-[#C3002F] transition-colors">
+                      USS Auction Sheet
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    Grade {vehicle.auctionGrade} · USS Tokyo Terminal
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-600 font-semibold block">
+                    Verified Digital PDF
+                  </span>
+                </div>
+                <Eye className="w-4 h-4 text-slate-400 group-hover:text-slate-700" />
+              </div>
+
+              {/* Document 2: JEVIC Certificate */}
+              <div
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    title: "JEVIC Pre-Shipment Digital Certificate",
+                    type: "JEVIC",
+                    refNumber: `JEVIC-NZ-${vehicle.vinChassis.slice(-6)}`,
+                    details: `Certified Mileage: ${vehicle.odometerKm.toLocaleString()} km · Digital odometer hash match: 100% · Radiation test: Passed 0.08 µSv/h.`,
+                  });
+                }}
+                className="p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span className="font-bold text-xs text-slate-900 group-hover:text-emerald-700 transition-colors">
+                      JEVIC Odometer Cert
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    {vehicle.odometerKm.toLocaleString()} km · Authenticity Pass
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-600 font-semibold block">
+                    Tamper Proof Seal
+                  </span>
+                </div>
+                <Eye className="w-4 h-4 text-slate-400 group-hover:text-slate-700" />
+              </div>
+
+              {/* Document 3: MPI Border Clearance */}
+              <div
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    title: "MPI Biosecurity Border Pre-Clearance",
+                    type: "MPI",
+                    refNumber: `MPI-BIO-${vehicle.vinChassis.slice(-6)}`,
+                    details: `MPI Off-shore Verification Programme (Japan) · Heat treatment: Compliant · Undercarriage soil clearance: Grade A (Clean).`,
+                  });
+                }}
+                className="p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                    <span className="font-bold text-xs text-slate-900 group-hover:text-blue-700 transition-colors">
+                      MPI Biosecurity
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    NZ Border Bio-Cleanliness Pass
+                  </div>
+                  <span className="text-[10px] font-mono text-blue-600 font-semibold block">
+                    Pre-Cleared Quarantine
+                  </span>
+                </div>
+                <Eye className="w-4 h-4 text-slate-400 group-hover:text-slate-700" />
+              </div>
+
+              {/* Document 4: NZTA MR2A Entry Dossier */}
+              <div
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    title: "NZTA MR2A Entry Compliance Dossier",
+                    type: "MR2A",
+                    refNumber: `NZTA-MR2A-${vehicle.vinChassis.slice(-6)}`,
+                    details: `Land Transport Rule Compliance Pre-Check · Waka Kotahi NZTA Standards · Japanese Export Certificate de-registration verified.`,
+                  });
+                }}
+                className="p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer group flex items-start justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <FileCheck2 className="w-4 h-4 text-amber-600" />
+                    <span className="font-bold text-xs text-slate-900 group-hover:text-amber-700 transition-colors">
+                      NZTA MR2A Pass
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    Entry Certification Pre-Check
+                  </div>
+                  <span className="text-[10px] font-mono text-amber-600 font-semibold block">
+                    NZTA Verified
+                  </span>
+                </div>
+                <Eye className="w-4 h-4 text-slate-400 group-hover:text-slate-700" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Parameters, Certification & Wholesale JPY (5 cols) */}
         <div className="lg:col-span-5 space-y-5">
-          {/* Japanese Wholesale Baseline Procurement Card (Light Theme: Outline + Soft Shadow) */}
-          <div className="p-5 sm:p-6 rounded-3xl bg-white text-slate-900 border border-slate-200/90 shadow-soft space-y-4">
+          {/* Japanese Wholesale Baseline Procurement Card */}
+          <div className="p-5 sm:p-6 rounded-[24px] bg-white text-slate-900 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
@@ -377,10 +653,20 @@ export default function JapanInventoryDetailsView({
           </div>
 
           {/* Technical Specifications Card */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-soft">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Vehicle Technical Parameters
-            </h3>
+          <div className="bg-white rounded-[24px] border border-slate-200 p-6 space-y-3.5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                Vehicle Technical Parameters
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsAmendmentOpen(true)}
+                className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer flex items-center gap-1"
+              >
+                <Edit3 className="w-3 h-3" />
+                <span>Amend Specs</span>
+              </button>
+            </div>
 
             <div className="divide-y divide-slate-100 text-xs">
               <div className="flex items-center justify-between py-2">
@@ -448,7 +734,7 @@ export default function JapanInventoryDetailsView({
           </div>
 
           {/* JEVIC Pre-Export Verification Card */}
-          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-3xl p-5 space-y-3 shadow-soft">
+          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-[24px] p-6 space-y-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-emerald-950 font-bold text-xs">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -493,6 +779,328 @@ export default function JapanInventoryDetailsView({
           </div>
         </div>
       </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 1. Vehicle Amendment Modal (US-08: Edit Vehicle Details)    */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {isAmendmentOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto navy-scrollbar">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-sm z-10">
+              <div>
+                <h3 className="text-base font-black text-slate-900">
+                  Amend Vehicle Specifications
+                </h3>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  Stock #{vehicle.stockId} · VIN {vehicle.vinChassis}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAmendmentOpen(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAmendment} className="p-6 space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Model Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editModel}
+                    onChange={(e) => setEditModel(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Package / Grade *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editGrade}
+                    onChange={(e) => setEditGrade(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Model Year *</label>
+                  <input
+                    type="number"
+                    required
+                    min={2015}
+                    max={2026}
+                    value={editYear}
+                    onChange={(e) => setEditYear(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-mono font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Verified Mileage (KM) *</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={editOdo}
+                    onChange={(e) => setEditOdo(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-mono font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">FOB Price (JPY) *</label>
+                  <input
+                    type="number"
+                    required
+                    min={500000}
+                    step={10000}
+                    value={editFobJPY}
+                    onChange={(e) => setEditFobJPY(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-mono font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Yard Location *</label>
+                  <select
+                    value={editLocation}
+                    onChange={(e) => setEditLocation(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium"
+                  >
+                    <option value="Yokohama Yard (Bay 1)">Yokohama Yard (Bay 1)</option>
+                    <option value="Yokohama Yard (Bay 2)">Yokohama Yard (Bay 2)</option>
+                    <option value="Yokohama Yard (Bay 3)">Yokohama Yard (Bay 3)</option>
+                    <option value="Yokohama Yard (Bay 4)">Yokohama Yard (Bay 4)</option>
+                    <option value="Yokohama Yard (Bay 5)">Yokohama Yard (Bay 5)</option>
+                    <option value="Yokohama Yard (Bay 6)">Yokohama Yard (Bay 6)</option>
+                    <option value="Yokohama Yard (Bay 7)">Yokohama Yard (Bay 7)</option>
+                    <option value="Kobe Export Terminal">Kobe Export Terminal</option>
+                    <option value="Port of Auckland Delivery Yard">Port of Auckland Delivery Yard</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Transmission *</label>
+                  <select
+                    value={editTransmission}
+                    onChange={(e) => setEditTransmission(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium"
+                  >
+                    <option value="Automatic">Automatic</option>
+                    <option value="CVT">CVT</option>
+                    <option value="e-Power Drive">e-Power Drive</option>
+                    <option value="Manual">Manual</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Powertrain / Fuel *</label>
+                  <select
+                    value={editFuel}
+                    onChange={(e) => setEditFuel(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium"
+                  >
+                    <option value="Petrol">Petrol</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="e-Power">e-Power</option>
+                    <option value="100% Electric">100% Electric</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1 pt-1">
+                <label className="font-bold text-slate-700">Condition Summary Dossier</label>
+                <textarea
+                  rows={2}
+                  value={editCondition}
+                  onChange={(e) => setEditCondition(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium text-xs leading-relaxed"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700">
+                  Known Markings / Defect Items (one per line)
+                </label>
+                <textarea
+                  rows={2}
+                  value={editDefects}
+                  onChange={(e) => setEditDefects(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium text-xs font-mono"
+                  placeholder="e.g. Minor stone chip on front bumper (A1)"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsAmendmentOpen(false)}
+                  className="btn-outline text-xs py-2 px-4"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors shadow-2xs cursor-pointer"
+                >
+                  Save Amendments
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 2. Withdrawal Reason Modal (US-08: Controlled Withdrawal)   */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {isWithdrawModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-200">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-900">
+                  Withdraw Vehicle from Catalogue
+                </h3>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  Stock #{vehicle.stockId} ({vehicle.model})
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Withdrawing this vehicle removes it from dealer visibility. Please specify the formal administrative withdrawal justification:
+            </p>
+
+            <div className="space-y-2">
+              {[
+                "Yard Inspection: Cosmetic Paint / Panel Rectification Required",
+                "Documentation Hold: Awaiting JEVIC Biosecurity Re-clearance",
+                "Commercial Staging: Re-assigned to Corporate Fleet Program",
+                "Japanese Recall Campaign: Technical Module Update Required",
+              ].map((reason, idx) => (
+                <label
+                  key={idx}
+                  onClick={() => setWithdrawReason(reason)}
+                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${withdrawReason === reason
+                    ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
+                    : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                    }`}
+                >
+                  <input
+                    type="radio"
+                    name="withdrawReason"
+                    checked={withdrawReason === reason}
+                    onChange={() => setWithdrawReason(reason)}
+                    className="text-[#C3002F] focus:ring-[#C3002F]"
+                  />
+                  <span>{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsWithdrawModalOpen(false)}
+                className="btn-outline text-xs py-2 px-3.5"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleWithdrawConfirm}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-2xs cursor-pointer"
+              >
+                Confirm Withdrawal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3. Document Viewer Modal (US-07: Supporting Documents)       */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {activeDocPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-lg p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-slate-100 text-slate-700">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">
+                    {activeDocPreview.title}
+                  </h3>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Ref: {activeDocPreview.refNumber}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveDocPreview(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Document Digital Pass Body */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/80">
+                <span className="text-slate-500">Vehicle Unit:</span>
+                <strong className="text-slate-900">{vehicle.year} {vehicle.make} {vehicle.model}</strong>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/80">
+                <span className="text-slate-500">VIN / Chassis:</span>
+                <strong className="font-mono text-slate-900">{vehicle.vinChassis}</strong>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/80">
+                <span className="text-slate-500">Verification Status:</span>
+                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold font-mono text-[10px]">
+                  PASS / CLEARED
+                </span>
+              </div>
+              <div className="pt-1">
+                <span className="text-slate-500 block mb-1">Inspector Sign-off Notes:</span>
+                <p className="text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200/70 font-mono text-[11px] leading-relaxed">
+                  {activeDocPreview.details}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Digitally Signed &amp; Timestamped</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  alert(`Downloading cryptographic digital document PDF for ${activeDocPreview.refNumber}`);
+                }}
+                className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5 text-slate-500" />
+                <span>Download PDF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

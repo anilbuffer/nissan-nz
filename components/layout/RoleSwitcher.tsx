@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { UserRole } from "@/lib/types";
 import { audio } from "@/lib/sound";
-import { Car, Shield, Globe2, ChevronDown, Check } from "lucide-react";
+import { Car, Shield, Globe2, ChevronDown, Check, Eye } from "lucide-react";
 
 interface RoleOption {
   role: UserRole;
@@ -55,6 +55,15 @@ const ROLES: RoleOption[] = [
     iconBg: "bg-slate-100 text-slate-700",
   },
   {
+    role: "READONLY_PROGRAMME_USER",
+    label: "Programme User",
+    sublabel: "Marcus Vance · NSC Oversight (Read-Only)",
+    badge: "PROGRAMME",
+    badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    icon: Eye,
+    iconBg: "bg-indigo-50 text-indigo-700",
+  },
+  {
     role: "READONLY_AUDITOR",
     label: "Regulatory Audit",
     sublabel: "Elena Campbell · Customs/NZTA",
@@ -93,6 +102,8 @@ export default function RoleSwitcher() {
       router.push("/admin/dashboard");
     } else if (role === "NISSAN_JAPAN") {
       router.push("/japan/inventory");
+    } else if (role === "READONLY_PROGRAMME_USER") {
+      router.push("/programme");
     } else if (role === "READONLY_AUDITOR") {
       router.push("/admin/audit");
     } else {
@@ -138,7 +149,7 @@ export default function RoleSwitcher() {
       {isOpen && (
         <div
           role="listbox"
-          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-2xl bg-white border border-slate-200 shadow-xl py-2 z-50 text-slate-900 animate-in fade-in slide-in-from-top-2 duration-150"
+          className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-auto sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-80 max-w-sm rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] py-2 z-50 text-slate-900 animate-in fade-in slide-in-from-top-2 duration-150"
         >
           <div className="px-3.5 py-2 border-b border-slate-100 mb-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">

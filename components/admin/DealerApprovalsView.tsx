@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 
 export default function DealerApprovalsView() {
-  const { dealers, approveDealer, rejectDealer, updateDealerZone, orders, reservations, users } = useProgramme();
+  const { dealers, approveDealer, rejectDealer, returnDealerApplication, updateDealerZone, orders, reservations, users, addUser, toggleUserStatus } = useProgramme();
 
   const [selectedDealerId, setSelectedDealerId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +46,69 @@ export default function DealerApprovalsView() {
   // Track zone selection inside the details view
   const [detailSelectedZone, setDetailSelectedZone] = useState<ZoneId | null>(null);
   const [hasSavedDetailZone, setHasSavedDetailZone] = useState(false);
+
+  // Status Filter: ALL | PENDING_APPROVAL | RETURNED_FOR_INFO | APPROVED | REJECTED
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "PENDING_APPROVAL" | "RETURNED_FOR_INFO" | "APPROVED" | "REJECTED">("ALL");
+
+  // Return for Information Modal State
+  const [returnModalDealer, setReturnModalDealer] = useState<DealerAccount | null>(null);
+  const [returnReasonInput, setReturnReasonInput] = useState("");
+
+  // Reject Modal State
+  const [rejectModalDealer, setRejectModalDealer] = useState<DealerAccount | null>(null);
+  const [rejectReasonInput, setRejectReasonInput] = useState("");
+
+  // Invite Staff Modal State for Dealership Dossier
+  const [isInviteStaffOpen, setIsInviteStaffOpen] = useState(false);
+  const [staffNameInput, setStaffNameInput] = useState("");
+  const [staffEmailInput, setStaffEmailInput] = useState("");
+  const [staffPhoneInput, setStaffPhoneInput] = useState("");
+  const [staffRoleInput, setStaffRoleInput] = useState<"DEALER_USER" | "DEALER_ADMIN">("DEALER_USER");
+
+  const handleConfirmReturn = () => {
+    if (!returnModalDealer) return;
+    audio.playSuccessChime();
+    const reason = returnReasonInput.trim() || "Missing required certificate of incorporation or showroom depot access clarification.";
+    returnDealerApplication(returnModalDealer.id, reason);
+    setNotification(`Application for ${returnModalDealer.legalTradingName} returned to franchise requesting corrections.`);
+    setReturnModalDealer(null);
+    setReturnReasonInput("");
+    setTimeout(() => setNotification(null), 4500);
+  };
+
+  const handleConfirmReject = () => {
+    if (!rejectModalDealer) return;
+    audio.playSubtleClick();
+    const reason = rejectReasonInput.trim() || "Territory boundary conflict or failure to meet Nissan franchise compliance criteria.";
+    rejectDealer(rejectModalDealer.id, reason);
+    setNotification(`Application for ${rejectModalDealer.legalTradingName} declined.`);
+    setRejectModalDealer(null);
+    setRejectReasonInput("");
+    setTimeout(() => setNotification(null), 4500);
+  };
+
+  const handleCreateStaff = (e: React.FormEvent, dealerId: string, dealershipName: string) => {
+    e.preventDefault();
+    if (!staffNameInput.trim() || !staffEmailInput.trim()) return;
+    audio.playSuccessChime();
+    addUser({
+      name: staffNameInput.trim(),
+      email: staffEmailInput.trim(),
+      phone: staffPhoneInput.trim() || "+64 9 000 0000",
+      role: staffRoleInput,
+      dealerId,
+      dealershipName,
+      active: true,
+      mfaEnabled: true,
+      department: "Commercial Governance",
+    });
+    setNotification(`User ${staffNameInput} successfully authorized for ${dealershipName}.`);
+    setIsInviteStaffOpen(false);
+    setStaffNameInput("");
+    setStaffEmailInput("");
+    setStaffPhoneInput("");
+    setTimeout(() => setNotification(null), 4000);
+  };
 
   const pendingDealers = dealers.filter((d) => d.status === "PENDING_APPROVAL");
   const approvedDealers = dealers.filter((d) => d.status === "APPROVED");
@@ -123,7 +186,7 @@ export default function DealerApprovalsView() {
     return (
       <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
         {/* Navigation Top Bar */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
             <button
               type="button"
@@ -184,7 +247,7 @@ export default function DealerApprovalsView() {
 
         {/* 4-Stat Executive Highlights Strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Assigned Pricing Zone
             </span>
@@ -196,7 +259,7 @@ export default function DealerApprovalsView() {
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Active Exclusivity Holds
             </span>
@@ -208,7 +271,7 @@ export default function DealerApprovalsView() {
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Total Wholesale Orders
             </span>
@@ -220,7 +283,7 @@ export default function DealerApprovalsView() {
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+          <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
               Authorized Staff Accounts
             </span>
@@ -238,7 +301,7 @@ export default function DealerApprovalsView() {
           {/* Left Column: Legal Profile & Allocation Activity */}
           <div className="lg:col-span-7 space-y-6">
             {/* Legal & Business Entity Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-5 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="space-y-0.5">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
@@ -295,7 +358,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Wholesale Allocation & Exclusivity Limits */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
                 <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
                 <span>Commercial Floorplan &amp; Capacity Boundary</span>
@@ -323,7 +386,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Active Inventory Activity for this Dealership */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
                   <Car className="w-4 h-4 text-slate-600" />
@@ -388,7 +451,7 @@ export default function DealerApprovalsView() {
           {/* Right Column: Contact Dossier, Interactive Zone Config & Admin Actions */}
           <div className="lg:col-span-5 space-y-6">
             {/* Primary Principal Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                 Authorized Dealer Principal
               </span>
@@ -424,7 +487,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Interactive Pricing & Towing Zone Configuration */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-black text-slate-900 text-sm">
@@ -500,7 +563,7 @@ export default function DealerApprovalsView() {
             </div>
 
             {/* Administrative Operational Authority */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                 Administrative Operational Authority
               </span>
@@ -510,7 +573,7 @@ export default function DealerApprovalsView() {
                   <button
                     type="button"
                     onClick={() => handleApprove(dealer.id, currentZoneId)}
-                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(5,150,105,0.3)] cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Authorize Franchise &amp; Assign Zone</span>
@@ -591,7 +654,7 @@ export default function DealerApprovalsView() {
       {/* 2. Executive Network 4-KPI Metric Strip                     */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Total Network
           </span>
@@ -603,7 +666,7 @@ export default function DealerApprovalsView() {
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Pending Authorizations
           </span>
@@ -615,7 +678,7 @@ export default function DealerApprovalsView() {
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Active Showrooms
           </span>
@@ -627,7 +690,7 @@ export default function DealerApprovalsView() {
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             National Coverage
           </span>
@@ -643,7 +706,7 @@ export default function DealerApprovalsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Global Network Search Toolbar                            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-2xs flex items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
           <input
@@ -677,7 +740,7 @@ export default function DealerApprovalsView() {
         </div>
 
         {pendingDealers.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-2 shadow-2xs">
+          <div className="bg-white rounded-[24px] border border-slate-200 p-8 text-center space-y-2 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
             <CheckCircle2 className="w-9 h-9 text-emerald-500 mx-auto" />
             <h3 className="font-bold text-sm text-slate-900">All Dealership Applications Reviewed</h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
@@ -692,7 +755,7 @@ export default function DealerApprovalsView() {
               return (
                 <div
                   key={dealer.id}
-                  className="bg-white rounded-3xl border-2 border-amber-300 shadow-xs p-6 space-y-6 hover:shadow-md transition-all"
+                  className="bg-white rounded-[24px] border-2 border-amber-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 space-y-6 hover:shadow-md transition-all"
                 >
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
@@ -793,7 +856,7 @@ export default function DealerApprovalsView() {
                       <button
                         type="button"
                         onClick={() => handleApprove(dealer.id, currentZone)}
-                        className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-bold transition-all shadow-[0_3px_12px_rgba(5,150,105,0.25)] hover:shadow-[0_4px_16px_rgba(5,150,105,0.35)] cursor-pointer flex items-center gap-2 active:scale-[0.98]"
+                        className="py-2.5 px-5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
                       >
                         <CheckCircle2 className="w-4 h-4" />
                         <span>Authorize Franchise &amp; Assign Zone</span>
@@ -810,7 +873,7 @@ export default function DealerApprovalsView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 5. SECTION 2 (OPEN): Approved Franchise Network Directory   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">

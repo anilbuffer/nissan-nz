@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useProgramme } from "@/lib/programme-context";
-import { ReservationRequest } from "@/lib/types";
+import { useAuth } from "@/lib/auth-context";
+import { ReservationRequest, ReservationConfig } from "@/lib/types";
 import { audio } from "@/lib/sound";
 import {
   Clock,
@@ -27,6 +28,11 @@ import {
   AlertCircle,
   Hash,
   ShieldAlert,
+  Sliders,
+  Sparkles,
+  Zap,
+  RotateCcw,
+  Ban,
 } from "lucide-react";
 
 interface AdminReservationsViewProps {
@@ -34,17 +40,33 @@ interface AdminReservationsViewProps {
 }
 
 export default function AdminReservationsView({ onNavigateTab }: AdminReservationsViewProps) {
-  const { reservations, confirmAllocation, releaseHold, rejectReservation } = useProgramme();
+  const { currentUser } = useAuth();
+  const isAuditor = currentUser?.role === "READONLY_AUDITOR";
+  const {
+    reservations,
+    confirmAllocation,
+    releaseHold,
+    rejectReservation,
+    cancelReservation,
+    expireReservation,
+    simulateExpiryWarning,
+    reservationConfig,
+    updateReservationConfig,
+  } = useProgramme();
 
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "HISTORY">("ACTIVE");
   const [searchQuery, setSearchQuery] = useState("");
   const [notification, setNotification] = useState<string | null>(null);
   const [selectedResForDetails, setSelectedResForDetails] = useState<ReservationRequest | null>(null);
 
-  // Quick Action Modal for confirm/release justification
+  // US-15 Rules Modal State
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
+  const [draftRules, setDraftRules] = useState<ReservationConfig>(reservationConfig);
+
+  // Quick Action Modal for confirm / release / reject / cancel
   const [actionModal, setActionModal] = useState<{
     isOpen: boolean;
-    type: "CONFIRM" | "RELEASE" | "REJECT";
+    type: "CONFIRM" | "RELEASE" | "REJECT" | "CANCEL";
     reservation: ReservationRequest | null;
     reason: string;
   }>({
@@ -82,13 +104,37 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
     );
   });
 
-  const openActionDialog = (type: "CONFIRM" | "RELEASE" | "REJECT", res: ReservationRequest) => {
+  // Calculate dynamic countdown & warning status (US-15)
+  const calcRemainingTime = (expiresAt: string) => {
+    const diffMs = new Date(expiresAt).getTime() - Date.now();
+    if (diffMs <= 0) {
+      return { label: "Expired", isExpired: true, isWarning: false, hours: 0, minutes: 0 };
+    }
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const threshold = reservationConfig?.warningThresholdHours || 2;
+    const isWarning = hours < threshold;
+    return {
+      label: hours > 0 ? `${hours}h ${minutes}m left` : `${minutes}m left`,
+      isExpired: false,
+      isWarning,
+      hours,
+      minutes,
+    };
+  };
+
+  const openActionDialog = (
+    type: "CONFIRM" | "RELEASE" | "REJECT" | "CANCEL",
+    res: ReservationRequest
+  ) => {
     audio.playSubtleClick();
     const defaultReason =
       type === "CONFIRM"
         ? "Wholesale allocation confirmed by Autohub Ops. Purchase order issued."
         : type === "RELEASE"
         ? "Administrative hold released. Stock returned to available catalog."
+        : type === "CANCEL"
+        ? "Cancelled under Section 6.2 cooling-off right prior to allocation."
         : "Allocation declined during wholesale review.";
 
     setActionModal({
@@ -107,27 +153,42 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
     if (actionModal.type === "CONFIRM") {
       audio.playSuccessChime();
       confirmAllocation(res.vehicleId, reasonText);
-      setNotification(`Confirmed allocation for #${res.vehicle.stockId} to ${res.dealerName}.`);
+      setNotification(`Confirmed allocation for #${res.vehicle.stockId} to ${res.dealerName}. Active Order generated.`);
       if (selectedResForDetails?.id === res.id) {
         setSelectedResForDetails({ ...res, status: "CONFIRMED_ALLOCATED" });
       }
     } else if (actionModal.type === "RELEASE") {
       audio.playSubtleClick();
       releaseHold(res.vehicleId, reasonText);
-      setNotification(`Released 24h hold for #${res.vehicle.stockId}. Stock is now Available.`);
+      setNotification(`Released hold for #${res.vehicle.stockId}. Stock returned to Available.`);
       if (selectedResForDetails?.id === res.id) {
         setSelectedResForDetails({ ...res, status: "RELEASED" });
+      }
+    } else if (actionModal.type === "CANCEL") {
+      audio.playSubtleClick();
+      cancelReservation(res.id, reasonText, "Autohub Administrator");
+      setNotification(`Cancelled hold ${res.requestId} for ${res.dealerName} under Section 6.2.`);
+      if (selectedResForDetails?.id === res.id) {
+        setSelectedResForDetails({ ...res, status: "CANCELLED" });
       }
     } else if (actionModal.type === "REJECT") {
       audio.playSubtleClick();
       rejectReservation(res.id, reasonText);
       setNotification(`Declined reservation ${res.requestId} for ${res.dealerName}.`);
       if (selectedResForDetails?.id === res.id) {
-        setSelectedResForDetails({ ...res, status: "CANCELLED" });
+        setSelectedResForDetails({ ...res, status: "REJECTED" });
       }
     }
 
     setActionModal({ isOpen: false, type: "CONFIRM", reservation: null, reason: "" });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleSaveRules = () => {
+    audio.playSuccessChime();
+    updateReservationConfig(draftRules);
+    setIsRulesModalOpen(false);
+    setNotification("Updated reservation expiry & warning rules successfully (US-15).");
     setTimeout(() => setNotification(null), 4000);
   };
 
@@ -138,238 +199,310 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
     const res = selectedResForDetails;
     const vehicle = res.vehicle;
     const price = res.priceSnapshot;
-    const isHold = res.status === "ACTIVE_HOLD";
+    const remaining = calcRemainingTime(res.expiresAt);
 
     return (
-      <div className="space-y-6 animate-in fade-in duration-300">
-        {/* Navigation Top Bar */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setSelectedResForDetails(null);
-              }}
-              className="btn-outline"
-            >
-              <ArrowLeft className="w-4 h-4 text-slate-500" />
-              <span>Back to Reservations Grid</span>
-            </button>
+      <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in duration-200">
+        {/* Back Link */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              audio.playSubtleClick();
+              setSelectedResForDetails(null);
+            }}
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Reservations Queue</span>
+          </button>
 
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+          {/* Quick Simulation controls in detail view */}
+          {!isAuditor && res.status === "ACTIVE_HOLD" && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-400 font-mono">Test US-15:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSoftChime();
+                  simulateExpiryWarning(res.id);
+                  setNotification(`Simulated warning for ${res.requestId}: expires in 55m (< 2h).`);
+                  setSelectedResForDetails({
+                    ...res,
+                    expiresAt: new Date(Date.now() + 55 * 60 * 1000).toISOString(),
+                  });
+                }}
+                className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
+                title="Force time remaining to 55 minutes to test warning threshold"
+              >
+                <Clock className="w-3 h-3 text-amber-600" />
+                <span>Simulate 1h Warning</span>
+              </button>
 
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-              <span>Platform Operations</span>
-              <span>/</span>
-              <span className="text-slate-900 font-semibold">Reservations Queue</span>
-              <span>/</span>
-              <span className="font-mono text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded-lg text-[11px] font-bold border border-slate-200">
-                {res.requestId}
-              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playWarningChime();
+                  expireReservation(res.id, "Simulated auto-release test");
+                  setNotification(`Simulated auto-release for ${res.requestId}: hold expired.`);
+                  setSelectedResForDetails({ ...res, status: "EXPIRED" });
+                }}
+                className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
+                title="Immediately expire hold and auto-release stock back to catalogue"
+              >
+                <Zap className="w-3 h-3 text-rose-600" />
+                <span>Simulate Auto-Release</span>
+              </button>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isHold ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 font-mono shadow-2xs">
-                <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                <span>24h Atomic Lock Active (18h Left)</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono shadow-2xs">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{res.status}</span>
-              </span>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* Inner Details 2-Column Cockpit */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Studio Vehicle & Specifications Strip */}
-          <div className="lg:col-span-7 space-y-4">
-            {/* Vehicle Studio Showcase */}
-            <div className="relative aspect-[16/10] w-full rounded-3xl overflow-hidden bg-white border border-slate-200/80 shadow-2xs flex items-center justify-center p-6 sm:p-8">
-              <div className="absolute bottom-6 w-4/5 h-6 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
-              <img
-                src={vehicle.images?.[0] || "/images/cars/kicks.png"}
-                alt={vehicle.model}
-                className="w-full h-full object-contain filter drop-shadow-[0_12px_18px_rgba(0,0,0,0.12)] relative z-10 select-none"
-              />
-
-              <div className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-xs font-bold border border-slate-200/80 shadow-2xs flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                <span>Grade {vehicle.auctionGrade || "4.5"} / {vehicle.interiorGrade || "A"}</span>
+        {/* Detailed Dossier Card */}
+        <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+          {/* Dossier Header Banner */}
+          <div className="bg-[#0A0A0A] p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#27272A]">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white border border-white/15">
+                  {res.requestId}
+                </span>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                    res.status === "ACTIVE_HOLD"
+                      ? remaining.isWarning
+                        ? "bg-amber-500 text-black border border-amber-300 font-extrabold"
+                        : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
+                      : res.status === "CONFIRMED_ALLOCATED"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-slate-700 text-slate-300 border border-slate-600"
+                  }`}
+                >
+                  {res.status === "ACTIVE_HOLD"
+                    ? remaining.isWarning
+                      ? `⚠ WARNING: ${remaining.label}`
+                      : `ACTIVE HOLD (${remaining.label})`
+                    : res.status}
+                </span>
               </div>
-
-              <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-700 font-mono text-[11px] font-bold border border-slate-200/80 shadow-2xs">
-                #{vehicle.stockId}
-              </div>
+              <h2 className="text-xl font-black text-white">
+                {vehicle.year} {vehicle.make} {vehicle.model}
+              </h2>
+              <p className="text-xs text-slate-400 font-mono">
+                VIN: {vehicle.vinChassis} · Stock #{vehicle.stockId} · Grade {vehicle.auctionGrade}
+              </p>
             </div>
 
-            {/* 4-Stat Executive Highlights Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-2xs">
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Odometer
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 font-mono block truncate">
-                  {vehicle.odometerKm?.toLocaleString() || "28,400"} km
-                </strong>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Auction Grade
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 block truncate">
-                  ★ {vehicle.auctionGrade || "4.5"} / {vehicle.interiorGrade || "A"}
-                </strong>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  FOB Baseline
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 font-mono block truncate">
-                  ¥{vehicle.fobPriceJPY?.toLocaleString() || "2,450,000"}
-                </strong>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  Yard Location
-                </span>
-                <strong className="text-xs sm:text-sm font-black text-slate-900 block truncate">
-                  {vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}
-                </strong>
-              </div>
-            </div>
-
-            {/* Cryptographic Execution Audit Box */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200/80 space-y-3 shadow-2xs text-xs">
-              <div className="flex items-center gap-2 font-bold text-slate-900">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>SHA-256 Cryptographic Audit &amp; Lock Trail</span>
-              </div>
-              <div className="space-y-1.5 text-slate-600">
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-400 font-medium">Reservation Request ID:</span>
-                  <span className="font-mono font-bold text-slate-900">{res.requestId}</span>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-400 font-medium">Requested At (UTC):</span>
-                  <span className="font-mono text-slate-800">{new Date(res.requestedAt).toLocaleString("en-NZ")}</span>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                  <span className="text-slate-400 font-medium">Exclusivity Expires At (UTC):</span>
-                  <span className="font-mono text-amber-800 font-bold">{new Date(res.expiresAt).toLocaleString("en-NZ")}</span>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-slate-400 font-medium">Section 4 Policy Hash:</span>
-                  <span className="font-mono text-[10px] text-slate-500 truncate max-w-[220px]">sha256:7f83b1657ff1fc53b92dc18148a1d65d</span>
-                </div>
-              </div>
+            <div className="text-right sm:self-center">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                Guaranteed Landed Price
+              </span>
+              <span className="text-2xl font-black text-white font-mono">
+                ${price.totalBuyPriceNZD.toLocaleString()} NZD
+              </span>
+              <span className="text-[10px] text-emerald-400 block font-mono">
+                {price.zoneId} Landed &amp; Complied
+              </span>
             </div>
           </div>
 
-          {/* Right Column: Dealership Dossier & Landed Buy Economics */}
-          <div className="lg:col-span-5 space-y-4">
-            {/* Dealership Dossier Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-5 shadow-2xs">
-              <div className="space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                  Reserving Dealership Entity
-                </span>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                  {res.dealerName}
-                </h2>
-                <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-                  <span>Dealer Code: <strong className="text-slate-800 font-bold">{res.dealerCode}</strong></span>
-                  <span>·</span>
-                  <span>Zone: <strong className="text-slate-800 font-bold">{price.zoneId}</strong></span>
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Cols: Vehicle & Cost Dossier */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Vehicle Specs Grid */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                  <Car className="w-4 h-4 text-[#C3002F]" />
+                  <span>Certified Japanese Stock Verification</span>
                 </div>
-              </div>
-
-              {/* Authorized Buyer */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1 text-xs">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Authorized Buyer Contact
-                </span>
-                <div className="font-bold text-slate-900">
-                  {res.userName}
-                </div>
-                <div className="text-[11px] text-slate-500 font-mono">
-                  {res.userEmail} · Direct Floorplan Buyer
-                </div>
-              </div>
-
-              {/* Landed Pricing Breakdown */}
-              <div className="space-y-3 pt-1 border-t border-slate-100">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                  Guaranteed Fixed Landed Price
-                </span>
-                <div className="text-2xl sm:text-3xl font-black font-mono tracking-tight text-slate-900">
-                  ${price.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-normal text-slate-400 font-sans">NZD Landed</span>
-                </div>
-
-                <div className="space-y-2 text-xs pt-1 divide-y divide-slate-100">
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-slate-500">FOB Acquisition (JPY):</span>
-                    <strong className="font-mono text-slate-900">¥{vehicle.fobPriceJPY?.toLocaleString() || "2,450,000"}</strong>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Odometer:</span>
+                    <span className="font-bold text-slate-800 font-mono">
+                      {vehicle.odometerKm.toLocaleString()} km
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-slate-500">Customs Clearance &amp; 15% GST:</span>
-                    <strong className="font-mono text-slate-900">${price.gstNZD?.toLocaleString() || "3,491"} NZD</strong>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Powertrain:</span>
+                    <span className="font-bold text-slate-800">{vehicle.fuelType}</span>
                   </div>
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-slate-500">MR2A Compliance &amp; WoF:</span>
-                    <strong className="text-emerald-700 font-semibold">Standard Pass Fully Covered</strong>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Transmission:</span>
+                    <span className="font-bold text-slate-800">{vehicle.transmission}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Auction Grade:</span>
+                    <span className="font-bold text-slate-800 font-mono">
+                      {vehicle.auctionGrade} / 5.0
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Administrative Action Authority Buttons */}
-              <div className="space-y-2.5 pt-3 border-t border-slate-100">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                  Administrative Operational Authority
-                </span>
+              {/* Price Breakdown Matrix */}
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                    <span>Fixed-Cost Landed Calculation (Snapshot)</span>
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                    FX: {price.exchangeRateJPYtoNZD} JPY/NZD
+                  </span>
+                </div>
 
-                {isHold ? (
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between text-slate-600">
+                    <span>FOB Base Cost (¥{price.fobJPY.toLocaleString()}):</span>
+                    <span className="font-mono text-slate-900">${price.fobNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Trans-Pacific RoRo Ocean Freight:</span>
+                    <span className="font-mono text-slate-900">${price.oceanFreightNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Customs Processing &amp; 15% Landed GST:</span>
+                    <span className="font-mono text-slate-900">${(price.customsProcessingNZD + price.gstNZD).toLocaleString()} NZD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>MAF Bio-Security &amp; NZTA Compliance:</span>
+                    <span className="font-mono text-slate-900">${price.complianceInspectionNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Zone Delivery to Dealership ({price.zoneId}):</span>
+                    <span className="font-mono text-slate-900">${price.zoneDeliveryNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Nissan Used Vehicle Programme Fee:</span>
+                    <span className="font-mono text-slate-900">${price.programmeFeeNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-900 font-bold border-t border-slate-100 pt-2 text-sm">
+                    <span>Total Landed Buy Price (GST Inclusive):</span>
+                    <span className="font-mono text-[#C3002F] font-black">
+                      ${price.totalBuyPriceNZD.toLocaleString()} NZD
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compliance & US-12 Confirmation Snapshot */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Dealer Acknowledgement Credentials (US-12)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Terms of Trade: <strong>{res.termsVersionSnapshot}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Commercial Boundary Acknowledged: <strong>Yes</strong></span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Section 6.2 Cancellation Statement: <strong>Yes</strong></span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Hold Duration Window: <strong>{reservationConfig?.defaultHoldHours || 24} Hours</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Col: Dealership & Administrative Sign-off Actions */}
+            <div className="space-y-6">
+              {/* Dealership Card */}
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3 text-xs">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-slate-500" />
+                  <span>Reserving Dealership</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Dealership Legal Name:</span>
+                    <span className="font-bold text-slate-900">{res.dealerName}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Dealer Code:</span>
+                    <span className="font-mono font-bold text-slate-800">{res.dealerCode}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Ordering Buyer:</span>
+                    <span className="text-slate-800 font-medium">{res.userName} ({res.userEmail})</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Requested Timestamp:</span>
+                    <span className="text-slate-600 font-mono text-[11px]">
+                      {new Date(res.requestedAt).toLocaleString("en-NZ")}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px]">Holding Expiry:</span>
+                    <span className="text-amber-800 font-mono font-bold text-[11px]">
+                      {new Date(res.expiresAt).toLocaleString("en-NZ")} ({remaining.label})
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Administrative Action Center (US-14) */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="font-bold text-xs text-slate-900 flex items-center justify-between">
+                  <span>Autohub Action Center (US-14)</span>
+                  <span className="text-[10px] font-mono text-slate-500">SARAH JENKINS</span>
+                </div>
+
+                {res.status === "ACTIVE_HOLD" ? (
                   <div className="space-y-2">
                     <button
                       type="button"
                       onClick={() => openActionDialog("CONFIRM", res)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-2.5 px-4 bg-[#C3002F] hover:bg-[#A10026] text-white rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98]"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span>Confirm Wholesale Allocation</span>
                     </button>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-1.5">
                       <button
                         type="button"
                         onClick={() => openActionDialog("RELEASE", res)}
-                        className="btn-outline py-2.5 px-3 text-xs"
+                        className="py-2 px-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        title="Release hold back to open stock"
                       >
-                        <Unlock className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Release Lock</span>
+                        <Unlock className="w-3 h-3 text-slate-500" />
+                        <span>Release</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => openActionDialog("CANCEL", res)}
+                        className="py-2 px-2 bg-white hover:bg-amber-50 text-amber-800 border border-amber-200 rounded-xl text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        title="Cancel under Section 6.2 cooling-off"
+                      >
+                        <Ban className="w-3 h-3 text-amber-600" />
+                        <span>Cancel (6.2)</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => openActionDialog("REJECT", res)}
-                        className="btn-outline py-2.5 px-3 text-xs hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                        className="py-2 px-2 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                        title="Decline reservation request"
                       >
-                        <XCircle className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Decline Hold</span>
+                        <XCircle className="w-3 h-3 text-rose-500" />
+                        <span>Decline</span>
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-600 font-medium">
-                    This reservation has been resolved ({res.status}). No active lock pending.
+                  <div className="p-3.5 rounded-xl bg-white border border-slate-200 text-center text-xs space-y-1">
+                    <span className="font-bold text-slate-800 block">Status: {res.status}</span>
+                    <p className="text-[11px] text-slate-500">
+                      Reason: {res.decisionReason || "Resolved wholesale process"}
+                    </p>
                   </div>
                 )}
               </div>
@@ -384,7 +517,8 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <h3 className="font-bold text-base text-slate-900">
                   {actionModal.type === "CONFIRM" && "Confirm Wholesale Allocation"}
-                  {actionModal.type === "RELEASE" && "Release 24-Hour Hold"}
+                  {actionModal.type === "RELEASE" && "Release Administrative Hold"}
+                  {actionModal.type === "CANCEL" && "Cancel Reservation (Section 6.2)"}
                   {actionModal.type === "REJECT" && "Decline Reservation"}
                 </h3>
                 <button
@@ -407,7 +541,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                  Administrative Action Reason (Immutable Audit Log)
+                  Action Audit Reason
                 </label>
                 <textarea
                   rows={3}
@@ -421,9 +555,9 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                 <button
                   type="button"
                   onClick={() => setActionModal({ isOpen: false, type: "CONFIRM", reservation: null, reason: "" })}
-                  className="btn-outline text-xs py-2 px-4"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
-                  Cancel
+                  Back
                 </button>
                 <button
                   type="button"
@@ -456,56 +590,75 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
               Wholesale Allocation Control
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-              24-Hour Atomic Locks
+              US-14 · US-15 Rules Active
             </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">
-            Reservations Queue
+            Reservations &amp; Exclusivity Queue
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Monitor dealer exclusivity hold countdowns and sign off on wholesale allocation confirmations.
+            Monitor dealer exclusivity holds, countdown timers, warning thresholds, and sign off on wholesale allocation confirmations.
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80 self-start sm:self-auto">
+        {/* Right Header: Rules Config Button + Tab Switcher */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {!isAuditor && (
           <button
             type="button"
             onClick={() => {
               audio.playSubtleClick();
-              setActiveTab("ACTIVE");
+              setDraftRules(reservationConfig);
+              setIsRulesModalOpen(true);
             }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === "ACTIVE"
-                ? "bg-white text-slate-900 shadow-2xs"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
+            className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
+            title="Configure default hold duration, warning threshold, and auto-release rules"
           >
-            <Lock className="w-3.5 h-3.5 text-amber-600" />
-            <span>Active Holds</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-mono font-bold">
-              {activeReservations.length}
-            </span>
+            <Sliders className="w-3.5 h-3.5 text-[#C3002F]" />
+            <span>Expiry Rules (US-15)</span>
           </button>
+          )}
 
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              setActiveTab("HISTORY");
-            }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === "HISTORY"
-                ? "bg-white text-slate-900 shadow-2xs"
-                : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5 text-slate-500" />
-            <span>History &amp; Audit</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700 font-mono">
-              {historyReservations.length}
-            </span>
-          </button>
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setActiveTab("ACTIVE");
+              }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "ACTIVE"
+                  ? "bg-white text-slate-900 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span>Active Holds</span>
+              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-mono font-bold">
+                {activeReservations.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setActiveTab("HISTORY");
+              }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "HISTORY"
+                  ? "bg-white text-slate-900 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5 text-slate-500" />
+              <span>History &amp; Audit</span>
+              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700 font-mono">
+                {historyReservations.length}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -552,9 +705,9 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "ACTIVE" ? (
         filteredActive.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-2 shadow-2xs">
+          <div className="bg-white rounded-[24px] border border-slate-200 p-12 text-center space-y-2 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
             <Clock className="w-10 h-10 text-slate-300 mx-auto" />
-            <h3 className="font-bold text-sm text-slate-800">No Active 24-Hour Holds</h3>
+            <h3 className="font-bold text-sm text-slate-800">No Active Exclusivity Holds</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
               All certified Japanese inventory units are available for dealer purchase.
             </p>
@@ -564,6 +717,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
             {filteredActive.map((res) => {
               const vehicle = res.vehicle;
               const price = res.priceSnapshot;
+              const remaining = calcRemainingTime(res.expiresAt);
 
               return (
                 <div
@@ -572,10 +726,10 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                     audio.playSubtleClick();
                     setSelectedResForDetails(res);
                   }}
-                  className="bg-white rounded-3xl border border-slate-200/80 hover:border-slate-300 p-6 shadow-2xs hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4 relative overflow-hidden"
+                  className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4 relative overflow-hidden"
                 >
                   <div>
-                    {/* Top Header: Title & Stock ID */}
+                    {/* Top Header: Title & Dynamic Expiry Badge (US-15) */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <h3 className="text-base font-black text-slate-900 group-hover:text-[#C3002F] transition-colors leading-tight truncate">
@@ -586,9 +740,20 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                         </p>
                       </div>
 
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-mono font-bold shrink-0">
-                        <Clock className="w-3 h-3 text-amber-600 animate-pulse" />
-                        <span>18h Left</span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${
+                          remaining.isWarning
+                            ? "bg-amber-100 text-amber-900 border border-amber-300 ring-2 ring-amber-400/30 animate-pulse"
+                            : "bg-slate-100 text-slate-800 border border-slate-200"
+                        }`}
+                        title={
+                          remaining.isWarning
+                            ? `Warning: Hold expiring within ${reservationConfig?.warningThresholdHours || 2}h (US-15)`
+                            : "Active Hold Countdown"
+                        }
+                      >
+                        <Clock className={`w-3 h-3 ${remaining.isWarning ? "text-amber-600" : "text-slate-500"}`} />
+                        <span>{remaining.label}</span>
                       </span>
                     </div>
 
@@ -616,6 +781,41 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                         <span className="font-mono font-bold text-slate-700">{price.zoneId}</span>
                       </div>
                     </div>
+
+                    {/* Simulator Quick Testing Pills (US-15) */}
+                    {!isAuditor && (
+                    <div className="pt-2 flex items-center justify-between gap-1 text-[10px]">
+                      <span className="text-slate-400 font-mono">Simulate:</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audio.playSoftChime();
+                            simulateExpiryWarning(res.id);
+                            setNotification(`Simulated 1h warning for #${vehicle.stockId} (< 2h).`);
+                          }}
+                          className="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold cursor-pointer"
+                          title="Simulate < 2h remaining"
+                        >
+                          ⏱ 1h Warning
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audio.playWarningChime();
+                            expireReservation(res.id, "Interactive auto-release test");
+                            setNotification(`Auto-released hold on #${vehicle.stockId}. Stock is Available.`);
+                          }}
+                          className="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-bold cursor-pointer"
+                          title="Simulate auto-release on expiry"
+                        >
+                          ⚡ Auto-Release
+                        </button>
+                      </div>
+                    </div>
+                    )}
                   </div>
 
                   {/* Bottom Row: Guaranteed Landed Price on Left & Action on Right */}
@@ -629,18 +829,31 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        audio.playSubtleClick();
-                        setSelectedResForDetails(res);
-                      }}
-                      className="btn-outline text-xs py-2 px-3.5"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Inspect Hold</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openActionDialog("CONFIRM", res);
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                        title="Confirm wholesale allocation (US-14)"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          audio.playSubtleClick();
+                          setSelectedResForDetails(res);
+                        }}
+                        className="p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
+                        title="Inspect full dossier"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -660,7 +873,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                   audio.playSubtleClick();
                   setSelectedResForDetails(res);
                 }}
-                className="bg-white rounded-3xl border border-slate-200/80 hover:border-slate-300 p-6 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4"
+                className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-4"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
@@ -677,6 +890,10 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold inline-flex items-center gap-1 ${
                         isAllocated
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : res.status === "CANCELLED"
+                          ? "bg-amber-50 text-amber-800 border border-amber-200"
+                          : res.status === "EXPIRED"
+                          ? "bg-rose-50 text-rose-700 border border-rose-200"
                           : "bg-slate-100 text-slate-700 border border-slate-200"
                       }`}
                     >
@@ -704,7 +921,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                       audio.playSubtleClick();
                       setSelectedResForDetails(res);
                     }}
-                    className="btn-outline text-xs py-1.5 px-3"
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-colors"
                   >
                     <span>Dossier</span>
                   </button>
@@ -712,6 +929,161 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 4. US-15 Reservation Expiry & Warning Rules Modal           */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {isRulesModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-[#C3002F]">
+                  <Sliders className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">
+                    Reservation Expiry &amp; Warning Rules (US-15)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Programme-wide administrative parameters for dealer exclusivity holds
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsRulesModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 text-xs p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              {/* Parameter 1: Default Hold Duration */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-900">
+                    Default Exclusivity Hold Duration (Hours)
+                  </label>
+                  <span className="font-mono font-bold text-slate-900 text-sm">
+                    {draftRules.defaultHoldHours} Hours
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="6"
+                  max="72"
+                  step="6"
+                  value={draftRules.defaultHoldHours}
+                  onChange={(e) =>
+                    setDraftRules({ ...draftRules, defaultHoldHours: Number(e.target.value) })
+                  }
+                  className="w-full accent-[#C3002F] cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>6h Quick Hold</span>
+                  <span>24h Standard (Default)</span>
+                  <span>48h</span>
+                  <span>72h Weekend</span>
+                </div>
+              </div>
+
+              {/* Parameter 2: Warning Notification Threshold */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-900">
+                    Warning Notification Threshold (Hours Remaining)
+                  </label>
+                  <span className="font-mono font-bold text-amber-700 text-sm">
+                    {draftRules.warningThresholdHours} Hours Prior
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="6"
+                  step="1"
+                  value={draftRules.warningThresholdHours}
+                  onChange={(e) =>
+                    setDraftRules({ ...draftRules, warningThresholdHours: Number(e.target.value) })
+                  }
+                  className="w-full accent-amber-600 cursor-pointer"
+                />
+                <p className="text-[10px] text-slate-500">
+                  Triggers high-priority alerts to ordering buyers and dashboard warning badges when hold timer dips below this value.
+                </p>
+              </div>
+
+              {/* Parameter 3: Auto-Release Toggle */}
+              <div className="p-3.5 rounded-2xl bg-white border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
+                <div>
+                  <span className="font-bold text-slate-900 block">
+                    Automatic Stock Release on Expiry
+                  </span>
+                  <span className="text-[11px] text-slate-500 block leading-tight">
+                    Immediately returns unconfirmed vehicles from RESERVED to AVAILABLE status
+                  </span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={draftRules.autoReleaseOnExpiry}
+                    onChange={(e) =>
+                      setDraftRules({ ...draftRules, autoReleaseOnExpiry: e.target.checked })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C3002F]" />
+                </label>
+              </div>
+
+              {/* Parameter 4: Max Active Holds Per Dealer */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-slate-900">
+                    Max Concurrent Holds per Dealership
+                  </label>
+                  <span className="font-mono font-bold text-slate-900 text-sm">
+                    {draftRules.maxActiveHoldsPerDealer} Units
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="2"
+                  max="15"
+                  step="1"
+                  value={draftRules.maxActiveHoldsPerDealer}
+                  onChange={(e) =>
+                    setDraftRules({ ...draftRules, maxActiveHoldsPerDealer: Number(e.target.value) })
+                  }
+                  className="w-full accent-slate-900 cursor-pointer"
+                />
+                <p className="text-[10px] text-slate-500">
+                  Prevents single dealerships from locking excessive Japan inventory simultaneously.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsRulesModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveRules}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              >
+                Save Rules Configuration
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

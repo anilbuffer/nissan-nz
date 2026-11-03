@@ -6,6 +6,8 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import MobileBottomNav from "./MobileBottomNav";
 import { useAuth } from "@/lib/auth-context";
+import { UserRole } from "@/lib/types";
+import { ShieldAlert, ShieldCheck } from "lucide-react";
 import DealerStockCatalog from "@/components/dealer/DealerStockCatalog";
 import FullPageVehicleDetail from "@/components/dealer/FullPageVehicleDetail";
 import DealerOrdersView from "@/components/dealer/DealerOrdersView";
@@ -24,11 +26,12 @@ import UserManagementView from "@/components/admin/UserManagementView";
 import RolesPermissionsView from "@/components/admin/RolesPermissionsView";
 import AdminPricingConfigView from "@/components/admin/AdminPricingConfigView";
 import PlatformSettingsView from "@/components/settings/PlatformSettingsView";
+import ProgrammeUserPortalView from "@/components/programme/ProgrammeUserPortalView";
 
 interface DashboardShellProps {
   initialVehicleId?: string;
   initialTab?: string;
-  portal?: "dealer" | "admin" | "japan" | "common";
+  portal?: "dealer" | "admin" | "japan" | "programme" | "common";
 }
 
 export default function DashboardShell({
@@ -38,7 +41,7 @@ export default function DashboardShell({
 }: DashboardShellProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser } = useAuth();
+  const { currentUser, switchRole } = useAuth();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -102,6 +105,22 @@ export default function DashboardShell({
       return "japan-inventory";
     }
 
+    // 2b. Programme Portal routes
+    if (
+      pathname.startsWith("/programme") ||
+      portal === "programme" ||
+      (currentUser?.role === "READONLY_PROGRAMME_USER" &&
+        !pathname.startsWith("/dealer") &&
+        !pathname.startsWith("/admin") &&
+        !pathname.startsWith("/japan"))
+    ) {
+      if (pathname === "/programme/stock" || initialTab === "programme-stock" || initialTab === "stock") return "programme-stock";
+      if (pathname === "/programme/reservations" || initialTab === "programme-reservations" || initialTab === "reservations") return "programme-reservations";
+      if (pathname === "/programme/orders" || initialTab === "programme-orders" || initialTab === "orders") return "programme-orders";
+      if (pathname === "/programme/reports" || initialTab === "programme-reports" || initialTab === "reports") return "programme-reports";
+      return "programme-stock";
+    }
+
     // 3. Dealer Portal routes
     if (pathname === "/dealer/orders" || initialTab === "orders" || initialTab === "dealer-orders") return "dealer-orders";
     if (pathname === "/dealer/profile" || initialTab === "profile" || initialTab === "dealer-profile") return "dealer-profile";
@@ -111,6 +130,7 @@ export default function DashboardShell({
     // Default by user role if on root or ambiguous
     if (currentUser?.role === "AUTOHUB_ADMIN") return "admin-dashboard";
     if (currentUser?.role === "NISSAN_JAPAN") return "japan-inventory";
+    if (currentUser?.role === "READONLY_PROGRAMME_USER") return "programme-stock";
     return "dealer-stock";
   };
 
@@ -162,6 +182,27 @@ export default function DashboardShell({
           return "/admin";
         default:
           return "/admin/dashboard";
+      }
+    }
+
+    // Programme context routing
+    if (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER") {
+      switch (tabId) {
+        case "programme-stock":
+        case "stock":
+          return "/programme/stock";
+        case "programme-reservations":
+        case "reservations":
+        case "holds":
+          return "/programme/reservations";
+        case "programme-orders":
+        case "orders":
+          return "/programme/orders";
+        case "programme-reports":
+        case "reports":
+          return "/programme/reports";
+        default:
+          return "/programme/stock";
       }
     }
 
@@ -432,6 +473,21 @@ export default function DashboardShell({
             />
           );
       }
+    }
+
+    // 4b. Programme Portal Views (Path begins with /programme OR portal is programme OR Programme role on neutral route)
+    if (
+      pathname.startsWith('/programme') ||
+      portal === 'programme' ||
+      (currentUser?.role === 'READONLY_PROGRAMME_USER' &&
+        !pathname.startsWith('/dealer') &&
+        !pathname.startsWith('/admin') &&
+        !pathname.startsWith('/japan'))
+    ) {
+      const subTab = activeTab.startsWith("programme-")
+        ? (activeTab.replace("programme-", "") as "stock" | "reservations" | "orders" | "reports")
+        : "stock";
+      return <ProgrammeUserPortalView initialSubTab={subTab} />;
     }
 
     // 5. Dealer Portal Views (Path begins with /dealer OR portal is dealer OR default)

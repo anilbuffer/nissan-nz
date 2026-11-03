@@ -84,86 +84,137 @@ export default function Sidebar({
     };
   }, [isMobileOpen]);
 
-  // Navigation configurations based on role
+  // Navigation configurations based strictly on MVP user role
   const getNavItems = (): NavItem[] => {
+    // 1. NZ Dealers (DEALER_USER, DEALER_ADMIN)
     if (currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") {
       return [
         {
           id: "dealer-stock",
-          label: "Stock",
+          label: "Vehicle Stock",
           icon: Car,
           href: "/dealer/stocks",
         },
         {
           id: "dealer-orders",
-          label: "Orders",
+          label: "Orders & Holds",
           icon: Package,
           href: "/dealer/orders",
         },
         {
           id: "dealer-profile",
-          label: "Dealership",
+          label: "Dealership Profile",
           icon: MapPin,
           href: "/dealer/profile",
         },
       ];
     }
 
-    if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN" || currentUser?.role === "READONLY_AUDITOR") {
-      const isAuditor = currentUser?.role === "READONLY_AUDITOR";
+    // 2. Regulatory Read-Only Auditor (READONLY_AUDITOR)
+    if (currentUser?.role === "READONLY_AUDITOR") {
       return [
-        ...(!isAuditor ? [
-          {
-            id: "admin-dashboard",
-            label: "Dashboard",
-            icon: LayoutDashboard,
-            href: "/admin/dashboard",
-          },
-        ] : []),
+        {
+          id: "admin-audit",
+          label: "Audit Ledger",
+          icon: FileText,
+          href: "/admin/audit",
+        },
         {
           id: "admin-catalogue",
           label: "Vehicle Catalogue",
           icon: Car,
           href: "/admin/catalogue",
         },
-        ...(!isAuditor ? [
-          {
-            id: "admin-orders",
-            label: "Orders",
-            icon: ShoppingBag,
-            href: "/admin/orders",
-          },
-        ] : []),
         {
           id: "admin-reservations",
-          label: "Reservations",
+          label: "Reservations Queue",
           icon: Clock,
           href: "/admin/reservations",
         },
-        ...(!isAuditor ? [
-          {
-            id: "admin-dealers",
-            label: "Dealers",
-            icon: Building2,
-            href: "/admin/dealers",
-          },
-        ] : []),
-        ...(!isAuditor ? [
-          {
-            id: "admin-config",
-            label: "Configuration",
-            icon: SlidersHorizontal,
-            href: "/admin/config",
-          },
-        ] : []),
-        ...(!isAuditor ? [
-          {
-            id: "admin-users",
-            label: "User Management",
-            icon: Users,
-            href: "/admin/users",
-          },
-        ] : []),
+        {
+          id: "admin-roles",
+          label: "RBAC Matrix",
+          icon: Shield,
+          href: "/admin/roles",
+        },
+      ];
+    }
+
+    // 2b. Read-only Programme User (READONLY_PROGRAMME_USER)
+    if (currentUser?.role === "READONLY_PROGRAMME_USER") {
+      return [
+        {
+          id: "programme-stock",
+          label: "Authorised Stock",
+          icon: Car,
+          href: "/programme/stock",
+        },
+        {
+          id: "programme-reservations",
+          label: "Reservations Queue",
+          icon: Clock,
+          href: "/programme/reservations",
+        },
+        {
+          id: "programme-orders",
+          label: "Wholesale Orders",
+          icon: Package,
+          href: "/programme/orders",
+        },
+        {
+          id: "programme-reports",
+          label: "Programme Reports",
+          icon: FileSpreadsheet,
+          href: "/programme/reports",
+        },
+      ];
+    }
+
+    // 3. Central Autohub Operations Admin (AUTOHUB_ADMIN)
+    if (currentUser?.role === "AUTOHUB_ADMIN") {
+      return [
+        {
+          id: "admin-dashboard",
+          label: "Executive Dashboard",
+          icon: LayoutDashboard,
+          href: "/admin/dashboard",
+        },
+        {
+          id: "admin-catalogue",
+          label: "Central Catalogue",
+          icon: Car,
+          href: "/admin/catalogue",
+        },
+        {
+          id: "admin-orders",
+          label: "Wholesale Orders",
+          icon: ShoppingBag,
+          href: "/admin/orders",
+        },
+        {
+          id: "admin-reservations",
+          label: "Reservations Queue",
+          icon: Clock,
+          href: "/admin/reservations",
+        },
+        {
+          id: "admin-dealers",
+          label: "Dealer Approvals",
+          icon: Building2,
+          href: "/admin/dealers",
+        },
+        {
+          id: "admin-config",
+          label: "Pricing & Tariffs",
+          icon: SlidersHorizontal,
+          href: "/admin/config",
+        },
+        {
+          id: "admin-users",
+          label: "User Accounts",
+          icon: Users,
+          href: "/admin/users",
+        },
         {
           id: "admin-roles",
           label: "Roles & Permissions",
@@ -179,23 +230,23 @@ export default function Sidebar({
       ];
     }
 
-    // Nissan Japan
+    // 4. Nissan Japan Inventory User (NISSAN_JAPAN)
     return [
       {
         id: "japan-inventory",
-        label: "Inventory",
+        label: "Export Inventory",
         icon: Car,
         href: "/japan/inventory",
       },
       {
         id: "japan-upload",
-        label: "Batch Upload",
+        label: "Manifest Upload",
         icon: FileSpreadsheet,
         href: "/japan/upload",
       },
       {
         id: "japan-add-single",
-        label: "Add Vehicle",
+        label: "Create Vehicle",
         icon: PlusCircle,
         href: "/japan/add-vehicle",
       },
@@ -210,15 +261,23 @@ export default function Sidebar({
         section: "AUDIT PORTAL",
         badge: "REGULATORY AUDITOR",
         badgeColor: "bg-white/10 text-white border-white/20",
-        roleDesc: "NZTA & Customs Audit",
+        roleDesc: "Customs & NZTA Oversight (Read-Only)",
       };
     }
-    if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") {
+    if (currentUser?.role === "READONLY_PROGRAMME_USER") {
+      return {
+        section: "PROGRAMME PORTAL",
+        badge: "PROGRAMME USER",
+        badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+        roleDesc: "National Sales Company (Read-Only)",
+      };
+    }
+    if (currentUser?.role === "AUTOHUB_ADMIN") {
       return {
         section: "ADMIN PORTAL",
-        badge: "AUTOHUB OPERATIONS",
+        badge: "CENTRAL OPERATIONS",
         badgeColor: "bg-white/10 text-white border-white/20",
-        roleDesc: "Autohub NZ Operations",
+        roleDesc: "Autohub Central Controller",
       };
     }
     if (currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") {
@@ -232,7 +291,7 @@ export default function Sidebar({
         section: "DEALER PORTAL",
         badge: shortName,
         badgeColor: "bg-white/10 text-white border-white/20",
-        roleDesc: currentDealer?.legalTradingName || currentUser?.dealershipName || "Auckland Nissan City",
+        roleDesc: `${currentDealer?.legalTradingName || "Auckland Nissan City"} (${currentUser?.role === "DEALER_ADMIN" ? "Principal" : "Buyer"})`,
       };
     }
     return {

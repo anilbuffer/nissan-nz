@@ -61,7 +61,7 @@ export default function DealerDetailsModal({
       aria-labelledby="dealer-details-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150 font-sans"
     >
-      <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-5xl bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header - Nissan Obsidian Black */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -317,7 +317,7 @@ export default function DealerDetailsModal({
                       onApprove(dealer.id, selectedZone);
                       onClose();
                     }}
-                    className="px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-slate-800 text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+                    className="px-4 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4 text-white" />
                     <span>Authorize Franchise</span>

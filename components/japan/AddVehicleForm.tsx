@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Vehicle } from "@/lib/types";
+import { Vehicle, VehicleStatus } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
@@ -55,7 +55,69 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [publishedStatus, setPublishedStatus] = useState<"AVAILABLE" | "WITHDRAWN">("AVAILABLE");
+  const [publishedStatus, setPublishedStatus] = useState<VehicleStatus>("AVAILABLE");
+
+  const handleLoadPreset = (presetKey: "note" | "ariya" | "serena") => {
+    audio.playSubtleClick();
+    if (presetKey === "note") {
+      setStockId(`NIS-2026-${Math.floor(9060 + Math.random() * 30)}`);
+      setVinChassis(`E13-0${Math.floor(10000 + Math.random() * 90000)}`);
+      setModel("Note e-Power");
+      setGrade("X Package Custom");
+      setYear(2023);
+      setOdometerKm(19400);
+      setTransmission("e-Power Drive");
+      setColor("Pearl White Two-Tone");
+      setFuelType("e-Power");
+      setDriveType("2WD");
+      setEngineCc(1200);
+      setAuctionGrade("4.5");
+      setInteriorGrade("A");
+      setExteriorGrade("A");
+      setLocation("Yokohama Yard (Bay 3)");
+      setFobPriceJPY(1880000);
+      setDefectsText("USS Tokyo auction grade 4.5. Clean vehicle history, zero panel repairs detected.");
+      setImageUrl("/images/cars/note.png");
+    } else if (presetKey === "ariya") {
+      setStockId(`NIS-2026-${Math.floor(9060 + Math.random() * 30)}`);
+      setVinChassis(`FE0-00${Math.floor(1000 + Math.random() * 9000)}`);
+      setModel("Ariya");
+      setGrade("B6 Premier Edition");
+      setYear(2023);
+      setOdometerKm(14800);
+      setTransmission("Automatic");
+      setColor("Akatsuki Copper & Black");
+      setFuelType("100% Electric");
+      setDriveType("e-4ORCE AWD");
+      setEngineCc(0);
+      setAuctionGrade("5.0");
+      setInteriorGrade("A");
+      setExteriorGrade("A");
+      setLocation("Yokohama Yard (Bay 1)");
+      setFobPriceJPY(3950000);
+      setDefectsText("Pristine showroom demonstration grade. ProPILOT 2.0 autonomous highway cruise certified.");
+      setImageUrl("/images/cars/ariya.png");
+    } else {
+      setStockId(`NIS-2026-${Math.floor(9060 + Math.random() * 30)}`);
+      setVinChassis(`C27-4${Math.floor(10000 + Math.random() * 90000)}`);
+      setModel("Serena e-Power");
+      setGrade("Highway Star V");
+      setYear(2022);
+      setOdometerKm(31200);
+      setTransmission("e-Power Drive");
+      setColor("Diamond Black");
+      setFuelType("e-Power");
+      setDriveType("2WD");
+      setEngineCc(1200);
+      setAuctionGrade("4.0");
+      setInteriorGrade("B");
+      setExteriorGrade("B");
+      setLocation("Kobe Export Terminal");
+      setFobPriceJPY(2550000);
+      setDefectsText("Clean dual electric power sliding doors, factory alloy wheels in good order.");
+      setImageUrl("/images/cars/serena.png");
+    }
+  };
 
   // Calculate live preview landed price for Zone 1
   const liveLanded = calculateLandedPrice(fobPriceJPY || 1850000, "ZONE_1");
@@ -154,7 +216,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
       {/* 2. Success Feedback Screen                                  */}
       {/* ─────────────────────────────────────────────────────────── */}
       {isSuccess ? (
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-12 text-center space-y-6 shadow-2xs max-w-2xl mx-auto animate-in fade-in">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-8 sm:p-12 text-center space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-2xl mx-auto animate-in fade-in">
           <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
             <CheckCircle2 className="w-8 h-8" />
           </div>
@@ -220,8 +282,38 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (8 cols): Input Fields Form */}
           <form className="lg:col-span-8 space-y-6">
+            {/* Quick Demo Autofill Bar */}
+            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-[#C3002F]" />
+                <span className="font-bold text-slate-900">1-Click Test Intake:</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleLoadPreset("note")}
+                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+                >
+                  ⚡ Note e-Power (¥1.88M)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLoadPreset("ariya")}
+                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+                >
+                  ⚡ Ariya EV AWD (¥3.95M)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLoadPreset("serena")}
+                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200 transition-colors shadow-2xs cursor-pointer"
+                >
+                  ⚡ Serena e-Power (¥2.55M)
+                </button>
+              </div>
+            </div>
             {/* Section 1: Identification & Provenance */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-2 font-black text-sm text-slate-900">
                 <Hash className="w-4 h-4 text-[#C3002F]" />
                 <span>1. Identification &amp; Japanese Yard Staging</span>
@@ -270,7 +362,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             </div>
 
             {/* Section 2: Vehicle Technical Specifications */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-2 font-black text-sm text-slate-900">
                 <Car className="w-4 h-4 text-slate-600" />
                 <span>2. Technical Specifications &amp; Powertrain</span>
@@ -386,7 +478,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             </div>
 
             {/* Section 3: USS Auction Condition & FOB Pricing */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-2 font-black text-sm text-slate-900">
                 <FileCheck2 className="w-4 h-4 text-emerald-600" />
                 <span>3. USS Auction Condition &amp; Raw FOB Pricing</span>
@@ -507,17 +599,17 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   className="btn-outline text-xs py-2.5 px-4"
                 >
                   <Save className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Save as Draft (Withdrawn)</span>
+                  <span>Save as Draft (Staging Yard)</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={isSubmitting}
                   onClick={(e) => handleSubmit(e, "AVAILABLE")}
-                  className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white font-bold text-xs transition-all shadow-[0_4px_16px_rgba(225,29,72,0.35)] cursor-pointer flex items-center gap-2 active:scale-[0.98]"
+                  className="py-2.5 px-6 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
-                  <span>Publish to Programme</span>
+                  <span>Publish to Central Catalogue</span>
                 </button>
               </div>
             </div>
@@ -525,7 +617,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
           {/* Right Column (4 cols): Live Interactive Vehicle Preview Card */}
           <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-5 space-y-4 shadow-2xs">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                   Live Catalogue Preview

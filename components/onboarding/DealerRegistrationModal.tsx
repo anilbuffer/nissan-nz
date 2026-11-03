@@ -23,7 +23,7 @@ export default function DealerRegistrationModal({
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  
+
   // Mandatory checkboxes - unticked by default as per US-02
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCostBoundary, setAcceptCostBoundary] = useState(false);
@@ -43,11 +43,11 @@ export default function DealerRegistrationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-2xl sm:rounded-3xl shadow-hover border border-slate-200 overflow-hidden my-auto">
+      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto">
         {/* Header */}
         <div className="bg-[#0A0A0A] px-6 py-5 text-white flex items-center justify-between border-b border-[#27272A]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-crimson-600 flex items-center justify-center font-bold text-lg text-white shadow-soft">
+            <div className="w-9 h-9 rounded-xl bg-[#C3002F] flex items-center justify-center font-bold text-lg text-white shadow-soft">
               D
             </div>
             <div>
@@ -283,11 +283,10 @@ export default function DealerRegistrationModal({
               <button
                 type="submit"
                 disabled={!acceptTerms || !acceptCostBoundary}
-                className={`px-5 py-2.5 text-sm font-semibold rounded-xl text-white shadow-soft transition-all flex items-center gap-2 ${
-                  acceptTerms && acceptCostBoundary
-                    ? "bg-crimson-600 hover:bg-crimson-700 cursor-pointer shadow-crimson-600/20"
-                    : "bg-slate-300 cursor-not-allowed text-slate-500"
-                }`}
+                className={`px-5 py-2.5 text-sm font-semibold rounded-xl text-white shadow-soft transition-all flex items-center gap-2 ${acceptTerms && acceptCostBoundary
+                  ? "bg-[#C3002F] hover:bg-[#A10026] cursor-pointer shadow-md"
+                  : "bg-slate-300 cursor-not-allowed text-slate-500"
+                  }`}
               >
                 <ShieldCheck className="w-4 h-4" />
                 Submit Application for Verification

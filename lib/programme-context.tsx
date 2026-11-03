@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   Vehicle,
+  VehicleStatus,
   Order,
   DealerAccount,
   AuditEvent,
@@ -11,6 +12,8 @@ import {
   ZoneId,
   UserAccount,
   ReservationRequest,
+  ReservationConfig,
+  SystemNotification,
 } from "./types";
 import {
   MOCK_VEHICLES,
@@ -19,6 +22,7 @@ import {
   MOCK_AUDIT_LOGS,
   MOCK_USERS,
   MOCK_RESERVATIONS,
+  MOCK_NOTIFICATIONS,
 } from "./mock-data";
 import { calculateLandedPrice, PricingConfig, DEFAULT_PRICING_CONFIG } from "./pricing-calculator";
 import { audio } from "./sound";
@@ -33,6 +37,12 @@ interface ProgrammeContextType {
   pricingConfig: PricingConfig;
   updatePricingConfig: (updates: Partial<PricingConfig>) => void;
   resetPricingConfig: () => void;
+
+  // Real-time Event Notifications
+  notifications: SystemNotification[];
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
+  addNotification: (notif: Omit<SystemNotification, "id" | "time" | "timestamp" | "unread"> & { unread?: boolean }) => void;
 
   // User Management Actions
   addUser: (user: Omit<UserAccount, "id">) => UserAccount;
@@ -49,20 +59,49 @@ interface ProgrammeContextType {
   confirmAllocation: (vehicleId: string, reason?: string) => void;
   releaseHold: (vehicleId: string, reason?: string) => void;
   rejectReservation: (reservationId: string, reason: string) => void;
+  cancelReservation: (reservationId: string, reason?: string, cancelledBy?: string) => void;
+  expireReservation: (reservationId: string, reason?: string) => void;
+  simulateExpiryWarning: (reservationId: string) => void;
+  reservationConfig: ReservationConfig;
+  updateReservationConfig: (updates: Partial<ReservationConfig>) => void;
   addVehicle: (vehicle: Omit<Vehicle, "id">) => Vehicle;
   batchAddVehicles: (newVehicles: Vehicle[]) => void;
   updateVehicle: (vehicleId: string, updates: Partial<Vehicle>) => void;
   toggleVehicleStatus: (vehicleId: string) => void;
+  setVehicleStatus: (vehicleId: string, status: VehicleStatus, reason?: string) => void;
 
   // Logistics & Milestone actions
-  advanceOrderMilestone: (orderId: string, nextMilestone: OrderMilestone, notes?: string) => void;
+  advanceOrderMilestone: (
+    orderId: string,
+    nextMilestone: OrderMilestone,
+    notes?: string,
+    extraUpdates?: {
+      etaDeliveryDate?: string;
+      vesselName?: string;
+      voyageNumber?: string;
+    }
+  ) => void;
   attachAdditionalCost: (orderId: string, costItem: AdditionalCostItem) => void;
   respondToAdditionalCost: (orderId: string, costId: string, decision: "APPROVED" | "DECLINED") => void;
 
-  // Dealer Authorization actions
-  approveDealer: (dealerId: string, pricingZoneId: ZoneId) => void;
+  // Dealer Authorization & Onboarding actions
+  approveDealer: (
+    dealerId: string,
+    pricingZoneId: ZoneId,
+    holdingCreditLimitNZD?: number,
+    maxConcurrentHolds?: number
+  ) => void;
   rejectDealer: (dealerId: string, reason?: string) => void;
+  returnDealerApplication: (dealerId: string, reason: string) => void;
+  registerDealerApplication: (
+    dealerData: Partial<DealerAccount> & {
+      legalTradingName: string;
+      dealerCode: string;
+      primaryContactEmail: string;
+    }
+  ) => DealerAccount;
   updateDealerZone: (dealerId: string, pricingZoneId: ZoneId) => void;
+  updateDealerProfile: (dealerId: string, updates: Partial<DealerAccount>) => void;
 
   // Helper
   resetToDefaultData: () => void;
@@ -70,7 +109,14 @@ interface ProgrammeContextType {
 
 const ProgrammeContext = createContext<ProgrammeContextType | undefined>(undefined);
 
-const STORAGE_KEY = "dealer_platform_programme_state_v7";
+export const DEFAULT_RESERVATION_CONFIG: ReservationConfig = {
+  defaultHoldHours: 24,
+  warningThresholdHours: 2,
+  autoReleaseOnExpiry: true,
+  maxActiveHoldsPerDealer: 5,
+};
+
+const STORAGE_KEY = "dealer_platform_programme_state_v11";
 
 export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
@@ -80,6 +126,8 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = useState<UserAccount[]>(MOCK_USERS);
   const [reservations, setReservations] = useState<ReservationRequest[]>(MOCK_RESERVATIONS);
   const [pricingConfig, setPricingConfig] = useState<PricingConfig>(DEFAULT_PRICING_CONFIG);
+  const [reservationConfig, setReservationConfig] = useState<ReservationConfig>(DEFAULT_RESERVATION_CONFIG);
+  const [notifications, setNotifications] = useState<SystemNotification[]>(MOCK_NOTIFICATIONS);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Hydrate from localStorage on client mount
@@ -93,6 +141,8 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem("dealer_platform_programme_state_v3");
           localStorage.removeItem("dealer_platform_programme_state_v4");
           localStorage.removeItem("dealer_platform_programme_state_v5");
+          localStorage.removeItem("dealer_platform_programme_state_v6");
+          localStorage.removeItem("dealer_platform_programme_state_v7");
         } catch (e) { }
 
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -122,6 +172,8 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           if (parsed.orders) setOrders(parsed.orders);
           if (parsed.dealers) setDealers(parsed.dealers);
           if (parsed.auditLogs) setAuditLogs(parsed.auditLogs);
+          if (parsed.reservationConfig) setReservationConfig({ ...DEFAULT_RESERVATION_CONFIG, ...parsed.reservationConfig });
+          if (parsed.notifications && Array.isArray(parsed.notifications)) setNotifications(parsed.notifications);
           if (parsed.users && Array.isArray(parsed.users) && parsed.users.length > 0) {
             setUsers(parsed.users);
           }
@@ -129,6 +181,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             setReservations(parsed.reservations);
           } else {
             setReservations(MOCK_RESERVATIONS);
+    setNotifications(MOCK_NOTIFICATIONS);
           }
           if (parsed.pricingConfig) {
             setPricingConfig({
@@ -158,12 +211,12 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig })
+        JSON.stringify({ vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig, reservationConfig, notifications })
       );
     } catch (e) {
       console.warn("Could not persist programme state:", e);
     }
-  }, [vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig, isHydrated]);
+  }, [vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig, reservationConfig, notifications, isHydrated]);
 
   // Helper to log audit event
   const logAudit = (event: Omit<AuditEvent, "id" | "timestamp">) => {
@@ -174,6 +227,29 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     };
     setAuditLogs((prev) => [newEvent, ...prev]);
   };
+
+  // Helper to add dynamic system notifications
+  const addNotification = (notif: Omit<SystemNotification, "id" | "time" | "timestamp" | "unread"> & { unread?: boolean }) => {
+    const newNotif: SystemNotification = {
+      ...notif,
+      id: `NOTIF-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      time: "Just now",
+      timestamp: new Date().toISOString(),
+      unread: notif.unread !== undefined ? notif.unread : true,
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+    );
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  };
+
 
   // Pricing Configuration Handlers
   const updatePricingConfig = (updates: Partial<PricingConfig>) => {
@@ -226,7 +302,8 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     }
 
     const now = new Date().toISOString();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const holdHours = reservationConfig?.defaultHoldHours || 24;
+    const expires = new Date(Date.now() + holdHours * 60 * 60 * 1000).toISOString();
     const dealer = dealers.find((d) => d.id === dealerId) || dealers[0];
     const priceSnapshot = calculateLandedPrice(target.fobPriceJPY, dealer.pricingZoneId, pricingConfig);
 
@@ -277,6 +354,15 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       details: `Placed 24h exclusivity hold on ${target.year} ${target.make} ${target.model} (${target.vinChassis}) for ${dealer.legalTradingName}.`,
       beforeValue: { status: "AVAILABLE", reservedByDealerId: null },
       afterValue: { status: "RESERVED", reservedByDealerId: dealerId, expiresAt: expires },
+    });
+
+    addNotification({
+      type: "HOLD_CREATED",
+      title: "24h Exclusivity Hold Placed",
+      desc: `Exclusivity hold locked on ${target.year} ${target.make} ${target.model} (#${target.stockId}) for ${dealer.legalTradingName}.`,
+      targetRole: "ALL",
+      dealerId: dealer.id,
+      linkUrl: "/dealer/orders",
     });
 
     return true;
@@ -414,6 +500,15 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       beforeValue: { status: "RESERVED", vehicleId },
       afterValue: { status: "ALLOCATED", orderNumber: orderNum, allocatedToDealer: dealer.id },
     });
+
+    addNotification({
+      type: "ORDER_CONFIRMED",
+      title: "Wholesale Allocation Confirmed",
+      desc: `Order #${orderNum} confirmed for ${targetVehicle.year} ${targetVehicle.make} ${targetVehicle.model}. Progressing to shipping pipeline.`,
+      targetRole: "ALL",
+      dealerId: dealer.id,
+      linkUrl: "/dealer/orders",
+    });
   };
 
   // 3. Release Hold (returns vehicle to available stock with reason)
@@ -462,6 +557,14 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       details: `Released 24-hour administrative hold on ${target.stockId}. Reason: ${reason || "Administrative release"}.`,
       beforeValue: { status: "RESERVED", reservedByDealerId: target.reservedByDealerId },
       afterValue: { status: "AVAILABLE", reservedByDealerId: null },
+    });
+
+    addNotification({
+      type: "HOLD_EXPIRED",
+      title: "Reservation Hold Released",
+      desc: `24-hour exclusivity hold on #${target.stockId} released. Stock returned to catalogue.`,
+      targetRole: "ALL",
+      linkUrl: "/dealer/stocks",
     });
   };
 
@@ -514,6 +617,167 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  // 3c. Cancel Reservation (US-14 & US-12 Section 6.2 cooling-off cancellation)
+  const cancelReservation = (reservationId: string, reason?: string, cancelledBy?: string) => {
+    const targetRes = reservations.find((r) => r.id === reservationId);
+    if (!targetRes) return;
+    const now = new Date().toISOString();
+
+    setReservations((prev) =>
+      prev.map((r) =>
+        r.id === reservationId
+          ? {
+            ...r,
+            status: "CANCELLED",
+            decision: "CANCELLED",
+            decisionReason: reason || "Cancelled under Section 6.2 cooling-off right prior to allocation confirmation.",
+            decidedAt: now,
+            decidedBy: cancelledBy || "Dealer Buyer",
+          }
+          : r
+      )
+    );
+
+    setVehicles((prev) =>
+      prev.map((v) =>
+        v.id === targetRes.vehicleId
+          ? {
+            ...v,
+            status: "AVAILABLE",
+            reservedByDealerId: undefined,
+            reservedAt: undefined,
+            reservationExpiresAt: undefined,
+          }
+          : v
+      )
+    );
+
+    logAudit({
+      actorName: cancelledBy || targetRes.userName,
+      actorEmail: targetRes.userEmail,
+      actorRole: "DEALER_USER",
+      action: "HOLD_CANCELLED",
+      category: "RESERVATION",
+      objectType: "ReservationRequest",
+      objectId: targetRes.requestId,
+      details: `Cancelled exclusivity hold for ${targetRes.dealerName} on stock #${targetRes.vehicle?.stockId}. Reason: ${reason || "Section 6.2 cooling-off cancellation"}.`,
+      beforeValue: { status: "ACTIVE_HOLD", vehicleId: targetRes.vehicleId },
+      afterValue: { status: "CANCELLED", vehicleStatus: "AVAILABLE" },
+    });
+
+    addNotification({
+      type: "HOLD_EXPIRED",
+      title: "Reservation Hold Cancelled",
+      desc: `Exclusivity hold on #${targetRes.vehicle?.stockId || targetRes.vehicleId} was cancelled under Section 6.2 cooling-off.`,
+      targetRole: "ALL",
+      dealerId: targetRes.dealerId,
+      linkUrl: "/dealer/stocks",
+    });
+  };
+
+  // 3d. Expire Reservation (US-15 Auto-Release upon hold expiry)
+  const expireReservation = (reservationId: string, reason?: string) => {
+    const targetRes = reservations.find((r) => r.id === reservationId);
+    if (!targetRes) return;
+    const now = new Date().toISOString();
+
+    setReservations((prev) =>
+      prev.map((r) =>
+        r.id === reservationId
+          ? {
+            ...r,
+            status: "EXPIRED",
+            decision: "EXPIRED",
+            decisionReason: reason || "Exclusivity holding window elapsed without wholesale allocation sign-off.",
+            decidedAt: now,
+            decidedBy: "System Daemon (Auto-Release)",
+          }
+          : r
+      )
+    );
+
+    setVehicles((prev) =>
+      prev.map((v) =>
+        v.id === targetRes.vehicleId
+          ? {
+            ...v,
+            status: "AVAILABLE",
+            reservedByDealerId: undefined,
+            reservedAt: undefined,
+            reservationExpiresAt: undefined,
+          }
+          : v
+      )
+    );
+
+    logAudit({
+      actorName: "System Daemon",
+      actorEmail: "automation@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "HOLD_EXPIRED_AUTORELEASE",
+      category: "RESERVATION",
+      objectType: "Vehicle",
+      objectId: targetRes.vehicle?.stockId,
+      details: `Automatic release of expired exclusivity hold for ${targetRes.dealerName}. Stock returned to open catalogue.`,
+      beforeValue: { status: "RESERVED", reservationExpiresAt: targetRes.expiresAt },
+      afterValue: { status: "AVAILABLE", reservationExpiresAt: null },
+    });
+
+    addNotification({
+      type: "HOLD_EXPIRED",
+      title: "Hold Expired & Auto-Released",
+      desc: `24h hold on #${targetRes.vehicle?.stockId || targetRes.vehicleId} expired without confirmation and was automatically released.`,
+      targetRole: "ALL",
+      dealerId: targetRes.dealerId,
+      linkUrl: "/dealer/stocks",
+    });
+  };
+
+  // 3e. Simulate Expiry Warning (<2 hours remaining)
+  const simulateExpiryWarning = (reservationId: string) => {
+    const warningTime = new Date(Date.now() + 55 * 60 * 1000).toISOString();
+    setReservations((prev) =>
+      prev.map((r) =>
+        r.id === reservationId
+          ? { ...r, expiresAt: warningTime }
+          : r
+      )
+    );
+    const targetRes = reservations.find((r) => r.id === reservationId);
+    if (targetRes) {
+      setVehicles((prev) =>
+        prev.map((v) =>
+          v.id === targetRes.vehicleId
+            ? { ...v, reservationExpiresAt: warningTime }
+            : v
+        )
+      );
+      addNotification({
+        type: "HOLD_WARNING",
+        title: "⏱ Exclusivity Hold < 1h Expiry Warning",
+        desc: `Hold on ${targetRes.vehicle?.year || 2023} ${targetRes.vehicle?.make || "Nissan"} ${targetRes.vehicle?.model || "Vehicle"} (#${targetRes.vehicle?.stockId || targetRes.vehicleId}) expires in under 1 hour.`,
+        targetRole: "ALL",
+        dealerId: targetRes.dealerId,
+        linkUrl: "/dealer/orders",
+      });
+    }
+  };
+
+  // 3f. Update Reservation Expiry & Warning Configuration (US-15)
+  const updateReservationConfig = (updates: Partial<ReservationConfig>) => {
+    setReservationConfig((prev) => ({ ...prev, ...updates }));
+    logAudit({
+      actorName: "Sarah Jenkins",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "CONFIGURATION_UPDATED",
+      category: "RESERVATION",
+      objectType: "Configuration",
+      objectId: "RESERVATION_RULES_US15",
+      details: `Updated reservation rules: default hold=${updates.defaultHoldHours ?? reservationConfig.defaultHoldHours}h, warning threshold=${updates.warningThresholdHours ?? reservationConfig.warningThresholdHours}h, autoRelease=${updates.autoReleaseOnExpiry ?? reservationConfig.autoReleaseOnExpiry}.`,
+    });
+  };
+
   // 4. Add Single Vehicle (Nissan Japan)
   const addVehicle = (vehicleData: Omit<Vehicle, "id">): Vehicle => {
     const newId = `VEH_${Date.now()}`;
@@ -535,6 +799,14 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       details: `Added new export unit ${newVehicle.year} ${newVehicle.make} ${newVehicle.model} (${newVehicle.vinChassis}) at ${newVehicle.location}.`,
     });
 
+    addNotification({
+      type: "STOCK_NEW",
+      title: "New Japan Stock Unit Listed",
+      desc: `${newVehicle.year} ${newVehicle.make} ${newVehicle.model} (#${newVehicle.stockId}) published to catalogue.`,
+      targetRole: "ALL",
+      linkUrl: "/dealer/stocks",
+    });
+
     return newVehicle;
   };
 
@@ -551,6 +823,14 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectType: "BatchUpload",
       objectId: `BATCH-${Date.now().toString().slice(-4)}`,
       details: `Ingested ${newBatch.length} verified export vehicles from Yokohama and Kobe terminals.`,
+    });
+
+    addNotification({
+      type: "STOCK_NEW",
+      title: "New Japan Stock Batch Available",
+      desc: `${newBatch.length} verified export units published to catalogue by Yokohama dispatch yard.`,
+      targetRole: "ALL",
+      linkUrl: "/dealer/stocks",
     });
   };
 
@@ -595,13 +875,77 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectId: target.stockId,
       details: `Status of ${target.stockId} updated to ${nextStatus}.`,
     });
+
+    addNotification({
+      type: "STOCK_NEW",
+      title: `Stock ${nextStatus === "AVAILABLE" ? "Republished" : "Withdrawn"}`,
+      desc: `Vehicle #${target.stockId} (${target.year} ${target.model}) is now ${nextStatus.toLowerCase()}.`,
+      targetRole: "ALL",
+      linkUrl: "/dealer/stocks",
+    });
+  };
+
+  // 6b. Set Explicit Vehicle Status across all 6 MVP states
+  const setVehicleStatus = (vehicleId: string, status: VehicleStatus, reason?: string) => {
+    const target = vehicles.find((v) => v.id === vehicleId);
+    if (!target) return;
+    const prevStatus = target.status;
+
+    setVehicles((prev) =>
+      prev.map((v) => {
+        if (v.id !== vehicleId) return v;
+        const updated: Vehicle = {
+          ...v,
+          status,
+        };
+        if (status === "AVAILABLE" || status === "DRAFT" || status === "WITHDRAWN") {
+          if (prevStatus === "RESERVED") {
+            updated.reservedByDealerId = undefined;
+            updated.reservedAt = undefined;
+            updated.reservationExpiresAt = undefined;
+          }
+        }
+        return updated;
+      })
+    );
+
+    logAudit({
+      actorName: "Sarah Jenkins",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action:
+        status === "AVAILABLE"
+          ? "STOCK_REPUBLISHED"
+          : status === "WITHDRAWN"
+            ? "STOCK_WITHDRAWN"
+            : "STATUS_CHANGED",
+      category: "INVENTORY",
+      objectType: "Vehicle",
+      objectId: target.stockId,
+      details: `Vehicle ${target.stockId} transitioned from ${prevStatus} to ${status}.${reason ? ` Reason: ${reason}` : ""}`,
+      beforeValue: { status: prevStatus },
+      afterValue: { status, reason },
+    });
+
+    addNotification({
+      type: "STOCK_NEW",
+      title: `Vehicle Status Transition: ${status}`,
+      desc: `Stock #${target.stockId} status updated to ${status}.${reason ? ` Reason: ${reason}` : ""}`,
+      targetRole: "ALL",
+      linkUrl: "/dealer/stocks",
+    });
   };
 
   // 7. Advance Order Milestone (Autohub Admin)
   const advanceOrderMilestone = (
     orderId: string,
     nextMilestone: OrderMilestone,
-    notes?: string
+    notes?: string,
+    extraUpdates?: {
+      etaDeliveryDate?: string;
+      vesselName?: string;
+      voyageNumber?: string;
+    }
   ) => {
     const nowStr = new Date().toISOString();
 
@@ -623,6 +967,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             ...o,
             currentMilestone: nextMilestone,
             milestones: updatedMilestones,
+            ...(extraUpdates?.etaDeliveryDate ? { etaDeliveryDate: extraUpdates.etaDeliveryDate } : {}),
+            ...(extraUpdates?.vesselName ? { vesselName: extraUpdates.vesselName } : {}),
+            ...(extraUpdates?.voyageNumber ? { voyageNumber: extraUpdates.voyageNumber } : {}),
           };
         }
         return o;
@@ -639,6 +986,15 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectType: "Order",
       objectId: targetOrder?.orderNumber || orderId,
       details: `Advanced order milestone to ${nextMilestone}. Carrier note: ${notes || "Verified"}.`,
+    });
+
+    addNotification({
+      type: "ORDER_MILESTONE",
+      title: `Logistics Milestone: ${nextMilestone.replace(/_/g, " ")}`,
+      desc: `Order #${targetOrder?.orderNumber || orderId} progressed to ${nextMilestone.replace(/_/g, " ")}. ${notes ? `Note: ${notes}` : ""}`,
+      targetRole: "ALL",
+      dealerId: targetOrder?.dealerId,
+      linkUrl: "/dealer/orders",
     });
   };
 
@@ -666,6 +1022,15 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectType: "Order",
       objectId: targetOrder?.orderNumber || orderId,
       details: `Attached compliance repair quotation ($${costItem.amountNZD} NZD: ${costItem.description}) for dealer signoff.`,
+    });
+
+    addNotification({
+      type: "COST_PROPOSAL",
+      title: "Action Required: Defect Remediation Proposed",
+      desc: `MR2A Compliance inspection flagged: ${costItem.description} ($${costItem.amountNZD.toLocaleString()} NZD) on Order #${targetOrder?.orderNumber || orderId}.`,
+      targetRole: "DEALER_ADMIN",
+      dealerId: targetOrder?.dealerId,
+      linkUrl: "/dealer/orders",
     });
   };
 
@@ -717,10 +1082,24 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectId: targetOrder?.orderNumber || orderId,
       details: `Dealer ${decision.toLowerCase()} the compliance repair variation. Order milestone resumed.`,
     });
+
+    addNotification({
+      type: "COST_DECISION",
+      title: `Remediation Variation ${decision === "APPROVED" ? "Approved" : "Declined"}`,
+      desc: `Dealership ${decision.toLowerCase()} cost variation for Order #${targetOrder?.orderNumber || orderId}.`,
+      targetRole: "AUTOHUB_ADMIN",
+      dealerId: targetOrder?.dealerId,
+      linkUrl: "/admin/orders",
+    });
   };
 
   // 10. Approve Dealer (Autohub Admin)
-  const approveDealer = (dealerId: string, pricingZoneId: ZoneId) => {
+  const approveDealer = (
+    dealerId: string,
+    pricingZoneId: ZoneId,
+    holdingCreditLimitNZD?: number,
+    maxConcurrentHolds?: number
+  ) => {
     setDealers((prev) =>
       prev.map((d) =>
         d.id === dealerId
@@ -728,6 +1107,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             ...d,
             status: "APPROVED",
             pricingZoneId,
+            holdingCreditLimitNZD: holdingCreditLimitNZD ?? d.holdingCreditLimitNZD ?? 350000,
+            maxConcurrentHolds: maxConcurrentHolds ?? d.maxConcurrentHolds ?? 3,
+            returnReason: undefined,
           }
           : d
       )
@@ -744,12 +1126,21 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       objectId: dealerId,
       details: `Approved franchise dealership ${targetDealer?.legalTradingName || dealerId} and assigned to ${pricingZoneId}.`,
     });
+
+    addNotification({
+      type: "DEALER_APPROVED",
+      title: "Franchise Dealership Approved",
+      desc: `${targetDealer?.legalTradingName || dealerId} approved and assigned to ${pricingZoneId}. Japan export catalogue unlocked.`,
+      targetRole: "ALL",
+      dealerId: dealerId,
+      linkUrl: "/admin/dealers",
+    });
   };
 
   // 11. Reject Dealer
   const rejectDealer = (dealerId: string, reason?: string) => {
     setDealers((prev) =>
-      prev.map((d) => (d.id === dealerId ? { ...d, status: "REJECTED" } : d))
+      prev.map((d) => (d.id === dealerId ? { ...d, status: "REJECTED", returnReason: reason } : d))
     );
 
     logAudit({
@@ -763,6 +1154,105 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       details: reason
         ? `Declined dealer onboarding application for ${dealerId}. Reason: ${reason}`
         : `Declined dealer onboarding application for ${dealerId}.`,
+    });
+  };
+
+  // 11b. Return Dealer Application for Information
+  const returnDealerApplication = (dealerId: string, reason: string) => {
+    setDealers((prev) =>
+      prev.map((d) =>
+        d.id === dealerId
+          ? {
+            ...d,
+            status: "RETURNED_FOR_INFO",
+            returnReason: reason,
+            returnedAt: new Date().toISOString(),
+          }
+          : d
+      )
+    );
+
+    const targetDealer = dealers.find((d) => d.id === dealerId);
+    logAudit({
+      actorName: "Sarah Jenkins",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "DEALER_APPLICATION_RETURNED",
+      category: "AUTHENTICATION",
+      objectType: "DealerAccount",
+      objectId: dealerId,
+      details: `Returned onboarding application for ${targetDealer?.legalTradingName || dealerId} requesting corrections: ${reason}`,
+    });
+
+    addNotification({
+      type: "DEALER_RETURNED",
+      title: "Application Returned for Revisions",
+      desc: `Application for ${targetDealer?.legalTradingName || dealerId} returned. Reason: ${reason}`,
+      targetRole: "DEALER_ADMIN",
+      dealerId: dealerId,
+      linkUrl: "/register",
+    });
+  };
+
+  // 11c. Register Dealer Application (from Registration Wizard)
+  const registerDealerApplication = (
+    dealerData: Partial<DealerAccount> & {
+      legalTradingName: string;
+      dealerCode: string;
+      primaryContactEmail: string;
+    }
+  ): DealerAccount => {
+    const newDealer: DealerAccount = {
+      id: `DEALER_${Date.now()}`,
+      dealerCode: dealerData.dealerCode,
+      legalTradingName: dealerData.legalTradingName,
+      nzbn: dealerData.nzbn || "9429000000000",
+      address: dealerData.address || "New Zealand Showroom Depot",
+      region: dealerData.region || "Auckland",
+      pricingZoneId: dealerData.pricingZoneId || "ZONE_1",
+      status: "PENDING_APPROVAL",
+      primaryContactName: dealerData.primaryContactName || "Authorized Dealer Principal",
+      primaryContactEmail: dealerData.primaryContactEmail,
+      primaryContactPhone: dealerData.primaryContactPhone || "+64 9 000 0000",
+      termsAcceptedVersion: dealerData.termsAcceptedVersion || "v2026.1",
+      termsAcceptedAt: dealerData.termsAcceptedAt || new Date().toISOString(),
+      costBoundaryAccepted: dealerData.costBoundaryAccepted ?? true,
+      emailVerified: true,
+      holdingCreditLimitNZD: 350000,
+      maxConcurrentHolds: 3,
+    };
+
+    setDealers((prev) => [newDealer, ...prev]);
+
+    logAudit({
+      actorName: newDealer.primaryContactName,
+      actorEmail: newDealer.primaryContactEmail,
+      actorRole: "DEALER_USER",
+      action: "DEALER_ONBOARDING_SUBMITTED",
+      category: "AUTHENTICATION",
+      objectType: "DealerAccount",
+      objectId: newDealer.id,
+      details: `New dealer application submitted for ${newDealer.legalTradingName} (${newDealer.dealerCode}). Email verified. Terms v2026.1 accepted.`,
+    });
+
+    return newDealer;
+  };
+
+  // 11d. Update Dealer Profile (from Dealership Profile / Admin)
+  const updateDealerProfile = (dealerId: string, updates: Partial<DealerAccount>) => {
+    setDealers((prev) =>
+      prev.map((d) => (d.id === dealerId ? { ...d, ...updates } : d))
+    );
+
+    logAudit({
+      actorName: "Sarah Jenkins",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "DEALERSHIP_PROFILE_UPDATED",
+      category: "AUTHENTICATION",
+      objectType: "DealerAccount",
+      objectId: dealerId,
+      details: `Updated dealership profile for ${dealerId}.`,
     });
   };
 
@@ -879,6 +1369,10 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         auditLogs,
         users,
         reservations,
+        notifications,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        addNotification,
         addUser,
         updateUser,
         toggleUserStatus,
@@ -887,15 +1381,24 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         confirmAllocation,
         releaseHold,
         rejectReservation,
+        cancelReservation,
+        expireReservation,
+        simulateExpiryWarning,
+        reservationConfig,
+        updateReservationConfig,
         addVehicle,
         batchAddVehicles,
         updateVehicle,
         toggleVehicleStatus,
+        setVehicleStatus,
         advanceOrderMilestone,
         attachAdditionalCost,
         respondToAdditionalCost,
         approveDealer,
         rejectDealer,
+        returnDealerApplication,
+        registerDealerApplication,
+        updateDealerProfile,
         updateDealerZone,
         pricingConfig,
         updatePricingConfig,

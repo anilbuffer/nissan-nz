@@ -112,6 +112,28 @@ class AudioManager {
       });
     } catch {}
   }
+
+  // Warning chime for alert thresholds or collisions
+  public playWarningChime() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(329.63, now);
+      osc.frequency.setValueAtTime(261.63, now + 0.12);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } catch {}
+  }
 }
 
 export const audio = new AudioManager();

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { AuditEvent } from "@/lib/types";
+import { AuditEvent, Vehicle, Order, DealerAccount, ReservationRequest } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
@@ -14,14 +14,108 @@ import {
   CheckCircle2,
   Calendar,
   User,
+  Layers,
+  FileText,
+  Clock,
+  Car,
+  Ship,
+  Building2,
+  Lock,
+  ArrowRight,
+  Eye,
+  X,
+  Sparkles,
+  ExternalLink,
+  ChevronRight,
+  Activity,
+  AlertTriangle,
 } from "lucide-react";
 
+// XML escape helper for SpreadsheetML
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+// Client-side file downloader
+function triggerDownload(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// SpreadsheetML generator for native Excel / XLSX opening
+function generateExcelXml(sheetName: string, headers: string[], rows: (string | number)[][]): string {
+  return `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Header">
+   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11"/>
+   <Interior ss:Color="#0A0A0A" ss:Pattern="Solid"/>
+   <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="Data">
+   <Font ss:Color="#1E293B" ss:Size="10"/>
+   <Alignment ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="NumberData">
+   <Font ss:Color="#0F172A" ss:Size="10"/>
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="${escapeXml(sheetName)}">
+  <Table>
+   <Row ss:StyleID="Header" ss:Height="26">
+    ${headers.map((h) => `<Cell><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`).join("")}
+   </Row>
+   ${rows
+      .map(
+        (r) => `
+   <Row ss:StyleID="Data" ss:Height="20">
+    ${r
+            .map((val) => {
+              const isNum = typeof val === "number";
+              return `<Cell ss:StyleID="${isNum ? "NumberData" : "Data"}"><Data ss:Type="${isNum ? "Number" : "String"}">${escapeXml(
+                String(val ?? "")
+              )}</Data></Cell>`;
+            })
+            .join("")}
+   </Row>`
+      )
+      .join("")}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+}
+
 export default function AuditExportView() {
-  const { auditLogs, vehicles } = useProgramme();
+  const { auditLogs, vehicles, orders, dealers, reservations } = useProgramme();
+
+  const [activeTab, setActiveTab] = useState<"LEDGER" | "EXPORTS" | "ANALYTICS">("LEDGER");
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
+  const [dateRangeFilter, setDateRangeFilter] = useState<"ALL" | "24H" | "7D" | "30D">("ALL");
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
 
+  // Diff inspection modal
+  const [inspectedEvent, setInspectedEvent] = useState<AuditEvent | null>(null);
+
+  // Filtered audit events
   const filteredLogs = useMemo(() => {
     return auditLogs.filter((log) => {
       if (searchQuery) {
@@ -37,255 +131,900 @@ export default function AuditExportView() {
         return false;
       }
 
+      if (dateRangeFilter !== "ALL") {
+        const eventTime = new Date(log.timestamp).getTime();
+        const now = Date.now();
+        if (dateRangeFilter === "24H" && now - eventTime > 24 * 60 * 60 * 1000) return false;
+        if (dateRangeFilter === "7D" && now - eventTime > 7 * 24 * 60 * 60 * 1000) return false;
+        if (dateRangeFilter === "30D" && now - eventTime > 30 * 24 * 60 * 60 * 1000) return false;
+      }
+
       return true;
     });
-  }, [auditLogs, searchQuery, categoryFilter]);
+  }, [auditLogs, searchQuery, categoryFilter, dateRangeFilter]);
 
-  // Export Audit Trail to CSV
-  const handleExportAuditCSV = () => {
+  // ─────────────────────────────────────────────────────────────────
+  // Export Handlers (CSV & XLSX for all 5 core datasets)
+  // ─────────────────────────────────────────────────────────────────
+
+  const exportAuditLedger = (format: "CSV" | "XLSX") => {
     audio.playSuccessChime();
     const headers = [
       "Event ID",
-      "Timestamp",
+      "Timestamp (UTC)",
       "Actor Name",
       "Actor Role",
-      "Action",
+      "Event Action",
       "Category",
-      "Object ID",
-      "Details",
-      "Before Value",
-      "After Value",
+      "Object Reference",
+      "Details & Remarks",
+      "State Before",
+      "State After",
     ];
+
     const rows = filteredLogs.map((l) => [
       l.id,
       l.timestamp,
-      `"${l.actorName}"`,
+      l.actorName,
       l.actorRole,
       l.action,
       l.category,
       l.objectId,
-      `"${l.details.replace(/"/g, '""')}"`,
-      `"${l.beforeValue ? JSON.stringify(l.beforeValue).replace(/"/g, '""') : "—"}"`,
-      `"${l.afterValue ? JSON.stringify(l.afterValue).replace(/"/g, '""') : "—"}"`,
+      l.details,
+      l.beforeValue ? JSON.stringify(l.beforeValue) : "—",
+      l.afterValue ? JSON.stringify(l.afterValue) : "—",
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Autohub_Audit_Trail_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    if (format === "CSV") {
+      const csv = [headers.join(","), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
+      triggerDownload(csv, `Nissan_NZ_Audit_Ledger_${dateStr}.csv`, "text/csv;charset=utf-8;");
+    } else {
+      const xml = generateExcelXml("Audit Ledger", headers, rows);
+      triggerDownload(xml, `Nissan_NZ_Audit_Ledger_${dateStr}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
 
-    setDownloadNotice("Audit trail CSV export generated successfully.");
-    setTimeout(() => setDownloadNotice(null), 3500);
+    setDownloadNotice(`Audit Ledger (${format}) downloaded successfully with ${rows.length} records.`);
+    setTimeout(() => setDownloadNotice(null), 4000);
   };
 
-  // Export Stock to CSV
-  const handleExportStockCSV = () => {
+  const exportStockCatalogue = (format: "CSV" | "XLSX") => {
     audio.playSuccessChime();
-    const headers = ["Stock ID", "Chassis VIN", "Model", "Grade", "Year", "Odometer", "Fuel", "Drive", "FOB JPY", "Zone 1 Landed NZD", "Status", "Location"];
+    const headers = [
+      "Stock ID",
+      "Chassis / VIN",
+      "Make",
+      "Model",
+      "Grade",
+      "Year",
+      "Odometer (km)",
+      "Fuel Type",
+      "Drive Type",
+      "Auction Grade",
+      "FOB (JPY)",
+      "Zone 1 Landed Total (NZD)",
+      "Current Status",
+      "Current Yard Location",
+    ];
+
     const rows = vehicles.map((v) => {
       const price = calculateLandedPrice(v.fobPriceJPY, "ZONE_1");
       return [
         v.stockId,
         v.vinChassis,
-        `"${v.model}"`,
-        `"${v.grade}"`,
+        v.make,
+        v.model,
+        v.grade,
         v.year,
         v.odometerKm,
         v.fuelType,
         v.driveType,
+        v.auctionGrade,
         v.fobPriceJPY,
         price.totalBuyPriceNZD,
         v.status,
-        `"${v.location}"`,
+        v.location || "Yokohama Yard",
       ];
     });
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Nissan_NZ_Stock_Export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    if (format === "CSV") {
+      const csv = [headers.join(","), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
+      triggerDownload(csv, `Nissan_NZ_Stock_Inventory_${dateStr}.csv`, "text/csv;charset=utf-8;");
+    } else {
+      const xml = generateExcelXml("Inventory Schedule", headers, rows);
+      triggerDownload(xml, `Nissan_NZ_Stock_Inventory_${dateStr}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
 
-    setDownloadNotice("Programme stock CSV export downloaded successfully.");
-    setTimeout(() => setDownloadNotice(null), 3500);
+    setDownloadNotice(`Stock Catalogue (${format}) downloaded successfully with ${rows.length} units.`);
+    setTimeout(() => setDownloadNotice(null), 4000);
   };
 
+  const exportOrdersPipeline = (format: "CSV" | "XLSX") => {
+    audio.playSuccessChime();
+    const headers = [
+      "Order Number",
+      "Stock ID",
+      "Vehicle Summary",
+      "Dealership",
+      "Pricing Zone",
+      "Total Landed Price (NZD)",
+      "Current Milestone",
+      "Ocean Carrier Vessel",
+      "Voyage Number",
+      "Estimated Delivery Date",
+      "Order Date",
+      "Additional Costs Count",
+    ];
+
+    const rows = orders.map((o) => [
+      o.orderNumber,
+      o.vehicle?.stockId || o.vehicleId,
+      `${o.vehicle?.year} ${o.vehicle?.make} ${o.vehicle?.model}`,
+      o.dealerName,
+      o.pricingZoneId,
+      o.priceBreakdown?.totalBuyPriceNZD || 0,
+      o.currentMilestone,
+      o.vesselName || "RoRo Ocean Carrier",
+      o.voyageNumber || "—",
+      o.etaDeliveryDate || "TBD",
+      o.orderedAt.slice(0, 10),
+      o.additionalCosts?.length || 0,
+    ]);
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    if (format === "CSV") {
+      const csv = [headers.join(","), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
+      triggerDownload(csv, `Nissan_NZ_Orders_Pipeline_${dateStr}.csv`, "text/csv;charset=utf-8;");
+    } else {
+      const xml = generateExcelXml("Orders Pipeline", headers, rows);
+      triggerDownload(xml, `Nissan_NZ_Orders_Pipeline_${dateStr}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    setDownloadNotice(`Orders Logistics Pipeline (${format}) downloaded successfully with ${rows.length} orders.`);
+    setTimeout(() => setDownloadNotice(null), 4000);
+  };
+
+  const exportReservationsQueue = (format: "CSV" | "XLSX") => {
+    audio.playSuccessChime();
+    const headers = [
+      "Reservation Request ID",
+      "Stock ID",
+      "Vehicle Details",
+      "Dealership",
+      "Dealer Code",
+      "Requested By",
+      "Requested At (UTC)",
+      "Holding Expires At",
+      "Current Hold Status",
+      "Agreed Landed Price (NZD)",
+      "Terms Version Snapshot",
+    ];
+
+    const rows = reservations.map((r) => [
+      r.requestId,
+      r.vehicle?.stockId || r.vehicleId,
+      `${r.vehicle?.year || ""} ${r.vehicle?.model || ""}`,
+      r.dealerName,
+      r.dealerCode,
+      r.userName,
+      r.requestedAt,
+      r.expiresAt,
+      r.status,
+      r.priceSnapshot?.totalBuyPriceNZD || 0,
+      r.termsVersionSnapshot || "v2026.1",
+    ]);
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    if (format === "CSV") {
+      const csv = [headers.join(","), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
+      triggerDownload(csv, `Nissan_NZ_Reservations_Queue_${dateStr}.csv`, "text/csv;charset=utf-8;");
+    } else {
+      const xml = generateExcelXml("Reservations Queue", headers, rows);
+      triggerDownload(xml, `Nissan_NZ_Reservations_Queue_${dateStr}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    setDownloadNotice(`Reservations Queue (${format}) downloaded with ${rows.length} records.`);
+    setTimeout(() => setDownloadNotice(null), 4000);
+  };
+
+  const exportDealersRoster = (format: "CSV" | "XLSX") => {
+    audio.playSuccessChime();
+    const headers = [
+      "Dealership Code",
+      "Legal Trading Name",
+      "NZBN",
+      "Physical Address",
+      "Assigned Pricing Zone",
+      "Application Status",
+      "Primary Contact Name",
+      "Primary Contact Email",
+      "Primary Contact Phone",
+      "Terms Accepted Version",
+      "Accepted At",
+    ];
+
+    const rows = dealers.map((d) => [
+      d.dealerCode,
+      d.legalTradingName,
+      d.nzbn,
+      d.address,
+      d.pricingZoneId,
+      d.status,
+      d.primaryContactName,
+      d.primaryContactEmail,
+      d.primaryContactPhone,
+      d.termsAcceptedVersion || "—",
+      d.termsAcceptedAt || "—",
+    ]);
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    if (format === "CSV") {
+      const csv = [headers.join(","), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
+      triggerDownload(csv, `Nissan_NZ_Franchise_Dealers_${dateStr}.csv`, "text/csv;charset=utf-8;");
+    } else {
+      const xml = generateExcelXml("Franchise Dealers", headers, rows);
+      triggerDownload(xml, `Nissan_NZ_Franchise_Dealers_${dateStr}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    setDownloadNotice(`Franchise Dealership Roster (${format}) downloaded with ${rows.length} dealers.`);
+    setTimeout(() => setDownloadNotice(null), 4000);
+  };
+
+  // ─────────────────────────────────────────────────────────────────
+  // Analytics Calculations
+  // ─────────────────────────────────────────────────────────────────
+  const eventsByCategory = useMemo(() => {
+    const counts: Record<string, number> = {};
+    auditLogs.forEach((l) => {
+      counts[l.category] = (counts[l.category] || 0) + 1;
+    });
+    return counts;
+  }, [auditLogs]);
+
+  const topActors = useMemo(() => {
+    const counts: Record<string, { count: number; role: string }> = {};
+    auditLogs.forEach((l) => {
+      if (!counts[l.actorName]) {
+        counts[l.actorName] = { count: 1, role: l.actorRole };
+      } else {
+        counts[l.actorName].count += 1;
+      }
+    });
+    return Object.entries(counts)
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.count - a.count);
+  }, [auditLogs]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-200 font-sans text-slate-800 pb-16">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header Banner & CSV Export Actions                      */}
+      {/* 1. Header Banner & Global Actions                           */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
-              Compliance &amp; Reporting
+              Compliance &amp; Reporting Module
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-              Immutable Ledger (US-20, US-21)
+              US-20, US-21
+            </span>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+              NZTA &amp; Customs Audit Compliant
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Programme Audit Trail &amp; Data Export
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+            Programme Audit History &amp; Data Export Hub
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Cryptographically timestamped record of dealer onboarding, pricing profile calculations, atomic vehicle holds, and logistics transitions.
+            Immutable chronological ledger of all material user and system actions, with exportable CSV and XLSX datasets.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        {/* Global Quick Export Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
-            onClick={handleExportStockCSV}
-            className="px-4 py-2.5 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-2xs hover:border-slate-300 active:scale-[0.98]"
+            onClick={() => exportAuditLedger("CSV")}
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Export Stock (CSV)</span>
+            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <span>Audit (CSV)</span>
           </button>
-
           <button
             type="button"
-            onClick={handleExportAuditCSV}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C3002F] to-[#A10026] hover:from-[#A10026] hover:to-[#85001F] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-xs hover:shadow active:scale-[0.98]"
+            onClick={() => exportAuditLedger("XLSX")}
+            className="px-3.5 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-all active:scale-[0.98]"
           >
-            <Download className="w-4 h-4" />
-            <span>Export Audit Trail (CSV)</span>
+            <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
+            <span>Audit (XLSX)</span>
           </button>
         </div>
       </div>
 
+      {/* Notification Toast */}
       {downloadNotice && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-2 shadow-xs animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{downloadNotice}</span>
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{downloadNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDownloadNotice(null)}
+            className="text-emerald-700 hover:text-emerald-900 p-1 cursor-pointer"
+          >
+            ✕
+          </button>
         </div>
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Filter & Search Controls                                */}
+      {/* 2. Primary Navigation Tabs                                  */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm space-y-3">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by actor, action, object ID, or details..."
-              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all"
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-            {["ALL", "ALLOCATION", "RESERVATION", "TERMS", "INVENTORY", "PRICING"].map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setCategoryFilter(cat);
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                  categoryFilter === cat
-                    ? "bg-slate-900 text-white"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/80"
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar">
+        {[
+          { id: "LEDGER", label: "Immutable Audit Ledger", icon: ShieldCheck, badge: filteredLogs.length },
+          { id: "EXPORTS", label: "CSV / XLSX Export Center", icon: FileSpreadsheet, badge: "5 Datasets" },
+          { id: "ANALYTICS", label: "Compliance & Activity Breakdown", icon: Activity, badge: null },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setActiveTab(tab.id as any);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${isActive
+                ? "bg-[#0A0A0A] text-white shadow-xs"
+                : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200"
                 }`}
-              >
-                {cat === "ALL" ? "All" : cat.charAt(0) + cat.slice(1).toLowerCase()}
-              </button>
-            ))}
-          </div>
-        </div>
+            >
+              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-rose-400" : "text-slate-400"}`} />
+              <span>{tab.label}</span>
+              {tab.badge !== null && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-semibold ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
+                    }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Audit Event Table */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto touch-scroll navy-scrollbar">
-          <table className="w-full text-left text-xs text-slate-600 min-w-[840px]">
-            <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
-              <tr>
-                <th className="py-3.5 px-5 text-slate-200">Timestamp</th>
-                <th className="py-3.5 px-4 text-slate-200">Actor &amp; Role</th>
-                <th className="py-3.5 px-4 text-slate-200">Event Action</th>
-                <th className="py-3.5 px-4 text-slate-200">Category</th>
-                <th className="py-3.5 px-4 text-slate-200">Object Ref</th>
-                <th className="py-3.5 px-5 text-slate-200">Details</th>
-                <th className="py-3.5 px-4 text-slate-200">State Diff (Before → After)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-3.5 px-5 font-mono text-slate-500 whitespace-nowrap">
-                    {new Date(log.timestamp).toLocaleString("en-NZ", {
-                      timeZone: "Pacific/Auckland",
-                      year: "numeric",
-                      month: "short",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </td>
+      {/* 3. TAB 1: Immutable Audit Ledger                            */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {activeTab === "LEDGER" && (
+        <div className="space-y-4">
+          {/* Filter Bar */}
+          <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
+            <div className="flex flex-col md:flex-row items-center gap-3">
+              <div className="relative flex-1 w-full">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by actor name, action, object reference, or details..."
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all font-sans"
+                />
+              </div>
 
-                  <td className="py-3.5 px-4">
-                    <div className="font-semibold text-slate-900">{log.actorName}</div>
-                    <div className="text-[10px] font-mono text-slate-400">{log.actorRole}</div>
-                  </td>
+              {/* Time window presets */}
+              <div className="flex items-center gap-1.5 w-full md:w-auto shrink-0 overflow-x-auto no-scrollbar">
+                {[
+                  { id: "ALL", label: "All Time" },
+                  { id: "24H", label: "Past 24 Hours" },
+                  { id: "7D", label: "Past 7 Days" },
+                  { id: "30D", label: "Past 30 Days" },
+                ].map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setDateRangeFilter(preset.id as any);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${dateRangeFilter === preset.id
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                  <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
-                    {log.action}
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-mono font-semibold text-slate-700">
-                      {log.category}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-4 font-mono text-slate-600 font-semibold">
-                    {log.objectId}
-                  </td>
-
-                  <td className="py-3.5 px-5 text-slate-600 max-w-xs">
-                    {log.details}
-                  </td>
-
-                  <td className="py-3.5 px-4 min-w-[200px]">
-                    {log.beforeValue || log.afterValue ? (
-                      <div className="space-y-1 font-mono text-[10px]">
-                        {log.beforeValue && (
-                          <div className="p-1 rounded bg-rose-50 text-rose-800 border border-rose-150 truncate max-w-[240px]" title={JSON.stringify(log.beforeValue)}>
-                            <span className="font-bold">Before: </span>
-                            {JSON.stringify(log.beforeValue)}
-                          </div>
-                        )}
-                        {log.afterValue && (
-                          <div className="p-1 rounded bg-emerald-50 text-emerald-800 border border-emerald-150 truncate max-w-[240px]" title={JSON.stringify(log.afterValue)}>
-                            <span className="font-bold">After: </span>
-                            {JSON.stringify(log.afterValue)}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-slate-300 font-mono text-xs">—</span>
-                    )}
-                  </td>
-                </tr>
+            {/* Category pills */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+                Category:
+              </span>
+              {[
+                "ALL",
+                "AUTHENTICATION",
+                "TERMS",
+                "PRICING",
+                "INVENTORY",
+                "RESERVATION",
+                "ALLOCATION",
+                "MILESTONE",
+              ].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    audio.playSubtleClick();
+                    setCategoryFilter(cat);
+                  }}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-semibold transition-colors cursor-pointer ${categoryFilter === cat
+                    ? "bg-[#C3002F] text-white"
+                    : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200"
+                    }`}
+                >
+                  {cat === "ALL" ? "All Categories" : cat}
+                </button>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          {/* Audit Event Table */}
+          <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="overflow-x-auto touch-scroll navy-scrollbar">
+              <table className="w-full text-left text-xs text-slate-600 min-w-[900px]">
+                <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
+                  <tr>
+                    <th className="py-3 px-4 text-slate-200">Timestamp (NZST)</th>
+                    <th className="py-3 px-4 text-slate-200">Actor &amp; Role</th>
+                    <th className="py-3 px-4 text-slate-200">Action Code</th>
+                    <th className="py-3 px-3 text-slate-200">Category</th>
+                    <th className="py-3 px-3 text-slate-200">Object Ref</th>
+                    <th className="py-3 px-4 text-slate-200">Details &amp; Audit Trail Remarks</th>
+                    <th className="py-3 px-3 text-right text-slate-200">State Diff</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-10 text-center text-slate-400 text-xs">
+                        No audit records matched your search or category filter.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-3 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                          {new Date(log.timestamp).toLocaleString("en-NZ", {
+                            timeZone: "Pacific/Auckland",
+                            year: "numeric",
+                            month: "short",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                          })}
+                        </td>
+
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-slate-900">{log.actorName}</div>
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-semibold">
+                            {log.actorRole}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-4 font-mono font-bold text-slate-900 text-[11px]">
+                          {log.action}
+                        </td>
+
+                        <td className="py-3 px-3">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-mono font-semibold text-slate-700">
+                            {log.category}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-3 font-mono font-bold text-slate-700 text-[11px]">
+                          {log.objectId}
+                        </td>
+
+                        <td className="py-3 px-4 text-slate-600 max-w-sm text-[11px] leading-relaxed">
+                          {log.details}
+                        </td>
+
+                        <td className="py-3 px-3 text-right">
+                          {log.beforeValue || log.afterValue ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                audio.playSubtleClick();
+                                setInspectedEvent(log);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-bold font-mono transition-colors cursor-pointer inline-flex items-center gap-1"
+                            >
+                              <Eye className="w-3 h-3 text-slate-500" />
+                              <span>Diff</span>
+                            </button>
+                          ) : (
+                            <span className="text-slate-300 font-mono text-xs">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 4. TAB 2: Multi-Dataset CSV / XLSX Export Center            */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {activeTab === "EXPORTS" && (
+        <div className="space-y-4">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>
+                Standard corporate CSV and styled Microsoft Excel (<strong>.XLSX</strong>) export files compatible with NZTA and Customs audit standards.
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Dataset 1: Immutable Audit Ledger */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono font-bold">
+                    IMMUTABLE LEDGER
+                  </span>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {auditLogs.length} Events
+                  </span>
+                </div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Programme Audit Trail
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Cryptographically timestamped ledger of dealer onboarding, pricing profile calculations, atomic exclusivity holds, and milestone updates.
+                </p>
+                <div className="text-[10px] font-mono text-slate-400 pt-1">
+                  Schema: ID, Timestamp, Actor, Role, Action, Category, Object, Details, State Diff
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => exportAuditLedger("CSV")}
+                  className="flex-1 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportAuditLedger("XLSX")}
+                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Download XLSX</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Dataset 2: Japanese Export Catalogue */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono font-bold">
+                    INVENTORY MASTER
+                  </span>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {vehicles.length} Units
+                  </span>
+                </div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Export Stock &amp; Landed Prices
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Export inventory specifications, year, odometer km, auction grades, FOB pricing (JPY), and domestic landed price schedules.
+                </p>
+                <div className="text-[10px] font-mono text-slate-400 pt-1">
+                  Schema: Stock ID, VIN, Model, Grade, Year, Km, Fuel, Drive, FOB, Landed NZD, Status
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => exportStockCatalogue("CSV")}
+                  className="flex-1 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportStockCatalogue("XLSX")}
+                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Download XLSX</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Dataset 3: Orders & Shipping Pipeline */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono font-bold">
+                    LOGISTICS &amp; ORDERS
+                  </span>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {orders.length} Orders
+                  </span>
+                </div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Wholesale Shipping Pipeline
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Active wholesale orders tracking RoRo vessels, voyage numbers, ETAs, 8-stage logistics milestones, and remediation variation sign-offs.
+                </p>
+                <div className="text-[10px] font-mono text-slate-400 pt-1">
+                  Schema: Order #, Stock ID, Vehicle, Dealer, Price NZD, Milestone, Vessel, Voyage, ETA
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => exportOrdersPipeline("CSV")}
+                  className="flex-1 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportOrdersPipeline("XLSX")}
+                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Download XLSX</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Dataset 4: Atomic Exclusivity Holds */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono font-bold">
+                    RESERVATIONS
+                  </span>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {reservations.length} Holds
+                  </span>
+                </div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Atomic Exclusivity Holds
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  24-hour exclusivity reservations log capturing dealer identity, request timestamps, expiry clocks, Terms of Trade v2026.1 snapshots.
+                </p>
+                <div className="text-[10px] font-mono text-slate-400 pt-1">
+                  Schema: Request ID, Stock, Dealer, User, Requested At, Expires At, Status, Price
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => exportReservationsQueue("CSV")}
+                  className="flex-1 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportReservationsQueue("XLSX")}
+                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Download XLSX</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Dataset 5: Franchise Dealership Network */}
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono font-bold">
+                    FRANCHISE DIRECTORY
+                  </span>
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {dealers.length} Dealers
+                  </span>
+                </div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Dealer Network &amp; Pricing Zones
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Registered Nissan NZ franchise network with legal trading names, NZBN verification, assigned Geographic Zones (1–5), and principal contacts.
+                </p>
+                <div className="text-[10px] font-mono text-slate-400 pt-1">
+                  Schema: Dealer Code, Legal Name, NZBN, Address, Pricing Zone, Status, Primary Contact
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => exportDealersRoster("CSV")}
+                  className="flex-1 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportDealersRoster("XLSX")}
+                  className="flex-1 py-2 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-[0.98]"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Download XLSX</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 5. TAB 3: Compliance & Activity Breakdown                   */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {activeTab === "ANALYTICS" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Card 1: Events by Category */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-slate-600" />
+                <span>Audit Ledger Events by Domain</span>
+              </h3>
+
+              <div className="space-y-2.5">
+                {Object.entries(eventsByCategory).map(([cat, count]) => {
+                  const percentage = Math.round((count / auditLogs.length) * 100);
+                  return (
+                    <div key={cat} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-mono font-semibold text-slate-700">{cat}</span>
+                        <span className="font-mono text-slate-500">
+                          {count} ({percentage}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full bg-slate-900 rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Card 2: Top Operational Actors */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <User className="w-4 h-4 text-slate-600" />
+                <span>Primary Operational Actors</span>
+              </h3>
+
+              <div className="divide-y divide-slate-100">
+                {topActors.map((actor) => (
+                  <div key={actor.name} className="py-2.5 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="font-bold text-slate-900">{actor.name}</span>
+                      <span className="text-[10px] font-mono text-slate-400 ml-2">
+                        {actor.role}
+                      </span>
+                    </div>
+                    <span className="font-mono font-semibold text-slate-700">
+                      {actor.count} operations
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 6. MODAL: State Diff Inspector                              */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {inspectedEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    State Diff Inspector: {inspectedEvent.action}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    Event Ref: {inspectedEvent.id} · {inspectedEvent.objectId}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInspectedEvent(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
+              <strong>Audit Remark:</strong> {inspectedEvent.details}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">
+                  State Before Mutation
+                </span>
+                <pre className="p-3 rounded-xl bg-rose-50/50 border border-rose-200 text-rose-900 text-[11px] overflow-x-auto max-h-60">
+                  {JSON.stringify(inspectedEvent.beforeValue || "No prior record", null, 2)}
+                </pre>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">
+                  State After Mutation
+                </span>
+                <pre className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200 text-emerald-900 text-[11px] overflow-x-auto max-h-60">
+                  {JSON.stringify(inspectedEvent.afterValue || "No after record", null, 2)}
+                </pre>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-400 font-mono">
+                Actor: {inspectedEvent.actorName} ({inspectedEvent.actorRole})
+              </span>
+              <button
+                type="button"
+                onClick={() => setInspectedEvent(null)}
+                className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-slate-800 text-white font-semibold cursor-pointer shadow-xs"
+              >
+                Close Inspector
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

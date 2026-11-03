@@ -166,7 +166,7 @@ export default function UserManagementView() {
       {/* 2. KPI Metric Cards                                        */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-medium">Total Platform Users</span>
             <Users className="w-4 h-4 text-slate-400" />
@@ -175,7 +175,7 @@ export default function UserManagementView() {
           <div className="text-[10px] text-emerald-600 font-medium mt-1">100% Identity Verified</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-medium">Dealership Buyers</span>
             <Building2 className="w-4 h-4 text-emerald-500" />
@@ -184,7 +184,7 @@ export default function UserManagementView() {
           <div className="text-[10px] text-slate-400 mt-1">Across 5 Geographic Zones</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-medium">Operations Controllers</span>
             <Shield className="w-4 h-4 text-[#C3002F]" />
@@ -193,7 +193,7 @@ export default function UserManagementView() {
           <div className="text-[10px] text-[#C3002F] font-medium mt-1">Central Authority</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-medium">Japan Export Leads</span>
             <UserCheck className="w-4 h-4 text-blue-500" />
@@ -202,7 +202,7 @@ export default function UserManagementView() {
           <div className="text-[10px] text-blue-600 mt-1">Yokohama & JEVIC</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs col-span-2 lg:col-span-1">
+        <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-[11px] font-medium">MFA Security Rate</span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -215,7 +215,7 @@ export default function UserManagementView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Search & Filter Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
+      <div className="p-4 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -293,7 +293,7 @@ export default function UserManagementView() {
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. Users Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+      <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs min-w-[760px]">
             <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">

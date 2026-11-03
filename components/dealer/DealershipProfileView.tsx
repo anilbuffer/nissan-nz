@@ -31,10 +31,62 @@ import {
 
 export default function DealershipProfileView() {
   const { currentDealer, currentUser } = useAuth();
-  const { orders, reservations, users } = useProgramme();
+  const isDealerAdmin = currentUser?.role === "DEALER_ADMIN" || currentUser?.role === "AUTOHUB_ADMIN";
+  const { orders, reservations, users, addUser, toggleUserStatus, updateDealerProfile } = useProgramme();
 
   const [activeSubTab, setActiveSubTab] = useState<"DETAILS" | "PRICING" | "USERS" | "COMPLIANCE">("DETAILS");
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
+  // Staff Invite Modal State
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [newStaffName, setNewStaffName] = useState("");
+  const [newStaffEmail, setNewStaffEmail] = useState("");
+  const [newStaffPhone, setNewStaffPhone] = useState("");
+  const [newStaffRole, setNewStaffRole] = useState<"DEALER_USER" | "DEALER_ADMIN">("DEALER_USER");
+  const [staffSuccessNotice, setStaffSuccessNotice] = useState<string | null>(null);
+
+  // Primary Contact Edit State
+  const [isEditContactOpen, setIsEditContactOpen] = useState(false);
+  const [contactNameInput, setContactNameInput] = useState(currentDealer?.primaryContactName || "David Miller");
+  const [contactEmailInput, setContactEmailInput] = useState(currentDealer?.primaryContactEmail || "dealer@aucklandnissan.co.nz");
+  const [contactPhoneInput, setContactPhoneInput] = useState(currentDealer?.primaryContactPhone || "+64 9 520 8899");
+
+  const handleInviteStaff = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStaffName.trim() || !newStaffEmail.trim() || !currentDealer) return;
+    audio.playSuccessChime();
+    addUser({
+      name: newStaffName.trim(),
+      email: newStaffEmail.trim(),
+      phone: newStaffPhone.trim() || "+64 9 520 8899",
+      role: newStaffRole,
+      dealerId: currentDealer.id,
+      dealershipName: currentDealer.legalTradingName,
+      active: true,
+      mfaEnabled: true,
+      department: "Commercial Operations",
+    });
+    setStaffSuccessNotice(`Authorized staff account created for ${newStaffName} (${newStaffEmail}). Invitation dispatched.`);
+    setIsInviteModalOpen(false);
+    setNewStaffName("");
+    setNewStaffEmail("");
+    setNewStaffPhone("");
+    setTimeout(() => setStaffSuccessNotice(null), 4500);
+  };
+
+  const handleSaveContact = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentDealer) return;
+    audio.playSuccessChime();
+    updateDealerProfile(currentDealer.id, {
+      primaryContactName: contactNameInput.trim(),
+      primaryContactEmail: contactEmailInput.trim(),
+      primaryContactPhone: contactPhoneInput.trim(),
+    });
+    setIsEditContactOpen(false);
+    setStaffSuccessNotice("Dealership Principal primary contact credentials updated.");
+    setTimeout(() => setStaffSuccessNotice(null), 4000);
+  };
+
   const [selectedPreviewZone, setSelectedPreviewZone] = useState<ZoneId>(
     currentDealer?.pricingZoneId || "ZONE_1"
   );
@@ -71,7 +123,7 @@ export default function DealershipProfileView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header & Sub-Tabs (Soft Shadow + Outline)     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
@@ -142,7 +194,7 @@ export default function DealershipProfileView() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column (8 cols): Primary Identity & Receiving Facility */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 shadow-2xs space-y-5">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-700 shrink-0">
@@ -224,7 +276,7 @@ export default function DealershipProfileView() {
 
           {/* Right Column (4 cols): Credit Facility & Commercial Entitlement */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-sm space-y-5">
+            <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
               <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
                 <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F]">
                   <CreditCard className="w-4 h-4" />
@@ -283,7 +335,7 @@ export default function DealershipProfileView() {
       {/* 3. SUBTAB: Pricing Schedule (Zone 1 - 5 Comparison)         */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "PRICING" && (
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -469,7 +521,7 @@ export default function DealershipProfileView() {
       {/* 4. SUBTAB: Permitted Staff Users (US-05)                   */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "USERS" && (
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -534,7 +586,7 @@ export default function DealershipProfileView() {
       {/* 5. SUBTAB: Commercial Terms Agreement & Version Snapshot    */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeSubTab === "COMPLIANCE" && (
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">

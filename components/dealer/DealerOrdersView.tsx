@@ -51,7 +51,7 @@ const MILESTONE_STEPS: { key: OrderMilestone; label: string; actor: string; desc
 
 export default function DealerOrdersView() {
   const { currentDealer } = useAuth();
-  const { orders, reservations, releaseHold, respondToAdditionalCost, confirmAllocation } = useProgramme();
+  const { orders, reservations, releaseHold, cancelReservation, respondToAdditionalCost, confirmAllocation, reservationConfig } = useProgramme();
 
   const [activeTab, setActiveTab] = useState<"ORDERS" | "HOLDS">("ORDERS");
   const [showPriceBreakdown, setShowPriceBreakdown] = useState<boolean>(false);
@@ -149,6 +149,13 @@ export default function DealerOrdersView() {
     setTimeout(() => setToastNotice(null), 4000);
   };
 
+  const handleCancelMyHold = (reservationId: string) => {
+    audio.playSubtleClick();
+    cancelReservation(reservationId, "Voluntary Section 6.2 cooling-off cancellation by dealership.", currentDealer?.legalTradingName || "Dealer Buyer");
+    setToastNotice("Hold cancelled under Section 6.2 without penalty. Stock returned to open catalogue.");
+    setTimeout(() => setToastNotice(null), 4000);
+  };
+
   const handleConfirmHoldToOrder = (vehicleId: string) => {
     audio.playSuccessChime();
     confirmAllocation(vehicleId, "Confirmed wholesale allocation by franchise dealer principal.");
@@ -175,7 +182,7 @@ export default function DealerOrdersView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Simple Top Header & View Tabs (Soft Shadow + Outline) */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#C3002F] bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200/70">
@@ -288,13 +295,15 @@ export default function DealerOrdersView() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {dealerHolds.map((res) => {
-                const expiresDate = new Date(res.expiresAt);
-                const isExpiringSoon = expiresDate.getTime() - Date.now() < 6 * 60 * 60 * 1000;
+                const diffMs = new Date(res.expiresAt).getTime() - Date.now();
+                const remHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+                const remMins = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
+                const isExpiringSoon = remHours < (reservationConfig?.warningThresholdHours || 2);
 
                 return (
                   <div
                     key={res.id}
-                    className="bg-white rounded-[28px] border border-slate-200/90 p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-5"
+                    className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all flex flex-col justify-between space-y-5"
                   >
                     <div className="space-y-3">
                       {/* Top tags */}
@@ -305,17 +314,17 @@ export default function DealerOrdersView() {
                           </span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 font-bold border border-amber-200 flex items-center gap-1 font-mono">
                             <Lock className="w-2.5 h-2.5 text-amber-600" />
-                            <span>24h Lock</span>
+                            <span>{reservationConfig?.defaultHoldHours || 24}h Lock</span>
                           </span>
                         </div>
 
                         <span className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                           isExpiringSoon
-                            ? "bg-rose-50 text-rose-700 border border-rose-200 animate-pulse"
-                            : "bg-slate-100 text-slate-700"
-                        }`}>
-                          <Clock className="w-3 h-3" />
-                          <span>{expiresDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                            ? "bg-amber-100 text-amber-900 border border-amber-300 ring-2 ring-amber-400/30 animate-pulse"
+                            : "bg-slate-100 text-slate-700 border border-slate-200"
+                        }`} title={isExpiringSoon ? "Warning: Hold expiring soon under US-15" : "Holding countdown"}>
+                          <Clock className="w-3 h-3 text-amber-600" />
+                          <span>{remHours}h {remMins}m left</span>
                         </span>
                       </div>
 
@@ -367,11 +376,12 @@ export default function DealerOrdersView() {
 
                       <button
                         type="button"
-                        onClick={() => handleReleaseMyHold(res.vehicleId)}
-                        className="btn-outline py-2.5 px-3 rounded-xl text-slate-700 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1 shrink-0"
+                        onClick={() => handleCancelMyHold(res.id)}
+                        className="py-2.5 px-3 rounded-xl bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1 shrink-0"
+                        title="Cancel hold under Section 6.2 cooling-off right without penalty"
                       >
-                        <Unlock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Release</span>
+                        <Unlock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Cancel (Sec 6.2)</span>
                       </button>
                     </div>
                   </div>
@@ -391,7 +401,7 @@ export default function DealerOrdersView() {
           {viewingOrderId ? (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* Back to Orders Grid Action Bar */}
-              <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex-wrap gap-3">
+              <div className="flex items-center justify-between bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -418,7 +428,7 @@ export default function DealerOrdersView() {
               {selectedOrder && (
                 <div className="space-y-6">
                   {/* Hero Vehicle & Identification Block */}
-                  <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-sm space-y-6">
+                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-slate-100">
                       <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
@@ -580,7 +590,7 @@ export default function DealerOrdersView() {
                   </div>
 
                   {/* RoRo Maritime Vessel Tracker */}
-                  <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-sm space-y-5">
+                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
@@ -828,7 +838,7 @@ export default function DealerOrdersView() {
                   </div>
 
                   {/* Compliance & Shipping Documents Vault */}
-                  <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-sm space-y-5">
+                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                       <div className="flex items-center gap-2.5">
                         <FileCheck2 className="w-5 h-5 text-emerald-600" />
@@ -933,7 +943,7 @@ export default function DealerOrdersView() {
             /* Orders Grid Cards View */
             <div className="space-y-6 animate-in fade-in">
               {/* Search & Filter Strip */}
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-1 items-center gap-3">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -1013,7 +1023,7 @@ export default function DealerOrdersView() {
                           setSelectedOrderId(order.id);
                           setViewingOrderId(order.id);
                         }}
-                        className="bg-white rounded-[28px] border border-slate-200/80 hover:border-slate-300 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group"
+                        className="bg-white rounded-[24px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group"
                       >
                         <div>
                           {/* Card Top Row: Order # + Status Pill */}

@@ -167,7 +167,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Banner & Status                                  */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
             <div
               key={item.id}
               onClick={() => handleNavigate(item)}
-              className={`bg-white rounded-3xl border border-slate-200/90 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between group cursor-pointer relative overflow-hidden bg-gradient-to-b ${item.accent}`}
+              className={`bg-white rounded-[24px] border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between group cursor-pointer relative overflow-hidden bg-gradient-to-b ${item.accent} shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]`}
             >
               <div>
                 {/* Top Row: Number + Icon + Badge */}
@@ -266,7 +266,7 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Operational Summary Strip                                */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
+      <div className="p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>Autohub ISO 9001 Logistics &amp; NZTA MR2A Border Verification Active</span>

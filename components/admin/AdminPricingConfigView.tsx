@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useProgramme } from "@/lib/programme-context";
-import { ZoneId } from "@/lib/types";
+import { ZoneId, ReservationConfig } from "@/lib/types";
 import {
   DEFAULT_PRICING_CONFIG,
   OFFICIAL_PRICING_ZONES,
@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Clock,
+  Sliders,
+  Lock,
 } from "lucide-react";
 
 interface AdminPricingConfigViewProps {
@@ -22,10 +25,17 @@ interface AdminPricingConfigViewProps {
 }
 
 export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps = {}) {
-  const { pricingConfig, updatePricingConfig, resetPricingConfig } = useProgramme();
+  const {
+    pricingConfig,
+    updatePricingConfig,
+    resetPricingConfig,
+    reservationConfig,
+    updateReservationConfig,
+  } = useProgramme();
 
   // Local draft state for editing amounts
   const [draftConfig, setDraftConfig] = useState<PricingConfig>(pricingConfig);
+  const [draftReservationConfig, setDraftReservationConfig] = useState<ReservationConfig>(reservationConfig);
   const [referenceFobJPY, setReferenceFobJPY] = useState<number>(2000000);
   const [selectedZone, setSelectedZone] = useState<ZoneId>("ZONE_5");
   const [showAllZones, setShowAllZones] = useState<boolean>(false);
@@ -57,6 +67,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
   const handleSave = () => {
     audio.playSuccessChime();
     updatePricingConfig(draftConfig);
+    updateReservationConfig(draftReservationConfig);
     setHasChanges(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -123,7 +134,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs flex items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
             Pricing Configuration
@@ -148,8 +159,8 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             type="button"
             onClick={handleSave}
             disabled={!hasChanges && !saveSuccess}
-            className={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${hasChanges
-              ? "bg-[#0A0A0A] hover:bg-slate-800 text-white"
+            className={`px-4 py-2 rounded-xl font-semibold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-1.5 ${hasChanges
+              ? "bg-[#C3002F] hover:bg-[#A10026] text-white active:scale-[0.98]"
               : "bg-slate-100 text-slate-400 border border-slate-200 cursor-default"
               }`}
           >
@@ -179,7 +190,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Core Pricing Component Table                              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+      <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <table className="w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -392,7 +403,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Fixed Profile Price as per Zone Matrix                   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div>
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
@@ -447,7 +458,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Collapsible 5-Zone Towing Matrix (Minimal)               */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs space-y-3">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <button
           type="button"
           onClick={() => setShowAllZones(!showAllZones)}
@@ -505,6 +516,149 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             })}
           </div>
         )}
+      </div>
+    
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 5. Reservation Expiry & Warning Rules (US-15)              */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-slate-100 text-[#C3002F]">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">
+                Reservation Expiry &amp; Warning Rules (US-15)
+              </h2>
+              <p className="text-[11px] text-slate-500">
+                Programme parameters governing dealer exclusivity windows and auto-release lifecycle
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200">
+            US-15 Active
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          {/* Default Hold Duration */}
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="font-bold text-slate-800">
+                Default Exclusivity Window
+              </label>
+              <span className="font-mono font-bold text-slate-900">
+                {draftReservationConfig.defaultHoldHours} Hours
+              </span>
+            </div>
+            <input
+              type="range"
+              min="6"
+              max="72"
+              step="6"
+              value={draftReservationConfig.defaultHoldHours}
+              onChange={(e) => {
+                setDraftReservationConfig((prev) => ({
+                  ...prev,
+                  defaultHoldHours: Number(e.target.value),
+                }));
+                setHasChanges(true);
+              }}
+              className="w-full accent-[#C3002F] cursor-pointer"
+            />
+            <p className="text-[10px] text-slate-500">
+              Standard dealer exclusivity period upon reservation request submission.
+            </p>
+          </div>
+
+          {/* Warning Notification Threshold */}
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="font-bold text-slate-800">
+                Warning Notification Threshold
+              </label>
+              <span className="font-mono font-bold text-amber-700">
+                {draftReservationConfig.warningThresholdHours} Hours Prior
+              </span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="6"
+              step="1"
+              value={draftReservationConfig.warningThresholdHours}
+              onChange={(e) => {
+                setDraftReservationConfig((prev) => ({
+                  ...prev,
+                  warningThresholdHours: Number(e.target.value),
+                }));
+                setHasChanges(true);
+              }}
+              className="w-full accent-amber-600 cursor-pointer"
+            />
+            <p className="text-[10px] text-slate-500">
+              Dispatches reminder notice and marks countdown with warning pulse badge.
+            </p>
+          </div>
+
+          {/* Auto-Release Toggle */}
+          <div className="p-3.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-3">
+            <div>
+              <span className="font-bold text-slate-900 block">
+                Automatic Stock Release on Expiry
+              </span>
+              <span className="text-[10px] text-slate-500 block">
+                Returns vehicles to open catalogue if unconfirmed at window elapse
+              </span>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={draftReservationConfig.autoReleaseOnExpiry}
+                onChange={(e) => {
+                  setDraftReservationConfig((prev) => ({
+                    ...prev,
+                    autoReleaseOnExpiry: e.target.checked,
+                  }));
+                  setHasChanges(true);
+                }}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C3002F]" />
+            </label>
+          </div>
+
+          {/* Max Active Holds per Dealership */}
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="font-bold text-slate-800">
+                Max Concurrent Holds per Dealership
+              </label>
+              <span className="font-mono font-bold text-slate-900">
+                {draftReservationConfig.maxActiveHoldsPerDealer} Units
+              </span>
+            </div>
+            <input
+              type="range"
+              min="2"
+              max="15"
+              step="1"
+              value={draftReservationConfig.maxActiveHoldsPerDealer}
+              onChange={(e) => {
+                setDraftReservationConfig((prev) => ({
+                  ...prev,
+                  maxActiveHoldsPerDealer: Number(e.target.value),
+                }));
+                setHasChanges(true);
+              }}
+              className="w-full accent-slate-900 cursor-pointer"
+            />
+            <p className="text-[10px] text-slate-500">
+              Prevents monopolisation of certified Japan inventory.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -177,7 +177,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
       </div>
 
       {publishedSuccess ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-8 text-center space-y-4 shadow-soft">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-8 text-center space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-6 h-6" />
           </div>
@@ -200,7 +200,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
         <>
           {/* Upload Dropzone */}
           {batchRows.length === 0 ? (
-            <div className="bg-white rounded-xl border-2 border-dashed border-slate-200 hover:border-slate-400 p-10 text-center space-y-4 transition-colors">
+            <div className="bg-white rounded-[24px] border-2 border-dashed border-slate-200 hover:border-slate-400 p-10 text-center space-y-4 transition-colors">
               <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
                 <UploadCloud className="w-6 h-6" />
               </div>
@@ -228,7 +228,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
           ) : (
             <div className="space-y-5">
               {/* Batch Processing Summary Card */}
-              <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="bg-white rounded-[24px] border border-slate-200 p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-slate-100 text-slate-700">
                     <FileSpreadsheet className="w-5 h-5" />
@@ -265,7 +265,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
               </div>
 
               {/* Parsed Rows Table */}
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="bg-white rounded-[24px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
                 <div className="overflow-x-auto touch-scroll navy-scrollbar">
                   <table className="w-full text-left text-xs min-w-[680px]">
                     <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">

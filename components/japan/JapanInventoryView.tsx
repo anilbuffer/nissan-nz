@@ -33,7 +33,7 @@ export default function JapanInventoryView({
   onNavigateAdd,
   onNavigateBatch,
 }: JapanInventoryViewProps) {
-  const { vehicles, toggleVehicleStatus } = useProgramme();
+  const { vehicles, toggleVehicleStatus, setVehicleStatus } = useProgramme();
   const searchParams = useSearchParams();
   const urlVehicleId = searchParams?.get("id") || searchParams?.get("vehicleId") || searchParams?.get("stockId");
 
@@ -125,7 +125,7 @@ export default function JapanInventoryView({
               audio.playSubtleClick();
               onNavigateAdd();
             }}
-            className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#C3002F] via-[#A10026] to-[#85001F] hover:from-[#A10026] hover:to-[#680018] text-white text-xs font-bold transition-all shadow-[0_4px_16px_rgba(225,29,72,0.3)] cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+            className="py-2.5 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Add Vehicle</span>
@@ -137,7 +137,7 @@ export default function JapanInventoryView({
       {/* 2. Executive 4-KPI Metric Strip                             */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Total Listed
           </span>
@@ -149,7 +149,7 @@ export default function JapanInventoryView({
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Available to NZ
           </span>
@@ -161,7 +161,7 @@ export default function JapanInventoryView({
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Dealer Reserved
           </span>
@@ -173,7 +173,7 @@ export default function JapanInventoryView({
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
+        <div className="p-4 sm:p-5 rounded-[24px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
             Primary Staging Yard
           </span>
@@ -189,7 +189,7 @@ export default function JapanInventoryView({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Search & Status Filter Toolbar                           */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative flex-1 w-full max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
           <input
@@ -233,7 +233,7 @@ export default function JapanInventoryView({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. Inventory Table (Clean, Refined Light Header)             */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-[24px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs min-w-[760px]">
             {/* Clean Light Executive Table Header (Replaced Heavy Solid Dark) */}

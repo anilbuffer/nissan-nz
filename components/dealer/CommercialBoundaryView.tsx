@@ -19,7 +19,7 @@ export default function CommercialBoundaryView() {
       {/* Two Column Table */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Included */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-soft space-y-3">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
           <div className="pb-2 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-900">Included in Total Buy Price</h2>
             <span className="text-[10px] font-medium text-slate-500">Fixed Landed</span>
@@ -50,7 +50,7 @@ export default function CommercialBoundaryView() {
         </div>
 
         {/* Separately Chargeable */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-soft space-y-3">
+        <div className="bg-white rounded-[24px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
           <div className="pb-2 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-900">Potential Additional Cost</h2>
             <span className="text-[10px] font-medium text-slate-500">Requires Prior Approval</span>
@@ -82,7 +82,7 @@ export default function CommercialBoundaryView() {
       </div>
 
       {/* Policy statement */}
-      <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed">
+      <div className="p-5 bg-slate-50 rounded-[24px] border border-slate-200 text-xs text-slate-600 leading-relaxed">
         <strong>Notice:</strong> Fixed landed pricing assumes a standard compliance pass. Any remedial repair work required to achieve MR2A certification will be evidenced with photographic documentation and quoted for dealer approval before work proceeds.
       </div>
     </div>
