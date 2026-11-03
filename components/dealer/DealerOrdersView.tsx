@@ -506,7 +506,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   className="btn-outline py-2 px-4 rounded-xl text-xs font-bold text-slate-800 hover:text-[#C3002F] flex items-center gap-2 cursor-pointer shadow-2xs transition-colors"
                 >
                   <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                  <span>← Back to Orders Grid</span>
+                  <span>Back to Orders Grid</span>
                 </button>
 
                 <div className="flex items-center gap-2 text-xs">
