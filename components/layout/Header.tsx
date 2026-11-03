@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useProgramme } from "@/lib/programme-context";
 import { SystemNotification } from "@/lib/types";
 import { audio } from "@/lib/sound";
 import GlobalSearchModal from "./GlobalSearchModal";
-import RoleSwitcher from "./RoleSwitcher";
 import {
   Search,
   Bell,
@@ -25,10 +24,6 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
-  Car,
-  Shield,
-  Globe2,
-  FileText,
 } from "lucide-react";
 
 function getNotificationMeta(type: string) {
@@ -76,41 +71,10 @@ export default function Header({
   onSearchChange,
 }: HeaderProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { currentUser, currentDealer, switchRole } = useAuth();
+  const { currentUser, currentDealer } = useAuth();
   const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useProgramme();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-
-  // Detect which of the 4 synchronized portals is currently active
-  const currentPortal: "DEALER" | "ADMIN" | "JAPAN" | "PROGRAMME" = useMemo(() => {
-    if (pathname.startsWith("/admin")) return "ADMIN";
-    if (pathname.startsWith("/japan")) return "JAPAN";
-    if (pathname.startsWith("/programme")) return "PROGRAMME";
-    if (pathname.startsWith("/dealer")) return "DEALER";
-    if (currentUser?.role === "AUTOHUB_ADMIN") return "ADMIN";
-    if (currentUser?.role === "NISSAN_JAPAN") return "JAPAN";
-    if (currentUser?.role === "READONLY_PROGRAMME_USER") return "PROGRAMME";
-    return "DEALER";
-  }, [pathname, currentUser?.role]);
-
-  // Seamlessly switch role and portal view across the 4 synchronized portals
-  const handleSwitchPortal = (portal: "DEALER" | "ADMIN" | "JAPAN" | "PROGRAMME") => {
-    audio.playSoftChime();
-    if (portal === "DEALER") {
-      switchRole("DEALER_USER");
-      router.push("/dealer/stocks");
-    } else if (portal === "ADMIN") {
-      switchRole("AUTOHUB_ADMIN");
-      router.push("/admin/dashboard");
-    } else if (portal === "JAPAN") {
-      switchRole("NISSAN_JAPAN");
-      router.push("/japan/inventory");
-    } else if (portal === "PROGRAMME") {
-      switchRole("READONLY_PROGRAMME_USER");
-      router.push("/programme/stock");
-    }
-  };
 
   const notifRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -169,8 +133,6 @@ export default function Header({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-
 
   return (
     <header className="h-[60px] bg-white border-b border-slate-200/90 px-3 sm:px-6 flex items-center justify-between gap-2.5 sm:gap-4 sticky top-0 z-30 shrink-0">
@@ -253,90 +215,8 @@ export default function Header({
         </div>
       </div>
 
-      {/* Right: Universal 4-Portal Switcher, Notifications, Role Switcher */}
+      {/* Right: Quick Search Button on mobile, Notifications */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        {/* Universal 4-Portal Switcher Pill Bar (Matching media_1793712187996_53e634d8.png) */}
-        <div
-          role="tablist"
-          aria-label="Universal 4-Portal Switcher"
-          className="hidden md:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 gap-1 text-center shrink-0"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={currentPortal === "DEALER"}
-            onClick={() => handleSwitchPortal("DEALER")}
-            className={`py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer truncate ${
-              currentPortal === "DEALER"
-                ? "bg-white text-slate-900 shadow-soft font-bold"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
-            }`}
-          >
-            <Car
-              className={`w-3.5 h-3.5 shrink-0 ${
-                currentPortal === "DEALER" ? "text-[#C3002F]" : "text-slate-400"
-              }`}
-            />
-            <span className="truncate">Dealer</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={currentPortal === "ADMIN"}
-            onClick={() => handleSwitchPortal("ADMIN")}
-            className={`py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer truncate ${
-              currentPortal === "ADMIN"
-                ? "bg-white text-slate-900 shadow-soft font-bold"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
-            }`}
-          >
-            <Shield
-              className={`w-3.5 h-3.5 shrink-0 ${
-                currentPortal === "ADMIN" ? "text-[#C3002F]" : "text-slate-400"
-              }`}
-            />
-            <span className="truncate">Admin Ops</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={currentPortal === "JAPAN"}
-            onClick={() => handleSwitchPortal("JAPAN")}
-            className={`py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer truncate ${
-              currentPortal === "JAPAN"
-                ? "bg-white text-slate-900 shadow-soft font-bold"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
-            }`}
-          >
-            <Globe2
-              className={`w-3.5 h-3.5 shrink-0 ${
-                currentPortal === "JAPAN" ? "text-[#C3002F]" : "text-slate-400"
-              }`}
-            />
-            <span className="truncate">Japan HQ</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={currentPortal === "PROGRAMME"}
-            onClick={() => handleSwitchPortal("PROGRAMME")}
-            className={`py-1.5 px-3 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer truncate ${
-              currentPortal === "PROGRAMME"
-                ? "bg-white text-slate-900 shadow-soft font-bold"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
-            }`}
-          >
-            <FileText
-              className={`w-3.5 h-3.5 shrink-0 ${
-                currentPortal === "PROGRAMME" ? "text-[#C3002F]" : "text-slate-400"
-              }`}
-            />
-            <span className="truncate">Programme</span>
-          </button>
-        </div>
         {/* Mobile Search Trigger Icon -> Opens Global Search Modal Listing */}
         <button
           type="button"
@@ -452,9 +332,6 @@ export default function Header({
             </div>
           )}
         </div>
-
-        {/* 1-Click Role Switcher */}
-        <RoleSwitcher />
       </div>
 
       {/* Universal Global Search Modal Listing */}
