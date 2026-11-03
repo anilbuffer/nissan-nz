@@ -238,7 +238,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                   className="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 shadow-soft"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5" />
-                  <span>Load Sample Japan Export Batch</span>
+                  <span>Upload CSV</span>
                 </button>
               </div>
             </div>
