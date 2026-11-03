@@ -18,10 +18,9 @@ import {
   ShieldCheck,
   Star,
   MapPin,
-  Gauge,
-  Eye,
-  AlertCircle,
+  TrendingUp,
   FileText,
+  Building2,
 } from "lucide-react";
 
 interface FullPageVehicleDetailProps {
@@ -32,13 +31,13 @@ interface FullPageVehicleDetailProps {
 
 function ZeroEmissionBadge() {
   return (
-    <div className="flex flex-col items-center select-none pointer-events-none">
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 p-0.5 shadow-md flex items-center justify-center">
-        <div className="w-full h-full rounded-full bg-white flex items-center justify-center shadow-inner">
-          <span className="text-sky-500 font-black text-2xl font-sans leading-none lowercase italic -translate-x-0.5">e</span>
+    <div className="flex flex-col items-center select-none pointer-events-none scale-90">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 p-0.5 shadow-sm flex items-center justify-center">
+        <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+          <span className="text-sky-500 font-bold text-base font-sans leading-none lowercase italic -translate-x-0.5">e</span>
         </div>
       </div>
-      <span className="text-[10px] font-black tracking-tight text-slate-800 uppercase mt-1">
+      <span className="text-[9px] font-bold tracking-tight text-slate-700 uppercase mt-0.5">
         Zero Emission
       </span>
     </div>
@@ -54,7 +53,7 @@ export default function FullPageVehicleDetail({
   const { vehicles, reserveVehicle: atomicReserve } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
   const isAdmin = currentUser?.role === "AUTOHUB_ADMIN";
-  const defaultZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
+  const dealerZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
 
   // Find vehicle from live programme context
   const rawVehicle =
@@ -76,14 +75,21 @@ export default function FullPageVehicleDetail({
       : ["/images/cars/note.png"];
 
   const [activeImageIdx, setActiveImageIdx] = useState(0);
-  const [selectedZone, setSelectedZone] = useState<ZoneId>(defaultZone);
+  const [selectedZone, setSelectedZone] = useState<ZoneId>(dealerZone);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
 
-  const selectedZoneConfig = OFFICIAL_PRICING_ZONES[selectedZone] || OFFICIAL_PRICING_ZONES.ZONE_1;
-  const selectedZonePrice: LandedPriceBreakdown = useMemo(() => {
-    return calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
-  }, [vehicle.fobPriceJPY, selectedZone]);
+  // In Dealer role, pricing is anchored to the dealer's designated franchise delivery zone
+  const activeZoneId = isAdmin ? selectedZone : dealerZone;
+  const selectedZoneConfig = OFFICIAL_PRICING_ZONES[activeZoneId] || OFFICIAL_PRICING_ZONES.ZONE_1;
+  const landedPrice: LandedPriceBreakdown = useMemo(() => {
+    return calculateLandedPrice(vehicle.fobPriceJPY, activeZoneId);
+  }, [vehicle.fobPriceJPY, activeZoneId]);
+
+  // Dealer Commercial Margins
+  const retailEstimateNZD = Math.round(landedPrice.totalBuyPriceNZD * 1.28);
+  const projectedMarginNZD = retailEstimateNZD - landedPrice.totalBuyPriceNZD;
+  const marginPercentage = ((projectedMarginNZD / landedPrice.totalBuyPriceNZD) * 100).toFixed(1);
 
   const isAvailable = vehicle.status === "AVAILABLE";
   const isHeldByCurrentDealer = vehicle.reservedByDealerId === currentDealer?.id;
@@ -118,13 +124,13 @@ export default function FullPageVehicleDetail({
     setIsReserveModalOpen(false);
   };
 
-  // 5 Delivery Zones for the Price Schedule Matrix
-  const zonesList: { id: ZoneId; code: string; cost: number }[] = [
-    { id: "ZONE_1", code: "Z1", cost: 650 },
-    { id: "ZONE_2", code: "Z2", cost: 900 },
-    { id: "ZONE_3", code: "Z3", cost: 1150 },
-    { id: "ZONE_4", code: "Z4", cost: 1450 },
-    { id: "ZONE_5", code: "Z5", cost: 1750 },
+  // 5 Delivery Zones for Matrix Reference
+  const zonesList: { id: ZoneId; code: string; cost: number; name: string }[] = [
+    { id: "ZONE_1", code: "Z1", cost: 650, name: "Upper North Island (Auckland)" },
+    { id: "ZONE_2", code: "Z2", cost: 900, name: "Central North Island (Waikato/BOP)" },
+    { id: "ZONE_3", code: "Z3", cost: 1150, name: "Lower North Island (Wellington)" },
+    { id: "ZONE_4", code: "Z4", cost: 1450, name: "Upper South Island (Canterbury)" },
+    { id: "ZONE_5", code: "Z5", cost: 1750, name: "Lower South Island (Otago)" },
   ];
 
   const isElectricOrHybrid =
@@ -134,57 +140,66 @@ export default function FullPageVehicleDetail({
     vehicle.model.toLowerCase().includes("power");
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300 pb-12 font-sans">
+    <div className="space-y-4 animate-in fade-in duration-200 pb-10 font-sans text-slate-800">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header Navigation & Breadcrumbs Bar                      */}
+      {/* 1. Header Navigation & Dealership Identity Bar              */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-wrap">
+      <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
             onClick={handleBack}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{isAdmin ? "Back to Catalogue" : "Back to Stock Catalog"}</span>
+            <span>{isAdmin ? "Back to Catalogue" : "Back to Stock"}</span>
           </button>
 
-          <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+          <div className="h-3.5 w-px bg-slate-200 hidden sm:block" />
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <button
               type="button"
               onClick={handleBack}
               className="hover:text-slate-900 transition-colors cursor-pointer"
             >
-              {isAdmin ? "Vehicle Catalogue" : "Stock Catalog"}
+              {isAdmin ? "Vehicle Catalogue" : "Stock"}
             </button>
             <span>/</span>
-            <span className="text-slate-500">Nissan</span>
+            <span className="text-slate-400">Nissan</span>
             <span>/</span>
-            <span className="text-slate-900 font-semibold">{vehicle.model}</span>
+            <span className="text-slate-800 font-semibold">{vehicle.model}</span>
             <span>/</span>
-            <span className="font-mono text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg text-[11px] font-bold border border-slate-200">
+            <span className="font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded text-[11px] font-medium border border-slate-200">
               #{vehicle.stockId}
             </span>
           </div>
         </div>
 
-        {/* Right Status Indicator */}
-        <div className="flex items-center gap-2">
+        {/* Right: Dealership Profile & Stock State */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {!isAdmin && currentDealer && (
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
+              <Building2 className="w-3 h-3 text-slate-400" />
+              <span>{currentDealer.legalTradingName}</span>
+              <span className="text-slate-300">·</span>
+              <span className="text-slate-500 font-mono">{dealerZone}</span>
+            </div>
+          )}
+
           {isAvailable ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Available for Allocation</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>Available</span>
             </span>
           ) : isHeldByCurrentDealer ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300">
-              <Lock className="w-3.5 h-3.5 text-amber-600" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+              <Lock className="w-3 h-3 text-amber-600" />
               <span>Your Active Hold (18h left)</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-              <Lock className="w-3.5 h-3.5 text-slate-500" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+              <Lock className="w-3 h-3 text-slate-400" />
               <span>On Exclusivity Hold</span>
             </span>
           )}
@@ -192,107 +207,114 @@ export default function FullPageVehicleDetail({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Top 4 KPI Metric Cards (As in reference screenshot)      */}
+      {/* 2. Top 4 Compact Metric Cards                               */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* KPI 1: ODOMETER (JEVIC) */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+        <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">
             ODOMETER (JEVIC)
           </span>
-          <div className="text-2xl font-black font-mono text-slate-900 tracking-tight">
+          <div className="text-base sm:text-lg font-bold font-mono text-slate-900 tracking-tight">
             {vehicle.odometerKm.toLocaleString()} km
           </div>
-          <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-600">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-medium text-emerald-700">
+            <CheckCircle2 className="w-3 h-3" />
             <span>Digitally Certified</span>
           </div>
         </div>
 
         {/* KPI 2: AUCTION GRADE */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+        <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">
             AUCTION GRADE
           </span>
-          <div className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-            <span className="text-amber-500">★</span>
+          <div className="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-1">
+            <span className="text-amber-500 font-bold">★</span>
             <span>{vehicle.auctionGrade} / {vehicle.interiorGrade}</span>
           </div>
-          <div className="mt-2 text-xs font-medium text-slate-500">
-            USS / JAA Inspection
+          <div className="mt-1 text-[11px] text-slate-500 font-normal">
+            USS / JAA Certified
           </div>
         </div>
 
-        {/* KPI 3: FOB BASELINE (JPY) */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-            FOB BASELINE (JPY)
+        {/* KPI 3: DEALER RELEVANT METRIC: Est. Retail Guide & Margin */}
+        <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">
+            {isAdmin ? "FOB BASELINE (JPY)" : "EST. NZ RETAIL GUIDE"}
           </span>
-          <div className="text-2xl font-black font-mono text-slate-900 tracking-tight">
-            ¥{vehicle.fobPriceJPY.toLocaleString()}
+          <div className="text-base sm:text-lg font-bold font-mono text-slate-900 tracking-tight">
+            {isAdmin ? `¥${vehicle.fobPriceJPY.toLocaleString()}` : `$${retailEstimateNZD.toLocaleString()}`}
           </div>
-          <div className="mt-2 text-xs font-medium text-slate-500">
-            Japan Acquisition Cost
+          <div className="flex items-center gap-1 mt-1 text-[11px] font-medium text-emerald-700">
+            {isAdmin ? (
+              <span className="text-slate-500 font-normal">Japan Acquisition Cost</span>
+            ) : (
+              <>
+                <TrendingUp className="w-3 h-3" />
+                <span>+${projectedMarginNZD.toLocaleString()} Margin ({marginPercentage}%)</span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* KPI 4: YARD STAGING */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-            YARD STAGING
+        {/* KPI 4: YARD STAGING / EXPORT LOGISTICS */}
+        <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">
+            EXPORT STAGING
           </span>
-          <div className="text-2xl font-black text-slate-900 tracking-tight truncate" title={vehicle.location || "Yokohama Yard"}>
+          <div className="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate" title={vehicle.location || "Yokohama Yard"}>
             {vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}
           </div>
-          <div className="mt-2 text-xs font-medium text-slate-500">
-            Export Bay Ready
+          <div className="mt-1 text-[11px] text-slate-500 font-normal">
+            Export Bay Ready · RoRo
           </div>
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Main Body: 2 Columns (Showcase + Landed Schedule)        */}
+      {/* 3. Main Body: 2 Columns (Showcase + Landed Economics)       */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* ───────────────────────────────────────────────────────── */}
         {/* LEFT COLUMN: Vehicle Showcase + Japanese Export Specs     */}
         {/* ───────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-4">
           {/* Main Studio Car Showcase Card */}
-          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs relative">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs relative">
             {/* Top-Left: Auction Grade Pill */}
-            <div className="absolute top-5 left-5 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-xs font-bold border border-slate-200/80 shadow-2xs flex items-center gap-1.5">
+            <div className="absolute top-4 left-4 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1">
               <span className="text-amber-500">★</span>
               <span>Grade {vehicle.auctionGrade} / {vehicle.interiorGrade}</span>
             </div>
 
             {/* Top-Right: Stock ID */}
-            <div className="absolute top-5 right-5 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-700 font-mono text-xs font-bold border border-slate-200/80 shadow-2xs">
+            <div className="absolute top-4 right-4 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-600 font-mono text-[11px] font-medium border border-slate-200 shadow-2xs">
               #{vehicle.stockId}
             </div>
 
             {/* Car Canvas */}
-            <div className="relative aspect-[16/10] w-full flex items-center justify-center my-4">
+            <div className="relative aspect-[16/10] w-full flex items-center justify-center my-2">
               {/* Studio floor shadow */}
-              <div className="absolute bottom-4 w-4/5 h-6 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
+              <div className="absolute bottom-3 w-4/5 h-4 bg-black/10 rounded-[50%] blur-sm pointer-events-none transform scale-y-50" />
 
               {/* High-res Studio Cutout Car */}
               <img
                 src={images[activeImageIdx] || images[0]}
                 alt={`${vehicle.make} ${vehicle.model}`}
-                className="w-full h-full select-none transition-all duration-300 relative z-10 object-contain filter drop-shadow-[0_12px_20px_rgba(0,0,0,0.12)]"
+                className="w-full h-full select-none transition-all duration-200 relative z-10 object-contain filter drop-shadow-[0_8px_14px_rgba(0,0,0,0.10)]"
               />
 
               {/* Zero Emission Emblem (Right of Car) */}
               {isElectricOrHybrid && (
-                <div className="absolute top-8 right-8 z-20 hidden sm:block">
+                <div className="absolute top-6 right-6 z-20 hidden sm:block">
                   <ZeroEmissionBadge />
                 </div>
               )}
             </div>
 
             {/* Horizontal Angle Thumbnails Row */}
-            <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 border-t border-slate-100">
               {images.map((img, idx) => {
                 const isActive = activeImageIdx === idx;
                 return (
@@ -303,9 +325,9 @@ export default function FullPageVehicleDetail({
                       audio.playSubtleClick();
                       setActiveImageIdx(idx);
                     }}
-                    className={`w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden p-1 transition-all cursor-pointer flex items-center justify-center bg-white shrink-0 ${
+                    className={`w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden p-0.5 transition-all cursor-pointer flex items-center justify-center bg-white shrink-0 ${
                       isActive
-                        ? "border-2 border-[#C3002F] shadow-xs"
+                        ? "border-2 border-[#C3002F] shadow-2xs"
                         : "border border-slate-200 hover:border-slate-400 opacity-70 hover:opacity-100"
                     }`}
                   >
@@ -321,50 +343,63 @@ export default function FullPageVehicleDetail({
           </div>
 
           {/* Japanese Export Verification & Technical Specifications Card */}
-          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                Japanese Export Verification &amp; Technical Specifications
-              </h2>
+          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <h2 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                  Japanese Export Verification &amp; Technical Specs
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  alert(`Opening official verified Japan Auction Sheet for ${vehicle.stockId}`);
+                }}
+                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold transition-all cursor-pointer shadow-2xs"
+              >
+                <FileText className="w-3 h-3 text-slate-400" />
+                <span>Auction Sheet (PDF)</span>
+              </button>
             </div>
 
-            <div className="divide-y divide-slate-100 text-xs sm:text-sm">
+            <div className="divide-y divide-slate-100 text-xs">
               {/* Row 1: Chassis / VIN */}
-              <div className="py-3 flex items-center justify-between gap-4">
-                <span className="text-slate-500 font-medium">Chassis / VIN:</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-slate-900 tracking-wide">
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Chassis / VIN:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono font-semibold text-slate-900">
                     {vehicle.vinChassis}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyVin}
                     title="Copy VIN"
-                    className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                    className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                   >
                     {copiedVin ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3 h-3 text-emerald-600" />
                     ) : (
-                      <Copy className="w-3.5 h-3.5" />
+                      <Copy className="w-3 h-3" />
                     )}
                   </button>
                 </div>
               </div>
 
               {/* Row 2: JEVIC Odometer Certification */}
-              <div className="py-3 flex items-center justify-between gap-4">
-                <span className="text-slate-500 font-medium">JEVIC Odometer Certification:</span>
-                <span className="text-emerald-600 font-bold flex items-center gap-1.5 font-mono text-xs">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">JEVIC Odometer Certification:</span>
+                <span className="text-emerald-700 font-semibold flex items-center gap-1 font-mono text-[11px]">
+                  <CheckCircle2 className="w-3 h-3" />
                   <span>VERIFIED {vehicle.odometerKm.toLocaleString()} KM</span>
                 </span>
               </div>
 
               {/* Row 3: Battery State of Health (SOH) */}
-              <div className="py-3 flex items-center justify-between gap-4">
-                <span className="text-slate-500 font-medium">Battery State of Health (SOH):</span>
-                <span className="font-semibold text-slate-900 text-right">
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Battery State of Health (SOH):</span>
+                <span className="font-medium text-slate-800 text-right">
                   {vehicle.fuelType === "100% Electric"
                     ? "Certified 94.8% SOH (12/12 Bars Verified)"
                     : "Certified Hybrid e-Power System"}
@@ -372,28 +407,52 @@ export default function FullPageVehicleDetail({
               </div>
 
               {/* Row 4: MR2A Compliance & WoF */}
-              <div className="py-3 flex items-center justify-between gap-4">
-                <span className="text-slate-500 font-medium">MR2A Compliance &amp; WoF:</span>
-                <span className="text-emerald-600 font-bold flex items-center gap-1.5 text-right">
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">MR2A Compliance &amp; WoF:</span>
+                <span className="text-emerald-700 font-semibold text-right">
                   Pre-Inspected Pass Guaranteed
                 </span>
               </div>
 
               {/* Row 5: Powertrain / Fuel */}
-              <div className="py-3 flex items-center justify-between gap-4">
-                <span className="text-slate-500 font-medium">Powertrain / Fuel:</span>
-                <span className="font-semibold text-slate-900 text-right">
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Powertrain / Fuel:</span>
+                <span className="font-medium text-slate-800 text-right">
                   {vehicle.fuelType} · {vehicle.transmission}
                 </span>
               </div>
 
               {/* Row 6: Engine Displacement */}
-              <div className="py-3 flex items-center justify-between gap-4">
-                <span className="text-slate-500 font-medium">Engine Displacement:</span>
-                <span className="font-mono font-semibold text-slate-900 text-right">
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Engine Displacement:</span>
+                <span className="font-mono font-medium text-slate-800 text-right">
                   {vehicle.engineCc > 0 ? `${vehicle.engineCc.toLocaleString()} cc` : "Dual Inverter EV Motor"}
                 </span>
               </div>
+
+              {/* Row 7: Condition Summary */}
+              {vehicle.conditionSummary && (
+                <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <span className="text-slate-500 font-normal shrink-0">Condition Log:</span>
+                  <span className="font-normal text-slate-700 text-left sm:text-right text-[11px]">
+                    {vehicle.conditionSummary}
+                  </span>
+                </div>
+              )}
+
+              {/* Row 8: Known Japanese Defects */}
+              {vehicle.knownDefects && vehicle.knownDefects.length > 0 && (
+                <div className="py-2 flex flex-col sm:flex-row sm:items-start justify-between gap-1.5">
+                  <span className="text-slate-500 font-normal shrink-0">Reported Items:</span>
+                  <div className="flex flex-col sm:items-end gap-1">
+                    {vehicle.knownDefects.map((defect, dIdx) => (
+                      <span key={dIdx} className="text-[11px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                        • {defect}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -401,126 +460,177 @@ export default function FullPageVehicleDetail({
         {/* ───────────────────────────────────────────────────────── */}
         {/* RIGHT COLUMN: Wholesale Landed Schedule + Dealer Actions  */}
         {/* ───────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-4">
           {/* Card 1: WHOLESALE LANDED PRICE SCHEDULE */}
-          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-5">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-4">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                WHOLESALE LANDED PRICE SCHEDULE
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+                {isAdmin ? "WHOLESALE LANDED PRICE SCHEDULE" : "GUARANTEED WHOLESALE LANDED SCHEDULE"}
               </span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl sm:text-4xl font-black font-mono text-slate-900 tracking-tight">
-                  ${selectedZonePrice.totalBuyPriceNZD.toLocaleString()}
+              <div className="flex items-baseline gap-1.5 mt-0.5">
+                <span className="text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                  ${landedPrice.totalBuyPriceNZD.toLocaleString()}
                 </span>
-                <span className="text-xs font-semibold text-slate-500">
+                <span className="text-xs font-medium text-slate-500">
                   NZD Landed
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Guaranteed landed wholesale cost schedule across New Zealand geographic delivery zones.
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">
+                {isAdmin
+                  ? "Guaranteed landed wholesale cost schedule across New Zealand delivery zones."
+                  : `Fixed landed price for ${currentDealer?.legalTradingName || "your franchise dealership"} (${dealerZone}).`}
               </p>
             </div>
 
-            {/* 5 Delivery Zones Switcher Pills */}
-            <div className="bg-slate-100/90 p-1.5 rounded-2xl flex items-center gap-1">
-              {zonesList.map((z) => {
-                const isSelected = selectedZone === z.id;
-                return (
-                  <button
-                    key={z.id}
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      setSelectedZone(z.id);
-                    }}
-                    className={`flex-1 py-2 px-1 rounded-xl text-center transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-white text-slate-900 font-black shadow-xs ring-1 ring-slate-200"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium"
-                    }`}
-                  >
-                    <span className="block text-xs font-bold leading-tight">{z.code}</span>
-                    <span className="block text-[10px] font-mono text-slate-400 leading-tight mt-0.5">
-                      ${z.cost}
+            {/* Delivery Zone Presentation */}
+            {isAdmin ? (
+              /* Admin: Interactive 5-Zone Matrix */
+              <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1">
+                {zonesList.map((z) => {
+                  const isSelected = selectedZone === z.id;
+                  return (
+                    <button
+                      key={z.id}
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSelectedZone(z.id);
+                      }}
+                      className={`flex-1 py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-white text-slate-900 font-bold shadow-2xs ring-1 ring-slate-200"
+                          : "text-slate-600 hover:text-slate-900 font-medium"
+                      }`}
+                    >
+                      <span className="block text-xs font-bold leading-tight">{z.code}</span>
+                      <span className="block text-[10px] font-mono text-slate-400 leading-tight">
+                        ${z.cost}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Dealer: Fixed Designated Territory Badge (Section 4 Compliance) */
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 block">
+                      Designated Delivery Zone
                     </span>
-                  </button>
-                );
-              })}
-            </div>
+                    <strong className="text-xs text-slate-800 block">
+                      {dealerZone} · {selectedZoneConfig.zoneName}
+                    </strong>
+                  </div>
+                  <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    Carrier Transit Included
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/70">
+                  <span>Dealership Address:</span>
+                  <span className="font-medium text-slate-700 truncate max-w-[200px]">
+                    {currentDealer?.address || "Auckland Dealership Depot"}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Price Line Items Table */}
-            <div className="divide-y divide-slate-100 text-xs sm:text-sm">
-              <div className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-medium">Selected Zone Territory:</span>
-                <strong className="text-slate-900 font-semibold text-right truncate max-w-[200px]">
+            <div className="divide-y divide-slate-100 text-xs">
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Selected Zone Territory:</span>
+                <span className="text-slate-800 font-medium text-right truncate max-w-[180px]">
                   {selectedZoneConfig.zoneName}
+                </span>
+              </div>
+
+              {/* Show FOB only to Admin; For Dealer, show Commercial Landed breakdown */}
+              {isAdmin ? (
+                <div className="py-2 flex items-center justify-between gap-3">
+                  <span className="text-slate-500 font-normal">FOB Acquisition (JPY):</span>
+                  <span className="font-mono font-medium text-slate-800 text-right">
+                    ¥{vehicle.fobPriceJPY.toLocaleString()}
+                  </span>
+                </div>
+              ) : (
+                <div className="py-2 flex items-center justify-between gap-3">
+                  <span className="text-slate-500 font-normal">Japanese Export Marshalling:</span>
+                  <span className="text-emerald-700 font-medium text-right flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> JEVIC &amp; Radiation Passed
+                  </span>
+                </div>
+              )}
+
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Ocean Freight &amp; Port Handling:</span>
+                <span className="font-mono font-medium text-slate-800 text-right">
+                  ${landedPrice.oceanFreightNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">NZ Customs Entry &amp; 15% GST:</span>
+                <span className="font-mono font-medium text-slate-800 text-right">
+                  ${landedPrice.gstNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">MR2A Compliance &amp; Inspection:</span>
+                <span className="font-mono font-medium text-slate-800 text-right">
+                  ${landedPrice.complianceInspectionNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              <div className="py-2 flex items-center justify-between gap-3">
+                <span className="text-slate-500 font-normal">Domestic Carrier Towing:</span>
+                <span className="font-mono font-medium text-slate-800 text-right">
+                  ${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD
+                </span>
+              </div>
+
+              {/* Total Guarantee Row */}
+              <div className="py-2.5 px-3 flex items-center justify-between gap-3 bg-slate-50 rounded-lg -mx-1 mt-1">
+                <div>
+                  <strong className="text-xs text-slate-900 block font-semibold">Total Landed Allocation:</strong>
+                  <span className="text-[10px] text-slate-400">100% Fixed Cost Guarantee</span>
+                </div>
+                <strong className="font-mono text-sm font-bold text-slate-900">
+                  ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
                 </strong>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-medium">FOB Acquisition (JPY):</span>
-                <span className="font-mono font-bold text-slate-900 text-right">
-                  ¥{vehicle.fobPriceJPY.toLocaleString()}
-                </span>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-medium">Ocean Freight &amp; Port Handling:</span>
-                <span className="font-mono font-bold text-slate-900 text-right">
-                  ${selectedZonePrice.oceanFreightNZD.toLocaleString()} NZD
-                </span>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-medium">NZ Customs &amp; 15% GST:</span>
-                <span className="font-mono font-bold text-slate-900 text-right">
-                  ${selectedZonePrice.gstNZD.toLocaleString()} NZD
-                </span>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-medium">MR2A Compliance &amp; Inspection:</span>
-                <span className="font-mono font-bold text-slate-900 text-right">
-                  ${selectedZonePrice.complianceInspectionNZD.toLocaleString()} NZD
-                </span>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between gap-3">
-                <span className="text-slate-500 font-medium">Domestic Carrier Towing:</span>
-                <span className="font-mono font-bold text-slate-900 text-right">
-                  ${selectedZonePrice.zoneDeliveryNZD.toLocaleString()} NZD
-                </span>
               </div>
             </div>
           </div>
 
           {/* Card 2: Dealer Role Action / Procurement Box */}
-          <div className="bg-white rounded-[28px] border border-slate-200/90 p-6 sm:p-7 shadow-xs space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
                 {isAdmin ? "ADMINISTRATIVE CENTRAL STOCK AUTHORITY" : "DEALER PROCUREMENT & EXCLUSIVITY AUTHORITY"}
               </span>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                This vehicle is live on the dealer purchasing catalogue and eligible for 24h atomic exclusivity holds.
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">
+                {isAdmin
+                  ? "This vehicle is live on the dealer purchasing catalogue and eligible for 24h atomic exclusivity holds."
+                  : "Lock this certified Japanese unit exclusively for 24 hours under Section 4 Exclusivity. Zero upfront deposit required."}
               </p>
             </div>
 
             {isAdmin ? (
-              <div className="pt-2 space-y-3">
+              <div className="pt-1 space-y-2">
                 <button
                   type="button"
                   onClick={() => {
                     audio.playSubtleClick();
                     alert("Vehicle " + vehicle.stockId + " withdrawn from dealer access.");
                   }}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-rose-50 text-[#C3002F] border border-rose-200 font-bold text-xs transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-lg bg-white hover:bg-rose-50 text-[#C3002F] border border-rose-200 font-semibold text-xs transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Lock className="w-3.5 h-3.5" />
                   <span>Withdraw from Dealer Access</span>
                 </button>
               </div>
             ) : (
-              <div className="pt-2 space-y-3">
+              <div className="pt-1 space-y-2.5">
                 {isAvailable ? (
                   <button
                     type="button"
@@ -528,9 +638,9 @@ export default function FullPageVehicleDetail({
                       audio.playSubtleClick();
                       setIsReserveModalOpen(true);
                     }}
-                    className="w-full py-4 px-6 rounded-2xl bg-[#C3002F] hover:bg-[#A10026] text-white font-bold text-sm tracking-wide transition-all shadow-[0_4px_16px_rgba(195,0,47,0.25)] hover:shadow-[0_6px_22px_rgba(195,0,47,0.35)] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white font-semibold text-xs transition-all shadow-xs active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <Lock className="w-4 h-4" />
+                    <Lock className="w-3.5 h-3.5" />
                     <span>Hold Vehicle (24h Exclusivity Lock)</span>
                   </button>
                 ) : isHeldByCurrentDealer ? (
@@ -540,20 +650,20 @@ export default function FullPageVehicleDetail({
                       audio.playSubtleClick();
                       router.push("/dealer/orders");
                     }}
-                    className="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm tracking-wide transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Your Active Hold (18h left) - Complete Order</span>
                   </button>
                 ) : (
-                  <div className="w-full py-4 px-6 rounded-2xl bg-slate-100 text-slate-500 font-bold text-xs text-center flex items-center justify-center gap-2 border border-slate-200">
-                    <Lock className="w-4 h-4 text-slate-400" />
+                  <div className="w-full py-2.5 px-4 rounded-xl bg-slate-100 text-slate-500 font-semibold text-xs text-center flex items-center justify-center gap-2 border border-slate-200">
+                    <Lock className="w-3.5 h-3.5 text-slate-400" />
                     <span>Locked Under 24h Exclusivity Hold by Network</span>
                   </div>
                 )}
 
                 {/* Trust Badges */}
-                <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400 pt-1 flex-wrap font-medium">
+                <div className="flex items-center justify-center gap-2.5 text-[10px] text-slate-400 pt-0.5 flex-wrap">
                   <span>✓ Zero Initial Deposit</span>
                   <span>•</span>
                   <span>✓ 24h Price Guarantee</span>
