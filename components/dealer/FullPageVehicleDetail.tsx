@@ -766,12 +766,12 @@ export default function FullPageVehicleDetail({
                       <span className="text-xs font-bold text-slate-900 tracking-tight">Admin Operations &amp; Allocation Control</span>
                     </div>
                     <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${vehicle.status === "BUYED"
-                        ? "bg-purple-100 text-purple-800"
-                        : vehicle.status === "ALLOCATED"
-                          ? "bg-sky-100 text-sky-800"
-                          : vehicle.status === "RESERVED"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-emerald-100 text-emerald-800"
+                      ? "bg-purple-100 text-purple-800"
+                      : vehicle.status === "ALLOCATED"
+                        ? "bg-sky-100 text-sky-800"
+                        : vehicle.status === "RESERVED"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-emerald-100 text-emerald-800"
                       }`}>
                       {vehicle.status === "BUYED" ? "PAID" : vehicle.status}
                     </span>
@@ -1140,7 +1140,7 @@ export default function FullPageVehicleDetail({
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 self-start sm:self-auto active:scale-[0.98]"
               >
                 <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>+ Add Additional Cost</span>
+                <span>Add Additional Cost</span>
               </button>
             )}
           </div>

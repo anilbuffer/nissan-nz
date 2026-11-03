@@ -40,6 +40,28 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
+
+export function getRoRoMilestoneLabel(milestone: OrderMilestone | string): { stageNumber: number; stageName: string; displayBadge: string } {
+  switch (milestone) {
+    case "ORDER_CONFIRMED":
+    case "JAPAN_VERIFICATION":
+      return { stageNumber: 1, stageName: "Received At Facility", displayBadge: "1. Received At Facility" };
+    case "BOOKED_FOR_SHIPPING":
+    case "IN_TRANSIT":
+      return { stageNumber: 2, stageName: "In Transit", displayBadge: "2. In Transit" };
+    case "NZ_BORDER_PROCESSING":
+      return { stageNumber: 3, stageName: "Arrived in NZ", displayBadge: "3. Arrived in NZ" };
+    case "COMPLIANCE":
+    case "AWAITING_ADDITIONAL_COST":
+    case "READY_FOR_DELIVERY":
+      return { stageNumber: 4, stageName: "Out For Delivery", displayBadge: "4. Out For Delivery" };
+    case "DELIVERED":
+      return { stageNumber: 5, stageName: "Delivered", displayBadge: "5. Delivered" };
+    default:
+      return { stageNumber: 2, stageName: "In Transit", displayBadge: "2. In Transit" };
+  }
+}
+
 const MILESTONE_STEPS: { key: OrderMilestone; label: string; actor: string; desc: string }[] = [
   { key: "ORDER_CONFIRMED", label: "Order Confirmed", actor: "Dealership & Autohub Ops", desc: "Wholesale allocation accepted and entered into programme schedule." },
   { key: "JAPAN_VERIFICATION", label: "Japan Export Verification", actor: "Japan Logistics Hub", desc: "Physical yard inspection, JEVIC odometer verification & export deregistration." },
@@ -68,7 +90,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
       setActiveTab("ORDERS");
     }
   }, [mode]);
-  const [showPriceBreakdown, setShowPriceBreakdown] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -515,7 +536,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   </span>
                   <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1.5">
                     <Ship className="w-3.5 h-3.5 text-blue-600" />
-                    <span>RoRo: {selectedOrder?.currentMilestone.replace(/_/g, " ")}</span>
+                    <span>[ RoRo ] {selectedOrder ? getRoRoMilestoneLabel(selectedOrder.currentMilestone).displayBadge : "1. Received At Facility"}</span>
                   </span>
                 </div>
               </div>
@@ -536,7 +557,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                           </span>
                           <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1">
                             <Ship className="w-3 h-3 text-blue-600" />
-                            <span>RoRo: {selectedOrder.currentMilestone.replace(/_/g, " ")}</span>
+                            <span>[ RoRo ] {getRoRoMilestoneLabel(selectedOrder.currentMilestone).displayBadge}</span>
                           </span>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-[#C3002F] border border-rose-100">
                             {selectedOrder.vehicle.fuelType}
@@ -578,29 +599,18 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         </div>
                       </div>
 
-                      {/* Pricing Block */}
+                      {/* Pricing Block (Clean: No [View Cost Inclusions]) */}
                       <div className="sm:text-right shrink-0 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
                         <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
                           Total Buy Price (Fixed Landed)
                         </span>
                         <div className="text-2xl font-bold font-mono text-slate-900">
-                          ${selectedOrder.priceBreakdown.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-sans text-slate-500">NZD</span>
+                          ${selectedOrder.priceBreakdown.totalBuyPriceNZD.toLocaleString()}{" "}
+                          <span className="text-xs font-sans text-slate-500">NZD</span>
                         </div>
                         <div className="text-[11px] text-slate-500 font-mono">
-                          FOB: ¥{selectedOrder.priceBreakdown.fobJPY.toLocaleString()} ({selectedOrder.pricingZoneId})
+                          Fixed Landed for {selectedOrder.pricingZoneId}
                         </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            audio.playSubtleClick();
-                            setShowPriceBreakdown(!showPriceBreakdown);
-                          }}
-                          className="text-[11px] text-[#C3002F] hover:text-[#A10026] font-bold mt-2 flex items-center sm:justify-end gap-1 cursor-pointer"
-                        >
-                          <span>{showPriceBreakdown ? "Hide Inclusions" : "View Cost Inclusions"}</span>
-                          {showPriceBreakdown ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                        </button>
                       </div>
                     </div>
 
@@ -614,160 +624,238 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                       />
                     </div>
 
-                    {/* Organised Vehicle Details Consistency (Sections A, B, C, E) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
-                      {/* Section A: Vehicle Identification */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
-                          <span className="w-2 h-2 rounded-full bg-[#0A0A0A]" />
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                            A. Identification
-                          </h4>
-                        </div>
-                        <div className="space-y-1.5 text-xs">
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Stock ID:</span><span className="font-mono font-bold text-slate-900">#{selectedOrder.vehicle.stockId}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Chassis / VIN:</span><span className="font-mono text-slate-800 font-semibold truncate max-w-[130px]">{selectedOrder.vehicle.vinChassis}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Make / Model:</span><span className="font-semibold text-slate-800">{selectedOrder.vehicle.make} {selectedOrder.vehicle.model}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Variant / Trim:</span><span className="font-semibold text-slate-800">{selectedOrder.vehicle.grade}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Model Year:</span><span className="font-mono font-bold text-slate-800">{selectedOrder.vehicle.year}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Odometer:</span><span className="font-mono text-slate-800">{selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Transmission:</span><span className="text-slate-800">{selectedOrder.vehicle.transmission}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Exterior Colour:</span><span className="text-slate-800">{selectedOrder.vehicle.color}</span></div>
-                        </div>
-                      </div>
+                    </div>
 
-                      {/* Section B: Vehicle Condition */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
-                          <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                            B. Vehicle Condition
-                          </h4>
-                        </div>
-                        <div className="space-y-1.5 text-xs">
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Auction Grade:</span><span className="font-mono font-bold text-amber-700">★ {selectedOrder.vehicle.auctionGrade || "4.5"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Interior Grade:</span><span className="font-bold text-slate-800">{selectedOrder.vehicle.interiorGrade || "A"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Exterior Grade:</span><span className="font-bold text-slate-800">{selectedOrder.vehicle.exteriorGrade || "A"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Overall Condition:</span><span className="text-emerald-700 font-semibold">{selectedOrder.vehicle.overallCondition || "Clean Japanese Grade"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Known Defects:</span><span className="text-slate-700">{selectedOrder.vehicle.knownDefects?.[0] || "None Recorded"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Condition Report:</span><span className="text-slate-700 font-medium">USS Digital Dossier</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Supporting Doc:</span><span className="text-emerald-700 font-medium">Verified PDF</span></div>
-                        </div>
+                  {/* ───────────────────────────────────────────────────────── */}
+                  {/* SPECIFICATIONS CARD (Symmetric with dealer/vehicles/VEH_023) */}
+                  {/* ───────────────────────────────────────────────────────── */}
+                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-4 h-4" />
                       </div>
-
-                      {/* Section C: Vehicle Pricing Inputs */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
-                          <span className="w-2 h-2 rounded-full bg-blue-600" />
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                            C. Pricing Inputs
-                          </h4>
-                        </div>
-                        <div className="space-y-1.5 text-xs">
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Acquisition Price:</span><span className="font-mono font-bold text-slate-900">¥{selectedOrder.priceBreakdown.fobJPY.toLocaleString()}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">NZD Equivalent:</span><span className="font-mono font-bold text-slate-900">${selectedOrder.priceBreakdown.fobNZD.toLocaleString()} NZD</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Currency:</span><span className="font-mono text-slate-800">JPY / NZD</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Purchase Basis:</span><span className="font-mono font-bold text-slate-800">{selectedOrder.vehicle.purchasePriceBasis || "FOB"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Pricing Profile:</span><span className="text-slate-800 font-medium">{selectedOrder.pricingZoneId}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Total Fixed Landed:</span><span className="font-mono font-bold text-slate-900">${selectedOrder.priceBreakdown.totalBuyPriceNZD.toLocaleString()} NZD</span></div>
-                        </div>
-                      </div>
-
-                      {/* Section E: Listing / Order Information */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2.5">
-                        <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/60">
-                          <span className="w-2 h-2 rounded-full bg-slate-700" />
-                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                            E. Listing &amp; Order
-                          </h4>
-                        </div>
-                        <div className="space-y-1.5 text-xs">
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Listing Status:</span><span className="font-mono font-bold text-slate-900">{selectedOrder.vehicle.status}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">RoRo Status:</span><span className="font-mono font-bold text-blue-700">RoRo: {selectedOrder.currentMilestone.replace(/_/g, " ")}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Reference:</span><span className="font-mono font-semibold text-slate-800">{selectedOrder.orderNumber}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Stock Reference:</span><span className="font-mono text-slate-800">{selectedOrder.vehicle.stockReference || `USS-JAA-${selectedOrder.vehicle.stockId.slice(-4)}`}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Order Date:</span><span className="font-mono text-slate-600">{selectedOrder.orderedAt ? new Date(selectedOrder.orderedAt).toLocaleDateString() : "2026-10-24"}</span></div>
-                          <div className="flex justify-between py-0.5"><span className="text-slate-400">Last Updated:</span><span className="font-mono text-slate-600">{new Date().toISOString().slice(0, 10)}</span></div>
-                        </div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                          Specifications
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Certified Japanese export verification and mechanical specification dossier.
+                        </p>
                       </div>
                     </div>
 
-                    {/* Section 4 Commercial Inclusions Breakdown (Expandable) */}
-                    {showPriceBreakdown && (
-                      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-4 animate-in fade-in">
-                        <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                            <span className="font-bold text-slate-900">
-                              Section 4 Commercial Inclusions Guarantee
-                            </span>
-                          </div>
-                          <span className="text-[10px] text-slate-500 font-mono">
-                            Assigned Profile: {selectedOrder.pricingZoneId} (Upper North Island)
-                          </span>
+                    {/* 4 Inner Stats Cards Strip */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                      {/* 1. ODOMETER (JEVIC) */}
+                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                          ODOMETER (JEVIC)
+                        </span>
+                        <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                          {selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}
                         </div>
+                        <span className="text-[11px] text-emerald-600 font-semibold block truncate">
+                          Digitally Certified
+                        </span>
+                      </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-[11px]">
-                          <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-0.5">
-                            <span className="text-slate-400 block font-medium">Vehicle Acquisition:</span>
-                            <span className="font-mono font-bold text-slate-900 block text-xs">
-                              ${selectedOrder.priceBreakdown.fobNZD.toLocaleString()} NZD
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono">¥{selectedOrder.priceBreakdown.fobJPY.toLocaleString()}</span>
-                          </div>
-
-                          <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-0.5">
-                            <span className="text-slate-400 block font-medium">RoRo Ocean Freight:</span>
-                            <span className="font-mono font-bold text-slate-900 block text-xs">
-                              ${selectedOrder.priceBreakdown.oceanFreightNZD.toLocaleString()} NZD
-                            </span>
-                            <span className="text-[10px] text-slate-400">Direct RoRo Liner</span>
-                          </div>
-
-                          <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-0.5">
-                            <span className="text-slate-400 block font-medium">Customs &amp; NZ GST:</span>
-                            <span className="font-mono font-bold text-slate-900 block text-xs">
-                              ${(selectedOrder.priceBreakdown.customsProcessingNZD + selectedOrder.priceBreakdown.gstNZD).toLocaleString()} NZD
-                            </span>
-                            <span className="text-[10px] text-slate-400">MPI Bio &amp; 15% GST Entry</span>
-                          </div>
-
-                          <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-0.5">
-                            <span className="text-slate-400 block font-medium">MR2A Compliance Pass:</span>
-                            <span className="font-mono font-bold text-slate-900 block text-xs">
-                              ${selectedOrder.priceBreakdown.complianceInspectionNZD.toLocaleString()} NZD
-                            </span>
-                            <span className="text-[10px] text-slate-400">NZTA Structural Standards</span>
-                          </div>
-
-                          <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-0.5">
-                            <span className="text-slate-400 block font-medium">2x Domestic Movements:</span>
-                            <span className="font-mono font-bold text-slate-900 block text-xs">
-                              ${selectedOrder.priceBreakdown.zoneDeliveryNZD.toLocaleString()} NZD
-                            </span>
-                            <span className="text-[10px] text-slate-400">Port ➔ Center ➔ Yard</span>
-                          </div>
-
-                          <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-0.5">
-                            <span className="text-slate-400 block font-medium">Nissan Programme Fee:</span>
-                            <span className="font-mono font-bold text-slate-900 block text-xs">
-                              ${selectedOrder.priceBreakdown.programmeFeeNZD.toLocaleString()} NZD
-                            </span>
-                            <span className="text-[10px] text-slate-400">Provenance &amp; Quality Audit</span>
-                          </div>
+                      {/* 2. AUCTION GRADE */}
+                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                          AUCTION GRADE
+                        </span>
+                        <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+                          ★ {selectedOrder.vehicle.auctionGrade || "4.5"} / {selectedOrder.vehicle.interiorGrade || "A"}
                         </div>
+                        <span className="text-[11px] text-slate-500 block truncate">
+                          USS / JAA Inspection
+                        </span>
+                      </div>
 
-                        <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-900 flex items-start gap-2">
-                          <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>Section 4 Commercial Boundary Rule:</strong> The fixed price assumes a standard compliance pass. Separately chargeable work will be identified at the time of invoicing.
-                          </span>
+                      {/* 3. FOB BASELINE (JPY) */}
+                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                          FOB BASELINE (JPY)
+                        </span>
+                        <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                          ¥{selectedOrder.priceBreakdown.fobJPY.toLocaleString()}
+                        </div>
+                        <span className="text-[11px] text-slate-500 block truncate">
+                          Japan Acquisition Cost
+                        </span>
+                      </div>
+
+                      {/* 4. CORRIDOR / VESSEL */}
+                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                          CORRIDOR STAGING
+                        </span>
+                        <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+                          {selectedOrder.vesselName || selectedOrder.vehicle.location || "Yokohama Export Yard"}
+                        </div>
+                        <span className="text-[11px] text-blue-600 font-semibold block truncate">
+                          [ RoRo ] {getRoRoMilestoneLabel(selectedOrder.currentMilestone).stageName}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 4-Column Technical Grid (Cleaned: No Duplicates or Redundant Info) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                      {/* Card 1: Provenance & Identification */}
+                      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                          Provenance &amp; Identification
+                        </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Chassis / VIN:</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono font-bold text-slate-900">{selectedOrder.vehicle.vinChassis}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(selectedOrder.vehicle.vinChassis, "vin")}
+                                title="Copy VIN"
+                                className="p-0.5 text-slate-400 hover:text-slate-700 cursor-pointer"
+                              >
+                                {copiedField === "vin" ? (
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Make &amp; Model:</span>
+                            <span className="font-bold text-slate-900">{selectedOrder.vehicle.make || "Nissan"} {selectedOrder.vehicle.model}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Variant / Trim:</span>
+                            <span className="font-semibold text-slate-800">{selectedOrder.vehicle.grade}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Drive Type:</span>
+                            <span className="font-mono font-bold text-slate-900">{selectedOrder.vehicle.driveType || "2WD"}</span>
+                          </div>
                         </div>
                       </div>
-                    )}
+
+                      {/* Card 2: Powertrain & Mechanical */}
+                      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                          Powertrain &amp; Mechanical
+                        </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Powertrain:</span>
+                            <span className="font-semibold text-slate-900">{selectedOrder.vehicle.fuelType}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Engine / Motor:</span>
+                            <span className="font-mono font-medium text-slate-800">
+                              {selectedOrder.vehicle.engineCc && selectedOrder.vehicle.engineCc > 0
+                                ? `${selectedOrder.vehicle.engineCc.toLocaleString()} cc`
+                                : "Electric Drive Motor"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Transmission:</span>
+                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.transmission}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Exterior Colour:</span>
+                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.color || "Factory Original"}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card 3: Compliance & Odometer */}
+                      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                          Compliance &amp; Odometer
+                        </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">JEVIC Odometer:</span>
+                            <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <span>Certified Hash Pass</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">NZTA Entry:</span>
+                            <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <span>MR2A Dossier Cleared</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Biosecurity / Rad:</span>
+                            <span className="font-mono font-medium text-slate-700 text-[11px]">
+                              Passed (&lt;0.08 µSv/h)
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Certified Date:</span>
+                            <span className="font-mono text-slate-700">
+                              {selectedOrder.vehicle.inspectionDate || (selectedOrder.orderedAt ? new Date(selectedOrder.orderedAt).toISOString().slice(0, 10) : "2026-10-24")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card 4: Condition Log & Japanese Notes */}
+                      <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                          Condition &amp; Inspection Log
+                        </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-500">Interior / Exterior:</span>
+                            <span className="font-medium text-slate-900 text-[11px]">
+                              Int: Grade {selectedOrder.vehicle.interiorGrade || "A"} · Ext: Grade {selectedOrder.vehicle.exteriorGrade || "A"}
+                            </span>
+                          </div>
+
+                          <div>
+                            <span className="text-[11px] text-slate-500 block mb-0.5">Overall Condition:</span>
+                            <p className="text-[11px] text-slate-700 leading-snug font-normal">
+                              {selectedOrder.vehicle.overallCondition || "Zero panel damage. Verified Japanese one-owner."}
+                            </p>
+                          </div>
+
+                          <div>
+                            <span className="text-[11px] text-slate-500 block mb-1">Reported Defects:</span>
+                            {selectedOrder.vehicle.knownDefects && selectedOrder.vehicle.knownDefects.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {selectedOrder.vehicle.knownDefects.map((defect, dIdx) => (
+                                  <span
+                                    key={dIdx}
+                                    className="text-[10px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200"
+                                  >
+                                    • {defect}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                                None Reported (Grade 4.5+ Standard)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-
-
 
                   {/* Defect Remediation & Additional Cost Action */}
                   {selectedOrder.additionalCosts.length > 0 && (
@@ -864,20 +952,23 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                       <div>
-                        <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
-                          Order Delivery Timeline
-                        </h3>
-                        <p className="text-xs text-slate-500 font-medium">
-                          End-to-end Pacific corridor tracking from Yokohama export hub to dealership handover.
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+                            Order Delivery Timeline
+                          </h3>
+                          <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                            [ RoRo ] Live Tracking
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">
+                          End-to-end Pacific RoRo corridor tracking (1. Received At Facility, 2. In Transit, 3. Arrived in NZ, 4. Out For Delivery, 5. Delivered)
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-                          5 Programme Stages
-                        </span>
-                        <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                          Live RoRo Tracking
+                        <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-1.5">
+                          <Ship className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Current: [ RoRo ] {getRoRoMilestoneLabel(selectedOrder.currentMilestone).displayBadge}</span>
                         </span>
                       </div>
                     </div>
@@ -1095,7 +1186,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                             ) : (
                               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-mono flex items-center gap-1">
                                 <Ship className="w-3 h-3 text-blue-600" />
-                                <span>RoRo: {order.currentMilestone.replace(/_/g, " ")}</span>
+                                <span>[ RoRo ] {getRoRoMilestoneLabel(order.currentMilestone).displayBadge}</span>
                               </span>
                             )}
                           </div>
