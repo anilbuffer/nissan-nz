@@ -282,10 +282,21 @@ export default function DashboardShell({
           />
         );
       }
+      const isDealerVehicleView =
+        portal === "dealer" ||
+        (typeof pathname === "string" && pathname.startsWith("/dealer"));
+
+      const isAdminVehicleView =
+        !isDealerVehicleView &&
+        (portal === "admin" ||
+          (typeof pathname === "string" && pathname.startsWith("/admin")) ||
+          currentUser?.role === "AUTOHUB_ADMIN");
+
       return (
         <FullPageVehicleDetail
           vehicleId={viewingVehicleId}
           onBack={handleBackFromVehicle}
+          isAdmin={isAdminVehicleView}
         />
       );
     }

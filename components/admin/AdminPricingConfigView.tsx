@@ -21,7 +21,7 @@ interface AdminPricingConfigViewProps {
   onNavigateTab?: (tabId: string) => void;
 }
 
-export default function AdminPricingConfigView({}: AdminPricingConfigViewProps = {}) {
+export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps = {}) {
   const { pricingConfig, updatePricingConfig, resetPricingConfig } = useProgramme();
 
   // Local draft state for editing amounts
@@ -119,7 +119,7 @@ export default function AdminPricingConfigView({}: AdminPricingConfigViewProps =
   });
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-200 font-sans text-slate-800 pb-16">
+    <div className="max-w-7xl mx-auto space-y-4 animate-in fade-in duration-200 font-sans text-slate-800 pb-16">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -148,11 +148,10 @@ export default function AdminPricingConfigView({}: AdminPricingConfigViewProps =
             type="button"
             onClick={handleSave}
             disabled={!hasChanges && !saveSuccess}
-            className={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${
-              hasChanges
-                ? "bg-[#0A0A0A] hover:bg-slate-800 text-white"
-                : "bg-slate-100 text-slate-400 border border-slate-200 cursor-default"
-            }`}
+            className={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${hasChanges
+              ? "bg-[#0A0A0A] hover:bg-slate-800 text-white"
+              : "bg-slate-100 text-slate-400 border border-slate-200 cursor-default"
+              }`}
           >
             <Save className="w-3.5 h-3.5" />
             <span>{hasChanges ? "Save Changes" : "Saved"}</span>
@@ -306,11 +305,10 @@ export default function AdminPricingConfigView({}: AdminPricingConfigViewProps =
                         key={zid}
                         type="button"
                         onClick={() => setSelectedZone(zid)}
-                        className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${
-                          isSelected
-                            ? "bg-slate-900 text-white shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
+                        className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${isSelected
+                          ? "bg-slate-900 text-white shadow-2xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
                       >
                         {code}
                       </button>
@@ -417,11 +415,10 @@ export default function AdminPricingConfigView({}: AdminPricingConfigViewProps =
               <div
                 key={z.id}
                 onClick={() => setSelectedZone(z.id)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-slate-50 border-slate-900 ring-1 ring-slate-900 shadow-2xs"
-                    : "bg-white border-slate-200 hover:border-slate-300"
-                }`}
+                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${isSelected
+                  ? "bg-slate-50 border-slate-900 ring-1 ring-slate-900 shadow-2xs"
+                  : "bg-white border-slate-200 hover:border-slate-300"
+                  }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-mono font-bold text-xs text-slate-900">{z.code}</span>
@@ -480,11 +477,10 @@ export default function AdminPricingConfigView({}: AdminPricingConfigViewProps =
                 <div
                   key={zid}
                   onClick={() => setSelectedZone(zid)}
-                  className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
-                    isSelected
-                      ? "bg-slate-50 border-slate-900 ring-1 ring-slate-900"
-                      : "bg-white border-slate-200 hover:border-slate-300"
-                  }`}
+                  className={`p-2.5 rounded-lg border cursor-pointer transition-all ${isSelected
+                    ? "bg-slate-50 border-slate-900 ring-1 ring-slate-900"
+                    : "bg-white border-slate-200 hover:border-slate-300"
+                    }`}
                 >
                   <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-800 mb-1">
                     <span>{zid.replace("ZONE_", "Z")}</span>
