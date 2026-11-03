@@ -41,7 +41,7 @@ interface AdminReservationsViewProps {
 
 export default function AdminReservationsView({ onNavigateTab }: AdminReservationsViewProps) {
   const { currentUser } = useAuth();
-  const isAuditor = currentUser?.role === "READONLY_AUDITOR";
+  const isAuditor = false;
   const {
     reservations,
     confirmAllocation,

@@ -133,11 +133,11 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
           bg: "bg-slate-100 text-slate-800 border-slate-200",
           dot: "bg-slate-600",
         };
-      case "READONLY_AUDITOR":
+      case "READONLY_PROGRAMME_USER":
         return {
-          label: "Regulatory Auditor",
-          bg: "bg-amber-50 text-amber-700 border-amber-200",
-          dot: "bg-amber-600",
+          label: "Programme Oversight",
+          bg: "bg-indigo-50 text-indigo-700 border-indigo-200",
+          dot: "bg-indigo-600",
         };
       default:
         return {

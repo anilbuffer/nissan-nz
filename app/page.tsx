@@ -15,8 +15,8 @@ export default function Home() {
         router.replace("/admin/dashboard");
       } else if (currentUser.role === "NISSAN_JAPAN") {
         router.replace("/japan/inventory");
-      } else if (currentUser.role === "READONLY_AUDITOR") {
-        router.replace("/admin/audit");
+      } else if (currentUser.role === "READONLY_PROGRAMME_USER") {
+        router.replace("/programme/stock");
       } else {
         router.replace("/dealer/stocks");
       }

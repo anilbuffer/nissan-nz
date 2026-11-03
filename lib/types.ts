@@ -3,8 +3,7 @@ export type UserRole =
   | "DEALER_ADMIN"
   | "AUTOHUB_ADMIN"
   | "NISSAN_JAPAN"
-  | "READONLY_PROGRAMME_USER"
-  | "READONLY_AUDITOR";
+  | "READONLY_PROGRAMME_USER";
 
 export type DealerStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "RETURNED_FOR_INFO" | "SUSPENDED";
 
@@ -34,6 +33,7 @@ export interface LandedPriceBreakdown {
   complianceInspectionNZD: number;
   zoneDeliveryNZD: number;
   programmeFeeNZD: number;
+  fixedCostProfileNZD?: number;
   totalBuyPriceNZD: number;
   zoneId: ZoneId;
   zoneName: string;
@@ -108,6 +108,7 @@ export type VehicleStatus =
   | "AVAILABLE"
   | "RESERVED"
   | "ALLOCATED"
+  | "BUYED"
   | "WITHDRAWN"
   | "SOLD";
 

@@ -107,10 +107,14 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
 
   const zoneKeys: ZoneId[] = ["ZONE_1", "ZONE_2", "ZONE_3", "ZONE_4", "ZONE_5"];
 
-  // Calculate Fixed Profile Price for all 5 Zones
+  // Fixed Cost Profile Pricing (Tariff Subtotal for Selected Zone)
+  const fixedCostProfileNZD = oceanFreight + customsFee + compliance + zoneDelivery + programmeFee;
+
+  // Calculate Fixed Profile Price and Tariffs for all 5 Zones
   const zoneFixedProfilePrices = zoneKeys.map((zid) => {
     const z = OFFICIAL_PRICING_ZONES[zid];
     const delivery = Number(draftConfig.zoneDeliveryMatrix?.[zid] ?? z.deliveryCostNZD);
+    const fixedCostProfile = oceanFreight + customsFee + compliance + delivery + programmeFee;
     const fixedProfileTotal =
       fobNZD +
       oceanFreight +
@@ -125,6 +129,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       name: z.zoneName,
       coverage: z.coverage,
       deliveryCost: delivery,
+      fixedCostProfile,
       fixedProfilePrice: fixedProfileTotal,
     };
   });
@@ -377,8 +382,28 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
               </td>
             </tr>
 
-            {/* 7. Total Buy Price (Fixed Profile Price) */}
-            <tr className="bg-slate-50 border-t-2 border-slate-200">
+            {/* 7. Fixed Cost Profile Pricing (Tariff Subtotal) */}
+            <tr className="bg-slate-50/70 border-t border-slate-200">
+              <td className="py-3 px-4 sm:px-6">
+                <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                  Fixed Cost Profile Pricing
+                </div>
+                <div className="text-[11px] text-slate-500 mt-0.5">
+                  Combined fixed tariffs: Freight (${oceanFreight.toLocaleString()}) + Customs (${customsFee.toLocaleString()}) + Compliance (${compliance.toLocaleString()}) + Tow (${zoneDelivery.toLocaleString()}) + Programme (${programmeFee.toLocaleString()})
+                </div>
+              </td>
+              <td className="py-3 px-4">
+                <span className="inline-block px-2.5 py-1 rounded bg-slate-200/80 text-slate-700 text-xs font-semibold font-mono">
+                  Tariff Profile Subtotal
+                </span>
+              </td>
+              <td className="py-3 px-4 sm:px-6 text-right font-mono font-bold text-slate-900">
+                +${fixedCostProfileNZD.toLocaleString()} NZD
+              </td>
+            </tr>
+
+            {/* 8. Total Buy Price (Fixed Profile Price) */}
+            <tr className="bg-slate-100/80 border-t-2 border-slate-300">
               <td className="py-3.5 px-4 sm:px-6">
                 <div className="font-bold text-slate-950 text-sm sm:text-base">
                   Total Buy Price (Fixed Profile Price)

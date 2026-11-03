@@ -75,7 +75,7 @@ export default function DealerStockCatalog({
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "RESERVED" | "ALLOCATED">("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "AVAILABLE" | "RESERVED" | "ALLOCATED" | "BUYED">("ALL");
   const [dossierVehicle, setDossierVehicle] = useState<Vehicle | null>(null);
 
   // Layout View Mode (Grid vs List) with Smooth Transition
@@ -152,8 +152,10 @@ export default function DealerStockCatalog({
       .filter((v) => {
         // Hide withdrawn and draft stock from dealer catalog; admin can see all
         if (!isAdminView && (v.status === "WITHDRAWN" || v.status === "DRAFT")) return false;
+        if (statusFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
         if (statusFilter === "RESERVED" && v.status !== "RESERVED") return false;
         if (statusFilter === "ALLOCATED" && v.status !== "ALLOCATED") return false;
+        if (statusFilter === "BUYED" && v.status !== "BUYED") return false;
 
         if (effectiveSearch) {
           const q = effectiveSearch.toLowerCase();
@@ -275,6 +277,25 @@ export default function DealerStockCatalog({
               <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "ALLOCATED" ? "bg-white/20 text-white" : "bg-sky-100 text-sky-800"
                 }`}>
                 {vehicles.filter((v) => v.status === "ALLOCATED").length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setStatusFilter("BUYED");
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "BUYED"
+                ? "bg-[#0A0A0A] text-white shadow-xs"
+                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
+                }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
+              <span>Buyed</span>
+              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "BUYED" ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"
+                }`}>
+                {vehicles.filter((v) => v.status === "BUYED").length}
               </span>
             </button>
           </div>
@@ -465,8 +486,13 @@ export default function DealerStockCatalog({
                     />
 
                     {!isAvailable && (
-                      <div className="absolute bottom-1 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md text-amber-300 border border-amber-500/30 shadow-lg text-[11px] font-mono font-bold animate-in fade-in">
-                        {vehicle.status === "ALLOCATED" ? (
+                      <div className="absolute bottom-1 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md shadow-lg text-[11px] font-mono font-bold animate-in fade-in">
+                        {vehicle.status === "BUYED" ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 text-purple-400 shrink-0" />
+                            <span className="text-purple-300">Buyed</span>
+                          </>
+                        ) : vehicle.status === "ALLOCATED" ? (
                           <>
                             <Ship className="w-3 h-3 text-sky-400 shrink-0" />
                             <span className="text-sky-300">Allocated to Order</span>
@@ -474,12 +500,12 @@ export default function DealerStockCatalog({
                         ) : (
                           <>
                             <Lock className="w-3 h-3 text-amber-400 shrink-0" />
-                            <span>
+                            <span className="text-amber-300">
                               {isAdminView
                                 ? (vehicle.reservedByDealerId === "DEALER_002" ? "Reserved by BOP Nissan" : "Reserved by Auckland Nissan")
                                 : vehicle.reservedByDealerId === currentDealer?.id
-                                  ? "Your Reservation (18h left)"
-                                  : "Reserved · Network Lock (18h left)"}
+                                  ? "Your Reservation"
+                                  : "Reserved · Network Lock"}
                             </span>
                           </>
                         )}
@@ -513,70 +539,32 @@ export default function DealerStockCatalog({
                         <span>Inspect Vehicle</span>
                       </button>
                     ) : isAvailable ? (
-                      getVehicleAction(vehicle) === "ALLOCATION" ? (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setAllocateVehicle(vehicle);
-                          }}
-                          className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
-                          title="Direct Wholesale Allocation to Order"
-                        >
-                          <Ship className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Allocation</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setReserveVehicle(vehicle);
-                          }}
-                          className="py-2 px-3 sm:px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5 border border-slate-200"
-                          title="Place 24-hour Exclusivity Reservation"
-                        >
-                          <Lock className="w-3.5 h-3.5 text-slate-600" />
-                          <span>Reserve</span>
-                        </button>
-                      )
-                    ) : vehicle.status === "ALLOCATED" ? (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push("/dealer/orders");
+                          audio.playSubtleClick();
+                          setReserveVehicle(vehicle);
                         }}
-                        className="py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+                        title="Place 24-hour Exclusivity Reservation"
                       >
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Reserve</span>
+                      </button>
+                    ) : vehicle.status === "BUYED" ? (
+                      <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
+                        <span>Buyed</span>
+                      </span>
+                    ) : vehicle.status === "ALLOCATED" ? (
+                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
                         <Ship className="w-3.5 h-3.5 text-sky-600" />
                         <span>Allocated</span>
-                      </button>
-                    ) : vehicle.reservedByDealerId === currentDealer?.id ? (
-                      <>
-                        <span className="py-2 px-2.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold font-mono flex items-center gap-1">
-                          <Lock className="w-3 h-3 text-amber-600" />
-                          <span>Reserved</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setAllocateVehicle(vehicle);
-                          }}
-                          className="py-2 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1"
-                          title="Confirm Allocation to Order"
-                        >
-                          <Ship className="w-3 h-3 text-emerald-400" />
-                          <span>Allocate</span>
-                        </button>
-                      </>
+                      </span>
                     ) : (
-                      <span className="py-2 px-3 rounded-xl bg-slate-100 border border-slate-200/80 text-slate-400 text-xs font-semibold flex items-center gap-1.5 cursor-not-allowed">
-                        <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
+                        <Lock className="w-3.5 h-3.5 text-amber-600" />
                         <span>Reserved</span>
                       </span>
                     )}
@@ -612,8 +600,13 @@ export default function DealerStockCatalog({
                   />
 
                   {!isAvailable && (
-                    <div className="absolute bottom-1 z-20 px-2.5 py-0.5 rounded-full bg-slate-900/90 text-amber-300 border border-amber-500/30 font-bold text-[9px] font-mono flex items-center gap-1 shadow-md">
-                      {vehicle.status === "ALLOCATED" ? (
+                    <div className="absolute bottom-1 z-20 px-2.5 py-0.5 rounded-full bg-slate-900/90 shadow-md font-bold text-[9px] font-mono flex items-center gap-1">
+                      {vehicle.status === "BUYED" ? (
+                        <>
+                          <CheckCircle2 className="w-2.5 h-2.5 text-purple-400" />
+                          <span className="text-purple-300">Buyed</span>
+                        </>
+                      ) : vehicle.status === "ALLOCATED" ? (
                         <>
                           <Ship className="w-2.5 h-2.5 text-sky-400" />
                           <span className="text-sky-300">Allocated to Order</span>
@@ -621,7 +614,7 @@ export default function DealerStockCatalog({
                       ) : (
                         <>
                           <Lock className="w-2.5 h-2.5 text-amber-400" />
-                          <span>{vehicle.reservedByDealerId === currentDealer?.id ? "Your Reservation (18h left)" : "Reserved (18h left)"}</span>
+                          <span className="text-amber-300">{vehicle.reservedByDealerId === currentDealer?.id ? "Your Reservation" : "Reserved"}</span>
                         </>
                       )}
                     </div>
@@ -715,75 +708,34 @@ export default function DealerStockCatalog({
                         <span>{isAvailable ? "Inspect" : "Reserved"}</span>
                       </button>
                     ) : isAvailable ? (
-                      getVehicleAction(vehicle) === "ALLOCATION" ? (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setAllocateVehicle(vehicle);
-                          }}
-                          className="py-2 px-3.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                          title="Direct Wholesale Allocation to Order"
-                        >
-                          <Ship className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Allocation</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setReserveVehicle(vehicle);
-                          }}
-                          className="py-2 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 border border-slate-200 cursor-pointer shadow-2xs"
-                          title="Place 24-hour Exclusivity Reservation"
-                        >
-                          <Lock className="w-3.5 h-3.5 text-slate-600" />
-                          <span>Reserve</span>
-                        </button>
-                      )
-                    ) : vehicle.status === "ALLOCATED" ? (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push("/dealer/orders");
+                          audio.playSubtleClick();
+                          setReserveVehicle(vehicle);
                         }}
-                        className="py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1 cursor-pointer"
+                        className="py-2 px-3.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        title="Place 24-hour Exclusivity Reservation"
                       >
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Reserve</span>
+                      </button>
+                    ) : vehicle.status === "BUYED" ? (
+                      <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
+                        <span>Buyed</span>
+                      </span>
+                    ) : vehicle.status === "ALLOCATED" ? (
+                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
                         <Ship className="w-3.5 h-3.5 text-sky-600" />
                         <span>Allocated</span>
-                      </button>
-                    ) : vehicle.reservedByDealerId === currentDealer?.id ? (
-                      <>
-                        <span className="py-2 px-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold font-mono text-center flex items-center justify-center gap-1">
-                          <Lock className="w-3 h-3 text-amber-600" />
-                          <span>Reserved</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            audio.playSubtleClick();
-                            setAllocateVehicle(vehicle);
-                          }}
-                          className="py-2 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
-                        >
-                          <Ship className="w-3 h-3 text-emerald-400" />
-                          <span>Allocate</span>
-                        </button>
-                      </>
+                      </span>
                     ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="py-2 px-3 rounded-xl bg-slate-100 border border-slate-200/80 text-slate-400 text-xs font-semibold cursor-not-allowed text-center flex items-center justify-center gap-1"
-                      >
-                        <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
+                        <Lock className="w-3.5 h-3.5 text-amber-600" />
                         <span>Reserved</span>
-                      </button>
+                      </span>
                     )}
                   </div>
                 </div>

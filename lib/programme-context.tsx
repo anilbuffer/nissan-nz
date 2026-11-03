@@ -163,6 +163,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
                   reservedByDealerId: live.reservedByDealerId || mock.reservedByDealerId,
                   reservedAt: live.reservedAt || mock.reservedAt,
                   reservationExpiresAt: live.reservationExpiresAt || mock.reservationExpiresAt,
+                  allocationMode: live.allocationMode !== undefined ? live.allocationMode : mock.allocationMode,
+                  additionalCosts: live.additionalCosts || mock.additionalCosts,
+                  location: live.location || mock.location,
                 };
               }
               return mock;
@@ -221,6 +224,30 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       console.warn("Could not persist programme state:", e);
     }
   }, [vehicles, orders, dealers, auditLogs, users, reservations, pricingConfig, reservationConfig, notifications, isHydrated]);
+
+  // Real-time synchronization across multi-portal browser tabs/windows
+  useEffect(() => {
+    const handleCrossTabSync = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed.vehicles && Array.isArray(parsed.vehicles)) setVehicles(parsed.vehicles);
+          if (parsed.orders && Array.isArray(parsed.orders)) setOrders(parsed.orders);
+          if (parsed.dealers && Array.isArray(parsed.dealers)) setDealers(parsed.dealers);
+          if (parsed.auditLogs && Array.isArray(parsed.auditLogs)) setAuditLogs(parsed.auditLogs);
+          if (parsed.users && Array.isArray(parsed.users)) setUsers(parsed.users);
+          if (parsed.reservations && Array.isArray(parsed.reservations)) setReservations(parsed.reservations);
+          if (parsed.pricingConfig) setPricingConfig(parsed.pricingConfig);
+          if (parsed.reservationConfig) setReservationConfig(parsed.reservationConfig);
+          if (parsed.notifications && Array.isArray(parsed.notifications)) setNotifications(parsed.notifications);
+        } catch (err) {
+          console.warn("Cross-tab sync error:", err);
+        }
+      }
+    };
+    window.addEventListener("storage", handleCrossTabSync);
+    return () => window.removeEventListener("storage", handleCrossTabSync);
+  }, []);
 
   // Helper to log audit event
   const logAudit = (event: Omit<AuditEvent, "id" | "timestamp">) => {

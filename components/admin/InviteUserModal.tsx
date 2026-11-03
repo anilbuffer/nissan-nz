@@ -76,8 +76,8 @@ export default function InviteUserModal({
         dealershipName = "Nissan Motor Co. Japan (Yokohama HQ)";
       } else if (role === "AUTOHUB_ADMIN") {
         dealershipName = "AutoHub Central Operations (Auckland HQ)";
-      } else if (role === "READONLY_AUDITOR") {
-        dealershipName = "Independent Regulatory Audit Branch";
+      } else if (role === "READONLY_PROGRAMME_USER") {
+        dealershipName = "Nissan NZ Programme Governance (NSC)";
       }
 
       onInvite({
@@ -239,9 +239,9 @@ export default function InviteUserModal({
                   desc: "Export marshalling, batch upload, JEVIC inspections",
                 },
                 {
-                  id: "READONLY_AUDITOR",
-                  label: "Compliance & Financial Auditor",
-                  desc: "Read-only access to audit logs, MR2A, and customs",
+                  id: "READONLY_PROGRAMME_USER",
+                  label: "Nissan NZ Programme Oversight",
+                  desc: "Read-only access to catalogue, wholesale orders, and reservations",
                 },
               ].map((r) => (
                 <div

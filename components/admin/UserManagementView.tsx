@@ -102,11 +102,11 @@ export default function UserManagementView() {
           bg: "bg-slate-100 text-slate-700 border-slate-200",
           dot: "bg-slate-500",
         };
-      case "READONLY_AUDITOR":
+      case "READONLY_PROGRAMME_USER":
         return {
-          label: "Compliance Auditor",
-          bg: "bg-amber-50 text-amber-700 border-amber-200",
-          dot: "bg-amber-600",
+          label: "Programme Oversight",
+          bg: "bg-indigo-50 text-indigo-700 border-indigo-200",
+          dot: "bg-indigo-600",
         };
       default:
         return {
@@ -173,7 +173,7 @@ export default function UserManagementView() {
               <option value="DEALER_ADMIN">Dealer Principal</option>
               <option value="AUTOHUB_ADMIN">Operations Controller</option>
               <option value="NISSAN_JAPAN">Japan Procurement</option>
-              <option value="READONLY_AUDITOR">Compliance Auditor</option>
+              <option value="READONLY_PROGRAMME_USER">Programme Oversight</option>
             </select>
 
             {/* Zone Filter */}

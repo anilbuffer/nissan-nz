@@ -203,13 +203,6 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "admin.view_audit_log",
     "admin.export_financials",
   ],
-  READONLY_AUDITOR: [
-    "compliance.view_auction_sheet",
-    "compliance.jevic_signoff",
-    "compliance.mr2a_certification",
-    "admin.view_audit_log",
-    "admin.export_financials",
-  ],
 };
 
 const ROLES_META: {
@@ -261,16 +254,6 @@ const ROLES_META: {
       tier: "Tier 4 · Inventory Buyer",
       tierLabel: "Tier 4",
       description: "Vehicle search, 360 photography, landed NZD buy prices, and 24-hour atomic hold lock.",
-    },
-    {
-      role: "READONLY_AUDITOR",
-      title: "Border Compliance Auditor",
-      subtitle: "Independent Regulatory Audit",
-      badgeBg: "bg-amber-50 border-amber-200",
-      badgeText: "text-amber-800",
-      tier: "Tier 5 · Regulatory Read-Only",
-      tierLabel: "Tier 5",
-      description: "Independent audit trail inspection, MR2A compliance verification, and customs exports.",
     },
     {
       role: "READONLY_PROGRAMME_USER",

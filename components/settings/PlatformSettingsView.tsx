@@ -108,7 +108,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
         };
       }
 
-      case "READONLY_AUDITOR":
+      case "READONLY_PROGRAMME_USER":
       default:
         return {
           tierBadge: "Tier 5 · Regulatory Read-Only Auditor",

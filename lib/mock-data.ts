@@ -395,7 +395,7 @@ export const MOCK_USERS: UserAccount[] = [
     id: "USR_AUDIT_01",
     name: "Elena Campbell",
     email: "elena.campbell@customs.govt.nz",
-    role: "READONLY_AUDITOR",
+    role: "READONLY_PROGRAMME_USER",
     title: "Principal Border Compliance Auditor",
     department: "NZ Customs & MPI Verification",
     dealershipName: "Independent Regulatory Audit Branch",

@@ -68,7 +68,7 @@ interface ProgrammeUserFormData {
   jobTitle: string;
   businessEmail: string;
   contactNumber: string;
-  requestedRole: "READONLY_PROGRAMME_USER" | "READONLY_AUDITOR";
+  requestedRole: "READONLY_PROGRAMME_USER";
   accessJustification: string;
   acceptCompliance: boolean;
 }
@@ -1889,28 +1889,6 @@ export default function DealerRegistrationWizard() {
                               </div>
                               <p className="text-[11px] text-slate-500 leading-relaxed">
                                 Read-only access to vehicle catalogue, landed pricing, shipping milestones, and logistics status.
-                              </p>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => updateProgrammeField("requestedRole", "READONLY_AUDITOR")}
-                              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer space-y-1.5 ${
-                                programmeData.requestedRole === "READONLY_AUDITOR"
-                                  ? "bg-slate-50 border-slate-900 ring-2 ring-slate-900/10 shadow-xs"
-                                  : "bg-white border-slate-200 hover:border-slate-300"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-900">Programme Auditor</span>
-                                {programmeData.requestedRole === "READONLY_AUDITOR" && (
-                                  <div className="w-4 h-4 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">
-                                    <Check className="w-3 h-3" />
-                                  </div>
-                                )}
-                              </div>
-                              <p className="text-[11px] text-slate-500 leading-relaxed">
-                                Audit access to regulatory compliance trails, inspection history, and export documentation logs.
                               </p>
                             </button>
                           </div>

@@ -368,7 +368,7 @@ export default function DashboardShell({
     if (
       pathname.startsWith('/admin') ||
       portal === 'admin' ||
-      ((currentUser?.role === 'AUTOHUB_ADMIN' || currentUser?.role === 'READONLY_AUDITOR') &&
+      (currentUser?.role === 'AUTOHUB_ADMIN' &&
         !pathname.startsWith('/dealer') &&
         !pathname.startsWith('/japan'))
     ) {

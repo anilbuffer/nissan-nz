@@ -19,35 +19,26 @@ interface RoleOption {
 
 const ROLES: RoleOption[] = [
   {
+    role: "DEALER_USER",
+    label: "Dealer Portal",
+    sublabel: "David Miller · Auckland Nissan",
+    badge: "DEALER",
+    badgeColor: "bg-red-50 text-[#C3002F] border-red-200",
+    icon: Car,
+    iconBg: "bg-red-50 text-[#C3002F]",
+  },
+  {
     role: "AUTOHUB_ADMIN",
-    label: "Platform Operations",
-    sublabel: "Sarah Jenkins · Central Controller",
+    label: "Admin Ops",
+    sublabel: "Sarah Jenkins · Central Operations",
     badge: "ADMIN",
     badgeColor: "bg-slate-100 text-slate-800 border-slate-200",
     icon: Shield,
     iconBg: "bg-slate-100 text-slate-800",
   },
   {
-    role: "DEALER_USER",
-    label: "Auckland Nissan",
-    sublabel: "David Miller · Sales Buyer",
-    badge: "BUYER",
-    badgeColor: "bg-red-50 text-[#C3002F] border-red-200",
-    icon: Car,
-    iconBg: "bg-red-50 text-[#C3002F]",
-  },
-  {
-    role: "DEALER_ADMIN",
-    label: "Bay of Plenty Nissan",
-    sublabel: "Marcus Vance · Dealer Principal",
-    badge: "DEALER PRINCIPAL",
-    badgeColor: "bg-red-50 text-[#C3002F] border-red-200",
-    icon: Car,
-    iconBg: "bg-red-50 text-[#C3002F]",
-  },
-  {
     role: "NISSAN_JAPAN",
-    label: "Nissan Japan HQ",
+    label: "Japan HQ",
     sublabel: "Kenji Sato · Export Marshalling",
     badge: "JAPAN HQ",
     badgeColor: "bg-slate-100 text-slate-700 border-slate-200",
@@ -56,21 +47,12 @@ const ROLES: RoleOption[] = [
   },
   {
     role: "READONLY_PROGRAMME_USER",
-    label: "Programme User",
-    sublabel: "Marcus Vance · NSC Oversight (Read-Only)",
+    label: "Programme",
+    sublabel: "Marcus Vance · NSC Governance",
     badge: "PROGRAMME",
     badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
     icon: Eye,
     iconBg: "bg-indigo-50 text-indigo-700",
-  },
-  {
-    role: "READONLY_AUDITOR",
-    label: "Regulatory Audit",
-    sublabel: "Elena Campbell · Customs/NZTA",
-    badge: "AUDITOR",
-    badgeColor: "bg-amber-50 text-amber-800 border-amber-200",
-    icon: Shield,
-    iconBg: "bg-amber-50 text-amber-800",
   },
 ];
 
@@ -103,9 +85,7 @@ export default function RoleSwitcher() {
     } else if (role === "NISSAN_JAPAN") {
       router.push("/japan/inventory");
     } else if (role === "READONLY_PROGRAMME_USER") {
-      router.push("/programme");
-    } else if (role === "READONLY_AUDITOR") {
-      router.push("/admin/audit");
+      router.push("/programme/stock");
     } else {
       router.push("/dealer/stocks");
     }

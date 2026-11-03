@@ -149,8 +149,7 @@ export default function GlobalSearchModal({
       router.push(`/japan/inventory/${vehicleId}`);
     } else if (
       pathname.startsWith("/admin") ||
-      currentUser?.role === "AUTOHUB_ADMIN" ||
-      currentUser?.role === "READONLY_AUDITOR"
+      currentUser?.role === "AUTOHUB_ADMIN"
     ) {
       router.push(`/admin/vehicles/${vehicleId}`);
     } else {

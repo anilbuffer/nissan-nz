@@ -117,37 +117,7 @@ export default function Sidebar({
       ];
     }
 
-    // 2. Regulatory Read-Only Auditor (READONLY_AUDITOR)
-    if (currentUser?.role === "READONLY_AUDITOR") {
-      return [
-        {
-          id: "admin-audit",
-          label: "Audit Ledger",
-          icon: FileText,
-          href: "/admin/audit",
-        },
-        {
-          id: "admin-catalogue",
-          label: "Vehicle Catalogue",
-          icon: Car,
-          href: "/admin/catalogue",
-        },
-        {
-          id: "admin-reservations",
-          label: "Reservations Queue",
-          icon: Clock,
-          href: "/admin/reservations",
-        },
-        {
-          id: "admin-roles",
-          label: "RBAC Matrix",
-          icon: Shield,
-          href: "/admin/roles",
-        },
-      ];
-    }
-
-    // 2b. Read-only Programme User (READONLY_PROGRAMME_USER)
+    // 2. Read-only Programme User (READONLY_PROGRAMME_USER)
     if (currentUser?.role === "READONLY_PROGRAMME_USER") {
       return [
         {
@@ -257,14 +227,6 @@ export default function Sidebar({
   const navItems = getNavItems();
 
   const getPanelInfo = () => {
-    if (currentUser?.role === "READONLY_AUDITOR") {
-      return {
-        section: "AUDIT PORTAL",
-        badge: "REGULATORY AUDITOR",
-        badgeColor: "bg-white/10 text-white border-white/20",
-        roleDesc: "Customs & NZTA Oversight (Read-Only)",
-      };
-    }
     if (currentUser?.role === "READONLY_PROGRAMME_USER") {
       return {
         section: "PROGRAMME PORTAL",

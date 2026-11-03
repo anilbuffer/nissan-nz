@@ -126,11 +126,19 @@ export function calculateLandedPrice(
   const programmeFeeNZD = cfg.programmeFeeNZD;
   const zoneDeliveryNZD = cfg.zoneDeliveryMatrix[zoneId] ?? zone.deliveryCostNZD;
 
-  // 3. NZ GST (15% on CIF = FOB + Freight + Customs processing)
+  // 3. Fixed Cost Profile Pricing (Sum of standard logistics, entry compliance & delivery)
+  const fixedCostProfileNZD =
+    oceanFreightNZD +
+    customsProcessingNZD +
+    complianceInspectionNZD +
+    zoneDeliveryNZD +
+    programmeFeeNZD;
+
+  // 4. NZ GST (15% on CIF = FOB + Freight + Customs processing)
   const taxableImportBase = fobNZD + oceanFreightNZD + customsProcessingNZD;
   const gstNZD = Math.round(taxableImportBase * (cfg.gstRate || 0.15));
 
-  // 4. Total Buy Price (Landed, Complied, and Delivered to Dealership)
+  // 5. Total Buy Price (Landed, Complied, and Delivered to Dealership)
   const totalBuyPriceNZD =
     fobNZD +
     oceanFreightNZD +
@@ -150,6 +158,7 @@ export function calculateLandedPrice(
     complianceInspectionNZD,
     zoneDeliveryNZD,
     programmeFeeNZD,
+    fixedCostProfileNZD,
     totalBuyPriceNZD,
     zoneId: zone.zoneId,
     zoneName: zone.zoneName,
