@@ -236,9 +236,6 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             <tr className="hover:bg-slate-50/50 transition-colors">
               <td className="py-3 px-4 sm:px-6">
                 <div className="font-medium text-slate-900">Customs Processing &amp; GST</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
-                  Includes base customs fee (${customsFee}) + 15% CIF GST
-                </div>
               </td>
               <td className="py-3 px-4">
                 <div className="relative">
@@ -334,7 +331,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             <tr className="hover:bg-slate-50/50 transition-colors">
               <td className="py-3 px-4 sm:px-6">
                 <div className="font-medium text-slate-900">Nissan Programme Component</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Configured central fee</div>
+
               </td>
               <td className="py-3 px-4">
                 <div className="relative">
@@ -364,9 +361,6 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                 <div className="font-bold text-slate-900 text-xs sm:text-sm">
                   Fixed Cost Profile Pricing
                 </div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
-                  Combined fixed tariffs: Freight (${oceanFreight.toLocaleString()}) + Customs (${customsFee.toLocaleString()}) + Compliance (${compliance.toLocaleString()}) + Tow (${zoneDelivery.toLocaleString()}) + Programme (${programmeFee.toLocaleString()})
-                </div>
               </td>
               <td className="py-3 px-4">
                 <span className="inline-block px-2.5 py-1 rounded bg-slate-200/80 text-slate-700 text-xs font-semibold font-mono">
@@ -378,25 +372,6 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
               </td>
             </tr>
 
-            {/* 8. Total Buy Price (Fixed Profile Price) */}
-            <tr className="bg-slate-100/80 border-t-2 border-slate-300">
-              <td className="py-3.5 px-4 sm:px-6">
-                <div className="font-bold text-slate-950 text-sm sm:text-base">
-                  Total Buy Price (Fixed Profile Price)
-                </div>
-                <div className="text-[11px] text-slate-400">
-                  Wholesale landed guarantee for {selectedZone.replace("_", " ")} ({OFFICIAL_PRICING_ZONES[selectedZone]?.coverage})
-                </div>
-              </td>
-              <td className="py-3.5 px-4">
-                <span className="inline-block px-2.5 py-1 rounded bg-slate-200/80 text-slate-700 text-xs font-semibold font-mono">
-                  System calculated
-                </span>
-              </td>
-              <td className="py-3.5 px-4 sm:px-6 text-right font-mono font-bold text-base sm:text-lg text-slate-950">
-                ${totalBuyPrice.toLocaleString()} NZD
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>

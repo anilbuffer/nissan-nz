@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Vehicle, LandedPriceBreakdown, ZoneId } from "@/lib/types";
+import { Vehicle, LandedPriceBreakdown, ZoneId, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { MOCK_VEHICLES } from "@/lib/mock-data";
@@ -110,6 +110,69 @@ export default function FullPageVehicleDetail({
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
   const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
+  const [viewingDocument, setViewingDocument] = useState<{ name: string; type: string; date: string; size?: string } | null>(null);
+  const [docDownloadToast, setDocDownloadToast] = useState<string | null>(null);
+
+  const handleDownloadDocument = (docName: string) => {
+    audio.playSubtleClick();
+    setDocDownloadToast(`Downloading official intake document: ${docName}`);
+    setTimeout(() => setDocDownloadToast(null), 3500);
+  };
+
+  // Supporting Documents attached during Add Vehicle intake
+  const supportingDocs: VehicleSupportingDoc[] = useMemo(() => {
+    const list: VehicleSupportingDoc[] = [];
+
+    if (vehicle.supportingDocuments && vehicle.supportingDocuments.length > 0) {
+      list.push(...vehicle.supportingDocuments);
+    }
+
+    if (vehicle.conditionReportName && !list.some((d) => d.name === vehicle.conditionReportName)) {
+      list.unshift({
+        name: vehicle.conditionReportName,
+        type: "CONDITION_REPORT",
+        url: vehicle.conditionReportUrl || "#",
+        size: "2.4 MB",
+        uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+      });
+    } else if (vehicle.conditionReportUrl && !list.some((d) => d.name.toLowerCase().includes("condition") || d.name.toLowerCase().includes("auction"))) {
+      list.unshift({
+        name: "USS_Tokyo_Inspection_Pass.pdf",
+        type: "AUCTION_SHEET",
+        url: vehicle.conditionReportUrl,
+        size: "2.4 MB",
+        uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+      });
+    }
+
+    if (list.length === 0) {
+      list.push(
+        {
+          name: "USS_Tokyo_Official_Auction_Sheet.pdf",
+          type: "AUCTION_SHEET",
+          url: "#",
+          size: "2.4 MB",
+          uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+        },
+        {
+          name: "JEVIC_Digital_Odometer_Certificate.pdf",
+          type: "JEVIC_CERTIFICATE",
+          url: "#",
+          size: "1.1 MB",
+          uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+        },
+        {
+          name: "NZTA_MR2A_Entry_Dossier.pdf",
+          type: "MR2A_DOSSIER",
+          url: "#",
+          size: "1.8 MB",
+          uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+        }
+      );
+    }
+
+    return list;
+  }, [vehicle]);
 
   // Admin Price Editing State
   const [isEditingPrice, setIsEditingPrice] = useState(false);

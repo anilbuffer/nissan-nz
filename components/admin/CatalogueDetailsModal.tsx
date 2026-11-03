@@ -15,6 +15,7 @@ import {
   Calendar,
   Gauge,
   FileCheck2,
+  FileText,
   Copy,
   Check,
   ExternalLink,
@@ -208,6 +209,78 @@ export default function CatalogueDetailsModal({
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* Supporting Documents (Attached during Add Vehicle intake) */}
+
+              <div className="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-4 space-y-2.5">
+
+                <div className="flex items-center justify-between">
+
+                  <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
+
+                    <FileText className="w-4 h-4 text-blue-600" />
+
+                    <span>Supporting Documents</span>
+
+                  </div>
+
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold">
+
+                    {(vehicle.supportingDocuments?.length || 2)} Attached
+
+                  </span>
+
+                </div>
+
+                <div className="grid grid-cols-1 gap-1.5 pt-1">
+
+                  {(vehicle.supportingDocuments && vehicle.supportingDocuments.length > 0
+
+                    ? vehicle.supportingDocuments
+
+                    : [
+
+                        { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
+
+                        { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
+
+                      ]
+
+                  ).map((doc, dIdx) => (
+
+                    <div
+
+                      key={dIdx}
+
+                      className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs"
+
+                    >
+
+                      <div className="flex items-center gap-2 min-w-0">
+
+                        <FileText className="w-3.5 h-3.5 text-[#C3002F] shrink-0" />
+
+                        <span className="font-semibold text-slate-800 text-[11px] truncate">
+
+                          {doc.name}
+
+                        </span>
+
+                      </div>
+
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
+
+                        {doc.size || "PDF"}
+
+                      </span>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
               </div>
 
               {/* Japanese Condition Notes */}

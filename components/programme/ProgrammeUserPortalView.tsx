@@ -876,6 +876,76 @@ export default function ProgrammeUserPortalView({
               </div>
             </div>
 
+            {/* Supporting Documents (Attached during Add Vehicle intake) */}
+
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+
+              <div className="flex items-center justify-between">
+
+                <span className="font-bold text-slate-800">Supporting Documents (Intake Archive):</span>
+
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold">
+
+                  {(selectedVehicleForDossier.supportingDocuments?.length || 2)} Files
+
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+
+                {(selectedVehicleForDossier.supportingDocuments && selectedVehicleForDossier.supportingDocuments.length > 0
+
+                  ? selectedVehicleForDossier.supportingDocuments
+
+                  : [
+
+                      { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
+
+                      { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
+
+                    ]
+
+                ).map((doc, dIdx) => (
+
+                  <div
+
+                    key={dIdx}
+
+                    className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs"
+
+                  >
+
+                    <div className="min-w-0">
+
+                      <span className="font-bold text-slate-800 text-[11px] truncate block">
+
+                        {doc.name}
+
+                      </span>
+
+                      <span className="text-[10px] text-blue-700 font-mono">
+
+                        {doc.type.replace(/_/g, " ")}
+
+                      </span>
+
+                    </div>
+
+                    <span className="text-[10px] text-slate-400 font-mono shrink-0">
+
+                      {doc.size || "PDF"}
+
+                    </span>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
             {/* Condition remarks if available */}
             {selectedVehicleForDossier.conditionSummary && (
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">

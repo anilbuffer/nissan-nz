@@ -6,20 +6,15 @@ import { audio } from "@/lib/sound";
 import DealerDetailsModal from "./DealerDetailsModal";
 import ReservationDetailsModal from "./ReservationDetailsModal";
 import { ReservationRequest, DealerAccount, ZoneId, UserAccount, Vehicle } from "@/lib/types";
-import { MOCK_VEHICLES } from "@/lib/mock-data";
 import {
   Building2,
+  Clock,
   Lock,
-  Unlock,
   CheckCircle2,
   ArrowRight,
-  Clock,
-  Eye,
-  Check,
   X,
   AlertTriangle,
   UserCheck,
-  Users,
 } from "lucide-react";
 
 interface AdminDashboardViewProps {
@@ -49,13 +44,13 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   const [declineTargetDealer, setDeclineTargetDealer] = useState<DealerAccount | null>(null);
   const [declineReason, setDeclineReason] = useState("");
 
-  // 1. Dealer Onboarding Approval Requests (Franchise Dealers from /register)
+  // 1. Pending Dealer Onboarding Requests from /register
   const pendingDealers = useMemo(
     () => dealers.filter((d) => d.status === "PENDING_APPROVAL" && !d.termsAcceptedVersion?.includes("JP-EXPORT")),
     [dealers]
   );
 
-  // 2. Onboarding Approval Requests (User & Facility Accounts from /register)
+  // 2. Pending User & Facility Accounts from /register
   const pendingUsers = useMemo(
     () => users.filter((u) => !u.active),
     [users]
@@ -66,13 +61,13 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   );
   const totalOnboardingRequests = pendingUsers.length + pendingFacilities.length;
 
-  // 3. Atomic Reservation Queue Requests (Active 24h exclusivity holds)
+  // 3. Active 24h exclusivity holds (Request Detail 1 as shown in attached image)
   const activeHolds = useMemo(
     () => reservations.filter((r) => r.status === "ACTIVE_HOLD"),
     [reservations]
   );
 
-  // 4. Reserved Requests (Vehicles with status RESERVED)
+  // 4. Reserved vehicles (Request Detail 2 as shown in attached image)
   const reservedVehicles = useMemo(
     () => vehicles.filter((v) => v.status === "RESERVED"),
     [vehicles]
@@ -118,7 +113,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   const handleConfirmReservation = (vehicleId: string) => {
     audio.playSuccessChime();
     confirmAllocation(vehicleId, "Confirmed directly from Operations Dashboard.");
-    setNotification(`Wholesale order confirmed and dispatched to shipping pipeline.`);
+    setNotification("Wholesale order confirmed and dispatched to shipping pipeline.");
     setTimeout(() => setNotification(null), 4000);
   };
 
@@ -126,12 +121,15 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   const handleReleaseReservation = (vehicleId: string) => {
     audio.playSubtleClick();
     releaseHold(vehicleId, "Hold released from Operations Dashboard.");
-    setNotification(`Exclusivity hold released. Vehicle returned to catalogue.`);
+    setNotification("Exclusivity hold released. Vehicle returned to catalogue.");
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const card1Total = pendingDealers.length + activeHolds.length;
+  const card2Total = totalOnboardingRequests + reservedVehicles.length;
+
   return (
-    <div className="space-y-5 max-w-7xl mx-auto animate-in fade-in duration-200 font-sans text-slate-800 pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans text-slate-800 pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -148,20 +146,12 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
         {/* Live Counters */}
         <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
           <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
-            <Building2 className="w-3.5 h-3.5 text-slate-600" />
-            <span>{pendingDealers.length} Dealer Onboarding</span>
-          </div>
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
-            <UserCheck className="w-3.5 h-3.5 text-slate-600" />
-            <span>{totalOnboardingRequests} Onboarding</span>
-          </div>
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
             <Clock className="w-3.5 h-3.5 text-slate-600" />
-            <span>{activeHolds.length} Reservation Queue</span>
+            <span>{card1Total} Dealer Onboarding Approval Requests</span>
           </div>
           <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
             <Lock className="w-3.5 h-3.5 text-slate-600" />
-            <span>{reservedVehicles.length} Reserved</span>
+            <span>{card2Total} Onboarding Approval Requests</span>
           </div>
         </div>
       </div>
@@ -185,72 +175,65 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Card 1: Dealer Onboarding Approval Requests              */}
+      {/* (Matches exact layout & request details in attached image)  */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-slate-700" />
+            <Clock className="w-4 h-4 text-slate-800" />
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               Dealer Onboarding Approval Requests
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
-              {pendingDealers.length}
+              {card1Total}
             </span>
           </div>
 
           <button
             type="button"
-            onClick={() => onNavigateTab("admin-dealers")}
+            onClick={() => onNavigateTab("admin-reservations")}
             className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
           >
-            <span>Manage Franchisees</span>
+            <span>Manage All Holds</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {pendingDealers.length === 0 ? (
+        {card1Total === 0 ? (
           <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No pending franchise dealer applications. New submissions from /register will appear here.</span>
+            <span>No pending dealer onboarding or reservation queue requests.</span>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
+            {/* A. Pending Franchise Dealer Registrations from /register */}
             {pendingDealers.map((dealer) => {
               const defaultZone = dealer.pricingZoneId || "ZONE_1";
-
               return (
                 <div
                   key={dealer.id}
                   className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
-                      <Building2 className="w-4 h-4" />
+                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-slate-700">
+                      <Building2 className="w-5 h-5 text-slate-600" />
                     </div>
                     <div className="min-w-0">
                       <div className="text-sm font-bold text-slate-900 truncate">
                         {dealer.legalTradingName}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0 font-mono">
                           #{dealer.dealerCode}
                         </span>
                         <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] text-slate-500 hidden sm:inline truncate">
+                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate font-semibold">
                           {dealer.region}
                         </span>
                         <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">
-                          NZBN: {dealer.nzbn}
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded border shrink-0 bg-blue-50 text-blue-700 border-blue-200 font-mono">
+                          Franchise Application
                         </span>
-                        {dealer.primaryContactName && (
-                          <>
-                            <span className="text-slate-300 hidden md:inline">·</span>
-                            <span className="text-[10px] text-slate-500 hidden md:inline">
-                              Contact: {dealer.primaryContactName} ({dealer.primaryContactEmail})
-                            </span>
-                          </>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -266,7 +249,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     >
                       Review
                     </button>
-
                     <button
                       type="button"
                       onClick={() => {
@@ -278,7 +260,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     >
                       Decline
                     </button>
-
                     <button
                       type="button"
                       onClick={() => handleApprove(dealer.id, defaultZone)}
@@ -290,46 +271,121 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 </div>
               );
             })}
+
+            {/* B. Request Details (Matching Attached Image: 2022 Nissan Kicks & 2021 Nissan X-Trail) */}
+            {activeHolds.map((res) => {
+              const vehicle = vehicles.find((v) => v.id === res.vehicleId || v.id === res.vehicle?.id) || res.vehicle;
+
+              return (
+                <div
+                  key={res.id}
+                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+                      <img
+                        src={vehicle?.images?.[0] || "/images/cars/note.png"}
+                        alt={vehicle?.model || "Vehicle"}
+                        className="w-full h-full object-contain select-none"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-900 truncate">
+                        {vehicle?.year} {vehicle?.make} {vehicle?.model}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0 font-mono">
+                          #{vehicle?.stockId}
+                        </span>
+                        <span className="text-slate-300 hidden sm:inline">·</span>
+                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate font-semibold">
+                          {res.dealerName}
+                        </span>
+                        <span className="text-slate-300 hidden md:inline">·</span>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded border shrink-0 flex items-center gap-1 bg-rose-50 text-[#C3002F] border-rose-200">
+                          <Clock className="w-3 h-3 text-[#C3002F] animate-pulse" />
+                          <span>Expiring soon</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSelectedResForDetails(res);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                    >
+                      Inspect
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleReleaseReservation(vehicle?.id || res.vehicleId)}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Release
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmReservation(vehicle?.id || res.vehicleId)}
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                    >
+                      Confirm Order
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Card 2: Onboarding Approval Requests                     */}
+      {/* (Matches exact layout & request details in attached image)  */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-slate-700" />
+            <Lock className="w-4 h-4 text-slate-800" />
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               Onboarding Approval Requests
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
-              {totalOnboardingRequests}
+              {card2Total}
             </span>
           </div>
 
-          <span className="text-xs text-slate-400 font-medium">
-            Staff &amp; Facility Registrations from /register
-          </span>
+          <button
+            type="button"
+            onClick={() => onNavigateTab("admin-catalogue")}
+            className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            <span>View Catalogue</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {totalOnboardingRequests === 0 ? (
+        {card2Total === 0 ? (
           <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No pending user or personnel onboarding requests. Submissions from /register will appear here.</span>
+            <span>No pending personnel or reserved requests.</span>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {/* Programme & Staff Users pending approval */}
+            {/* A. Pending User/Personnel Registrations from /register */}
             {pendingUsers.map((u) => (
               <div
                 key={u.id}
                 className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shrink-0">
-                    <UserCheck className="w-4 h-4" />
+                  <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-blue-50 border border-blue-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-blue-700">
+                    <UserCheck className="w-5 h-5 text-blue-700" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-sm font-bold text-slate-900 truncate">
@@ -340,7 +396,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                         {u.role.replace(/_/g, " ")}
                       </span>
                       <span className="text-slate-300 hidden sm:inline">·</span>
-                      <span className="text-[10px] text-slate-500 hidden sm:inline truncate">
+                      <span className="text-[10px] text-slate-500 hidden sm:inline truncate font-mono">
                         {u.email}
                       </span>
                       {u.dealershipName && (
@@ -348,14 +404,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                           <span className="text-slate-300 hidden sm:inline">·</span>
                           <span className="text-[10px] text-slate-600 font-medium hidden sm:inline truncate">
                             {u.dealershipName}
-                          </span>
-                        </>
-                      )}
-                      {u.phone && (
-                        <>
-                          <span className="text-slate-300 hidden md:inline">·</span>
-                          <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
-                            {u.phone}
                           </span>
                         </>
                       )}
@@ -392,220 +440,9 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
               </div>
             ))}
 
-            {/* Japan HQ Facilities pending approval */}
-            {pendingFacilities.map((fac) => (
-              <div
-                key={fac.id}
-                className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 shrink-0">
-                    <Building2 className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-bold text-slate-900 truncate">
-                      {fac.legalTradingName} (Japan Export Facility)
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
-                        #{fac.dealerCode}
-                      </span>
-                      <span className="text-slate-300 hidden sm:inline">·</span>
-                      <span className="text-[10px] text-slate-500 hidden sm:inline truncate">
-                        {fac.region}
-                      </span>
-                      <span className="text-slate-300 hidden md:inline">·</span>
-                      <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
-                        Contact: {fac.primaryContactName} ({fac.primaryContactEmail})
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      setSelectedDealerForDetails(fac);
-                    }}
-                    className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
-                  >
-                    Review
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      rejectDealer(fac.id, "Facility application declined.");
-                      setNotification(`Facility application for ${fac.legalTradingName} declined.`);
-                    }}
-                    className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Decline
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApprove(fac.id, "ZONE_1")}
-                    className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
-                  >
-                    Authorize
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Card 3: Atomic Reservation Queue Requests                */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-slate-800" />
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-              Atomic Reservation Queue Requests
-            </h2>
-            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
-              {activeHolds.length}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onNavigateTab("admin-reservations")}
-            className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <span>Manage All Holds</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {activeHolds.length === 0 ? (
-          <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No active 24h exclusivity holds in queue. All catalogue stock is available.</span>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {activeHolds.map((res) => {
-              const vehicle = vehicles.find((v) => v.id === res.vehicleId || v.id === res.vehicle?.id) || res.vehicle;
-              const diffMs = new Date(res.expiresAt).getTime() - Date.now();
-              const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
-              const minutesLeft = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
-              const isUrgent = hoursLeft < 4;
-
-              return (
-                <div
-                  key={res.id}
-                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
-                      <img
-                        src={vehicle?.images?.[0] || "/images/cars/note.png"}
-                        alt={vehicle?.model || "Vehicle"}
-                        className="w-full h-full object-contain select-none"
-                      />
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">
-                        {vehicle?.year} {vehicle?.make} {vehicle?.model}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
-                          #{vehicle?.stockId}
-                        </span>
-                        <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate font-semibold">
-                          {res.dealerName}
-                        </span>
-                        <span className="text-slate-300 hidden md:inline">·</span>
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded border shrink-0 flex items-center gap-1 ${isUrgent
-                          ? "bg-rose-50 text-[#C3002F] border-rose-200"
-                          : "bg-slate-100 text-slate-700 border-slate-200"
-                          }`}>
-                          <Clock className={`w-3 h-3 ${isUrgent ? "text-[#C3002F] animate-pulse" : "text-slate-500"}`} />
-                          <span>{hoursLeft > 0 ? `${hoursLeft}h ${minutesLeft}m left` : "Expiring soon"}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        audio.playSubtleClick();
-                        setSelectedResForDetails(res);
-                      }}
-                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
-                    >
-                      Inspect
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleReleaseReservation(vehicle?.id || res.vehicleId)}
-                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                    >
-                      Release
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleConfirmReservation(vehicle?.id || res.vehicleId)}
-                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
-                    >
-                      Confirm Order
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 4. Card 4: Reserved Requests                                */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-slate-800" />
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-              Reserved Requests
-            </h2>
-            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
-              {reservedVehicles.length}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onNavigateTab("admin-catalogue")}
-            className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <span>View Catalogue</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {reservedVehicles.length === 0 ? (
-          <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No vehicles currently reserved. All catalogue stock is available for franchise allocation.</span>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-100">
+            {/* B. Request Details (Matching Attached Image: 2021 Nissan X-Trail & 2022 Nissan Kicks) */}
             {reservedVehicles.map((vehicle) => {
-              const matchingRes = reservations.find(
-                (r) => r.vehicleId === vehicle.id
-              );
+              const matchingRes = reservations.find((r) => r.vehicleId === vehicle.id);
               const dealerName = matchingRes?.dealerName || "Auckland Nissan City Ltd";
 
               return (
@@ -627,11 +464,11 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0 font-mono">
                           #{vehicle.stockId}
                         </span>
                         <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate">
+                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate font-semibold">
                           {dealerName}
                         </span>
                         <span className="text-slate-300 hidden md:inline">·</span>
@@ -657,7 +494,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     >
                       Inspect
                     </button>
-
                     <button
                       type="button"
                       onClick={() => handleReleaseReservation(vehicle.id)}
@@ -665,7 +501,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     >
                       Release
                     </button>
-
                     <button
                       type="button"
                       onClick={() => handleConfirmReservation(vehicle.id)}
@@ -682,7 +517,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. Decline Dealership Application Reason Note Modal         */}
+      {/* 3. Decline Dealership Application Reason Note Modal         */}
       {/* ─────────────────────────────────────────────────────────── */}
       {declineTargetDealer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
@@ -725,7 +560,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 resize-none font-sans"
               />
 
-              {/* Quick preset chips */}
               <div className="flex items-center gap-1.5 flex-wrap pt-1">
                 <span className="text-xs text-slate-400 font-medium">Quick Presets:</span>
                 {[
@@ -771,7 +605,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 6. User Onboarding Details Dossier Modal                    */}
+      {/* 4. User Onboarding Details Dossier Modal                    */}
       {/* ─────────────────────────────────────────────────────────── */}
       {selectedUserForDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
@@ -822,12 +656,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                   <span className="text-slate-900 font-semibold">{selectedUserForDetails.dealershipName}</span>
                 </div>
               )}
-              {selectedUserForDetails.department && (
-                <div className="flex justify-between py-1">
-                  <span className="text-slate-500 font-medium">Department:</span>
-                  <span className="text-slate-900">{selectedUserForDetails.department}</span>
-                </div>
-              )}
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -849,14 +677,16 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 }}
                 className="px-4 py-2 rounded-lg bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs sm:text-sm font-semibold cursor-pointer transition-all shadow-xs"
               >
-                Authorize &amp; Activate
+                Authorize & Activate
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Dealer Details Dossier Modal */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 5. Dealer Details Dossier Modal                             */}
+      {/* ─────────────────────────────────────────────────────────── */}
       {selectedDealerForDetails && (
         <DealerDetailsModal
           dealer={selectedDealerForDetails}
@@ -873,7 +703,9 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
         />
       )}
 
-      {/* Reservation Details Dossier Modal */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 6. Reservation Details Dossier Modal                        */}
+      {/* ─────────────────────────────────────────────────────────── */}
       {selectedResForDetails && (
         <ReservationDetailsModal
           reservation={selectedResForDetails}
