@@ -22,7 +22,6 @@ import {
   Building2,
   Lock,
   ArrowRight,
-  Eye,
   X,
   Sparkles,
   ExternalLink,
@@ -111,9 +110,6 @@ export default function AuditExportView() {
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [dateRangeFilter, setDateRangeFilter] = useState<"ALL" | "24H" | "7D" | "30D">("ALL");
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
-
-  // Diff inspection modal
-  const [inspectedEvent, setInspectedEvent] = useState<AuditEvent | null>(null);
 
   // Filtered audit events
   const filteredLogs = useMemo(() => {
@@ -578,13 +574,12 @@ export default function AuditExportView() {
                     <th className="py-3 px-3 text-slate-200">Category</th>
                     <th className="py-3 px-3 text-slate-200">Object Ref</th>
                     <th className="py-3 px-4 text-slate-200">Details &amp; Audit Trail Remarks</th>
-                    <th className="py-3 px-3 text-right text-slate-200">State Diff</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-10 text-center text-slate-400 text-xs">
+                      <td colSpan={6} className="py-10 text-center text-slate-400 text-xs">
                         No audit records matched your search or category filter.
                       </td>
                     </tr>
@@ -626,24 +621,6 @@ export default function AuditExportView() {
 
                         <td className="py-3 px-4 text-slate-600 max-w-sm text-[11px] leading-relaxed">
                           {log.details}
-                        </td>
-
-                        <td className="py-3 px-3 text-right">
-                          {log.beforeValue || log.afterValue ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                audio.playSubtleClick();
-                                setInspectedEvent(log);
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-bold font-mono transition-colors cursor-pointer inline-flex items-center gap-1"
-                            >
-                              <Eye className="w-3 h-3 text-slate-500" />
-                              <span>Diff</span>
-                            </button>
-                          ) : (
-                            <span className="text-slate-300 font-mono text-xs">—</span>
-                          )}
                         </td>
                       </tr>
                     ))
@@ -688,7 +665,7 @@ export default function AuditExportView() {
                   Cryptographically timestamped ledger of dealer onboarding, pricing profile calculations, atomic exclusivity holds, and milestone updates.
                 </p>
                 <div className="text-[10px] font-mono text-slate-400 pt-1">
-                  Schema: ID, Timestamp, Actor, Role, Action, Category, Object, Details, State Diff
+                  Schema: ID, Timestamp, Actor, Role, Action, Category, Object, Details
                 </div>
               </div>
 
@@ -947,73 +924,6 @@ export default function AuditExportView() {
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 6. MODAL: State Diff Inspector                              */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {inspectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    State Diff Inspector: {inspectedEvent.action}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 font-mono">
-                    Event Ref: {inspectedEvent.id} · {inspectedEvent.objectId}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setInspectedEvent(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
-              <strong>Audit Remark:</strong> {inspectedEvent.details}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">
-                  State Before Mutation
-                </span>
-                <pre className="p-3 rounded-xl bg-rose-50/50 border border-rose-200 text-rose-900 text-[11px] overflow-x-auto max-h-60">
-                  {JSON.stringify(inspectedEvent.beforeValue || "No prior record", null, 2)}
-                </pre>
-              </div>
-
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">
-                  State After Mutation
-                </span>
-                <pre className="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200 text-emerald-900 text-[11px] overflow-x-auto max-h-60">
-                  {JSON.stringify(inspectedEvent.afterValue || "No after record", null, 2)}
-                </pre>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
-              <span className="text-slate-400 font-mono">
-                Actor: {inspectedEvent.actorName} ({inspectedEvent.actorRole})
-              </span>
-              <button
-                type="button"
-                onClick={() => setInspectedEvent(null)}
-                className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-slate-800 text-white font-semibold cursor-pointer shadow-xs"
-              >
-                Close Inspector
-              </button>
-            </div>
           </div>
-        </div>
-      )}
-    </div>
   );
 }

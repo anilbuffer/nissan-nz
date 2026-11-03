@@ -118,7 +118,7 @@ export default function AddVehicleAdditionalCostModal({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-lg bg-white rounded-[16px] border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-xl bg-white rounded-[16px] border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A] shrink-0">
           <div className="flex items-center gap-3">
@@ -166,8 +166,8 @@ export default function AddVehicleAdditionalCostModal({
                     type="button"
                     onClick={() => handleSelectType(type.key)}
                     className={`w-full p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${isSelected
-                        ? "bg-slate-50 border-slate-900 ring-2 ring-slate-900/10 shadow-2xs"
-                        : "bg-white border-slate-200 hover:border-slate-300"
+                      ? "bg-slate-50 border-slate-900 ring-2 ring-slate-900/10 shadow-2xs"
+                      : "bg-white border-slate-200 hover:border-slate-300"
                       }`}
                   >
                     <div className="min-w-0 flex-1">

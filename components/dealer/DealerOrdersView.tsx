@@ -91,7 +91,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
     }
   }, [mode]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [viewingDocument, setViewingDocument] = useState<{ name: string; type: string; date: string } | null>(null);
   const [viewingDefectPhoto, setViewingDefectPhoto] = useState<boolean>(false);
@@ -130,21 +129,14 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   // Filtered orders list by search query and milestone
   const filteredOrders = dealerOrders.filter((order) => {
     const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
+    return (
       !q ||
       order.orderNumber.toLowerCase().includes(q) ||
       order.vehicle.vinChassis.toLowerCase().includes(q) ||
       order.vehicle.stockId.toLowerCase().includes(q) ||
       order.vehicle.model.toLowerCase().includes(q) ||
-      (order.vesselName && order.vesselName.toLowerCase().includes(q));
-
-    const matchesStatus =
-      statusFilter === "ALL" ||
-      (statusFilter === "IN_TRANSIT" && (order.currentMilestone === "IN_TRANSIT" || order.currentMilestone === "BOOKED_FOR_SHIPPING")) ||
-      (statusFilter === "BORDER" && (order.currentMilestone === "NZ_BORDER_PROCESSING" || order.currentMilestone === "COMPLIANCE" || order.currentMilestone === "AWAITING_ADDITIONAL_COST")) ||
-      (statusFilter === "READY" && (order.currentMilestone === "READY_FOR_DELIVERY" || order.currentMilestone === "DELIVERED"));
-
-    return matchesSearch && matchesStatus;
+      (order.vesselName && order.vesselName.toLowerCase().includes(q))
+    );
   });
 
   // KPI Calculations
@@ -1107,30 +1099,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                     )}
                   </div>
 
-                  {/* Status Filter Chips */}
-                  <div className="hidden sm:flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200/80">
-                    {[
-                      { id: "ALL", label: "All Milestones" },
-                      { id: "IN_TRANSIT", label: "On Vessel" },
-                      { id: "BORDER", label: "NZ Compliance" },
-                      { id: "READY", label: "Ready / Yard" },
-                    ].map((chip) => (
-                      <button
-                        key={chip.id}
-                        type="button"
-                        onClick={() => {
-                          audio.playSubtleClick();
-                          setStatusFilter(chip.id);
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${statusFilter === chip.id
-                          ? "bg-white text-slate-900 shadow-2xs"
-                          : "text-slate-500 hover:text-slate-800"
-                          }`}
-                      >
-                        {chip.label}
-                      </button>
-                    ))}
-                  </div>
+                  
                 </div>
 
                 <div className="text-xs text-slate-500 font-mono shrink-0">
