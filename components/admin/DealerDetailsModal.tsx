@@ -319,7 +319,7 @@ export default function DealerDetailsModal({
                     className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4 text-white" />
-                    <span>Authorize Franchise</span>
+                    <span>Approve Franchise</span>
                   </button>
                 )}
               </>

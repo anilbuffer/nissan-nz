@@ -210,17 +210,9 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                       <div className="text-sm font-bold text-slate-900 truncate">
                         {dealer.legalTradingName}
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0 font-mono">
-                          #{dealer.dealerCode}
-                        </span>
-                        <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate font-semibold">
-                          {dealer.region}
-                        </span>
-                        <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded border shrink-0 bg-blue-50 text-blue-700 border-blue-200 font-mono">
-                          Franchise Application
+                      <div className="mt-0.5">
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-dark-50 text-dark-700 border border-blue-200 inline-block font-mono">
+                          Franchise Dealership
                         </span>
                       </div>
                     </div>
@@ -253,7 +245,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                       onClick={() => handleApprove(dealer.id, defaultZone)}
                       className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
                     >
-                      Authorize
+                      Approve
                     </button>
                   </div>
                 </div>
@@ -267,29 +259,17 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-blue-50 border border-blue-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-blue-700">
-                    <UserCheck className="w-5 h-5 text-blue-700" />
+                  <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-slate-700">
+                    <UserCheck className="w-5 h-5 text-slate-600" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-sm font-bold text-slate-900 truncate">
                       {u.name}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+                    <div className="mt-0.5">
+                      <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-dark-50 text-dark-700 border border-blue-200 inline-block font-mono">
                         {u.role.replace(/_/g, " ")}
                       </span>
-                      <span className="text-slate-300 hidden sm:inline">·</span>
-                      <span className="text-[10px] text-slate-500 hidden sm:inline truncate font-mono">
-                        {u.email}
-                      </span>
-                      {u.dealershipName && (
-                        <>
-                          <span className="text-slate-300 hidden sm:inline">·</span>
-                          <span className="text-[10px] text-slate-600 font-medium hidden sm:inline truncate">
-                            {u.dealershipName}
-                          </span>
-                        </>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -317,7 +297,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                     onClick={() => handleApproveUser(u.id, u.name)}
                     className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
                   >
-                    Authorize
+                    Approve
                   </button>
                 </div>
               </div>
