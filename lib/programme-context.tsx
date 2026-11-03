@@ -181,11 +181,19 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             setVehicles(MOCK_VEHICLES);
           }
           if (parsed.orders) setOrders(parsed.orders);
-          if (parsed.dealers) setDealers(parsed.dealers.map((d: DealerAccount) => d.id === "DEALER_006" && d.status === "PENDING_APPROVAL" ? { ...d, status: "APPROVED" as const } : d));
+          if (parsed.dealers) {
+            const merged = [...parsed.dealers.map((d: DealerAccount) => d.id === "DEALER_006" && d.status === "PENDING_APPROVAL" ? { ...d, status: "APPROVED" as const } : d)];
+            MOCK_DEALERS.forEach((md) => { if (!merged.some((d) => d.id === md.id)) merged.push(md); });
+            setDealers(merged);
+          }
           if (parsed.auditLogs) setAuditLogs(parsed.auditLogs);
           if (parsed.reservationConfig) setReservationConfig({ ...DEFAULT_RESERVATION_CONFIG, ...parsed.reservationConfig });
           if (parsed.notifications && Array.isArray(parsed.notifications)) setNotifications(parsed.notifications);
           if (parsed.users && Array.isArray(parsed.users) && parsed.users.length > 0) {
+            const mergedU = [...parsed.users];
+            MOCK_USERS.forEach((mu) => { if (!mergedU.some((u) => u.id === mu.id)) mergedU.push(mu); });
+            setUsers(mergedU);
+          } else if (false) {
             setUsers(parsed.users);
           }
           if (parsed.reservations && Array.isArray(parsed.reservations) && parsed.reservations.length > 0) {

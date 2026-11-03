@@ -125,8 +125,8 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const card1Total = pendingDealers.length + activeHolds.length;
-  const card2Total = totalOnboardingRequests + reservedVehicles.length;
+  const dealerOnboardingCount = pendingDealers.length + pendingUsers.length;
+  const reservationQueueCount = activeHolds.length;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans text-slate-800 pb-12">
@@ -141,18 +141,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
           <p className="text-xs text-slate-500 mt-0.5">
             Priority queues for franchise dealer onboarding approvals, staff registrations, and 24h exclusivity holds.
           </p>
-        </div>
-
-        {/* Live Counters */}
-        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-slate-600" />
-            <span>{card1Total} Dealer Onboarding Approval Requests</span>
-          </div>
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
-            <Lock className="w-3.5 h-3.5 text-slate-600" />
-            <span>{card2Total} Onboarding Approval Requests</span>
-          </div>
         </div>
       </div>
 
@@ -174,8 +162,8 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
+      {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Card 1: Dealer Onboarding Approval Requests              */}
-      {/* (Matches exact layout & request details in attached image)  */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -185,24 +173,24 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
               Dealer Onboarding Approval Requests
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
-              {card1Total}
+              {dealerOnboardingCount}
             </span>
           </div>
 
           <button
             type="button"
-            onClick={() => onNavigateTab("admin-reservations")}
+            onClick={() => onNavigateTab("admin-dealers")}
             className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
           >
-            <span>Manage All Holds</span>
+            <span>Manage All Dealers</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {card1Total === 0 ? (
+        {dealerOnboardingCount === 0 ? (
           <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No pending dealer onboarding or reservation queue requests.</span>
+            <span>No pending dealer onboarding approval requests.</span>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
@@ -272,7 +260,104 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
               );
             })}
 
-            {/* B. Request Details (Matching Attached Image: 2022 Nissan Kicks & 2021 Nissan X-Trail) */}
+            {/* B. Pending Personnel / Staff Registrations from /register */}
+            {pendingUsers.map((u) => (
+              <div
+                key={u.id}
+                className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-blue-50 border border-blue-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-blue-700">
+                    <UserCheck className="w-5 h-5 text-blue-700" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-slate-900 truncate">
+                      {u.name}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+                        {u.role.replace(/_/g, " ")}
+                      </span>
+                      <span className="text-slate-300 hidden sm:inline">·</span>
+                      <span className="text-[10px] text-slate-500 hidden sm:inline truncate font-mono">
+                        {u.email}
+                      </span>
+                      {u.dealershipName && (
+                        <>
+                          <span className="text-slate-300 hidden sm:inline">·</span>
+                          <span className="text-[10px] text-slate-600 font-medium hidden sm:inline truncate">
+                            {u.dealershipName}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setSelectedUserForDetails(u);
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                  >
+                    Review
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeclineUser(u.id, u.name)}
+                    className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Decline
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApproveUser(u.id, u.name)}
+                    className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                  >
+                    Authorize
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 2. Card 2: Atomic Reservation Queue Requests                */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-slate-800" />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              Atomic Reservation Queue Requests
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
+              {reservationQueueCount}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onNavigateTab("admin-reservations")}
+            className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            <span>Manage All Holds</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {reservationQueueCount === 0 ? (
+          <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>No active reservation holds in queue.</span>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
             {activeHolds.map((res) => {
               const vehicle = vehicles.find((v) => v.id === res.vehicleId || v.id === res.vehicle?.id) || res.vehicle;
 
@@ -344,179 +429,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
         )}
       </div>
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Card 2: Onboarding Approval Requests                     */}
-      {/* (Matches exact layout & request details in attached image)  */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-slate-800" />
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-              Onboarding Approval Requests
-            </h2>
-            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
-              {card2Total}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onNavigateTab("admin-catalogue")}
-            className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <span>View Catalogue</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {card2Total === 0 ? (
-          <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No pending personnel or reserved requests.</span>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {/* A. Pending User/Personnel Registrations from /register */}
-            {pendingUsers.map((u) => (
-              <div
-                key={u.id}
-                className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-blue-50 border border-blue-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-blue-700">
-                    <UserCheck className="w-5 h-5 text-blue-700" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-bold text-slate-900 truncate">
-                      {u.name}
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
-                        {u.role.replace(/_/g, " ")}
-                      </span>
-                      <span className="text-slate-300 hidden sm:inline">·</span>
-                      <span className="text-[10px] text-slate-500 hidden sm:inline truncate font-mono">
-                        {u.email}
-                      </span>
-                      {u.dealershipName && (
-                        <>
-                          <span className="text-slate-300 hidden sm:inline">·</span>
-                          <span className="text-[10px] text-slate-600 font-medium hidden sm:inline truncate">
-                            {u.dealershipName}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      setSelectedUserForDetails(u);
-                    }}
-                    className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
-                  >
-                    Review
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeclineUser(u.id, u.name)}
-                    className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Decline
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApproveUser(u.id, u.name)}
-                    className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
-                  >
-                    Authorize
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {/* B. Request Details (Matching Attached Image: 2021 Nissan X-Trail & 2022 Nissan Kicks) */}
-            {reservedVehicles.map((vehicle) => {
-              const matchingRes = reservations.find((r) => r.vehicleId === vehicle.id);
-              const dealerName = matchingRes?.dealerName || "Auckland Nissan City Ltd";
-
-              return (
-                <div
-                  key={vehicle.id}
-                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
-                      <img
-                        src={vehicle.images?.[0] || "/images/cars/note.png"}
-                        alt={vehicle.model || "Vehicle"}
-                        className="w-full h-full object-contain select-none"
-                      />
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0 font-mono">
-                          #{vehicle.stockId}
-                        </span>
-                        <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate font-semibold">
-                          {dealerName}
-                        </span>
-                        <span className="text-slate-300 hidden md:inline">·</span>
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0 font-mono">
-                          ¥{vehicle.fobPriceJPY.toLocaleString()} FOB
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        audio.playSubtleClick();
-                        if (matchingRes) {
-                          setSelectedResForDetails(matchingRes);
-                        } else {
-                          onNavigateTab("admin-catalogue");
-                        }
-                      }}
-                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
-                    >
-                      Inspect
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleReleaseReservation(vehicle.id)}
-                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                    >
-                      Release
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleConfirmReservation(vehicle.id)}
-                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
-                    >
-                      Confirm Order
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. Decline Dealership Application Reason Note Modal         */}
       {/* ─────────────────────────────────────────────────────────── */}
       {declineTargetDealer && (
