@@ -118,11 +118,16 @@ export default function Header({
           </button>
         )}
 
-        {/* Mobile App Branding Mark on small screens */}
-        <div className="lg:hidden flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#E11D48] to-[#881337] flex items-center justify-center font-black text-white text-xs shadow-xs">
-            D
-          </div>
+        {/* Top-Left Nissan Branding (Mobile & Collapsed Desktop) */}
+        <div className={`flex items-center gap-2.5 shrink-0 ${isSidebarCollapsed ? "lg:flex" : "lg:hidden"}`}>
+          <img
+            src="/nissan-logo.png"
+            alt="Nissan"
+            className="w-7 h-7 object-contain drop-shadow-xs"
+          />
+          <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
+            Nissan New Zealand
+          </span>
         </div>
 
         {/* Desktop / Tablet Search Trigger Bar -> Opens Global Search Modal Listing */}

@@ -270,17 +270,21 @@ export default function Sidebar({
 
         {/* Top Branding Section */}
         <div className="relative z-10">
-          <div className="h-[60px] flex items-center justify-between px-4 border-b border-slate-800/80">
+          <div className="h-[64px] flex items-center justify-between px-4 border-b border-white/10 bg-black/40">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E11D48] via-[#BE123C] to-[#881337] flex items-center justify-center font-black text-white shadow-[0_2px_12px_rgba(225,29,72,0.4)] ring-1 ring-white/20 shrink-0">
-                D
+              <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                <img
+                  src="/nissan-logo.png"
+                  alt="Nissan Logo"
+                  className="w-9 h-9 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+                />
               </div>
               {!collapsed && (
                 <div className="min-w-0 transition-opacity duration-200">
-                  <h1 className="font-extrabold text-sm tracking-tight text-white truncate">
-                    Dealer Order Platform
+                  <h1 className="font-extrabold text-sm tracking-tight text-white truncate leading-tight">
+                    Nissan New Zealand
                   </h1>
-                  <p className="text-[10px] text-slate-400 truncate">{panelInfo.roleDesc}</p>
+                  <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">Dealer Order Platform</p>
                 </div>
               )}
             </div>
@@ -531,6 +535,22 @@ export default function Sidebar({
               )}
             </div>
           )}
+
+          {/* Powered by AutoHub Credit in Sidebar */}
+          {!collapsed ? (
+            <div className="px-4 py-2.5 text-[11px] text-slate-400 flex items-center justify-between border-t border-white/10 font-sans mt-2">
+              <span className="text-slate-400">Nissan NZ © 2026</span>
+              <span className="text-slate-400">
+                Powered by <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>
+              </span>
+            </div>
+          ) : (
+            <div className="py-2 text-center border-t border-white/10 mt-2">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider" title="Powered by AutoHub">
+                AUTOHUB
+              </span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -540,7 +560,7 @@ export default function Sidebar({
     <>
       {/* 1. Desktop & Laptop Persistent Sidebar (Hidden on <1024px) */}
       <aside
-        className={`hidden lg:flex relative h-full bg-[#070D18] border-r border-slate-800/80 flex-col justify-between transition-sidebar z-30 select-none overflow-hidden shrink-0 ${isCollapsed ? "w-[76px]" : "w-[248px]"
+        className={`hidden lg:flex relative h-full bg-[#000000] border-r border-slate-800/80 flex-col justify-between transition-sidebar z-30 select-none overflow-hidden shrink-0 ${isCollapsed ? "w-[76px]" : "w-[248px]"
           }`}
         aria-label="Platform Sidebar Navigation"
       >
@@ -559,7 +579,7 @@ export default function Sidebar({
 
           {/* Slide-out Drawer Panel */}
           <aside
-            className="relative z-50 w-[290px] sm:w-[320px] max-w-[85vw] h-full bg-[#070D18] border-r border-slate-800/80 shadow-[0_0_50px_rgba(0,0,0,0.85)] flex flex-col justify-between animate-in slide-in-from-left duration-300 ease-spring"
+            className="relative z-50 w-[290px] sm:w-[320px] max-w-[85vw] h-full bg-[#000000] border-r border-slate-800/80 shadow-[0_0_50px_rgba(0,0,0,0.85)] flex flex-col justify-between animate-in slide-in-from-left duration-300 ease-spring"
             aria-label="Mobile Navigation Drawer"
           >
             {renderNavContent(true)}

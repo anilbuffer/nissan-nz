@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-roboto), "Roboto", sans-serif;
-  --font-mono: var(--font-roboto), "Roboto", monospace;
+  --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-inter), "Inter", ui-monospace, monospace;
 
   --color-crimson-50: #fff1f2;
   --color-crimson-100: #ffe4e6;
@@ -42,13 +42,32 @@
 }
 
 /* ───────────────────────────────────────────────────────────────── */
-/* 1. STRICT GLOBAL FONT ENFORCEMENT: ROBOTO ONLY                   */
+/* 1. STRICT GLOBAL FONT ENFORCEMENT: INTER ONLY                    */
 /* ───────────────────────────────────────────────────────────────── */
-html, body, button, input, select, textarea, table, pre, code, kbd, span, p, h1, h2, h3, h4, h5, h6, * {
-  font-family: var(--font-roboto), "Roboto", sans-serif !important;
+html,
+body,
+button,
+input,
+select,
+textarea,
+table,
+pre,
+code,
+kbd,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+* {
+  font-family: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
-html, body {
+html,
+body {
   background-color: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
@@ -94,13 +113,16 @@ html, body {
   width: 5px;
   height: 5px;
 }
+
 .navy-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .navy-scrollbar::-webkit-scrollbar-thumb {
   background: #1b2a42;
   border-radius: 4px;
 }
+
 .navy-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #253957;
 }
@@ -158,11 +180,13 @@ html, body {
   box-shadow: 0 2px 10px rgba(225, 29, 72, 0.28);
   cursor: pointer;
 }
+
 .btn-primary:hover {
   background: #be123c;
   box-shadow: 0 4px 16px rgba(225, 29, 72, 0.38);
   transform: translateY(-1px);
 }
+
 .btn-primary:active {
   transform: scale(0.98);
 }
@@ -183,10 +207,12 @@ html, body {
   box-shadow: 0 2px 8px rgba(10, 19, 34, 0.15);
   cursor: pointer;
 }
+
 .btn-secondary:hover {
   background: #142239;
   transform: translateY(-1px);
 }
+
 .btn-secondary:active {
   transform: scale(0.98);
 }
@@ -211,6 +237,7 @@ html, body {
   box-shadow: 0 1px 3px 0 rgba(10, 19, 34, 0.05), 0 1px 2px -1px rgba(10, 19, 34, 0.04);
   cursor: pointer;
 }
+
 .btn-outline:hover,
 .btn-cancel:hover,
 .btn-close:hover,
@@ -220,6 +247,7 @@ html, body {
   color: #0a1322;
   box-shadow: 0 2px 6px -1px rgba(10, 19, 34, 0.08);
 }
+
 .btn-outline:active,
 .btn-cancel:active,
 .btn-close:active,
@@ -260,6 +288,7 @@ html, body {
   width: 0;
   height: 0;
 }
+
 .hide-scrollbar,
 .no-scrollbar {
   -ms-overflow-style: none;
@@ -276,9 +305,11 @@ html, body {
 .pb-safe {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
 }
+
 .pt-safe {
   padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
 }
+
 .mb-safe {
   margin-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
 }

@@ -273,7 +273,7 @@ export default function DealerRegistrationWizard() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* LEFT SIDEBAR: Pinned Desktop Canvas (Fixed Height & Sticky)  */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <aside className="relative overflow-hidden w-full lg:w-[350px] xl:w-[380px] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto bg-[#070D18] border-b lg:border-b-0 lg:border-r border-[#1B2A42] text-white flex flex-col justify-between p-6 sm:p-8 lg:p-8 shrink-0">
+      <aside className="relative overflow-hidden w-full lg:w-[350px] xl:w-[380px] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto bg-[#000000] border-b lg:border-b-0 lg:border-r border-[#1B2A42] text-white flex flex-col justify-between p-6 sm:p-8 lg:p-8 shrink-0">
         {/* Subtle background ambient glow */}
         <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl" />

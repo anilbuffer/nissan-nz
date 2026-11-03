@@ -73,21 +73,25 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
       {/* LEFT HALF: Minimal & Clean Dark Brand Canvas */}
-      <div className="relative w-full lg:w-1/2 bg-[#070D18] flex flex-col justify-between p-6 sm:p-10 lg:p-16 overflow-hidden text-white border-b lg:border-b-0 lg:border-r border-[#1B2A42]">
+      <div className="relative w-full lg:w-1/2 bg-[#000000] flex flex-col justify-between p-6 sm:p-10 lg:p-16 overflow-hidden text-white border-b lg:border-b-0 lg:border-r border-[#1B2A42]">
         {/* Subtle background ambient glow */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Top: Project Name & Programme Badge */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E11D48] to-[#9F1239] flex items-center justify-center font-bold text-lg text-white shadow-soft shadow-crimson-600/30">
-            D
+        <div className="relative z-10 flex items-center gap-3.5">
+          <div className="w-11 h-11 flex items-center justify-center shrink-0">
+            <img
+              src="/nissan-logo.png"
+              alt="Nissan Logo"
+              className="w-10 h-10 object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.25)]"
+            />
           </div>
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block leading-tight">
               Nissan New Zealand
             </span>
-            <h1 className="font-bold text-base tracking-tight text-white leading-tight">
+            <h1 className="font-extrabold text-base tracking-tight text-white leading-tight mt-0.5">
               Dealer Order Platform
             </h1>
           </div>
@@ -128,9 +132,12 @@ export default function LoginPage() {
         </div>
 
         {/* Minimal Footer */}
-        <div className="relative z-10 flex items-center justify-between text-[11px] text-slate-500 pt-4 border-t border-white/10 font-mono">
-          <span>Nissan NZ Used Vehicle Programme</span>
-          <span>© 2026</span>
+        <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/10 font-sans">
+          <span>Nissan New Zealand · Used Vehicle Programme</span>
+          <span className="flex items-center gap-1.5 text-slate-400">
+            <span>Powered by</span>
+            <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>
+          </span>
         </div>
       </div>
 
@@ -292,6 +299,11 @@ export default function LoginPage() {
               <span>Register Dealership Application</span>
               <ArrowRight className="w-3.5 h-3.5 text-[#E11D48] transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
+          </div>
+
+          <div className="pt-2 text-center text-xs text-slate-400 flex items-center justify-center gap-1.5 font-sans">
+            <span>Powered by</span>
+            <strong className="text-slate-700 font-semibold tracking-wide">AutoHub</strong>
           </div>
         </div>
       </div>
