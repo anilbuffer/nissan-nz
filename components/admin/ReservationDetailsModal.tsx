@@ -109,7 +109,7 @@ export default function ReservationDetailsModal({
       aria-labelledby="reservation-details-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 bg-[#0F172A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
@@ -122,13 +122,12 @@ export default function ReservationDetailsModal({
                   {reservation.requestId}
                 </span>
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    reservation.status === "ACTIVE_HOLD"
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${reservation.status === "ACTIVE_HOLD"
                       ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
                       : reservation.status === "CONFIRMED_ALLOCATED"
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                      : "bg-slate-700 text-slate-300 border-slate-600"
-                  }`}
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                        : "bg-slate-700 text-slate-300 border-slate-600"
+                    }`}
                 >
                   {reservation.status === "ACTIVE_HOLD"
                     ? "24-Hour Exclusivity Active"
@@ -352,8 +351,8 @@ export default function ReservationDetailsModal({
                 {confirmDialog === "CONFIRM"
                   ? "Confirm Wholesale Allocation & Generate Order"
                   : confirmDialog === "RELEASE"
-                  ? "Release Hold Back to Available Stock"
-                  : "Decline Dealer Reservation"}
+                    ? "Release Hold Back to Available Stock"
+                    : "Decline Dealer Reservation"}
               </h4>
               <input
                 type="text"
@@ -373,13 +372,12 @@ export default function ReservationDetailsModal({
                 <button
                   type="button"
                   onClick={handleExecuteAction}
-                  className={`px-4 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer shadow-xs ${
-                    confirmDialog === "CONFIRM"
+                  className={`px-4 py-1.5 rounded-lg text-white font-bold text-xs cursor-pointer shadow-xs ${confirmDialog === "CONFIRM"
                       ? "bg-emerald-600 hover:bg-emerald-700"
                       : confirmDialog === "RELEASE"
-                      ? "bg-slate-900 hover:bg-slate-800"
-                      : "bg-rose-600 hover:bg-rose-700"
-                  }`}
+                        ? "bg-slate-900 hover:bg-slate-800"
+                        : "bg-rose-600 hover:bg-rose-700"
+                    }`}
                 >
                   Execute {confirmDialog}
                 </button>

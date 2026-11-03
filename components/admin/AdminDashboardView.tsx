@@ -111,30 +111,21 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#C3002F]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Operations Control
-            </span>
-            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-              AutoHub NZ
-            </span>
-          </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
             Operations Dashboard
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Priority queues for franchise dealer onboarding approvals and 24h exclusivity holds.
           </p>
         </div>
 
         {/* Live Counters */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold font-mono flex items-center gap-1.5 shadow-2xs">
+          <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold  flex items-center gap-1.5 shadow-2xs">
             <Building2 className="w-3.5 h-3.5 text-slate-600" />
             <span>{pendingDealers.length} Approvals Pending</span>
           </div>
-          <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-semibold font-mono flex items-center gap-1.5 shadow-2xs">
+          <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold  flex items-center gap-1.5 shadow-2xs">
             <Lock className="w-3.5 h-3.5 text-slate-600" />
             <span>{heldVehicles.length} Active Holds</span>
           </div>
@@ -169,7 +160,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               Dealer Onboarding Approval Requests
             </h2>
-            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700  text-xs font-semibold border border-slate-200">
               {pendingDealers.length}
             </span>
           </div>
@@ -177,7 +168,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
           <button
             type="button"
             onClick={() => onNavigateTab("admin-dealers")}
-            className="text-xs sm:text-sm font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
           >
             <span>Manage Franchisees</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -185,7 +176,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
         </div>
 
         {pendingDealers.length === 0 ? (
-          <div className="py-6 px-4 bg-slate-50 rounded-lg text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
+          <div className="py-6 px-4 bg-slate-50 rounded-lg text-center text-xs text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>All dealer applications processed. No pending authorizations required.</span>
           </div>
@@ -209,11 +200,11 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                         {dealer.legalTradingName}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                           #{dealer.dealerCode}
                         </span>
                         <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-xs text-slate-500 hidden sm:inline truncate">
+                        <span className="text-[10px] text-slate-500 hidden sm:inline truncate">
                           {dealer.region}
                         </span>
                       </div>
@@ -270,7 +261,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               Atomic Reservation Queue Requests
             </h2>
-            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700  text-xs font-semibold border border-slate-200">
               {heldVehicles.length}
             </span>
           </div>
@@ -318,15 +309,15 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                           #{vehicle.stockId}
                         </span>
                         <span className="text-slate-300 hidden sm:inline">·</span>
-                        <span className="text-xs text-slate-600 hidden sm:inline truncate">
+                        <span className="text-[10px] text-slate-600 hidden sm:inline truncate">
                           {dealerName}
                         </span>
                         <span className="text-slate-300 hidden md:inline">·</span>
-                        <span className="text-xs font-mono font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 shrink-0 flex items-center gap-1">
+                        <span className="text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 shrink-0 flex items-center gap-1">
                           <Clock className="w-3 h-3 text-[#C3002F]" />
                           <span>18h left</span>
                         </span>
@@ -414,26 +405,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 placeholder="e.g., NZBN business entity check failed, territorial boundary overlap with existing franchise, or missing authorized signatory."
                 className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 resize-none font-sans"
               />
-
-              {/* Quick preset chips */}
-              <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                <span className="text-xs text-slate-400 font-medium">Quick Presets:</span>
-                {[
-                  "NZBN Verification Inactive",
-                  "Territory Franchise Conflict",
-                  "Missing Authorised Signatory",
-                  "Credit Boundary Ineligible",
-                ].map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    onClick={() => setDeclineReason(preset)}
-                    className="text-xs px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors cursor-pointer"
-                  >
-                    {preset}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
