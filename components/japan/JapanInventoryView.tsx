@@ -9,18 +9,8 @@ import JapanInventoryDetailsView from "./JapanInventoryDetailsView";
 import {
   Search,
   Plus,
-  FileSpreadsheet,
-  CheckCircle2,
-  Lock,
-  ArrowUpDown,
-  Car,
-  Filter,
   Eye,
-  MoreVertical,
-  Star,
-  MapPin,
   Clock,
-  Layers,
   Upload,
 } from "lucide-react";
 
@@ -225,14 +215,12 @@ export default function JapanInventoryView({
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
-          <table className="w-full text-left text-xs min-w-[760px]">
-            {/* Clean Light Executive Table Header (Replaced Heavy Solid Dark) */}
+          <table className="w-full text-left text-xs min-w-[640px]">
+            {/* Clean Light Executive Table Header */}
             <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-6">Vehicle / Model</th>
                 <th className="py-3.5 px-4">Stock ID &amp; VIN</th>
-                <th className="py-3.5 px-4">Grade &amp; Odo</th>
-                <th className="py-3.5 px-4">Location</th>
                 <th className="py-3.5 px-4">FOB Price (JPY)</th>
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-6 text-right">Action</th>
@@ -276,25 +264,6 @@ export default function JapanInventoryView({
                     <td className="py-4 px-4 font-mono">
                       <div className="font-bold text-slate-800">#{vehicle.stockId}</div>
                       <div className="text-[10px] text-slate-400">{vehicle.vinChassis}</div>
-                    </td>
-
-                    {/* Grade & Odometer */}
-                    <td className="py-4 px-4">
-                      <div className="font-bold text-slate-900 flex items-center gap-1">
-                        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                        <span>Grade {vehicle.auctionGrade}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                        {vehicle.odometerKm.toLocaleString()} km
-                      </div>
-                    </td>
-
-                    {/* Yard Location */}
-                    <td className="py-4 px-4 text-slate-600 truncate max-w-[150px]">
-                      <div className="flex items-center gap-1 text-slate-700 font-medium">
-                        <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span className="truncate">{vehicle.location}</span>
-                      </div>
                     </td>
 
                     {/* FOB Price JPY */}
