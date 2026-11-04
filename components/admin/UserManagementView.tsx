@@ -7,6 +7,7 @@ import { UserAccount, UserRole, ZoneId } from "@/lib/types";
 import { audio } from "@/lib/sound";
 import UserDetailsView from "./UserDetailsView";
 import InviteUserModal from "./InviteUserModal";
+import StatusBadge from "@/components/common/StatusBadge";
 import {
   UserPlus,
   Shield,
@@ -228,15 +229,15 @@ export default function UserManagementView() {
       <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
           <table className="w-full text-left text-xs min-w-[760px]">
-            <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead className="bg-slate-50 text-slate-700 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
               <tr>
-                <th className="py-3 px-4 font-semibold">User & Contact</th>
-                <th className="py-3 px-4 font-semibold">Role Authority</th>
-                <th className="py-3 px-4 font-semibold">Dealership & Zone</th>
-                <th className="py-3 px-4 font-semibold">Security (MFA)</th>
-                <th className="py-3 px-4 font-semibold">Holding Limit</th>
-                <th className="py-3 px-4 font-semibold">Status</th>
-                <th className="py-3 px-4 font-semibold text-right">Actions</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700">User &amp; Contact</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700">Role Authority</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700">Dealership &amp; Zone</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700">Security (MFA)</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700">Holding Limit</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700">Status</th>
+                <th className="py-3.5 px-4 font-bold text-slate-700 text-right">Actions</th>
               </tr>
             </thead>
 
@@ -338,18 +339,10 @@ export default function UserManagementView() {
 
                       {/* Status */}
                       <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${user.active
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-rose-50 text-[#C3002F] border border-rose-200"
-                            }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${user.active ? "bg-emerald-500" : "bg-rose-500"
-                              }`}
-                          ></span>
-                          <span>{user.active ? "Active" : "Suspended"}</span>
-                        </span>
+                        <StatusBadge
+                          status={user.active ? "ACTIVE" : "SUSPENDED"}
+                          size="sm"
+                        />
                       </td>
 
                       {/* Actions */}

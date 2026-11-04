@@ -275,14 +275,14 @@ export default function DealerStockCatalog({
                 audio.playSubtleClick();
                 setStatusFilter("SOLD");
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "SOLD"
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "SOLD"
                 ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
+                : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200"
                 }`}
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
               <span>Sold</span>
-              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "SOLD" ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"
+              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "SOLD" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
                 }`}>
                 {vehicles.filter((v) => v.status === "SOLD" || v.status === "BUYED").length}
               </span>
@@ -319,7 +319,7 @@ export default function DealerStockCatalog({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Note, Leaf, X-Trail, Serena, Kicks, Dayz, Elgrand, Navara..."
-              className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all font-medium"
+              className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 font-normal transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -335,7 +335,7 @@ export default function DealerStockCatalog({
 
           {/* Controls: Model Dropdown + Reset + Layout Toggle */}
           <div className="flex items-center flex-wrap gap-2.5">
-            {/* Models Dropdown Selector (Only dropdown as requested) */}
+            {/* Models Dropdown Selector */}
             <div className="relative">
               <select
                 value={selectedModel}
@@ -344,7 +344,7 @@ export default function DealerStockCatalog({
                   setSelectedModel(e.target.value);
                 }}
                 aria-label="Filter by Model"
-                className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all cursor-pointer shadow-2xs"
+                className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
               >
                 <option value="ALL">All Models ({modelStats[0]?.count || 0})</option>
                 {modelStats.slice(1).map((item) => (
@@ -478,13 +478,13 @@ export default function DealerStockCatalog({
                       <div className="absolute bottom-1 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md shadow-lg text-[11px] font-mono font-bold animate-in fade-in">
                         {(vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
                           <>
-                            <CheckCircle2 className="w-3 h-3 text-purple-400 shrink-0" />
-                            <span className="text-purple-300">Sold</span>
+                            <CheckCircle2 className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="text-slate-300">Sold</span>
                           </>
                         ) : vehicle.status === "ALLOCATED" ? (
                           <>
                             <Ship className="w-3 h-3 text-sky-400 shrink-0" />
-                            <span className="text-sky-300">Allocated to Order</span>
+                            <span className="text-sky-300">Allocated</span>
                           </>
                         ) : (
                           <>
@@ -522,7 +522,7 @@ export default function DealerStockCatalog({
                           e.stopPropagation();
                           handleOpenFullPageDetails(vehicle.id);
                         }}
-                        className="py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                        className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect Vehicle</span>
@@ -535,26 +535,26 @@ export default function DealerStockCatalog({
                           audio.playSubtleClick();
                           setReserveVehicle(vehicle);
                         }}
-                        className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
+                        className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft active:scale-[0.98] cursor-pointer flex items-center gap-1.5"
                         title="Place 24-hour Exclusivity Reservation"
                       >
                         <Lock className="w-3.5 h-3.5 text-amber-400" />
                         <span>Reserve</span>
                       </button>
                     ) : (vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
-                      <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
+                      <span className="py-2 px-3 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium flex items-center gap-1.5 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
                         <span>Sold</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
-                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
+                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-700 border border-sky-200/80 text-xs font-medium flex items-center gap-1.5 shadow-2xs">
                         <Ship className="w-3.5 h-3.5 text-sky-600" />
                         <span>Allocated</span>
                       </span>
                     ) : (
-                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
+                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/80 text-xs font-medium flex items-center gap-1.5 shadow-2xs">
                         <Lock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Reserved</span>
+                        <span>Active Hold</span>
                       </span>
                     )}
                   </div>

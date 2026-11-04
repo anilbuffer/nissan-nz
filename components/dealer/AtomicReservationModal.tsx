@@ -90,27 +90,27 @@ export default function AtomicReservationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl max-h-[94vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
-        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A] shrink-0">
+        {/* Clean Executive Light Header */}
+        <div className="px-6 py-4 bg-white text-slate-900 flex items-center justify-between border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] border border-white/20 flex items-center justify-center font-bold text-white shadow-xs">
-              <Lock className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center font-bold text-slate-800 shadow-2xs">
+              <Lock className="w-4 h-4 text-slate-700" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-sm text-white">Vehicle Exclusivity Reservation</h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/15">
+                <h3 className="font-bold text-sm text-slate-900">Vehicle Exclusivity Reservation</h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
                   24h Exclusivity
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400">Atomic Concurrency Lock &amp; Landed Price Commitment</p>
+              <p className="text-[11px] text-slate-500">Atomic Concurrency Lock &amp; Landed Price Commitment</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-[#27272A] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -362,7 +362,7 @@ export default function AtomicReservationModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -371,8 +371,8 @@ export default function AtomicReservationModal({
                 type="button"
                 disabled={isSubmitting || !ackTermsAndPrice || !ackCancellationStatement}
                 onClick={handleConfirmReservation}
-                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs transition-all shadow-soft cursor-pointer ${ackTermsAndPrice && ackCancellationStatement
-                    ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
+                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-xs transition-all shadow-xs cursor-pointer ${ackTermsAndPrice && ackCancellationStatement
+                    ? "bg-[#0A0A0A] hover:bg-[#27272A] text-white hover:shadow-soft active:scale-[0.98]"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
                   }`}
               >

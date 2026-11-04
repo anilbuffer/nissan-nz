@@ -237,8 +237,8 @@ export default function JapanInventoryDetailsView({
                   </span>
                 )}
                 {isSold && (
-                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-purple-50 text-purple-700 border-purple-200">
-                    <CheckCircle2 className="w-3 h-3 text-purple-600" />
+                  <span className="text-[11px] font-medium px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-200 shadow-2xs">
+                    <CheckCircle2 className="w-3 h-3 text-slate-500" />
                     <span>Sold &amp; Handed Over</span>
                   </span>
                 )}
@@ -503,13 +503,13 @@ export default function JapanInventoryDetailsView({
                 <button
                   type="button"
                   onClick={() => {
-                  audio.playSubtleClick();
-                  if (onAmend) {
-                    onAmend(vehicle.id);
-                  } else {
-                    setIsAmending(true);
-                  }
-                }}
+                    audio.playSubtleClick();
+                    if (onAmend) {
+                      onAmend(vehicle.id);
+                    } else {
+                      setIsAmending(true);
+                    }
+                  }}
                   className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer flex items-center gap-1"
                 >
                   <Edit3 className="w-3 h-3" />
@@ -772,7 +772,7 @@ export default function JapanInventoryDetailsView({
         </button>
       </div>
 
-      
+
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* MODAL 2: Withdrawal Reason Modal (US-08)                    */}

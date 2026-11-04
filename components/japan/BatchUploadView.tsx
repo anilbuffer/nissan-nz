@@ -397,11 +397,10 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                 }
               }}
               onClick={() => fileInputRef.current?.click()}
-              className={`bg-white rounded-[16px] border-2 border-dashed ${
-                isDragging
-                  ? "border-[#C3002F] bg-rose-50/20"
-                  : "border-slate-200 hover:border-slate-400"
-              } p-10 text-center space-y-4 transition-all cursor-pointer`}
+              className={`bg-white rounded-[16px] border-2 border-dashed ${isDragging
+                ? "border-[#C3002F] bg-rose-50/20"
+                : "border-slate-200 hover:border-slate-400"
+                } p-10 text-center space-y-4 transition-all cursor-pointer`}
             >
               <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
                 <UploadCloud className="w-6 h-6" />
@@ -490,15 +489,15 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
               <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
                 <div className="overflow-x-auto touch-scroll navy-scrollbar">
                   <table className="w-full text-left text-xs min-w-[680px]">
-                    <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
+                    <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                       <tr>
-                        <th className="py-3 px-3.5 text-slate-200">Row</th>
-                        <th className="py-3 px-3.5 text-slate-200">Stock ID</th>
-                        <th className="py-3 px-3.5 text-slate-200">Chassis / VIN</th>
-                        <th className="py-3 px-3.5 text-slate-200">Vehicle Details</th>
-                        <th className="py-3 px-3.5 text-slate-200">KM</th>
-                        <th className="py-3 px-3.5 text-slate-200">FOB (JPY)</th>
-                        <th className="py-3 px-3.5 text-slate-200">Validation Status</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">Row</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">Stock ID</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">Chassis / VIN</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">Vehicle Details</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">KM</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">FOB (JPY)</th>
+                        <th className="py-3 px-3.5 text-slate-700 font-bold">Validation Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">

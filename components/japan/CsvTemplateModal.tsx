@@ -247,16 +247,16 @@ export default function CsvTemplateModal({ isOpen, onClose }: CsvTemplateModalPr
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
                 <div className="overflow-x-auto touch-scroll navy-scrollbar">
                   <table className="w-full text-left text-xs min-w-[700px]">
-                    <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-slate-800">
+                    <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                       <tr>
-                        <th className="py-2.5 px-3">StockID</th>
-                        <th className="py-2.5 px-3">VIN</th>
-                        <th className="py-2.5 px-3">Model</th>
-                        <th className="py-2.5 px-3">Grade</th>
-                        <th className="py-2.5 px-3">Year</th>
-                        <th className="py-2.5 px-3">KM</th>
-                        <th className="py-2.5 px-3 text-right">FOB (JPY)</th>
-                        <th className="py-2.5 px-3">Location</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">StockID</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">VIN</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">Model</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">Grade</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">Year</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">KM</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold text-right">FOB (JPY)</th>
+                        <th className="py-2.5 px-3 text-slate-700 font-bold">Location</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-mono text-[11px]">

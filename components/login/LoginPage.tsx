@@ -395,7 +395,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 px-4 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl font-medium text-sm transition-all shadow-soft shadow-[#0A0A0A]/20 flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-3 px-4 bg-[#0A0A0A] hover:bg-[#27272A] text-white rounded-xl font-semibold text-sm transition-all shadow-xs hover:shadow-soft flex items-center justify-center gap-2 group cursor-pointer active:scale-[0.99]"
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -659,7 +659,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isVerifying}
-                  className="w-full py-3.5 px-4 bg-[#0A0A0A] hover:bg-[#444444] active:bg-[#222222] text-white rounded-xl font-bold text-base transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                  className="w-full py-3.5 px-4 bg-[#0A0A0A] hover:bg-[#27272A] active:bg-[#18181B] text-white rounded-xl font-semibold text-base transition-all shadow-xs hover:shadow-soft flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   {isVerifying ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

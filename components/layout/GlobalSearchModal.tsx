@@ -181,7 +181,7 @@ export default function GlobalSearchModal({
                   if (onQueryChange) onQueryChange(e.target.value);
                 }}
                 placeholder="Search make, model, year, VIN, stock ID..."
-                className="w-full text-sm font-medium text-slate-900 placeholder:text-slate-400 bg-transparent border-0 outline-0 ring-0 focus:outline-none focus:ring-0 focus:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none !shadow-none !outline-none !ring-0 pr-6"
+                className="w-full text-sm font-normal text-slate-900 placeholder:text-slate-400 bg-transparent border-0 outline-0 ring-0 focus:outline-none focus:ring-0 focus:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none !shadow-none !outline-none !ring-0 pr-6"
                 style={{ outline: "none", boxShadow: "none" }}
               />
               {query && (

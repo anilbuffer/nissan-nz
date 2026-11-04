@@ -1109,7 +1109,7 @@ export default function FullPageVehicleDetail({
                         audio.playSubtleClick();
                         setIsReserveModalOpen(true);
                       }}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs tracking-wide transition-all shadow-xs active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white font-semibold text-xs tracking-wide transition-all shadow-xs hover:shadow-soft active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
                     >
                       <Lock className="w-4 h-4 text-slate-400" />
                       <span>Place 24-Hour Exclusivity Hold (Reserve)</span>
@@ -1605,7 +1605,7 @@ export default function FullPageVehicleDetail({
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px]">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="py-3 px-4 font-bold">Category</th>
                   <th className="py-3 px-4 font-bold">Description</th>

@@ -44,24 +44,24 @@ export default function DealerRegistrationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto">
-        {/* Header */}
-        <div className="bg-[#0A0A0A] px-6 py-5 text-white flex items-center justify-between border-b border-[#27272A]">
+        {/* Clean Executive Light Header */}
+        <div className="bg-white px-6 py-5 text-slate-900 flex items-center justify-between border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 flex items-center justify-center shrink-0">
               <img
                 src="/nissan-logo.png"
                 alt="Nissan Logo"
-                className="w-9 h-9 object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+                className="w-9 h-9 object-contain drop-shadow-xs"
               />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-white">Nissan Dealer Onboarding Application</h3>
-              <p className="text-xs text-slate-400">Dealer Order Platform · New Zealand</p>
+              <h3 className="font-bold text-lg text-slate-900">Nissan Dealer Onboarding Application</h3>
+              <p className="text-xs text-slate-500">Dealer Order Platform · New Zealand</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -280,15 +280,15 @@ export default function DealerRegistrationModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-xl hover:bg-slate-100 transition-colors"
+                className="px-4 py-2.5 text-xs text-slate-700 hover:text-slate-900 font-semibold rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!acceptTerms || !acceptCostBoundary}
-                className={`px-5 py-2.5 text-sm font-semibold rounded-xl text-white shadow-soft transition-all flex items-center gap-2 ${acceptTerms && acceptCostBoundary
-                  ? "bg-[#0A0A0A] hover:bg-[#444444] cursor-pointer shadow-md"
+                className={`px-5 py-2.5 text-xs font-semibold rounded-xl text-white shadow-xs transition-all flex items-center gap-2 ${acceptTerms && acceptCostBoundary
+                  ? "bg-[#0A0A0A] hover:bg-[#27272A] cursor-pointer hover:shadow-soft active:scale-[0.98]"
                   : "bg-slate-300 cursor-not-allowed text-slate-500"
                   }`}
               >

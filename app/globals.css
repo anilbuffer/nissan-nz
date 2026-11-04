@@ -28,6 +28,7 @@
   --color-card-border: #e2e8f0;
   --color-card-border-subtle: #cbd5e1;
 
+  --shadow-2xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
   --shadow-soft: 0 1px 3px 0 rgba(10, 19, 34, 0.04), 0 1px 2px -1px rgba(10, 19, 34, 0.04);
   --shadow-soft-md: 0 4px 8px -2px rgba(10, 19, 34, 0.06), 0 2px 4px -2px rgba(10, 19, 34, 0.04);
   --shadow-soft-lg: 0 12px 20px -4px rgba(10, 19, 34, 0.08), 0 4px 6px -2px rgba(10, 19, 34, 0.03);
@@ -78,7 +79,7 @@ body {
 
 /* Custom Cubic-Bezier Transitions */
 .transition-smooth {
-  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .transition-sidebar {
@@ -102,10 +103,36 @@ body {
   box-shadow: 0 0 10px 2px rgba(195, 0, 47, 0.7);
 }
 
-/* Focus Rings */
-*:focus-visible {
+/* Keyboard Focus Rings: Clean single outline for keyboard navigation only */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px #f8fafc, 0 0 0 4px #c3002f;
+  box-shadow: 0 0 0 2px #f8fafc, 0 0 0 4px #0a0a0a;
+}
+
+/* Form Controls Global Reset: No Double Outline, Normal Values (No Bold), Consistent Sizes */
+input,
+select,
+textarea {
+  font-family: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-weight: 400 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08) !important;
+  border-color: #0f172a !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #0a0a0a;
 }
 
 /* Custom Dark Navy Scrollbar */
@@ -148,85 +175,95 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.65);
 }
 
-/* Luxury Card Elevation */
-.luxury-card {
-  border-radius: 24px;
+/* Luxury & Nissan Card Elevations: Uniform border-radius, hairline border, soft shadow */
+.luxury-card,
+.nissan-card {
+  border-radius: 16px !important;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
-  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px 0 rgba(10, 19, 34, 0.04), 0 1px 2px -1px rgba(10, 19, 34, 0.04);
+  background-color: #ffffff;
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .luxury-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.09), 0 8px 16px -4px rgba(15, 23, 42, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
 }
 
 /* ───────────────────────────────────────────────────────────────── */
-/* 2. UNIFIED LUXURY DESIGN SYSTEM (Typography, Color, Buttons, Tabs) */
+/* 2. UNIFIED BUTTONS & ACTIONS (Fill / Outline / Soft Shadow)       */
 /* ───────────────────────────────────────────────────────────────── */
 
-/* Action Buttons */
-/* Nissan Brand Corporate Card: Border-Radius-24px, border-slate-200, soft shadow */
-.nissan-card {
-  border-radius: 24px !important;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px -4px rgba(10, 19, 34, 0.05), 0 2px 6px -1px rgba(10, 19, 34, 0.03);
-  background-color: #ffffff;
-}
-
+/* Primary Fill Button: Solid Obsidian Black with Soft Shadow */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.5625rem 1.125rem;
   border-radius: 0.75rem;
   background: #0A0A0A;
   color: #ffffff;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25rem;
-  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  background: #444444;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  background: #27272a;
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.14);
 }
 
 .btn-primary:active {
   transform: scale(0.98);
 }
 
-.btn-secondary {
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Nissan Brand Signature Crimson Action Button */
+.btn-brand,
+.btn-crimson {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.5625rem 1.125rem;
   border-radius: 0.75rem;
-  background: #0A0A0A;
+  background: #c3002f;
   color: #ffffff;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25rem;
-  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px 0 rgba(195, 0, 47, 0.2), 0 1px 2px -1px rgba(195, 0, 47, 0.15);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 
-.btn-secondary:hover {
-  background: #444444;
+.btn-brand:hover,
+.btn-crimson:hover {
+  background: #a10026;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(195, 0, 47, 0.35);
 }
 
-.btn-secondary:active {
+.btn-brand:active,
+.btn-crimson:active {
   transform: scale(0.98);
 }
 
+/* Secondary Outline Button: White Surface, Soft Border, Soft Shadow */
+.btn-secondary,
 .btn-outline,
 .btn-cancel,
 .btn-close,
@@ -241,23 +278,26 @@ body {
   border: 1px solid #e2e8f0;
   color: #334155;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
   transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px 0 rgba(10, 19, 34, 0.05), 0 1px 2px -1px rgba(10, 19, 34, 0.04);
   cursor: pointer;
 }
 
+.btn-secondary:hover,
 .btn-outline:hover,
 .btn-cancel:hover,
 .btn-close:hover,
 .btn-secondary-outline:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
-  color: #0A0A0A;
-  box-shadow: 0 2px 6px -1px rgba(10, 19, 34, 0.08);
+  color: #0f172a;
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 4px 0 rgba(15, 23, 42, 0.06);
 }
 
+.btn-secondary:active,
 .btn-outline:active,
 .btn-cancel:active,
 .btn-close:active,
@@ -265,27 +305,95 @@ body {
   transform: scale(0.98);
 }
 
-/* Unified Tables */
+/* Danger / Destructive Button: Soft Rose Tint */
+.btn-danger,
+.btn-destructive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5625rem 1.125rem;
+  border-radius: 0.75rem;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #c3002f;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgba(195, 0, 47, 0.04);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.btn-danger:hover,
+.btn-destructive:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  color: #a10026;
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 4px 0 rgba(195, 0, 47, 0.08);
+}
+
+.btn-danger:active,
+.btn-destructive:active {
+  transform: scale(0.98);
+}
+
+/* ───────────────────────────────────────────────────────────────── */
+/* 3. UNIFIED TABLE STYLES (Clean Executive Light Headers)          */
+/* ───────────────────────────────────────────────────────────────── */
 .table-luxury-wrapper {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 16px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px -4px rgba(10, 19, 34, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(10, 19, 34, 0.04);
   overflow: hidden;
 }
 
 .table-luxury-header {
-  background: #0A0A0A;
-  color: #ffffff;
-  font-size: 0.625rem;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 /* ───────────────────────────────────────────────────────────────── */
-/* 3. RESPONSIVE & TOUCH UTILITIES (iOS/Android/iPad/Mac)            */
+/* 4. FORM CONTROLS & INPUT CONSISTENCY                             */
+/* ───────────────────────────────────────────────────────────────── */
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  font-size: 0.8125rem;
+  font-weight: 400 !important;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 0.5625rem 0.875rem;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.02);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #94a3b8;
+  font-weight: 400 !important;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* ───────────────────────────────────────────────────────────────── */
+/* 5. RESPONSIVE & TOUCH UTILITIES (iOS/Android/iPad/Mac)            */
 /* ───────────────────────────────────────────────────────────────── */
 * {
   -webkit-tap-highlight-color: transparent;

@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { Vehicle, Order, ZoneId } from "@/lib/types";
+import StatusBadge from "@/components/common/StatusBadge";
 import {
   Car,
   Lock,
@@ -276,8 +277,8 @@ export default function ProgrammeUserPortalView({
                       setStatusFilter(status);
                     }}
                     className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${statusFilter === status
-                        ? "bg-[#0A0A0A] text-white shadow-2xs"
-                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                      ? "bg-[#0A0A0A] text-white shadow-2xs"
+                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                       }`}
                   >
                     {status}
@@ -326,13 +327,13 @@ export default function ProgrammeUserPortalView({
 
           <div className="overflow-x-auto touch-scroll navy-scrollbar">
             <table className="w-full text-left text-xs text-slate-700 min-w-[700px]">
-              <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider">
+              <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-5">Vehicle &amp; Stock ID</th>
-                  <th className="py-3 px-5">Grade &amp; Mileage</th>
-                  <th className="py-3 px-5">{selectedZone.replace("_", " ")} Landed Price</th>
-                  <th className="py-3 px-5">Catalogue Status</th>
-                  <th className="py-3 px-5 text-right">Dossier</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Vehicle &amp; Stock ID</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Grade &amp; Mileage</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">{selectedZone.replace("_", " ")} Landed Price</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Catalogue Status</th>
+                  <th className="py-3 px-5 font-bold text-slate-700 text-right">Dossier</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
@@ -397,19 +398,8 @@ export default function ProgrammeUserPortalView({
 
                         {/* 4. Catalogue Status & Admin Assigned Action */}
                         <td className="py-3.5 px-5">
-                          <div className="flex flex-col gap-1 items-start">
-                            <span
-                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${vehicle.status === "AVAILABLE"
-                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                : vehicle.status === "RESERVED"
-                                  ? "bg-amber-50 text-amber-800 border border-amber-200"
-                                  : vehicle.status === "ALLOCATED"
-                                    ? "bg-blue-50 text-blue-800 border border-blue-200"
-                                    : "bg-slate-100 text-slate-700 border border-slate-200"
-                                }`}
-                            >
-                              {vehicle.status}
-                            </span>
+                          <div className="flex flex-col gap-1.5 items-start">
+                            <StatusBadge status={vehicle.status} size="sm" />
 
                             {vehicle.status === "AVAILABLE" && (
                               <button
@@ -505,13 +495,13 @@ export default function ProgrammeUserPortalView({
 
           <div className="overflow-x-auto touch-scroll navy-scrollbar">
             <table className="w-full text-left text-xs text-slate-700 min-w-[700px]">
-              <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider">
+              <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-5">Reserved Vehicle</th>
-                  <th className="py-3 px-5">Holding Dealership</th>
-                  <th className="py-3 px-5">Exclusivity Countdown</th>
-                  <th className="py-3 px-5">Locked Landed Price</th>
-                  <th className="py-3 px-5 text-right">Details</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Reserved Vehicle</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Holding Dealership</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Exclusivity Countdown</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Locked Landed Price</th>
+                  <th className="py-3 px-5 font-bold text-slate-700 text-right">Details</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
@@ -637,14 +627,14 @@ export default function ProgrammeUserPortalView({
 
           <div className="overflow-x-auto touch-scroll navy-scrollbar">
             <table className="w-full text-left text-xs text-slate-700 min-w-[720px]">
-              <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider">
+              <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-5">Order &amp; Vehicle</th>
-                  <th className="py-3 px-5">Destination Dealership</th>
-                  <th className="py-3 px-5">Carrier Vessel &amp; ETA</th>
-                  <th className="py-3 px-5">Logistics Status</th>
-                  <th className="py-3 px-5">Total Landed</th>
-                  <th className="py-3 px-5 text-right">Details</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Order &amp; Vehicle</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Destination Dealership</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Carrier Vessel &amp; ETA</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Logistics Status</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Total Landed</th>
+                  <th className="py-3 px-5 font-bold text-slate-700 text-right">Details</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
@@ -692,10 +682,8 @@ export default function ProgrammeUserPortalView({
 
                         {/* 4. Logistics Status */}
                         <td className="py-3.5 px-5">
-                          <span className="font-mono text-[10px] font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 inline-block">
-                            {order.currentMilestone.replace(/_/g, " ")}
-                          </span>
-                          <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                          <StatusBadge status={order.currentMilestone} size="sm" />
+                          <div className="text-[10px] text-slate-400 font-mono mt-1">
                             Milestone {currentIdx + 1} of 8
                           </div>
                         </td>
@@ -900,11 +888,11 @@ export default function ProgrammeUserPortalView({
 
                   : [
 
-                      { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
+                    { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
 
-                      { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
+                    { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
 
-                    ]
+                  ]
 
                 ).map((doc, dIdx) => (
 

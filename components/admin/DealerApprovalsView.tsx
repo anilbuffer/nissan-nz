@@ -5,6 +5,7 @@ import { DealerAccount, ZoneId } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
+import StatusBadge from "@/components/common/StatusBadge";
 import {
   Users,
   CheckCircle2,
@@ -716,9 +717,7 @@ export default function DealerApprovalsView() {
                     </td>
 
                     <td className="py-4 px-4">
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px] font-mono">
-                        ACTIVE
-                      </span>
+                      <StatusBadge status={d.status || "APPROVED"} size="sm" />
                     </td>
 
                     <td className="py-4 px-6 text-right">

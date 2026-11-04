@@ -7,6 +7,7 @@ import { useProgramme } from "@/lib/programme-context";
 import { audio } from "@/lib/sound";
 import JapanInventoryDetailsView from "./JapanInventoryDetailsView";
 import AmendVehicleForm from "./AmendVehicleForm";
+import StatusBadge from "@/components/common/StatusBadge";
 import {
   Search,
   Plus,
@@ -135,7 +136,7 @@ export default function JapanInventoryView({
               audio.playSubtleClick();
               onNavigateAdd();
             }}
-            className="py-2.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+            className="py-2.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Add Vehicle</span>
@@ -322,32 +323,7 @@ export default function JapanInventoryView({
 
                     {/* Status Pill Badge */}
                     <td className="py-4 px-4">
-                      {isAvailable ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          AVAILABLE
-                        </span>
-                      ) : isDraft ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-slate-100 text-slate-700 border border-slate-300">
-                          DRAFT
-                        </span>
-                      ) : isReserved ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-amber-50 text-amber-800 border border-amber-300">
-                          <Clock className="w-2.5 h-2.5 text-amber-600 animate-pulse" />
-                          <span>RESERVED</span>
-                        </span>
-                      ) : isAllocated ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-sky-50 text-sky-700 border border-sky-200">
-                          ALLOCATED
-                        </span>
-                      ) : isSold ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-purple-50 text-purple-700 border border-purple-200">
-                          SOLD
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-slate-100 text-slate-600 border border-slate-200">
-                          WITHDRAWN
-                        </span>
-                      )}
+                      <StatusBadge status={vehicle.status} size="sm" />
                     </td>
 
                     {/* Action Column - Strictly Right Aligned with Clean Details Button */}

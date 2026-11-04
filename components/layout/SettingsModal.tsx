@@ -375,7 +375,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               audio.playSubtleClick();
               onClose();
             }}
-            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer shadow-xs"
+            className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft cursor-pointer active:scale-[0.98]"
           >
             Done
           </button>

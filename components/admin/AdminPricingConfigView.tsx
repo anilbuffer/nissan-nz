@@ -227,7 +227,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
             onClick={handleSave}
             disabled={!hasChanges && !saveSuccess}
             className={`px-4 py-2 rounded-xl font-semibold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-1.5 ${hasChanges
-              ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
+              ? "bg-[#0A0A0A] hover:bg-[#27272A] text-white hover:shadow-soft active:scale-[0.98]"
               : "bg-slate-100 text-slate-400 border border-slate-200 cursor-default"
               }`}
           >
@@ -260,7 +260,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
         <table className="w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-700">
               <th className="py-3 px-4 sm:px-6">Pricing Component</th>
               <th className="py-3 px-4 w-44 sm:w-52">Amount (Editable)</th>
               <th className="py-3 px-4 sm:px-6 text-right">Calculated / Notes</th>
@@ -287,7 +287,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                       setTotalBuyPriceInput(null);
                       setHasChanges(true);
                     }}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </td>
@@ -311,7 +311,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     step="25"
                     value={draftConfig.oceanFreightNZD}
                     onChange={(e) => handleNumericChange("oceanFreightNZD", Number(e.target.value))}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </td>
@@ -335,7 +335,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     step="10"
                     value={draftConfig.customsProcessingNZD}
                     onChange={(e) => handleNumericChange("customsProcessingNZD", Number(e.target.value))}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </td>
@@ -359,7 +359,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     step="20"
                     value={draftConfig.complianceInspectionNZD}
                     onChange={(e) => handleNumericChange("complianceInspectionNZD", Number(e.target.value))}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </td>
@@ -406,7 +406,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     step="50"
                     value={draftConfig.zoneDeliveryMatrix?.[selectedZone] ?? 1750}
                     onChange={(e) => handleZoneChange(selectedZone, Number(e.target.value))}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </td>
@@ -431,7 +431,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     step="25"
                     value={draftConfig.programmeFeeNZD}
                     onChange={(e) => handleNumericChange("programmeFeeNZD", Number(e.target.value))}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
                   />
                 </div>
               </td>
@@ -466,7 +466,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     value={tariffSubtotalInput !== null ? tariffSubtotalInput : fixedCostProfileNZD}
                     onChange={(e) => handleTariffSubtotalChange(e.target.value)}
                     onBlur={handleTariffSubtotalBlur}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
                   />
                 </div>
               </td>
@@ -496,7 +496,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     value={totalBuyPriceInput !== null ? totalBuyPriceInput : totalBuyPrice}
                     onChange={(e) => handleTotalBuyPriceChange(e.target.value)}
                     onBlur={handleTotalBuyPriceBlur}
-                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono font-bold text-xs sm:text-sm text-slate-950 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono font-normal text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
                   />
                 </div>
               </td>
@@ -562,7 +562,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                       step="50"
                       value={cost}
                       onChange={(e) => handleZoneChange(zid, Number(e.target.value))}
-                      className="w-full pl-5 pr-1.5 py-1 rounded border border-slate-200 bg-white font-mono font-bold text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                      className="w-full pl-5 pr-1.5 py-1 rounded border border-slate-200 bg-white font-mono font-normal text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
                     />
                   </div>
                 </div>

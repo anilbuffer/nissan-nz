@@ -408,7 +408,7 @@ export default function ReservationDetailsModal({
                     setConfirmDialog("CONFIRM");
                     setReasonInput("Wholesale allocation confirmed by Autohub Ops.");
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+                  className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white font-semibold text-xs transition-all shadow-xs hover:shadow-soft cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
                 >
                   <CheckCircle2 className="w-4 h-4 text-white" />
                   <span>Confirm Allocation</span>
@@ -422,7 +422,7 @@ export default function ReservationDetailsModal({
                 audio.playSubtleClick();
                 onClose();
               }}
-              className="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-xs transition-colors cursor-pointer shadow-2xs"
+              className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all cursor-pointer shadow-2xs"
             >
               Close
             </button>

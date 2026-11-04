@@ -190,7 +190,7 @@ export default function Header({
               readOnly
               value={searchValue}
               placeholder="Search make, model, year or keyword..."
-              className="w-full pl-9 pr-10 py-1.5 sm:py-2 text-xs sm:text-sm bg-white group-hover:bg-slate-50/80 rounded-xl border border-slate-200 group-hover:border-slate-300 text-slate-800 placeholder-slate-400 transition-all shadow-2xs font-medium cursor-pointer select-none"
+              className="w-full pl-9 pr-10 py-1.5 sm:py-2 text-xs sm:text-sm bg-white group-hover:bg-slate-50/80 rounded-xl border border-slate-200 group-hover:border-slate-300 text-slate-800 placeholder-slate-400 transition-all shadow-2xs font-normal cursor-pointer select-none"
             />
             <div className="absolute right-3 flex items-center gap-1.5">
               {searchValue ? (

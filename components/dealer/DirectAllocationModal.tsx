@@ -78,27 +78,27 @@ export default function DirectAllocationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl max-h-[94vh] flex flex-col bg-white rounded-[16px] shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
-        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A] shrink-0">
+        {/* Clean Executive Light Header */}
+        <div className="px-6 py-4 bg-white text-slate-900 flex items-center justify-between border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-white shadow-xs">
-              <Ship className="w-4 h-4 text-emerald-400" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center font-bold text-emerald-700 shadow-2xs">
+              <Ship className="w-4 h-4 text-emerald-600" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-sm text-white">Direct Vehicle Allocation</h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                <h3 className="font-bold text-sm text-slate-900">Direct Vehicle Allocation</h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
                   Wholesale Order Commitment
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400">Immediate Allocation to Dealership Supply Pipeline</p>
+              <p className="text-[11px] text-slate-500">Immediate Allocation to Dealership Supply Pipeline</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-[#27272A] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -263,7 +263,7 @@ export default function DirectAllocationModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -271,8 +271,8 @@ export default function DirectAllocationModal({
                 type="button"
                 onClick={handleConfirmAllocation}
                 disabled={!ackTerms || isSubmitting}
-                className={`px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${ackTerms && !isSubmitting
-                  ? "bg-[#0A0A0A] hover:bg-[#444444] text-white active:scale-[0.98]"
+                className={`px-6 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${ackTerms && !isSubmitting
+                  ? "bg-[#0A0A0A] hover:bg-[#27272A] text-white hover:shadow-soft active:scale-[0.98]"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
                   }`}
               >

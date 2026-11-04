@@ -528,9 +528,9 @@ export default function RolesPermissionsView() {
         <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
           <div className="overflow-x-auto touch-scroll navy-scrollbar">
             <table className="w-full text-left text-xs border-collapse min-w-[780px]">
-              <thead className="bg-[#0A0A0A] text-white uppercase text-[10px] tracking-wider border-b border-slate-200">
+              <thead className="bg-slate-50 text-slate-700 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="py-3.5 px-4 font-semibold w-[360px]">
+                  <th className="py-3.5 px-4 font-bold text-slate-700 w-[360px]">
                     Operational Capability &amp; Scope
                   </th>
                   {ROLES_META.map((meta) => (
@@ -541,13 +541,13 @@ export default function RolesPermissionsView() {
                         setSelectedRole(meta.role);
                       }}
                       className={`py-3.5 px-3 font-semibold text-center min-w-[130px] cursor-pointer transition-colors ${selectedRole === meta.role
-                        ? "bg-[#27272A] text-white ring-1 ring-white/20"
-                        : "hover:bg-slate-900 text-slate-300"
+                        ? "bg-slate-100 text-slate-900 border-b-2 border-slate-900"
+                        : "hover:bg-slate-100/70 text-slate-600"
                         }`}
                       title={`Click to focus on ${meta.title}`}
                     >
-                      <div className="truncate">{meta.title}</div>
-                      <div className="text-[9px] font-normal text-slate-400 normal-case mt-0.5">
+                      <div className="truncate font-bold">{meta.title}</div>
+                      <div className="text-[9px] font-medium text-slate-500 normal-case mt-0.5">
                         {meta.role}
                       </div>
                     </th>

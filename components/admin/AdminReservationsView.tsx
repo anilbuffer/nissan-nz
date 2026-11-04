@@ -5,6 +5,7 @@ import { useProgramme } from "@/lib/programme-context";
 import { ReservationRequest } from "@/lib/types";
 import { audio } from "@/lib/sound";
 import FullPageVehicleDetail from "@/components/dealer/FullPageVehicleDetail";
+import StatusBadge from "@/components/common/StatusBadge";
 import {
   Clock,
   CheckCircle2,
@@ -187,9 +188,9 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
 
                     {isActiveHold ? (
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold shrink-0 ${remaining.isWarning
-                          ? "bg-slate-900 text-white border border-slate-900"
-                          : "bg-slate-100 text-slate-700 border border-slate-200"
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 shadow-2xs border ${remaining.isWarning
+                          ? "bg-amber-50 text-amber-800 border-amber-300"
+                          : "bg-amber-50 text-amber-700 border-amber-200/80"
                           }`}
                         title={
                           remaining.isWarning
@@ -197,22 +198,11 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                             : "Active Hold Countdown"
                         }
                       >
-                        <Clock className={`w-3 h-3 ${remaining.isWarning ? "text-slate-300" : "text-slate-500"}`} />
+                        <Clock className={`w-3 h-3 ${remaining.isWarning ? "text-amber-600" : "text-amber-500"}`} />
                         <span>{remaining.label}</span>
                       </span>
                     ) : (
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold inline-flex items-center gap-1 shrink-0 ${res.status === "CONFIRMED_ALLOCATED"
-                          ? "bg-slate-100 text-slate-900 border border-slate-300 font-semibold"
-                          : res.status === "CANCELLED"
-                            ? "bg-slate-50 text-slate-500 border border-slate-200"
-                            : res.status === "EXPIRED"
-                              ? "bg-slate-50 text-slate-400 border border-slate-200"
-                              : "bg-slate-100 text-slate-700 border border-slate-200"
-                          }`}
-                      >
-                        {res.status === "CONFIRMED_ALLOCATED" ? "CONFIRMED" : res.status}
-                      </span>
+                      <StatusBadge status={res.status} size="sm" />
                     )}
                   </div>
 
@@ -270,7 +260,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                             audio.playSubtleClick();
                             setConfirmDialogRes(res);
                           }}
-                          className="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                          className="px-3.5 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white font-semibold text-xs transition-all shadow-xs hover:shadow-soft cursor-pointer active:scale-[0.98]"
                           title="Confirm wholesale allocation"
                         >
                           Confirm
@@ -365,7 +355,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
               <button
                 type="button"
                 onClick={() => setConfirmDialogRes(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -376,7 +366,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
                   setConfirmDialogRes(null);
                   handleDirectConfirm(target);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+                className="px-5 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white font-semibold text-xs transition-all shadow-xs hover:shadow-soft cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
               >
                 <CheckCircle2 className="w-4 h-4 text-white/90" />
                 <span>Confirm Allocation</span>
