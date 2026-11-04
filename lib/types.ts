@@ -227,7 +227,7 @@ export interface MilestoneStep {
 
 export interface AdditionalCostItem {
   id: string;
-  type: "COMPLIANCE_REPAIR" | "CERTIFICATION" | "BORDER_FLAG" | "STORAGE_TRANSPORT" | "ACCESSORY";
+  type: string;
   description: string;
   amountNZD: number;
   evidenceDocumentUrl?: string;

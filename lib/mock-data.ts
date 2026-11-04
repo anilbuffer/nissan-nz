@@ -1762,6 +1762,13 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "Immaculate Bolero custom interior"
     ],
     "fobPriceJPY": 1090000,
+    "currency": "JPY",
+    "purchasePriceBasis": "FOB",
+    "stockReference": "USS-JAA-9063",
+    "overallCondition": "★ 4.5 - Retro-chic Bolero Edition in Clean Pre-Export Condition",
+    "conditionReportName": "USS_Tokyo_Official_Auction_Sheet.pdf",
+    "createdAt": "2026-10-23",
+    "updatedAt": "2026-10-24",
     "status": "AVAILABLE"
   },
   {

@@ -332,7 +332,9 @@ export default function DashboardShell({
 
   const handleSelectVehicle = (vehicleId: string) => {
     setViewingVehicleId(vehicleId);
-    if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
+    if (pathname.startsWith("/dealer") || portal === "dealer") {
+      router.push(`/dealer/vehicles/${vehicleId}`);
+    } else if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
       router.push(`/admin/vehicles/${vehicleId}`);
     } else if (pathname.startsWith("/japan") || portal === "japan" || currentUser?.role === "NISSAN_JAPAN") {
       router.push(`/japan/inventory/${vehicleId}`);
@@ -343,7 +345,9 @@ export default function DashboardShell({
 
   const handleBackFromVehicle = () => {
     setViewingVehicleId(null);
-    if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
+    if (pathname.startsWith("/dealer") || portal === "dealer") {
+      router.push("/dealer/stocks");
+    } else if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
       router.push("/admin/catalogue");
     } else if (pathname.startsWith("/japan") || portal === "japan" || currentUser?.role === "NISSAN_JAPAN") {
       router.push("/japan/inventory");
@@ -371,7 +375,10 @@ export default function DashboardShell({
           />
         );
       }
-      const isAdminVehicleView = currentUser?.role === "AUTOHUB_ADMIN";
+      const isAdminVehicleView =
+        (portal === "admin" || pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") &&
+        portal !== "dealer" &&
+        !pathname.startsWith("/dealer");
 
       return (
         <FullPageVehicleDetail

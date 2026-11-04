@@ -26,7 +26,6 @@ import {
   Building2,
   Sparkles,
   Ship,
-  Printer,
   Share2,
   Edit3,
   X,
@@ -286,12 +285,6 @@ export default function JapanInventoryDetailsView({
               <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
                 {vehicle.year} {vehicle.make} {vehicle.model}
               </h1>
-
-              <p className="text-xs text-slate-500">
-                Package Grade: <strong className="text-slate-800 font-semibold">{vehicle.grade}</strong> · Transmission:{" "}
-                <strong className="text-slate-800 font-semibold">{vehicle.transmission}</strong> · Powertrain:{" "}
-                <strong className="text-slate-800 font-semibold">{vehicle.fuelType}</strong>
-              </p>
             </div>
           </div>
 
@@ -373,39 +366,20 @@ export default function JapanInventoryDetailsView({
                 <span>Mark Handover Completed</span>
               </button>
             )}
-
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                window.print();
-              }}
-              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
-              title="Print Vehicle Sheet"
-            >
-              <Printer className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
         {/* Hold Reservation Alert Bar if Reserved */}
         {isReserved && (
-          <div className="mt-5 pt-4 border-t border-amber-200/60 bg-amber-50/70 -mx-6 -mb-6 px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>
-                Unit is locked under a 24-hour exclusivity hold by{" "}
-                <strong className="text-amber-950 font-bold">
-                  {reservedDealer?.legalTradingName || "NZ Dealer Network Partner"}
-                </strong>
-                .
-              </span>
-            </div>
-            {vehicle.reservationExpiresAt && (
-              <span className="text-[11px] font-mono text-amber-700">
-                Hold expiry: {new Date(vehicle.reservationExpiresAt).toLocaleString()}
-              </span>
-            )}
+          <div className="mt-5 pt-4 border-t border-amber-200/60 bg-amber-50/70 -mx-6 -mb-6 px-6 py-3.5 flex items-center gap-2 text-xs text-amber-900">
+            <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              Unit is locked under a 24-hour exclusivity hold by{" "}
+              <strong className="text-amber-950 font-bold">
+                {reservedDealer?.legalTradingName || "NZ Dealer Network Partner"}
+              </strong>
+              .
+            </span>
           </div>
         )}
       </div>
@@ -557,9 +531,9 @@ export default function JapanInventoryDetailsView({
                   ¥{vehicle.fobPriceJPY.toLocaleString()}
                   <span className="text-xs font-sans text-slate-400 font-semibold ml-2">{vehicle.currency || "JPY"} ({vehicle.purchasePriceBasis || "FOB"})</span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                {/* <p className="text-[11px] text-slate-500 mt-0.5">
                   Raw acquisition cost at Tokyo/Yokohama auction terminal prior to ocean shipping (~${estimatedNZD.toLocaleString()} NZD equiv.)
-                </p>
+                </p> */}
               </div>
 
               <div className="pt-2 border-t border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between font-mono">
@@ -877,7 +851,7 @@ export default function JapanInventoryDetailsView({
 
             {/* Scrollable Form Body */}
             <form onSubmit={handleSaveAmendment} className="flex-1 overflow-y-auto navy-scrollbar p-6 space-y-5">
-              
+
               {/* SECTION 1: Core Vehicle Identification */}
               <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 space-y-4">
                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/70">

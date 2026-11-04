@@ -2,17 +2,17 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Vehicle, LandedPriceBreakdown, ZoneId, VehicleSupportingDoc } from "@/lib/types";
+import { Vehicle, LandedPriceBreakdown, ZoneId, VehicleSupportingDoc, AdditionalCostItem } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { MOCK_VEHICLES } from "@/lib/mock-data";
-import { calculateLandedPrice, OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
+import { calculateLandedPrice, OFFICIAL_PRICING_ZONES, JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
 import AddVehicleAdditionalCostModal from "@/components/admin/AddVehicleAdditionalCostModal";
-import { AdditionalCostItem } from "@/lib/types";
 import {
   ArrowLeft,
+  Car,
   CheckCircle2,
   Copy,
   Check,
@@ -20,9 +20,7 @@ import {
   ShieldCheck,
   Star,
   MapPin,
-  TrendingUp,
   Building2,
-  SlidersHorizontal,
   Ship,
   DollarSign,
   Trash2,
@@ -34,6 +32,13 @@ import {
   Eye,
   Download,
   FileCheck2,
+  Clock,
+  AlertTriangle,
+  AlertCircle,
+  Edit3,
+  Calendar,
+  Gauge,
+  Sparkles,
 } from "lucide-react";
 
 interface FullPageVehicleDetailProps {
@@ -77,46 +82,83 @@ export default function FullPageVehicleDetail({
     dealers,
   } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
+
+  // Determine role perspective strictly: Admin route/role vs Dealer route/role
+  const isDealerContext = typeof pathname === "string" && pathname.startsWith("/dealer");
+  const isAdminContext = typeof pathname === "string" && pathname.startsWith("/admin");
   const isAdmin =
-    isAdminProp ??
-    (currentUser?.role === "AUTOHUB_ADMIN" || (typeof pathname === "string" && pathname.startsWith("/admin")));
+    isAdminProp !== undefined
+      ? isAdminProp
+      : isAdminContext || (currentUser?.role === "AUTOHUB_ADMIN" && !isDealerContext);
+
   const dealerZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
 
-  // Find vehicle from live programme context
+  // Find vehicle from live programme context or fallback to mock data
   const rawVehicle =
     vehicleData ||
     vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId) ||
+    MOCK_VEHICLES.find((m) => m.id === vehicleId || m.stockId === vehicleId) ||
     vehicles[0] ||
     MOCK_VEHICLES[0];
 
-  // Guarantee studio photos from user uploads or fallback mock cutouts
-  const mockMatch = MOCK_VEHICLES.find((m) => m.id === rawVehicle.id);
-  const vehicle = {
-    ...rawVehicle,
-    images: (rawVehicle.images && rawVehicle.images.length > 0) ? rawVehicle.images : (mockMatch?.images || ["/images/cars/note.png"]),
-  };
+  // Guarantee studio photos from user uploads or fallback cutouts
+  const mockMatch = MOCK_VEHICLES.find((m) => m.id === rawVehicle?.id);
+  const vehicle: Vehicle = useMemo(() => {
+    if (!rawVehicle) return MOCK_VEHICLES[0];
+    const defaultImages =
+      rawVehicle.images && rawVehicle.images.length > 0
+        ? rawVehicle.images
+        : mockMatch?.images && mockMatch.images.length > 0
+          ? mockMatch.images
+          : ["/images/cars/dayz.png"];
 
-  const images =
-    vehicle.images && vehicle.images.length > 0
-      ? vehicle.images
-      : ["/images/cars/note.png"];
+    return {
+      ...rawVehicle,
+      images: defaultImages,
+      overallCondition:
+        rawVehicle.overallCondition ||
+        rawVehicle.conditionSummary ||
+        `★ ${rawVehicle.auctionGrade || "4.5"} - Clean Japanese Pre-Export Condition`,
+      currency: rawVehicle.currency || "JPY",
+      purchasePriceBasis: rawVehicle.purchasePriceBasis || "FOB",
+      stockReference: rawVehicle.stockReference || `USS-JAA-${rawVehicle.stockId.slice(-4)}`,
+      conditionReportName: rawVehicle.conditionReportName || "USS_Tokyo_Official_Auction_Sheet.pdf",
+      createdAt: rawVehicle.createdAt || rawVehicle.inspectionDate || "2026-10-23",
+      updatedAt: rawVehicle.updatedAt || "2026-10-24",
+      knownDefects:
+        rawVehicle.knownDefects && rawVehicle.knownDefects.length > 0
+          ? rawVehicle.knownDefects
+          : ["Clean pre-export inspection pass verified"],
+    };
+  }, [rawVehicle, mockMatch]);
 
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [selectedZone, setSelectedZone] = useState<ZoneId>(dealerZone);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
   const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
-  const [viewingDocument, setViewingDocument] = useState<{ name: string; type: string; date: string; size?: string } | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
+
+  // Admin Price Editing State
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [fobInputJPY, setFobInputJPY] = useState(vehicle.fobPriceJPY);
+
+  // Document Inspection State
+  const [activeDocPreview, setActiveDocPreview] = useState<{
+    name: string;
+    type: string;
+    date: string;
+    size?: string;
+  } | null>(null);
   const [docDownloadToast, setDocDownloadToast] = useState<string | null>(null);
 
-  const handleDownloadDocument = (docName: string) => {
-    audio.playSubtleClick();
-    setDocDownloadToast(`Downloading official intake document: ${docName}`);
-    setTimeout(() => setDocDownloadToast(null), 3500);
-  };
+  // Synchronize FOB input when vehicle FOB changes
+  React.useEffect(() => {
+    setFobInputJPY(vehicle.fobPriceJPY);
+  }, [vehicle.fobPriceJPY]);
 
   // Supporting Documents attached during Add Vehicle intake
-  const supportingDocs: VehicleSupportingDoc[] = useMemo(() => {
+  const vehicleDocs: VehicleSupportingDoc[] = useMemo(() => {
     const list: VehicleSupportingDoc[] = [];
 
     if (vehicle.supportingDocuments && vehicle.supportingDocuments.length > 0) {
@@ -126,18 +168,10 @@ export default function FullPageVehicleDetail({
     if (vehicle.conditionReportName && !list.some((d) => d.name === vehicle.conditionReportName)) {
       list.unshift({
         name: vehicle.conditionReportName,
-        type: "CONDITION_REPORT",
-        url: vehicle.conditionReportUrl || "#",
-        size: "2.4 MB",
-        uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
-      });
-    } else if (vehicle.conditionReportUrl && !list.some((d) => d.name.toLowerCase().includes("condition") || d.name.toLowerCase().includes("auction"))) {
-      list.unshift({
-        name: "USS_Tokyo_Inspection_Pass.pdf",
         type: "AUCTION_SHEET",
-        url: vehicle.conditionReportUrl,
+        url: vehicle.conditionReportUrl || "https://example.com/reports/condition.pdf",
         size: "2.4 MB",
-        uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+        uploadedAt: vehicle.createdAt || "2026-10-22",
       });
     }
 
@@ -146,23 +180,23 @@ export default function FullPageVehicleDetail({
         {
           name: "USS_Tokyo_Official_Auction_Sheet.pdf",
           type: "AUCTION_SHEET",
-          url: "#",
+          url: "https://example.com/reports/uss_sheet.pdf",
           size: "2.4 MB",
-          uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+          uploadedAt: vehicle.createdAt || "2026-10-22",
         },
         {
           name: "JEVIC_Digital_Odometer_Certificate.pdf",
           type: "JEVIC_CERTIFICATE",
-          url: "#",
+          url: "https://example.com/reports/jevic_pass.pdf",
           size: "1.1 MB",
-          uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+          uploadedAt: vehicle.createdAt || "2026-10-22",
         },
         {
           name: "NZTA_MR2A_Entry_Dossier.pdf",
           type: "MR2A_DOSSIER",
-          url: "#",
+          url: "https://example.com/reports/mr2a_pass.pdf",
           size: "1.8 MB",
-          uploadedAt: vehicle.inspectionDate || vehicle.createdAt || "2026-10-22",
+          uploadedAt: vehicle.createdAt || "2026-10-22",
         }
       );
     }
@@ -170,70 +204,92 @@ export default function FullPageVehicleDetail({
     return list;
   }, [vehicle]);
 
-  // Admin Price Editing State
-  const [isEditingPrice, setIsEditingPrice] = useState(false);
-  const [fobInputJPY, setFobInputJPY] = useState(vehicle.fobPriceJPY);
-  const [priceUpdatedToast, setPriceUpdatedToast] = useState(false);
+  if (!vehicle) {
+    return (
+      <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-soft max-w-xl mx-auto my-12">
+        <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+        <h3 className="text-base font-bold text-slate-800">Vehicle Not Found</h3>
+        <p className="text-xs text-slate-500 mt-1 mb-4">
+          The requested export vehicle unit #{vehicleId} does not exist or has been withdrawn.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            audio.playSubtleClick();
+            if (onBack) onBack();
+            else if (isAdmin) router.push("/admin/catalogue");
+            else router.push("/dealer/stocks");
+          }}
+          className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold cursor-pointer transition-all shadow-xs"
+        >
+          Return to {isAdmin ? "Catalogue" : "Stock"}
+        </button>
+      </div>
+    );
+  }
 
-  const reservingDealer = dealers?.find((d) => d.id === vehicle.reservedByDealerId);
-  const reservingDealerName = reservingDealer?.legalTradingName || (vehicle.reservedByDealerId === "DEALER_002" ? "Bay of Plenty Nissan" : "Auckland Nissan");
-
-  const handleAdminApproveReservation = () => {
-    audio.playSuccessChime();
-    confirmAllocation(vehicle.id, "Approved by Central Operations Admin");
-  };
-
-  const handleAdminRejectReservation = () => {
-    audio.playSubtleClick();
-    releaseHold(vehicle.id, "Reservation rejected by Central Operations Admin");
-  };
-
-  const handleAdminMarkAsSold = () => {
-    audio.playSuccessChime();
-    setVehicleStatus(vehicle.id, "SOLD", "Vehicle wholesale settlement completed by Operations Admin");
-  };
-
-  // Keep fobInput synced with vehicle
-  React.useEffect(() => {
-    setFobInputJPY(vehicle.fobPriceJPY);
-  }, [vehicle.fobPriceJPY]);
-
-  // In Dealer role, pricing is anchored to the dealer's designated franchise delivery zone
+  // Active zone configuration and pricing calculations
   const activeZoneId = isAdmin ? selectedZone : dealerZone;
   const selectedZoneConfig = OFFICIAL_PRICING_ZONES[activeZoneId] || OFFICIAL_PRICING_ZONES.ZONE_1;
-  const landedPrice: LandedPriceBreakdown = useMemo(() => {
-    return calculateLandedPrice(vehicle.fobPriceJPY, activeZoneId, pricingConfig);
-  }, [vehicle.fobPriceJPY, activeZoneId, pricingConfig]);
+  const landedPrice: LandedPriceBreakdown = calculateLandedPrice(
+    vehicle.fobPriceJPY,
+    activeZoneId,
+    pricingConfig
+  );
 
   const additionalCosts: AdditionalCostItem[] = vehicle.additionalCosts || [];
+  const approvedAdditionalCosts = additionalCosts.filter((c) => c.status === "APPROVED");
+  const approvedCostsTotal = approvedAdditionalCosts.reduce((sum, item) => sum + item.amountNZD, 0);
+  const pendingAdditionalCosts = additionalCosts.filter((c) => c.status === "PENDING_DEALER_APPROVAL");
   const additionalCostsTotal = additionalCosts.reduce((sum, item) => sum + item.amountNZD, 0);
-  const basePriceNZD = landedPrice.totalBuyPriceNZD;
-  const totalBuyPriceNZD = basePriceNZD + additionalCostsTotal;
+  const totalBuyPriceNZD = landedPrice.totalBuyPriceNZD + (isAdmin ? additionalCostsTotal : approvedCostsTotal);
 
-  const handleAddAdditionalCost = (item: AdditionalCostItem) => {
-    const updated = [...additionalCosts, item];
-    updateVehicle(vehicle.id, { additionalCosts: updated });
-  };
+  // 5 Delivery Zones with dynamic Fixed Profile Prices for Admin inspection
+  const zonesWithPrices = (["ZONE_1", "ZONE_2", "ZONE_3", "ZONE_4", "ZONE_5"] as ZoneId[]).map((zid) => {
+    const zConfig = OFFICIAL_PRICING_ZONES[zid];
+    const zBreakdown = calculateLandedPrice(vehicle.fobPriceJPY, zid, pricingConfig);
+    return {
+      id: zid,
+      code: zid.replace("ZONE_", "Z"),
+      name: zConfig?.zoneName || zid,
+      region: zConfig?.coverage || zid,
+      towingCost: zBreakdown.zoneDeliveryNZD,
+      fixedProfilePrice: zBreakdown.totalBuyPriceNZD,
+    };
+  });
 
-  const handleRemoveAdditionalCost = (costId: string) => {
-    const updated = additionalCosts.filter((c) => c.id !== costId);
-    updateVehicle(vehicle.id, { additionalCosts: updated });
-    audio.playSubtleClick();
-  };
+  const images = vehicle.images && vehicle.images.length > 0 ? vehicle.images : ["/images/cars/dayz.png"];
+  const activeImage = images[activeImageIdx] || images[0];
 
   const isAvailable = vehicle.status === "AVAILABLE";
-  const isHeldByCurrentDealer = vehicle.reservedByDealerId === currentDealer?.id;
+  const isReserved = vehicle.status === "RESERVED";
+  const isAllocated = vehicle.status === "ALLOCATED";
+  const isWithdrawn = vehicle.status === "WITHDRAWN";
+  const isSold = vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED";
+  const isDraft = vehicle.status === "DRAFT";
 
-  const handleCopyVin = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    audio.playSubtleClick();
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(vehicle.vinChassis);
-      setCopiedVin(true);
-      setTimeout(() => setCopiedVin(false), 2000);
-    }
-  };
+  // Check if held by currently signed in dealer
+  const isHeldByCurrentDealer =
+    Boolean(currentDealer?.id && vehicle.reservedByDealerId === currentDealer.id);
 
+  const reservingDealer = dealers?.find((d) => d.id === vehicle.reservedByDealerId);
+  const reservingDealerName =
+    reservingDealer?.legalTradingName ||
+    (vehicle.reservedByDealerId === "DEALER_002"
+      ? "Bay of Plenty Nissan"
+      : vehicle.reservedByDealerId === "DEALER_001"
+        ? "Auckland Nissan"
+        : "Franchise Dealer Partner");
+
+  const isElectricOrHybrid =
+    vehicle.fuelType === "100% Electric" ||
+    vehicle.fuelType === "Hybrid" ||
+    vehicle.fuelType === "e-Power" ||
+    vehicle.model.toLowerCase().includes("leaf") ||
+    vehicle.model.toLowerCase().includes("power") ||
+    vehicle.model.toLowerCase().includes("dayz");
+
+  // Navigation handlers
   const handleBack = () => {
     audio.playSubtleClick();
     if (onBack) {
@@ -245,12 +301,79 @@ export default function FullPageVehicleDetail({
     }
   };
 
+  const handleCopyVin = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    audio.playSubtleClick();
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(vehicle.vinChassis);
+      setCopiedVin(true);
+      setTimeout(() => setCopiedVin(false), 2000);
+    }
+  };
+
   const handleSavePrice = () => {
     audio.playSuccessChime();
     updateVehicle(vehicle.id, { fobPriceJPY: Number(fobInputJPY) });
     setIsEditingPrice(false);
-    setPriceUpdatedToast(true);
-    setTimeout(() => setPriceUpdatedToast(false), 4000);
+    setActionNotice(`FOB acquisition baseline updated for unit #${vehicle.stockId}.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleAdminApproveReservation = () => {
+    audio.playSuccessChime();
+    confirmAllocation(vehicle.id, "Approved by Central Operations Admin");
+    setActionNotice(`Reservation confirmed & vehicle allocated to ${reservingDealerName}.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleAdminRejectReservation = () => {
+    audio.playSubtleClick();
+    releaseHold(vehicle.id, "Reservation rejected by Central Operations Admin");
+    setActionNotice(`24-hour exclusivity hold released. Unit #${vehicle.stockId} is back in available catalogue.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleAdminMarkAsSold = () => {
+    audio.playSuccessChime();
+    setVehicleStatus(vehicle.id, "SOLD", "Vehicle wholesale settlement completed by Operations Admin");
+    setActionNotice(`Unit #${vehicle.stockId} marked as SETTLED.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleAddAdditionalCost = (item: AdditionalCostItem) => {
+    const updated = [...additionalCosts, item];
+    updateVehicle(vehicle.id, { additionalCosts: updated });
+    setIsAddCostModalOpen(false);
+    setActionNotice(`Additional cost proposal "+$${item.amountNZD.toLocaleString()} NZD" submitted for dealer approval.`);
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleRemoveAdditionalCost = (costId: string) => {
+    const updated = additionalCosts.filter((c) => c.id !== costId);
+    updateVehicle(vehicle.id, { additionalCosts: updated });
+    audio.playSubtleClick();
+    setActionNotice("Additional cost item removed.");
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleDealerApproveCost = (costId: string) => {
+    audio.playSuccessChime();
+    const updated = additionalCosts.map((c) =>
+      c.id === costId ? { ...c, status: "APPROVED" as const, decidedAt: new Date().toISOString() } : c
+    );
+    updateVehicle(vehicle.id, { additionalCosts: updated });
+    setActionNotice("Additional cost approved and added to your landed buy price.");
+    setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleDealerRejectCost = (costId: string) => {
+    audio.playSubtleClick();
+    const updated = additionalCosts.map((c) =>
+      c.id === costId ? { ...c, status: "DECLINED" as const, decidedAt: new Date().toISOString() } : c
+    );
+    updateVehicle(vehicle.id, { additionalCosts: updated });
+    setActionNotice("Additional cost proposal declined.");
+    setTimeout(() => setActionNotice(null), 3500);
   };
 
   const handleReservationSuccess = (vId: string) => {
@@ -260,255 +383,370 @@ export default function FullPageVehicleDetail({
       currentUser ? { id: currentUser.id, name: currentUser.name, email: currentUser.email } : undefined
     );
     setIsReserveModalOpen(false);
+    setActionNotice(`24-Hour Exclusivity Hold active on unit #${vehicle.stockId}.`);
+    setTimeout(() => setActionNotice(null), 3500);
   };
 
-  // 5 Delivery Zones with dynamic Fixed Profile Prices for this vehicle
-  const zonesWithPrices = useMemo(() => {
-    return (["ZONE_1", "ZONE_2", "ZONE_3", "ZONE_4", "ZONE_5"] as ZoneId[]).map((zid) => {
-      const zConfig = OFFICIAL_PRICING_ZONES[zid];
-      const zBreakdown = calculateLandedPrice(vehicle.fobPriceJPY, zid, pricingConfig);
-      return {
-        id: zid,
-        code: zid.replace("ZONE_", "Z"),
-        name: zConfig?.zoneName || zid,
-        region: zConfig?.coverage || zid,
-        towingCost: zBreakdown.zoneDeliveryNZD,
-        fixedProfilePrice: zBreakdown.totalBuyPriceNZD,
-      };
-    });
-  }, [vehicle.fobPriceJPY, pricingConfig]);
-
-  const isElectricOrHybrid =
-    vehicle.fuelType === "100% Electric" ||
-    vehicle.fuelType === "e-Power" ||
-    vehicle.model.toLowerCase().includes("leaf") ||
-    vehicle.model.toLowerCase().includes("power");
+  const handleDownloadDocument = (docName: string) => {
+    audio.playSubtleClick();
+    setDocDownloadToast(`Downloading official verified intake dossier: ${docName}`);
+    setTimeout(() => setDocDownloadToast(null), 3500);
+  };
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-200 pb-10 font-sans text-slate-800">
+    <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-7xl mx-auto">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header Navigation & Dealership Identity Bar              */}
+      {/* 1. Top Navigation & Action Notice Bar                       */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{isAdmin ? "Back to Catalogue" : "Back to Stock"}</span>
-          </button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 group text-xs w-fit"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
+          <span>{isAdmin ? "Back to Catalogue" : "Back to Stock"}</span>
+        </button>
+
+        {/* Action Notice Toast */}
+        {actionNotice && (
+          <div className="px-3.5 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-semibold shadow-soft border border-slate-200 animate-in fade-in flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            <span>{actionNotice}</span>
+          </div>
+        )}
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 2. Main Vehicle Header Card (Consistent with Japan Inventory) */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white text-slate-900 rounded-[16px] p-6 sm:p-7 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F] shrink-0 shadow-2xs">
+              <Car className="w-7 h-7" />
+            </div>
+
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
+                  #{vehicle.stockId}
+                </span>
+
+                {/* Status Badges */}
+                {isAvailable && (
+                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{isAdmin ? "Available to NZ Franchise" : "Available for Reservation"}</span>
+                  </span>
+                )}
+                {isDraft && (
+                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300">
+                    <Edit3 className="w-3 h-3 text-slate-500" />
+                    <span>Draft Intake (Yard Staging)</span>
+                  </span>
+                )}
+                {isReserved && (
+                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-amber-50 text-amber-800 border-amber-300">
+                    <Lock className="w-3 h-3 text-amber-600" />
+                    <span>
+                      {isAdmin
+                        ? "Dealer 24h Exclusivity Hold"
+                        : isHeldByCurrentDealer
+                          ? "Your Active 24h Hold"
+                          : "Dealer 24h Exclusivity Hold"}
+                    </span>
+                  </span>
+                )}
+                {isAllocated && (
+                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200">
+                    <Ship className="w-3 h-3 text-sky-600" />
+                    <span>Allocated &amp; Shipping Secured</span>
+                  </span>
+                )}
+                {isWithdrawn && (
+                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-rose-50 text-rose-700 border-rose-200">
+                    <AlertCircle className="w-3 h-3 text-rose-600" />
+                    <span>Withdrawn from Catalogue</span>
+                  </span>
+                )}
+                {isSold && (
+                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-purple-50 text-purple-700 border-purple-200">
+                    <CheckCircle2 className="w-3 h-3 text-purple-600" />
+                    <span>Sold &amp; Wholesale Settled</span>
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+                {vehicle.year} {vehicle.make} {vehicle.model}
+              </h1>
+            </div>
+          </div>
+
+          {/* Quick Header Actions: Tailored strictly to role responsibilities */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
+            {!isAdmin && currentDealer && (
+              <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-2xs">
+                <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                <span className="font-semibold text-slate-800">{currentDealer.legalTradingName}</span>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-500 font-mono">{dealerZone}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Right: Dealership Profile & Stock State */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {isAdmin && (
-            <div
-              title="Stock withdrawal & catalogue status are managed exclusively by Nissan Japan Global Fleet Authority"
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${vehicle.status === "WITHDRAWN"
-                ? "bg-slate-900 text-white border-slate-900"
-                : vehicle.status === "AVAILABLE"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : vehicle.status === "RESERVED"
-                    ? "bg-amber-50 text-amber-800 border-amber-200"
-                    : vehicle.status === "ALLOCATED"
-                      ? "bg-blue-50 text-blue-800 border-blue-200"
-                      : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
-                        ? "bg-purple-50 text-purple-800 border-purple-200 font-bold"
-                        : "bg-slate-100 text-slate-700 border-slate-200"
-                }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${vehicle.status === "WITHDRAWN"
-                  ? "bg-amber-400"
-                  : vehicle.status === "AVAILABLE"
-                    ? "bg-emerald-500"
-                    : vehicle.status === "RESERVED"
-                      ? "bg-amber-500"
-                      : vehicle.status === "ALLOCATED"
-                        ? "bg-blue-500"
-                        : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
-                          ? "bg-purple-600"
-                          : "bg-slate-400"
-                  }`}
-              />
-              <span>
-                {vehicle.status === "WITHDRAWN"
-                  ? "Withdrawn (Nissan Japan Only)"
-                  : vehicle.status === "AVAILABLE"
-                    ? "Live in Catalogue"
-                    : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
-                      ? "Sold (Settled)"
-                      : vehicle.status}
-              </span>
-            </div>
-          )}
+        {/* Hold Reservation Alert Bar if Reserved */}
+        {isReserved && (
+          <div className="mt-5 pt-4 border-t border-amber-200/60 bg-amber-50/70 -mx-6 -mb-6 sm:-mx-7 sm:-mb-7 px-6 py-3.5 flex items-center gap-2 text-xs text-amber-900">
+            <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              {isAdmin ? (
+                <>
+                  Unit is locked under a 24-hour exclusivity hold by{" "}
+                  <strong className="text-amber-950 font-bold">{reservingDealerName}</strong>.
+                </>
+              ) : isHeldByCurrentDealer ? (
+                <>
+                  Your dealership holds a <strong className="text-amber-950 font-bold">24-hour exclusivity lock</strong> on this unit. Pending Autohub allocation approval.
+                </>
+              ) : (
+                <>Unit is temporarily locked under a 24-hour exclusivity hold by another certified franchise partner.</>
+              )}
+            </span>
+          </div>
+        )}
+      </div>
 
-          {!isAdmin && currentDealer && (
-            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-medium text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
-              <Building2 className="w-3 h-3 text-slate-400" />
-              <span>{currentDealer.legalTradingName}</span>
-              <span className="text-slate-300">·</span>
-              <span className="text-slate-500 font-mono">{dealerZone}</span>
-            </div>
-          )}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 2.5 INNER STATS CARDS STRIP (Matching Japan Inventory Style)   */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* 1. ODOMETER (JEVIC) */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+            ODOMETER (JEVIC)
+          </span>
+          <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+            {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
+          </div>
+          <span className="text-[11px] text-emerald-600 font-semibold block truncate">
+            Digitally Certified
+          </span>
+        </div>
 
-          {vehicle.status === "AVAILABLE" && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Available</span>
+        {/* 2. AUCTION & INSPECTION GRADE */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+            AUCTION &amp; INSPECTION GRADE
+          </span>
+          <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+            ★ {vehicle.auctionGrade || "4.5"}
+          </div>
+          <span className="text-[11px] text-slate-600 font-medium block truncate">
+            Int: Grade {vehicle.interiorGrade || "A"} · Ext: Grade {vehicle.exteriorGrade || "A"}
+          </span>
+        </div>
+
+        {/* 3. Role-relevant Commercial Stat: Admin sees FOB Baseline (JPY); Dealer sees Total Buy Price (NZD) */}
+        {isAdmin ? (
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+              ACQUISITION BASELINE ({vehicle.currency || "JPY"})
             </span>
-          )}
-          {vehicle.status === "DRAFT" && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-              <span>Draft Staging</span>
+            <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+              ¥{vehicle.fobPriceJPY.toLocaleString()}
+            </div>
+            <span className="text-[11px] text-slate-500 block truncate">
+              {vehicle.purchasePriceBasis || "FOB"} Japan Cost
             </span>
-          )}
-          {vehicle.status === "RESERVED" && (
-            isHeldByCurrentDealer ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300">
-                <Lock className="w-3 h-3 text-amber-600" />
-                <span>Your Active Reservation (18h left)</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                <Lock className="w-3 h-3 text-slate-400" />
-                <span>Reserved · Network Lock</span>
-              </span>
-            )
-          )}
-          {vehicle.status === "ALLOCATED" && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
-              <Ship className="w-3 h-3 text-sky-600" />
-              <span>Allocated to Order</span>
+          </div>
+        ) : (
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+              TOTAL BUY PRICE (NZD)
             </span>
-          )}
-          {vehicle.status === "WITHDRAWN" && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-              <span>Withdrawn from Catalogue</span>
+            <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+              ${totalBuyPriceNZD.toLocaleString()} NZD
+            </div>
+            <span className="text-[11px] text-emerald-700 font-semibold block truncate">
+              Fixed Landed Cost · {dealerZone}
             </span>
-          )}
-          {(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-              <CheckCircle2 className="w-3 h-3 text-purple-600" />
-              <span>Sold &amp; Handed Over</span>
-            </span>
-          )}
+          </div>
+        )}
+
+        {/* 4. YARD STAGING */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+            YARD STAGING
+          </span>
+          <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+            {vehicle.location || "Yokohama Export Terminal"}
+          </div>
+          <span className="text-[11px] text-emerald-600 font-semibold block truncate">
+            Export Bay Ready
+          </span>
         </div>
       </div>
 
-      {/* Notification Toast */}
-      {priceUpdatedToast && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm font-medium flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Vehicle FOB acquisition price updated. Wholesale landed matrix recalculated across all zones.</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setPriceUpdatedToast(false)}
-            className="text-emerald-700 hover:text-emerald-900 text-sm cursor-pointer p-1"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3. ROW 1: Studio Showcase (Left 7) vs Commercial Panel (Right 5) */}
+      {/* Balanced layout with items-stretch alignment                */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* Left Column (7 cols): Studio Image Showcase */}
+        <div className="lg:col-span-7 h-full flex flex-col">
+          <div className="bg-white rounded-[16px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-4">
+            <div>
+              {/* Main Stage Image */}
+              <div className="relative w-full h-72 sm:h-84 rounded-2xl bg-gradient-to-b from-slate-50 via-slate-100/70 to-slate-200/50 border border-slate-200/80 p-6 flex items-center justify-center overflow-hidden group">
+                <div className="absolute bottom-4 w-4/5 h-6 bg-black/15 rounded-[50%] blur-lg pointer-events-none transform scale-y-50" />
+                <img
+                  src={activeImage}
+                  alt={`${vehicle.make} ${vehicle.model}`}
+                  className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_16px_20px_rgba(0,0,0,0.18)] select-none transition-transform duration-300 group-hover:scale-105"
+                />
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Main Workspace Grid: Vehicle Studio Showcase & Wholesale Landed Matrix */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        {/* ───────────────────────────────────────────────────────── */}
-        {/* LEFT COLUMN: Vehicle Showcase + Studio Photography        */}
-        {/* ───────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-7 flex flex-col h-full">
-          {/* Main Studio Car Showcase Card */}
-          <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative flex flex-col justify-between h-full">
-            {/* Top Row: Auction Grade & Stock ID */}
-            <div className="flex items-center justify-between relative z-20 pb-1">
-              <div className="px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1">
-                <span className="text-amber-500">★</span>
-                <span>Grade {vehicle.auctionGrade} / {vehicle.interiorGrade}</span>
+                {/* Auction Grade Pill */}
+                <div className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-sm text-xs font-mono font-bold text-slate-800 border border-slate-200 shadow-soft flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span>
+                    Auction Grade {vehicle.auctionGrade || "4.5"} · Int {vehicle.interiorGrade || "A"} · Ext {vehicle.exteriorGrade || "A"}
+                  </span>
+                </div>
+
+                {/* Zero Emission Emblem if Electric / Hybrid */}
+                {isElectricOrHybrid && (
+                  <div className="absolute top-4 right-4 z-20 hidden sm:block">
+                    <ZeroEmissionBadge />
+                  </div>
+                )}
+
+                {/* Yard Location Pill */}
+                <div className="absolute bottom-4 right-4 z-20 px-3 py-1 rounded-xl bg-white/95 backdrop-blur-sm text-slate-800 border border-slate-200/90 font-mono text-xs flex items-center gap-1.5 shadow-soft">
+                  <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
+                  <span>{vehicle.location || "Yokohama Export Terminal"}</span>
+                </div>
               </div>
 
-              <div className="px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-600 font-mono text-[11px] font-medium border border-slate-200 shadow-2xs">
-                #{vehicle.stockId}
-              </div>
-            </div>
-
-            {/* Car Canvas */}
-            <div className="relative flex-1 min-h-[250px] sm:min-h-[280px] w-full flex items-center justify-center my-auto py-2">
-              {/* Studio floor shadow */}
-              <div className="absolute bottom-2 w-4/5 h-4 bg-black/10 rounded-[50%] blur-sm pointer-events-none transform scale-y-50" />
-
-              {/* High-res Studio Cutout Car */}
-              <img
-                src={images[activeImageIdx] || images[0]}
-                alt={`${vehicle.make} ${vehicle.model}`}
-                className="w-full max-h-[260px] sm:max-h-[290px] select-none transition-all duration-200 relative z-10 object-contain filter drop-shadow-[0_8px_14px_rgba(0,0,0,0.10)]"
-              />
-
-              {/* Zero Emission Emblem (Right of Car) */}
-              {isElectricOrHybrid && (
-                <div className="absolute top-1 right-2 z-20 hidden sm:block">
-                  <ZeroEmissionBadge />
+              {/* Thumbnail Gallery Strip */}
+              {images.length > 1 && (
+                <div className="space-y-1.5 mt-4">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1">
+                    High-Resolution Studio Angles ({images.length})
+                  </span>
+                  <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                    {images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          setActiveImageIdx(idx);
+                        }}
+                        className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
+                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
+                          : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
+                          }`}
+                      >
+                        <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Horizontal Angle Thumbnails Row */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 border-t border-slate-100 mt-auto">
-              {images.map((img, idx) => {
-                const isActive = activeImageIdx === idx;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      setActiveImageIdx(idx);
-                    }}
-                    className={`w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden p-0.5 transition-all cursor-pointer flex items-center justify-center bg-white shrink-0 ${isActive
-                      ? "border-2 border-[#C3002F] shadow-2xs"
-                      : "border border-slate-200 hover:border-slate-400 opacity-70 hover:opacity-100"
-                      }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`Angle ${idx + 1}`}
-                      className="w-full h-full object-contain"
-                    />
-                  </button>
-                );
-              })}
+            {/* Pinned Studio Badge Footer */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+              <span>Studio Photographic Inspection</span>
+              <span className="text-emerald-700 font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Verified Asset</span>
+              </span>
             </div>
           </div>
         </div>
 
-        {/* ───────────────────────────────────────────────────────── */}
-        {/* RIGHT COLUMN: Wholesale Landed Schedule + Dealer Actions  */}
-        {/* ───────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-5 flex flex-col h-full">
-          {/* Card 1: WHOLESALE LANDED PRICE SCHEDULE */}
-          <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between h-full space-y-4">
-            <div className="space-y-3.5">
-              <div>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-bold font-mono text-slate-900 tracking-tight">
-                    ${totalBuyPriceNZD.toLocaleString()}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">
-                    NZD Total Buy Price
-                  </span>
-                </div>
-              </div>
+        {/* Right Column (5 cols): Commercial & Order Management Panel */}
+        <div className="lg:col-span-5 h-full flex flex-col">
+          <div className="bg-white rounded-[16px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-5">
+            {/* ──────────────────────────────────────────────────────── */}
+            {/* ADMIN COMMERCIAL VIEW                                    */}
+            {/* ──────────────────────────────────────────────────────── */}
+            {isAdmin ? (
+              <div className="space-y-4">
+                {/* Acquisition Baseline Box */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
+                      Japanese Acquisition Pricing ({vehicle.purchasePriceBasis || "FOB"})
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 text-[10px] font-mono font-bold">
+                      {vehicle.purchasePriceBasis || "FOB"} · {vehicle.currency || "JPY"}
+                    </span>
+                  </div>
 
-              {/* Delivery Zone Presentation */}
-              {isAdmin ? (
-                /* Admin: Interactive 5-Zone Matrix with Fixed Profile Prices */
+                  <div className="flex items-baseline justify-between gap-3">
+                    {isEditingPrice ? (
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-slate-400">
+                            ¥
+                          </span>
+                          <input
+                            type="number"
+                            step="10000"
+                            value={fobInputJPY}
+                            onChange={(e) => setFobInputJPY(Number(e.target.value))}
+                            className="pl-6 pr-2 py-1 w-32 rounded-lg border border-slate-300 bg-white font-mono font-bold text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F]"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSavePrice}
+                          className="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold cursor-pointer"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFobInputJPY(vehicle.fobPriceJPY);
+                            setIsEditingPrice(false);
+                          }}
+                          className="text-slate-400 hover:text-slate-600 text-xs p-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline gap-2">
+                        <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
+                          ¥{vehicle.fobPriceJPY.toLocaleString()}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsEditingPrice(true)}
+                          className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer"
+                        >
+                          (Edit)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Raw Japan auction purchase price prior to ocean shipping (~${landedPrice.fobNZD.toLocaleString()} NZD equiv.)
+                  </p>
+                  <div className="pt-2 border-t border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between font-mono">
+                    <span className="text-slate-400 font-sans">Dispatch Vessel:</span>
+                    <strong className="text-slate-900 font-bold">Port of Auckland (RoRo V.48)</strong>
+                  </div>
+                </div>
+
+                {/* 5-Zone Wholesale Landed Matrix Selector */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="font-semibold uppercase tracking-wider text-slate-500">
@@ -546,9 +784,164 @@ export default function FullPageVehicleDetail({
                     })}
                   </div>
                 </div>
-              ) : (
-                /* Dealer: Fixed Designated Territory Badge (Section 4 Compliance) */
-                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+
+                {/* Price Breakdown Line Items */}
+                <div className="divide-y divide-slate-100 text-xs">
+                  <div className="py-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <span>Pricing Component</span>
+                    <span>Calculated Value (NZD)</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Ocean Freight &amp; Port Handling:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.oceanFreightNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Customs Processing &amp; NZ GST (15% CIF):</span>
+                    <span className="font-mono font-medium text-slate-900">
+                      ${(landedPrice.customsProcessingNZD + landedPrice.gstNZD).toLocaleString()} NZD
+                    </span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">MR2A Compliance &amp; Inspection:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.complianceInspectionNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">
+                      Domestic Delivery ({selectedZoneConfig.zoneName.split("-")[0]?.trim()}):
+                    </span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Nissan Programme Component:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.programmeFeeNZD.toLocaleString()} NZD</span>
+                  </div>
+                </div>
+
+                {/* Total Landed Buy Price Box */}
+                <div className="py-2.5 px-3.5 flex items-center justify-between gap-3 bg-slate-50 rounded-xl border border-slate-200">
+                  <div>
+                    <strong className="text-xs text-slate-900 block font-bold">
+                      Total Buy Price ({selectedZone.replace("ZONE_", "Zone ")}):
+                    </strong>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      Guaranteed landed total for {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
+                    </span>
+                  </div>
+                  <strong className="font-mono text-base sm:text-lg font-bold text-slate-950">
+                    ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
+                  </strong>
+                </div>
+
+                {/* Admin Allocation Lifecycle Controls */}
+                <div className="pt-2 border-t border-slate-100">
+                  {isReserved && (
+                    <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-slate-900 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5 text-amber-600" />
+                          <span>Dealer 24h Exclusivity Hold</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                          Active Hold
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-600 space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Reserving Dealership:</span>
+                          <span className="font-bold text-slate-900">{reservingDealerName}</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleAdminApproveReservation}
+                          className="py-2.5 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span>Approve Reservation</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAdminRejectReservation}
+                          className="py-2.5 px-3 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                        >
+                          <X className="w-4 h-4 text-rose-600" />
+                          <span>Reject Hold</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isAllocated && (
+                    <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-slate-900 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-sky-950 flex items-center gap-1.5">
+                          <Ship className="w-4 h-4 text-sky-600" />
+                          <span>Vehicle Allocated to Dealership</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded">
+                          ALLOCATED
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-600 flex justify-between">
+                        <span className="text-slate-500">Allocated To:</span>
+                        <span className="font-bold text-slate-900">{reservingDealerName}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAdminMarkAsSold}
+                        className="w-full py-2.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span>Mark Wholesale Settled</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {isSold && (
+                    <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
+                      <div>
+                        <strong className="block font-bold">Vehicle Wholesale Settled</strong>
+                        <span className="text-purple-700 text-[11px]">Final handover and title transfer completed.</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {isAvailable && (
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+                      <span className="text-slate-500 font-medium">Reservation Status:</span>
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+                        Available in Central Catalogue
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* ──────────────────────────────────────────────────────── */
+              /* DEALER COMMERCIAL VIEW                                   */
+              /* ──────────────────────────────────────────────────────── */
+              <div className="space-y-4">
+                {/* Total Landed Buy Price Box */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
+                    Wholesale Landed Price ({dealerZone})
+                  </span>
+
+                  <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
+                    ${totalBuyPriceNZD.toLocaleString()}
+                    <span className="text-xs font-sans text-slate-400 font-semibold ml-2">NZD Total Buy Price</span>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500">
+                    Guaranteed landed wholesale price delivered directly to your authorized franchise depot.
+                  </p>
+                </div>
+
+                {/* Designated Territory Presentation */}
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 block">
@@ -569,802 +962,620 @@ export default function FullPageVehicleDetail({
                     </span>
                   </div>
                 </div>
-              )}
 
-              {/* Price Line Items Table matching Exact Nissan Specifications */}
-              <div className="divide-y divide-slate-100 text-xs">
-                <div className="py-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                  <span>Pricing Component</span>
-                  <span>{isAdmin ? "Calculated Value" : "Commercial Allocation"}</span>
-                </div>
-
-                {/* 1. FOB Acquisition Price */}
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-600 font-medium">FOB Acquisition Price:</span>
-                    {isAdmin && !isEditingPrice && (
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingPrice(true)}
-                        className="text-[10px] text-slate-400 hover:text-slate-900 underline font-medium cursor-pointer"
-                      >
-                        (Edit)
-                      </button>
-                    )}
+                {/* Price Line Items Table */}
+                <div className="divide-y divide-slate-100 text-xs">
+                  <div className="py-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <span>Pricing Component</span>
+                    <span>Commercial Allocation</span>
                   </div>
-                  {isAdmin && isEditingPrice ? (
-                    <div className="flex items-center gap-1.5">
-                      <div className="relative">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[11px] font-bold text-slate-400">
-                          ¥
-                        </span>
-                        <input
-                          type="number"
-                          step="10000"
-                          value={fobInputJPY}
-                          onChange={(e) => setFobInputJPY(Number(e.target.value))}
-                          className="pl-5 pr-1.5 py-0.5 w-28 rounded border border-slate-300 bg-white font-mono font-bold text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleSavePrice}
-                        className="px-2 py-0.5 rounded bg-slate-900 text-white text-[10px] font-bold cursor-pointer"
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFobInputJPY(vehicle.fobPriceJPY);
-                          setIsEditingPrice(false);
-                        }}
-                        className="text-slate-400 hover:text-slate-600 text-[10px] cursor-pointer p-0.5"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="font-mono font-medium text-slate-900 text-right">
-                      ¥{vehicle.fobPriceJPY.toLocaleString()}
-                      <span className="text-slate-400 font-normal text-[11px] ml-1">
-                        (~${landedPrice.fobNZD.toLocaleString()} NZD)
-                      </span>
-                    </span>
-                  )}
-                </div>
-
-                {/* 2. Ocean Freight & Port Handling */}
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <span className="text-slate-600 font-medium">Ocean Freight &amp; Port Handling:</span>
-                  <span className="font-mono font-medium text-slate-900 text-right">
-                    ${landedPrice.oceanFreightNZD.toLocaleString()} NZD
-                  </span>
-                </div>
-
-                {/* 3. Customs Processing & NZ GST */}
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <span className="text-slate-600 font-medium">Customs Processing &amp; NZ GST (15% CIF):</span>
-                  <span className="font-mono font-medium text-slate-900 text-right">
-                    ${(landedPrice.customsProcessingNZD + landedPrice.gstNZD).toLocaleString()} NZD
-                  </span>
-                </div>
-
-                {/* 4. MR2A Compliance & Inspection */}
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <span className="text-slate-600 font-medium">MR2A Compliance &amp; Inspection:</span>
-                  <span className="font-mono font-medium text-slate-900 text-right">
-                    ${landedPrice.complianceInspectionNZD.toLocaleString()} NZD
-                  </span>
-                </div>
-
-                {/* 5. Domestic NZ Delivery */}
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-600 font-medium">Domestic NZ Delivery:</span>
-                    <span className="text-[10px] text-slate-400 font-normal">
-                      ({selectedZoneConfig.zoneName.split("-")[0]?.trim() || selectedZone})
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Ocean Freight &amp; Port Handling:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.oceanFreightNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Customs Clearance &amp; NZ GST (15% CIF):</span>
+                    <span className="font-mono font-medium text-slate-900">
+                      ${(landedPrice.customsProcessingNZD + landedPrice.gstNZD).toLocaleString()} NZD
                     </span>
                   </div>
-                  <span className="font-mono font-medium text-slate-900 text-right">
-                    ${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD
-                  </span>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">MR2A Compliance &amp; WoF Certification:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.complianceInspectionNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Direct Dealership Delivery ({dealerZone}):</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Nissan Certified Programme Component:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.programmeFeeNZD.toLocaleString()} NZD</span>
+                  </div>
                 </div>
 
-                {/* 6. Nissan Programme Component */}
-                <div className="py-2 flex items-center justify-between gap-3">
-                  <span className="text-slate-600 font-medium">Nissan Programme Component:</span>
-                  <span className="font-mono font-medium text-slate-900 text-right">
-                    ${landedPrice.programmeFeeNZD.toLocaleString()} NZD
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Total Buy Price Section */}
-            <div className="space-y-3 mt-auto pt-2">
-              {/* Total Buy Price / Fixed Profile Price */}
-              <div className="py-2.5 px-3.5 flex items-center justify-between gap-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div>
-                  <strong className="text-xs text-slate-900 block font-bold">
-                    Total Buy Price (Fixed Profile Price):
-                  </strong>
-                  <span className="text-[10px] text-slate-400 font-normal">
-                    Guaranteed landed total for {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
-                  </span>
-                </div>
-                <strong className="font-mono text-base sm:text-lg font-bold text-slate-950">
-                  ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
-                </strong>
-              </div>
-
-              {/* Dealer: Commercial Margin & Exclusivity Procurement Action integrated into the Price Schedule Card */}
-              {!isAdmin && (
-                <div className="pt-2 border-t border-slate-100 space-y-3">
-                  {/* Primary Dealer Procurement Action Button */}
+                {/* Guaranteed Fixed Profile Price Callout */}
+                <div className="py-2.5 px-3.5 flex items-center justify-between gap-3 bg-slate-50 rounded-xl border border-slate-200">
                   <div>
-                    {isAvailable ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          audio.playSubtleClick();
-                          setIsReserveModalOpen(true);
-                        }}
-                        className="w-full py-3.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs tracking-wide transition-all shadow-xs active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
-                      >
-                        <Lock className="w-4 h-4 text-amber-400" />
-                        <span>Place 24-Hour Exclusivity Hold (Reserve)</span>
-                      </button>
-                    ) : vehicle.status === "RESERVED" ? (
-                      <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between">
-                        <span className="font-semibold flex items-center gap-2">
-                          <Lock className="w-4 h-4 text-amber-600 shrink-0" />
-                          <span>Reserved · Pending Admin Review</span>
-                        </span>
-                        <span className="font-mono text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
-                          Active Hold
-                        </span>
-                      </div>
-                    ) : vehicle.status === "ALLOCATED" ? (
-                      <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-xs flex items-center justify-between">
-                        <span className="font-semibold flex items-center gap-2">
-                          <Ship className="w-4 h-4 text-sky-600 shrink-0" />
-                          <span>Allocated · Approved by Admin</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => router.push("/dealer/orders")}
-                          className="text-[11px] font-bold text-sky-700 hover:underline cursor-pointer"
-                        >
-                          View Orders →
-                        </button>
-                      </div>
-                    ) : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") ? (
-                      <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between">
-                        <span className="font-semibold flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
-                          <span>Sold · Wholesale Settled</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => router.push("/dealer/orders")}
-                          className="text-[11px] font-bold text-purple-700 hover:underline cursor-pointer"
-                        >
-                          View Orders →
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="w-full py-3 px-4 rounded-xl bg-slate-100 text-slate-500 font-semibold text-xs text-center flex items-center justify-center gap-2 border border-slate-200">
-                        <Lock className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Reserved Under Network Lock</span>
-                      </div>
-                    )}
-
-                    {/* Trust Badges */}
-                    <div className="flex items-center justify-center gap-2.5 text-[10px] text-slate-400 pt-2 flex-wrap">
-                      <span>✓ Zero Initial Deposit</span>
-                      <span>•</span>
-                      <span>✓ 24h Price Guarantee</span>
-                      <span>•</span>
-                      <span>✓ JEVIC &amp; MR2A Included</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Admin Operations & Reservation Lifecycle Controls */}
-              {isAdmin && (
-                <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3 mt-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-slate-900" />
-                      <span className="text-xs font-bold text-slate-900 tracking-tight">Admin Operations &amp; Allocation Control</span>
-                    </div>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
-                      ? "bg-purple-100 text-purple-800"
-                      : vehicle.status === "ALLOCATED"
-                        ? "bg-sky-100 text-sky-800"
-                        : vehicle.status === "RESERVED"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}>
-                      {(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") ? "SETTLED" : vehicle.status}
+                    <strong className="text-xs text-slate-900 block font-bold">
+                      Total Buy Price (Fixed Profile Price):
+                    </strong>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      Guaranteed landed total for {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
                     </span>
                   </div>
-
-                  {vehicle.status === "RESERVED" && (
-                    <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-slate-900 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Dealer Reservation Pending Review</span>
-                        </span>
-                        <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
-                          Active Hold
-                        </span>
-                      </div>
-                      <div className="text-xs text-slate-600 space-y-1">
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Reserving Dealer:</span>
-                          <span className="font-bold text-slate-900">{reservingDealerName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Holding Type:</span>
-                          <span className="font-mono text-slate-700">24-Hour Exclusivity Hold</span>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <button
-                          type="button"
-                          onClick={handleAdminApproveReservation}
-                          className="py-2.5 px-3 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>Approve Reservation</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAdminRejectReservation}
-                          className="py-2.5 px-3 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
-                        >
-                          <X className="w-4 h-4 text-rose-600" />
-                          <span>Reject Reservation</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {vehicle.status === "ALLOCATED" && (
-                    <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-slate-900 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-sky-950 flex items-center gap-1.5">
-                          <Ship className="w-4 h-4 text-sky-600" />
-                          <span>Vehicle Allocated to Dealership</span>
-                        </span>
-                        <span className="text-[10px] font-mono font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded">
-                          ALLOCATED
-                        </span>
-                      </div>
-                      <div className="text-xs text-slate-600 space-y-1">
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Allocated To:</span>
-                          <span className="font-bold text-slate-900">{reservingDealerName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Next Step:</span>
-                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Settled</span>
-                        </div>
-                      </div>
-                      <div className="pt-1">
-                        <button
-                          type="button"
-                          onClick={handleAdminMarkAsSold}
-                          className="w-full py-3 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>Mark Wholesale Settled</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") && (
-                    <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-slate-900 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-purple-950 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                          <span>Vehicle Wholesale Settled</span>
-                        </span>
-                        <span className="text-[10px] font-mono font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">
-                          Settled
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-600">
-                        Purchase is finalized. This vehicle is settled and recorded in the dealer allocation ledger.
-                      </p>
-                    </div>
-                  )}
-
-                  {vehicle.status === "AVAILABLE" && (
-                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Reservation Status:</span>
-                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
-                        Available · Awaiting Dealer Reservation
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 4. FULL-WIDTH WORKSPACE: Specifications & Additional Costs   */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="space-y-6">
-
-
-
-        {/* ───────────────────────────────────────────────────────── */}
-        {/* 1st CARD: Specifications                                  */}
-        {/* ───────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
-          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                Specifications
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Certified Japanese export verification and mechanical specification dossier.
-              </p>
-            </div>
-          </div>
-
-          {/* 4 Inner Stats Cards Strip (Matching Image 2 Reference) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {/* 1. ODOMETER (JEVIC) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                ODOMETER (JEVIC)
-              </span>
-              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
-              </div>
-              <span className="text-[11px] text-emerald-600 font-semibold block truncate">
-                Digitally Certified
-              </span>
-            </div>
-
-            {/* 2. AUCTION GRADE */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                AUCTION GRADE
-              </span>
-              <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-                ★ {vehicle.auctionGrade || "4.5"} / {vehicle.interiorGrade || "A"}
-              </div>
-              <span className="text-[11px] text-slate-500 block truncate">
-                USS / JAA Inspection
-              </span>
-            </div>
-
-            {/* 3. POWERTRAIN / DRIVE (Dealers) or FOB BASELINE (Admin) */}
-            {isAdmin ? (
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  FOB BASELINE (JPY)
-                </span>
-                <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                  ¥{vehicle.fobPriceJPY.toLocaleString()}
-                </div>
-                <span className="text-[11px] text-slate-500 block truncate">
-                  Japan Acquisition Cost
-                </span>
-              </div>
-            ) : (
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  POWERTRAIN / DRIVE
-                </span>
-                <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-                  {vehicle.driveType || "2WD"} · {vehicle.fuelType || "Petrol"}
-                </div>
-                <span className="text-[11px] text-emerald-600 font-semibold block truncate">
-                  {vehicle.transmission || "Automatic"}
-                </span>
-              </div>
-            )}
-
-            {/* 4. YARD STAGING */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                YARD STAGING
-              </span>
-              <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
-                {vehicle.location || "Yokohama Yard"}
-              </div>
-              <span className="text-[11px] text-slate-500 block truncate">
-                Export Bay Ready
-              </span>
-            </div>
-          </div>
-
-          {/* 4-Column Technical Grid (Cleaned: No Duplicates or Redundant Info) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            {/* Card 1: Provenance & Identification */}
-            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Provenance &amp; Identification
-              </span>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Chassis / VIN:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-mono font-bold text-slate-900">{vehicle.vinChassis}</span>
-                    <button
-                      type="button"
-                      onClick={handleCopyVin}
-                      title="Copy VIN"
-                      className="p-0.5 text-slate-400 hover:text-slate-700 cursor-pointer"
-                    >
-                      {copiedVin ? (
-                        <Check className="w-3 h-3 text-emerald-600" />
-                      ) : (
-                        <Copy className="w-3 h-3" />
-                      )}
-                    </button>
-                  </div>
+                  <strong className="font-mono text-base sm:text-lg font-bold text-slate-950">
+                    ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
+                  </strong>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Make &amp; Model:</span>
-                  <span className="font-bold text-slate-900">{vehicle.make || "Nissan"} {vehicle.model}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Variant / Trim:</span>
-                  <span className="font-semibold text-slate-800">{vehicle.grade}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Drive Type:</span>
-                  <span className="font-mono font-bold text-slate-900">{vehicle.driveType || "2WD"}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Powertrain & Mechanical */}
-            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Powertrain &amp; Mechanical
-              </span>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Powertrain:</span>
-                  <span className="font-semibold text-slate-900">{vehicle.fuelType}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Engine / Motor:</span>
-                  <span className="font-mono font-medium text-slate-800">
-                    {vehicle.engineCc && vehicle.engineCc > 0 ? `${vehicle.engineCc.toLocaleString()} cc` : "Electric Drive Motor"}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Transmission:</span>
-                  <span className="font-medium text-slate-800">{vehicle.transmission}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Exterior Colour:</span>
-                  <span className="font-medium text-slate-800">{vehicle.color || "Factory Original"}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Compliance & Odometer (Cleaned: Removed duplicates of Odometer km, Price Basis, Listing Status) */}
-            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Compliance &amp; Odometer
-              </span>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">JEVIC Odometer:</span>
-                  <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    <span>Certified Hash Pass</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">NZTA Entry:</span>
-                  <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    <span>MR2A Dossier Cleared</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Biosecurity / Rad:</span>
-                  <span className="font-mono font-medium text-slate-700 text-[11px]">
-                    Passed (&lt;0.08 µSv/h)
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Certified Date:</span>
-                  <span className="font-mono text-slate-700">{vehicle.inspectionDate || vehicle.createdAt || "2026-10-24"}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Condition Log & Japanese Notes (Cleaned: Removed 3rd duplicate of Auction Grade) */}
-            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                Condition &amp; Inspection Log
-              </span>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Interior / Exterior:</span>
-                  <span className="font-medium text-slate-900 text-[11px]">
-                    Int: Grade {vehicle.interiorGrade || "A"} · Ext: Grade {vehicle.exteriorGrade || "A"}
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-[11px] text-slate-500 block mb-0.5">Overall Condition:</span>
-                  <p className="text-[11px] text-slate-700 leading-snug font-normal">
-                    {vehicle.overallCondition || vehicle.conditionSummary || "Zero panel damage. Verified Japanese one-owner."}
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-[11px] text-slate-500 block mb-1">Reported Defects:</span>
-                  {vehicle.knownDefects && vehicle.knownDefects.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
-                      {vehicle.knownDefects.map((defect, dIdx) => (
-                        <span
-                          key={dIdx}
-                          className="text-[10px] text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200"
-                        >
-                          • {defect}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                      None Reported (Grade 4.5+ Standard)
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ───────────────────────────────────────────────────────── */}
-        {/* 2nd CARD: Supporting Documents (Intake Archive)           */}
-        {/* ───────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                    Supporting Documents
-                  </h2>
-                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px] font-semibold border border-slate-200">
-                    {supportingDocs.length} {supportingDocs.length === 1 ? "File" : "Files"}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Official certified Japanese inspection passes, auction sheets, and compliance verification documents attached during intake.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Verified Intake Archive</span>
-              </span>
-            </div>
-          </div>
-
-          {supportingDocs.length === 0 ? (
-            <div className="p-8 sm:p-12 rounded-2xl bg-slate-50/60 border border-dashed border-slate-200 text-center">
-              <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <span className="text-sm sm:text-base font-bold text-slate-500 block">
-                No Supporting Documents
-              </span>
-              <p className="text-xs text-slate-400 mt-1">
-                No supplementary documentation was attached during vehicle intake.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {supportingDocs.map((doc, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50 transition-all flex flex-col justify-between space-y-3 group"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 shrink-0 font-mono">
-                        {doc.type.replace(/_/g, " ")}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {doc.size || "PDF Document"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-2 pt-1">
-                      <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#C3002F] shrink-0 mt-0.5 shadow-2xs">
-                        <FileText className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-xs font-bold text-slate-900 block truncate group-hover:text-[#C3002F] transition-colors" title={doc.name}>
-                          {doc.name}
-                        </span>
-                        <span className="text-[10px] text-slate-400 block font-mono mt-0.5">
-                          Uploaded: {doc.uploadedAt || vehicle.createdAt || "Intake Record"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60">
+                {/* Dealer Exclusivity Hold & Procurement Action */}
+                <div className="pt-2 border-t border-slate-100 space-y-3">
+                  {isAvailable ? (
                     <button
                       type="button"
                       onClick={() => {
                         audio.playSubtleClick();
-                        setViewingDocument({
-                          name: doc.name,
-                          type: doc.type.replace(/_/g, " "),
-                          date: doc.uploadedAt || vehicle.createdAt || "2026-10-22",
-                          size: doc.size || "PDF Document",
-                        });
+                        setIsReserveModalOpen(true);
                       }}
-                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5"
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs tracking-wide transition-all shadow-xs active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <Eye className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Inspect</span>
+                      <Lock className="w-4 h-4 text-amber-400" />
+                      <span>Place 24-Hour Exclusivity Hold (Reserve)</span>
                     </button>
+                  ) : isReserved && isHeldByCurrentDealer ? (
+                    <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Your Active Hold · Pending Allocation Review</span>
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                        Active Hold
+                      </span>
+                    </div>
+                  ) : isAllocated ? (
+                    <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-xs flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-2">
+                        <Ship className="w-4 h-4 text-sky-600 shrink-0" />
+                        <span>Allocated to Your Dealership</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => router.push("/dealer/orders")}
+                        className="text-[11px] font-bold text-sky-700 hover:underline cursor-pointer"
+                      >
+                        View Orders →
+                      </button>
+                    </div>
+                  ) : isSold ? (
+                    <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
+                        <span>Sold &amp; Handed Over</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => router.push("/dealer/orders")}
+                        className="text-[11px] font-bold text-purple-700 hover:underline cursor-pointer"
+                      >
+                        View Orders →
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-full py-3 px-4 rounded-xl bg-slate-100 text-slate-500 font-semibold text-xs text-center flex items-center justify-center gap-2 border border-slate-200">
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Reserved Under Network Lock</span>
+                    </div>
+                  )}
 
-                    <button
-                      type="button"
-                      onClick={() => handleDownloadDocument(doc.name)}
-                      className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Download</span>
-                    </button>
+                  {/* Trust Badges */}
+                  <div className="flex items-center justify-center gap-2.5 text-[10px] text-slate-400 pt-1 flex-wrap">
+                    <span>✓ Zero Initial Deposit</span>
+                    <span>•</span>
+                    <span>✓ 24h Price Guarantee</span>
+                    <span>•</span>
+                    <span>✓ JEVIC &amp; MR2A Included</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* 3rd CARD: Additional Costs                                */}
-        {/* ───────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                Additional Costs
-              </h2>
-            </div>
-
-            {/* Admin Action: Add Additional Cost */}
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setIsAddCostModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 self-start sm:self-auto active:scale-[0.98]"
-              >
-                <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Add Additional Cost</span>
-              </button>
+              </div>
             )}
           </div>
-
-          {additionalCosts.length === 0 ? (
-            /* Blank card saying "No Additional Costs", no extra information */
-            <div className="p-8 sm:p-12 rounded-2xl bg-slate-50/60 border border-dashed border-slate-200 text-center">
-              <span className="text-sm sm:text-base font-bold text-slate-500">
-                No Additional Costs
-              </span>
-            </div>
-          ) : (
-            /* When admin has attached additional costs */
-            <div className="overflow-x-auto rounded-2xl border border-slate-200">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th className="py-3 px-4 font-bold">Category</th>
-                    <th className="py-3 px-4 font-bold">Description</th>
-                    <th className="py-3 px-4 font-bold">Notes / Evidence</th>
-                    <th className="py-3 px-4 font-bold">Status</th>
-                    <th className="py-3 px-4 font-bold text-right">Amount (NZD)</th>
-                    {isAdmin && <th className="py-3 px-4 font-bold text-right">Action</th>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {additionalCosts.map((cost) => (
-                    <tr key={cost.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">
-                        {cost.type.replace(/_/g, " ")}
-                      </td>
-                      <td className="py-3 px-4 text-slate-700">
-                        {cost.description}
-                      </td>
-                      <td className="py-3 px-4 text-[11px]">
-                        <div className="font-mono text-slate-600 truncate max-w-xs">
-                          {cost.notes || "Official Inspection Item"}
-                        </div>
-                        {cost.evidenceDocumentUrl && (
-                          <div className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200">
-                            <Paperclip className="w-2.5 h-2.5 text-slate-500 shrink-0" />
-                            <span className="truncate max-w-[150px]">{cost.evidenceDocumentUrl}</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          {cost.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
-                        +${cost.amountNZD.toLocaleString()} NZD
-                      </td>
-                      {isAdmin && (
-                        <td className="py-3 px-4 text-right whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAdditionalCost(cost.id)}
-                            className="text-rose-600 hover:text-rose-800 p-1 rounded hover:bg-rose-50 cursor-pointer transition-colors"
-                            title="Remove cost item"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-slate-50 border-t border-slate-200 font-bold">
-                  <tr>
-                    <td colSpan={isAdmin ? 4 : 4} className="py-3 px-4 text-slate-900">
-                      Total Additional Costs:
-                    </td>
-                    <td className="py-3 px-4 text-right font-mono text-sm text-slate-900">
-                      +${additionalCostsTotal.toLocaleString()} NZD
-                    </td>
-                    {isAdmin && <td></td>}
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          )}
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. Atomic Exclusivity Reservation Modal                     */}
+      {/* 4. Full Layout Card 1: Inspection Condition Dossier         */}
       {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <FileCheck2 className="w-4 h-4 text-[#C3002F]" />
+            <span>Inspection Condition Dossier &amp; Known Defects</span>
+          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-mono px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-bold">
+              ★ Grade {vehicle.auctionGrade || "4.5"} · Int {vehicle.interiorGrade || "A"} · Ext {vehicle.exteriorGrade || "A"}
+            </span>
+            <span className="text-[10px] font-mono px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+              MR2A Pre-Verified
+            </span>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-slate-800">
+            <span>Overall Vehicle Condition:</span>
+            <span className="text-emerald-700 font-bold text-xs sm:text-sm">
+              {vehicle.overallCondition}
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed text-xs">
+            {vehicle.conditionSummary ||
+              "Showroom demonstration grade. Zero structural panel damage detected. Fully compliant for NZTA MR2A border entry with genuine Japanese documentation."}
+          </p>
+        </div>
+
+        {vehicle.knownDefects && vehicle.knownDefects.length > 0 && (
+          <div className="space-y-2 pt-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Inspector Recorded Markings &amp; Defect Items:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {vehicle.knownDefects.map((defect, i) => (
+                <div
+                  key={i}
+                  className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center gap-2.5 text-xs text-amber-950 font-medium"
+                >
+                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                  <span className="break-words leading-snug">{defect}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Integrated JEVIC Verification Bar */}
+        <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span className="font-semibold text-slate-800">JEVIC Pre-Export Verification</span>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-mono text-[10px] font-bold border border-emerald-200">
+            PASSED 100%
+          </span>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 5. Full Layout Card 2: Vehicle Specifications & Listing     */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#C3002F]" />
+            <span>Vehicle Specifications &amp; Listing Record</span>
+          </h3>
+          <span className="text-[10px] font-mono px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
+            NZTA Certified
+          </span>
+        </div>
+
+        {/* Clean 4-Column Technical Grid (Zero duplicate info) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          {/* Card 1: Provenance & Identification */}
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Provenance &amp; Identification
+            </span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Chassis / VIN:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono font-bold text-slate-900">{vehicle.vinChassis}</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyVin}
+                    title="Copy VIN"
+                    className="p-0.5 text-slate-400 hover:text-slate-700 cursor-pointer"
+                  >
+                    {copiedVin ? (
+                      <Check className="w-3 h-3 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Stock Serial ID:</span>
+                <span className="font-mono font-bold text-slate-800">#{vehicle.stockId}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Make &amp; Model:</span>
+                <span className="font-bold text-slate-900">{vehicle.make || "Nissan"} {vehicle.model}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Variant / Trim:</span>
+                <span className="font-semibold text-slate-800">{vehicle.grade}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Model Year:</span>
+                <span className="font-mono font-bold text-slate-900">{vehicle.year}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Powertrain & Mechanical */}
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Powertrain &amp; Mechanical
+            </span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Powertrain:</span>
+                <span className="font-semibold text-slate-900">{vehicle.fuelType}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Displacement:</span>
+                <span className="font-mono font-medium text-slate-800">
+                  {vehicle.engineCc && vehicle.engineCc > 0 ? `${vehicle.engineCc.toLocaleString()} cc` : "Electric Motor"}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Transmission:</span>
+                <span className="font-medium text-slate-800">{vehicle.transmission}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Drive System:</span>
+                <span className="font-mono font-bold text-slate-900">{vehicle.driveType || "2WD"}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Exterior Colour:</span>
+                <span className="font-medium text-slate-800">{vehicle.color || "Factory Original"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Compliance & Verification */}
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Compliance &amp; Verification
+            </span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">JEVIC Odometer:</span>
+                <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span>Certified Pass</span>
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">NZTA Entry:</span>
+                <span className="font-semibold text-emerald-700 flex items-center gap-1 text-[11px]">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span>MR2A Cleared</span>
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Biosecurity / Rad:</span>
+                <span className="font-mono font-medium text-slate-700 text-[11px]">
+                  Passed (&lt;0.08 µSv/h)
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Certified Date:</span>
+                <span className="font-mono text-slate-700">{vehicle.inspectionDate || vehicle.createdAt}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Stock Reference:</span>
+                <span className="font-mono text-slate-700">{vehicle.stockReference}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Listing & Intake Profile */}
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 space-y-2.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Listing &amp; Intake Profile
+            </span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Listing Status:</span>
+                <span className="font-bold text-slate-900 font-mono text-[11px]">{vehicle.status}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Yard Staging:</span>
+                <span className="font-medium text-slate-800 text-[11px] truncate max-w-[140px]" title={vehicle.location}>
+                  {vehicle.location}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Created Date:</span>
+                <span className="font-mono text-slate-700 text-[11px]">{vehicle.createdAt}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Last Updated:</span>
+                <span className="font-mono text-slate-700 text-[11px]">{vehicle.updatedAt}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Pricing Basis:</span>
+                <span className="font-mono text-slate-800 font-bold text-[11px]">
+                  {isAdmin ? `${vehicle.purchasePriceBasis || "FOB"} (${vehicle.currency || "JPY"})` : "Wholesale Landed (NZD)"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 6. Full Layout Card 3: Supporting Documents                 */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#C3002F]" />
+              <span>Supporting Documents</span>
+            </h3>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono border border-emerald-200 shrink-0 self-start sm:self-auto">
+            {vehicleDocs.length} {vehicleDocs.length === 1 ? "Document" : "Documents"} Uploaded
+          </span>
+        </div>
+
+        {vehicleDocs.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {vehicleDocs.map((doc: VehicleSupportingDoc, idx: number) => (
+              <div
+                key={doc.name + idx}
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveDocPreview({
+                    name: doc.name,
+                    type: doc.type.replace(/_/g, " "),
+                    date: doc.uploadedAt || vehicle.createdAt || "2026-10-22",
+                    size: doc.size || "1.2 MB",
+                  });
+                }}
+                className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 transition-all cursor-pointer group flex items-start justify-between bg-white shadow-2xs"
+              >
+                <div className="space-y-1.5 min-w-0 pr-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#C3002F] shrink-0" />
+                    <span
+                      className="font-bold text-xs text-slate-900 group-hover:text-[#C3002F] transition-colors truncate block"
+                      title={doc.name}
+                    >
+                      {doc.name}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-mono">
+                    {doc.type.replace(/_/g, " ")} · {doc.size || "PDF Document"}
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-600 font-semibold block">
+                    Uploaded with Vehicle ({doc.uploadedAt || vehicle.createdAt})
+                  </span>
+                </div>
+                <Eye className="w-4 h-4 text-slate-400 group-hover:text-slate-700 shrink-0 mt-0.5" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 rounded-2xl bg-slate-50/70 border border-dashed border-slate-200 text-center my-3">
+            <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-xs font-bold text-slate-700">No Supporting Documents</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              No supplementary documentation was attached during vehicle intake.
+            </p>
+          </div>
+        )}
+
+        {/* Pinned Cryptographic Status Footer */}
+        <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-mono">
+          <span>Cryptographic Export Register</span>
+          <span className="text-slate-700 font-bold">SHA-256 Verified</span>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 7. Full Layout Card 4: Additional Costs                     */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+              <Wrench className="w-4 h-4 text-[#C3002F]" />
+              <span>Additional Costs</span>
+            </h3>
+          </div>
+
+          {/* Admin Action: Add Additional Cost */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setIsAddCostModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 self-start sm:self-auto active:scale-[0.98]"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Add Additional Cost</span>
+            </button>
+          )}
+        </div>
+
+        {/* Dealer Pending Costs Alert Banner */}
+        {!isAdmin && pendingAdditionalCosts.length > 0 && (
+          <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-amber-700">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div>
+                <strong className="block font-bold">
+                  {pendingAdditionalCosts.length} Supplementary Cost Proposal{pendingAdditionalCosts.length > 1 ? "s" : ""} Awaiting Your Review
+                </strong>
+                <p className="text-amber-800 text-[11px] mt-0.5">
+                  Proposed by operations compliance. Review the items and click Approve or Decline. Approved costs are incorporated into your landed buy price.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {additionalCosts.length === 0 ? (
+          <div className="p-8 sm:p-10 rounded-2xl bg-slate-50/60 border border-dashed border-slate-200 text-center">
+            <span className="text-sm font-bold text-slate-500 block">
+              No Additional Costs
+            </span>
+            <p className="text-xs text-slate-400 mt-1">
+              This vehicle has zero supplementary repair or non-standard compliance variance costs attached.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-4 font-bold">Category</th>
+                  <th className="py-3 px-4 font-bold">Description</th>
+                  <th className="py-3 px-4 font-bold">Notes / Evidence</th>
+                  <th className="py-3 px-4 font-bold">Status</th>
+                  <th className="py-3 px-4 font-bold text-right">Amount (NZD)</th>
+                  <th className="py-3 px-4 font-bold text-right">{isAdmin ? "Action" : "Review Decision"}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {additionalCosts.map((cost) => (
+                  <tr key={cost.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">
+                      {cost.type.replace(/_/g, " ")}
+                    </td>
+                    <td className="py-3 px-4 text-slate-700">{cost.description}</td>
+                    <td className="py-3 px-4 text-[11px]">
+                      <div className="font-mono text-slate-600 truncate max-w-xs">
+                        {cost.notes || "Official Inspection Item"}
+                      </div>
+                      {cost.evidenceDocumentUrl && (
+                        <div className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200">
+                          <Paperclip className="w-2.5 h-2.5 text-slate-500 shrink-0" />
+                          <span className="truncate max-w-[150px]">{cost.evidenceDocumentUrl}</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {cost.status === "PENDING_DEALER_APPROVAL" ? (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 flex items-center gap-1.5 w-fit">
+                          <Clock className="w-3 h-3 text-amber-600 animate-pulse" />
+                          <span>{isAdmin ? "Awaiting Dealer Review" : "Pending Your Approval"}</span>
+                        </span>
+                      ) : cost.status === "APPROVED" ? (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5 w-fit">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>{isAdmin ? "Approved by Dealer" : "Approved"}</span>
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5 w-fit">
+                          <X className="w-3.5 h-3.5 text-rose-600" />
+                          <span>{isAdmin ? "Declined by Dealer" : "Declined"}</span>
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                      +${cost.amountNZD.toLocaleString()} NZD
+                    </td>
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      {isAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAdditionalCost(cost.id)}
+                          className="text-rose-600 hover:text-rose-800 p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer transition-colors"
+                          title="Remove cost proposal"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      ) : cost.status === "PENDING_DEALER_APPROVAL" ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleDealerApproveCost(cost.id)}
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-2xs transition-all active:scale-[0.98]"
+                            title="Approve this additional cost"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Approve</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDealerRejectCost(cost.id)}
+                            className="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 font-bold text-xs flex items-center gap-1 cursor-pointer shadow-2xs transition-all active:scale-[0.98]"
+                            title="Decline this additional cost"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Decline</span>
+                          </button>
+                        </div>
+                      ) : cost.status === "APPROVED" ? (
+                        <span className="text-[11px] font-semibold text-emerald-700">Applied to Landed</span>
+                      ) : (
+                        <span className="text-[11px] font-semibold text-slate-400">Declined</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-slate-50 border-t border-slate-200 font-bold">
+                <tr>
+                  <td colSpan={4} className="py-3 px-4 text-slate-900">
+                    {isAdmin ? "Total Proposed Additional Costs:" : "Approved Additional Costs (Applied):"}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-sm text-slate-900">
+                    +${(isAdmin ? additionalCostsTotal : approvedCostsTotal).toLocaleString()} NZD
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 8. Bottom Return Navigation                                 */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="pt-2 flex items-center justify-center">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="py-3 px-6 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs transition-all shadow-2xs flex items-center gap-2 cursor-pointer hover:border-slate-300 active:scale-[0.99]"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+          <span>Return to {isAdmin ? "Catalogue" : "Stock"}</span>
+        </button>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 9. MODALS & OVERLAYS                                        */}
+      {/* ─────────────────────────────────────────────────────────── */}
+
+      {/* A. Atomic Exclusivity Reservation Modal (Dealer Only) */}
       {isReserveModalOpen && (
         <AtomicReservationModal
           vehicle={vehicle}
@@ -1373,8 +1584,18 @@ export default function FullPageVehicleDetail({
         />
       )}
 
-      {/* Official Verified Document Viewer Modal */}
-      {viewingDocument && (
+      {/* B. Add Vehicle Additional Cost Modal (Admin Only) */}
+      {isAddCostModalOpen && (
+        <AddVehicleAdditionalCostModal
+          vehicle={vehicle}
+          isOpen={isAddCostModalOpen}
+          onClose={() => setIsAddCostModalOpen(false)}
+          onAddCost={handleAddAdditionalCost}
+        />
+      )}
+
+      {/* C. Official Verified Intake Document Preview Modal */}
+      {activeDocPreview && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -1384,12 +1605,14 @@ export default function FullPageVehicleDetail({
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">Official Intake Document Verification</h3>
-                  <p className="text-[10px] text-slate-400 font-mono">Nissan Global Export Archive · Stock #{vehicle.stockId}</p>
+                  <p className="text-[10px] text-slate-400 font-mono">
+                    Nissan Global Export Archive · Stock #{vehicle.stockId}
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setViewingDocument(null)}
+                onClick={() => setActiveDocPreview(null)}
                 className="text-slate-400 hover:text-slate-700 text-sm cursor-pointer p-1 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -1399,19 +1622,19 @@ export default function FullPageVehicleDetail({
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
               <div className="flex justify-between items-start gap-2">
                 <span className="text-slate-400">Document File:</span>
-                <strong className="text-slate-800 text-right font-mono truncate">{viewingDocument.name}</strong>
+                <strong className="text-slate-800 text-right font-mono truncate">{activeDocPreview.name}</strong>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Classification:</span>
-                <span className="font-mono font-bold text-blue-700">{viewingDocument.type}</span>
+                <span className="font-mono font-bold text-blue-700">{activeDocPreview.type}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Recorded Size:</span>
-                <span className="font-mono text-slate-700">{viewingDocument.size || "1.8 MB"}</span>
+                <span className="font-mono text-slate-700">{activeDocPreview.size || "1.8 MB"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Intake Timestamp:</span>
-                <span className="font-mono text-slate-700">{viewingDocument.date}</span>
+                <span className="font-mono text-slate-700">{activeDocPreview.date}</span>
               </div>
               <div className="flex justify-between pt-1 border-t border-slate-200">
                 <span className="text-slate-400">Validation Status:</span>
@@ -1424,13 +1647,13 @@ export default function FullPageVehicleDetail({
 
             <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Certified under Nissan Japan HQ intake & AutoHub compliance standards.</span>
+              <span>Certified under Nissan Japan HQ intake &amp; AutoHub compliance standards.</span>
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setViewingDocument(null)}
+                onClick={() => setActiveDocPreview(null)}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors"
               >
                 Close
@@ -1438,8 +1661,8 @@ export default function FullPageVehicleDetail({
               <button
                 type="button"
                 onClick={() => {
-                  handleDownloadDocument(viewingDocument.name);
-                  setViewingDocument(null);
+                  handleDownloadDocument(activeDocPreview.name);
+                  setActiveDocPreview(null);
                 }}
                 className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold cursor-pointer transition-colors shadow-xs flex items-center gap-1.5"
               >
@@ -1451,24 +1674,12 @@ export default function FullPageVehicleDetail({
         </div>
       )}
 
-      {/* Download Toast Notification */}
+      {/* D. Download Toast Notification */}
       {docDownloadToast && (
         <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-slate-900 text-white text-xs font-medium flex items-center gap-2 shadow-2xl animate-in slide-in-from-bottom-3">
           <Download className="w-4 h-4 text-emerald-400 shrink-0 animate-bounce" />
           <span>{docDownloadToast}</span>
         </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 7. Add Vehicle Additional Cost Modal (Admin Only)           */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {isAddCostModalOpen && (
-        <AddVehicleAdditionalCostModal
-          vehicle={vehicle}
-          isOpen={isAddCostModalOpen}
-          onClose={() => setIsAddCostModalOpen(false)}
-          onAddCost={handleAddAdditionalCost}
-        />
       )}
     </div>
   );
