@@ -173,32 +173,18 @@ export default function DealerApprovalsView() {
       <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
         {/* Navigation Top Bar */}
         <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setSelectedDealerId(null);
-                setDetailSelectedZone(null);
-              }}
-              className="btn-outline"
-            >
-              <ArrowLeft className="w-4 h-4 text-slate-500" />
-              <span>Back to Dealers Overview</span>
-            </button>
-
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-              <span>Platform Operations</span>
-              <span>/</span>
-              <span className="text-slate-900 font-semibold">Franchise Dealers</span>
-              <span>/</span>
-              <span className="font-mono text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded-lg text-[11px] font-bold border border-slate-200">
-                {dealer.dealerCode}
-              </span>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              audio.playSubtleClick();
+              setSelectedDealerId(null);
+              setDetailSelectedZone(null);
+            }}
+            className="btn-outline cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-slate-500" />
+            <span>Back to Dealers Overview</span>
+          </button>
 
           <div className="flex items-center gap-2">
             {isApproved ? (
@@ -240,9 +226,6 @@ export default function DealerApprovalsView() {
             <div className="text-xl font-bold text-slate-900 font-mono">
               {dealer.pricingZoneId}
             </div>
-            <span className="text-xs text-slate-500 font-medium block truncate">
-              ${currentZoneConfig.deliveryCostNZD.toLocaleString()} NZD Towing Schedule
-            </span>
           </div>
 
           <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
@@ -252,9 +235,6 @@ export default function DealerApprovalsView() {
             <div className="text-xl font-bold text-amber-700 font-mono">
               {dealerHolds.length} Vehicles
             </div>
-            <span className="text-xs text-slate-500 font-medium block truncate">
-              24-Hour Atomic Locks
-            </span>
           </div>
 
           <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
@@ -264,9 +244,6 @@ export default function DealerApprovalsView() {
             <div className="text-xl font-bold text-slate-900 font-mono">
               {dealerOrders.length} Shipments
             </div>
-            <span className="text-xs text-slate-500 font-medium block truncate">
-              Confirmed Japan RoRo
-            </span>
           </div>
 
           <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
@@ -276,9 +253,6 @@ export default function DealerApprovalsView() {
             <div className="text-xl font-bold text-slate-900 font-mono">
               {dealerUsers.length || 1} Registered
             </div>
-            <span className="text-xs text-emerald-600 font-semibold block truncate">
-              MFA Security Active
-            </span>
           </div>
         </div>
 
@@ -352,19 +326,16 @@ export default function DealerApprovalsView() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Floorplan Facility</span>
                   <strong className="text-sm font-bold text-slate-900 font-mono block">$350,000 NZD</strong>
                   <span className="text-[10px] text-slate-500">Tier 1 Nissan Floorplan</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Concurrent Holds</span>
                   <strong className="text-sm font-bold text-slate-900 font-mono block">3 Units Max</strong>
                   <span className="text-[10px] text-slate-500">Atomic 24h Lock Limit</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Direct Order Authority</span>
                   <strong className="text-sm font-bold text-emerald-700 block">Self-Service Active</strong>
                   <span className="text-[10px] text-slate-500">Wholesale Catalogue Access</span>
                 </div>
@@ -595,7 +566,7 @@ export default function DealerApprovalsView() {
   // B. MAIN DEALERS OVERVIEW (Everything Open Without Tabs)
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Banner & Executive Overview Summary              */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -637,9 +608,6 @@ export default function DealerApprovalsView() {
           <div className="text-2xl font-bold text-slate-900 font-mono">
             {dealers.length}
           </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Dealership Entities
-          </span>
         </div>
 
         <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
@@ -649,9 +617,6 @@ export default function DealerApprovalsView() {
           <div className="text-2xl font-bold text-emerald-600 font-mono">
             {approvedDealers.length}
           </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Wholesale Authorized
-          </span>
         </div>
 
         <div className="p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1">
@@ -661,9 +626,6 @@ export default function DealerApprovalsView() {
           <div className="text-2xl font-bold text-slate-900 font-mono">
             5 Zones
           </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Upper North to Lower South
-          </span>
         </div>
       </div>
 
@@ -710,17 +672,15 @@ export default function DealerApprovalsView() {
         </div>
 
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
-          <table className="w-full text-left text-xs text-slate-600 min-w-[760px]">
-            <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
+          <table className="w-full text-left text-xs text-slate-600 min-w-[700px]">
+            <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
               <tr>
-                <th className="py-3.5 px-6 text-slate-200">Dealership Legal Entity</th>
-                <th className="py-3.5 px-4 text-slate-200">NZBN</th>
-                <th className="py-3.5 px-4 text-slate-200">Assigned Zone</th>
-                <th className="py-3.5 px-4 text-slate-200">Delivery Rate</th>
-                <th className="py-3.5 px-4 text-slate-200">Authorized Contact</th>
-                <th className="py-3.5 px-4 text-slate-200">Terms</th>
-                <th className="py-3.5 px-4 text-center text-slate-200">Dossier</th>
-                <th className="py-3.5 px-6 text-right text-slate-200">Status</th>
+                <th className="py-3.5 px-6 text-slate-700 font-bold">Dealership Legal Entity</th>
+                <th className="py-3.5 px-4 text-slate-700 font-bold">NZBN</th>
+                <th className="py-3.5 px-4 text-slate-700 font-bold">Delivery Rate</th>
+                <th className="py-3.5 px-4 text-slate-700 font-bold">Authorized Contact</th>
+                <th className="py-3.5 px-4 text-slate-700 font-bold">Status</th>
+                <th className="py-3.5 px-6 text-right text-slate-700 font-bold">Dossier</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -740,22 +700,10 @@ export default function DealerApprovalsView() {
                       <div className="group-hover:text-[#C3002F] transition-colors font-bold text-sm">
                         {d.legalTradingName}
                       </div>
-                      <div className="text-[11px] font-mono text-slate-400 font-normal mt-0.5 flex items-center gap-1.5 flex-wrap">
-                        <span>{d.dealerCode} · {d.address}</span>
-                        <span className="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 text-slate-700 font-semibold font-sans">
-                          {d.registrationRole || (d.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")}
-                        </span>
-                      </div>
                     </td>
 
                     <td className="py-4 px-4 font-mono text-slate-700 font-medium">
                       {d.nzbn}
-                    </td>
-
-                    <td className="py-4 px-4">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 text-[11px] border border-slate-200">
-                        {d.pricingZoneId}
-                      </span>
                     </td>
 
                     <td className="py-4 px-4 font-mono font-bold text-slate-900">
@@ -767,11 +715,13 @@ export default function DealerApprovalsView() {
                       <div className="text-[11px] text-slate-400 font-mono">{d.primaryContactEmail}</div>
                     </td>
 
-                    <td className="py-4 px-4 font-mono text-emerald-700 font-bold">
-                      {d.termsAcceptedVersion || "v2026.1"}
+                    <td className="py-4 px-4">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px] font-mono">
+                        ACTIVE
+                      </span>
                     </td>
 
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-6 text-right">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -779,17 +729,11 @@ export default function DealerApprovalsView() {
                           audio.playSubtleClick();
                           setSelectedDealerId(d.id);
                         }}
-                        className="btn-outline text-xs py-1.5 px-3"
+                        className="btn-outline text-xs py-1.5 px-3 cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5 text-slate-400" />
                         <span>Inspect</span>
                       </button>
-                    </td>
-
-                    <td className="py-4 px-6 text-right">
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px] font-mono">
-                        ACTIVE
-                      </span>
                     </td>
                   </tr>
                 );

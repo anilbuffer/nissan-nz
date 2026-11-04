@@ -578,7 +578,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       <div className="bg-white rounded-[16px] border border-slate-200 p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-slate-100 text-[#C3002F]">
+            <div className="p-2 rounded-lg bg-slate-100 text-slate-700">
               <Clock className="w-4 h-4" />
             </div>
             <div>
@@ -590,7 +590,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200">
+          <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200">
             Active Rules
           </span>
         </div>
@@ -619,7 +619,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                 }));
                 setHasChanges(true);
               }}
-              className="w-full accent-[#C3002F] cursor-pointer"
+              className="w-full accent-slate-900 cursor-pointer"
             />
             <p className="text-[10px] text-slate-500">
               Standard dealer exclusivity period upon reservation request submission.
@@ -632,7 +632,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
               <label className="font-bold text-slate-800">
                 Warning Notification Threshold
               </label>
-              <span className="font-mono font-bold text-amber-700">
+              <span className="font-mono font-bold text-slate-900">
                 {draftReservationConfig.warningThresholdHours} Hours Prior
               </span>
             </div>
@@ -649,7 +649,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                 }));
                 setHasChanges(true);
               }}
-              className="w-full accent-amber-600 cursor-pointer"
+              className="w-full accent-slate-900 cursor-pointer"
             />
             <p className="text-[10px] text-slate-500">
               Dispatches reminder notice and marks countdown with warning pulse badge.
@@ -657,7 +657,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
           </div>
 
           {/* Auto-Release Toggle */}
-          <div className="p-3.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
             <div>
               <span className="font-bold text-slate-900 block">
                 Automatic Stock Release on Expiry
@@ -679,7 +679,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                 }}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C3002F]" />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900" />
             </label>
           </div>
 

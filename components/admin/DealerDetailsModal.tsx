@@ -103,26 +103,22 @@ export default function DealerDetailsModal({
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Assigned Zone</span>
               <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealer.pricingZoneId}</div>
-              <span className="text-xs text-slate-500 mt-0.5 block">${currentZoneConfig.deliveryCostNZD} Delivery</span>
-            </div>
+                          </div>
 
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Active Holds</span>
               <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealerHolds.length} Units</div>
-              <span className="text-xs text-slate-500 mt-0.5 block">24h Exclusivity</span>
-            </div>
+                          </div>
 
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Total Orders</span>
               <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealerOrders.length} Shipments</div>
-              <span className="text-xs text-slate-500 mt-0.5 block">Confirmed RoRo</span>
-            </div>
+                          </div>
 
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <span className="text-xs font-medium uppercase tracking-wider text-slate-500 block">Registered Staff</span>
               <div className="font-mono font-bold text-slate-900 text-base mt-1">{dealerUsers.length || 1} Users</div>
-              <span className="text-xs text-slate-600 font-medium mt-0.5 block">MFA Enabled</span>
-            </div>
+                          </div>
           </div>
 
           {/* Legal & Corporate Profile */}

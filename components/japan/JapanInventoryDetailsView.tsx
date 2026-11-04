@@ -688,7 +688,7 @@ export default function JapanInventoryDetailsView({
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-slate-800">
             <span>Overall Vehicle Condition:</span>
-            <span className="text-emerald-700 font-bold text-xs sm:text-sm">
+            <span className="text-emerald-700 font-bold text-xs">
               {vehicle.overallCondition || `★ ${vehicle.auctionGrade} - Clean Japanese Pre-Export Condition`}
             </span>
           </div>

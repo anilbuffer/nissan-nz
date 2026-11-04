@@ -173,25 +173,6 @@ export default function AddVehicleAdditionalCostModal({
             </div>
           )}
 
-          {/* Dealership Routing Context Banner */}
-          <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-amber-950 flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-amber-700" />
-                <span>Routing to Dealership for Commercial Approval</span>
-              </span>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-                Dealer Review
-              </span>
-            </div>
-            <p className="text-amber-800 leading-snug">
-              This supplementary cost proposal will be sent directly to{" "}
-              <strong className="text-amber-950 font-bold">{targetDealerName}</strong>. The dealer can review
-              the inspection evidence and choose to <strong>Approve</strong> or <strong>Reject</strong> this
-              cost before final settlement.
-            </p>
-          </div>
-
           {/* 1. Category Manual Text Field */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
@@ -275,7 +256,7 @@ export default function AddVehicleAdditionalCostModal({
               className="hidden"
             />
 
-            {attachedFile ? (
+            {attachedFile && attachedFile.name ? (
               <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/90 flex items-center justify-between gap-3 shadow-2xs">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
@@ -283,11 +264,11 @@ export default function AddVehicleAdditionalCostModal({
                   </div>
                   <div className="min-w-0">
                     <span className="text-xs font-mono font-bold text-slate-900 block truncate">
-                      {attachedFile.name}
+                      {attachedFile?.name || "Evidence Document"}
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] text-slate-400 font-mono">
-                        {attachedFile.size}
+                        {attachedFile?.size || "Document"}
                       </span>
                       <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-emerald-100 text-emerald-800">
                         Evidence Attached
@@ -327,8 +308,8 @@ export default function AddVehicleAdditionalCostModal({
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 className={`p-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${isDragging
-                    ? "border-[#C3002F] bg-red-50/50"
-                    : "border-slate-300 bg-slate-50/70 hover:bg-slate-100/70 hover:border-slate-400"
+                  ? "border-[#C3002F] bg-red-50/50"
+                  : "border-slate-300 bg-slate-50/70 hover:bg-slate-100/70 hover:border-slate-400"
                   }`}
               >
                 <div className="w-8 h-8 rounded-full bg-white shadow-2xs border border-slate-200 flex items-center justify-center text-slate-500">

@@ -18,7 +18,6 @@ import {
   Anchor,
   FileCheck2,
   Search,
-  Filter,
   Check,
 } from "lucide-react";
 
@@ -44,24 +43,16 @@ export default function AllocationMilestonesView() {
   const [editingVoyage, setEditingVoyage] = useState<string>("");
   const [notification, setNotification] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [milestoneFilter, setMilestoneFilter] = useState("ALL");
 
   const filteredOrders = orders.filter((order) => {
     const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
+    return (
       !q ||
       order.orderNumber.toLowerCase().includes(q) ||
       order.vehicle.vinChassis.toLowerCase().includes(q) ||
       order.vehicle.model.toLowerCase().includes(q) ||
-      order.dealerName.toLowerCase().includes(q);
-
-    const matchesMilestone =
-      milestoneFilter === "ALL" ||
-      (milestoneFilter === "IN_TRANSIT" && (order.currentMilestone === "IN_TRANSIT" || order.currentMilestone === "BOOKED_FOR_SHIPPING")) ||
-      (milestoneFilter === "BORDER" && (order.currentMilestone === "NZ_BORDER_PROCESSING" || order.currentMilestone === "COMPLIANCE" || order.currentMilestone === "AWAITING_ADDITIONAL_COST")) ||
-      (milestoneFilter === "READY" && (order.currentMilestone === "READY_FOR_DELIVERY" || order.currentMilestone === "DELIVERED"));
-
-    return matchesSearch && matchesMilestone;
+      order.dealerName.toLowerCase().includes(q)
+    );
   });
 
   const startEditingMilestone = (order: Order) => {
@@ -104,21 +95,13 @@ export default function AllocationMilestonesView() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Banner (Clean Executive Outline Style)            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
-        <div>
-          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-            Orders Milestones
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Monitor confirmed dealer allocations, Pacific maritime transit, entry compliance certification, and dispatch.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto">
-          <div className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200/90 font-mono text-slate-800 font-bold shadow-2xs">
-            {filteredOrders.length} of {orders.length} Active Orders
-          </div>
-        </div>
+      <div className="pb-4 border-b border-slate-200/80">
+        <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+          Orders Milestones
+        </h1>
+        <p className="text-xs text-slate-500 mt-0.5">
+          Monitor confirmed dealer allocations, Pacific maritime transit, entry compliance certification, and dispatch.
+        </p>
       </div>
 
       {notification && (
@@ -138,42 +121,22 @@ export default function AllocationMilestonesView() {
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Filter & Search Controls (Unified Clean Canvas)          */}
+      {/* 2. Search Toolbar with Order Counter                        */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-3.5 sm:p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by Order #, VIN, model, or dealer..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all font-medium"
+            className="w-full pl-9 pr-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all font-medium"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200/70 self-start sm:self-auto">
-          {[
-            { id: "ALL", label: "All Orders" },
-            { id: "IN_TRANSIT", label: "On Vessel" },
-            { id: "BORDER", label: "NZ Compliance" },
-            { id: "READY", label: "Ready / Yard" },
-          ].map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setMilestoneFilter(chip.id);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${milestoneFilter === chip.id
-                ? "bg-white text-slate-900 shadow-2xs font-bold"
-                : "text-slate-500 hover:text-slate-800"
-                }`}
-            >
-              {chip.label}
-            </button>
-          ))}
+        <div className="text-xs text-slate-500 font-mono shrink-0 whitespace-nowrap self-end sm:self-center pr-1">
+          {filteredOrders.length} of {orders.length} Active Orders
         </div>
       </div>
 

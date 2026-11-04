@@ -683,8 +683,8 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                                         setActiveImageIdx(idx);
                                       }}
                                       className={`w-14 h-10 sm:w-16 sm:h-11 rounded-lg overflow-hidden p-0.5 transition-all cursor-pointer flex items-center justify-center bg-white shrink-0 ${isActive
-                                          ? "border-2 border-[#C3002F] shadow-2xs"
-                                          : "border border-slate-200 hover:border-slate-400 opacity-70 hover:opacity-100"
+                                        ? "border-2 border-[#C3002F] shadow-2xs"
+                                        : "border border-slate-200 hover:border-slate-400 opacity-70 hover:opacity-100"
                                         }`}
                                     >
                                       <img
@@ -862,9 +862,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
                           {selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}
                         </div>
-                        <span className="text-[11px] text-emerald-600 font-semibold block truncate">
-                          Digitally Certified
-                        </span>
                       </div>
 
                       {/* 2. AUCTION GRADE */}
@@ -875,9 +872,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
                           ★ {selectedOrder.vehicle.auctionGrade || "4.5"} / {selectedOrder.vehicle.interiorGrade || "A"}
                         </div>
-                        <span className="text-[11px] text-slate-500 block truncate">
-                          USS / JAA Inspection
-                        </span>
                       </div>
 
                       {/* 3. DELIVERY DESTINATION */}
@@ -888,9 +882,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight truncate">
                           {selectedOrder.pricingZoneId || selectedOrder.priceBreakdown?.zoneId || currentDealer?.pricingZoneId || "ZONE_1"}
                         </div>
-                        <span className="text-[11px] text-slate-500 block truncate">
-                          {selectedOrder.deliveryAddress || "Franchise Hub Delivery"}
-                        </span>
                       </div>
 
                       {/* 4. CORRIDOR / VESSEL */}
@@ -901,9 +892,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
                           {selectedOrder.vesselName || selectedOrder.vehicle.location || "Yokohama Export Yard"}
                         </div>
-                        <span className="text-[11px] text-slate-500 font-medium block truncate">
-                          Trans-Pacific RoRo Corridor
-                        </span>
                       </div>
                     </div>
 

@@ -78,10 +78,10 @@ export default function CatalogueDetailsModal({
                 </span>
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${vehicle.status === "AVAILABLE"
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                      : vehicle.status === "RESERVED"
-                        ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                        : "bg-slate-700 text-slate-300 border-slate-600"
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                    : vehicle.status === "RESERVED"
+                      ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                      : "bg-slate-700 text-slate-300 border-slate-600"
                     }`}
                 >
                   {vehicle.status === "AVAILABLE"
@@ -146,8 +146,8 @@ export default function CatalogueDetailsModal({
                         setActiveImageIdx(idx);
                       }}
                       className={`w-16 h-12 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
-                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
-                          : "border-slate-200 hover:border-slate-300 opacity-70"
+                        ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
+                        : "border-slate-200 hover:border-slate-300 opacity-70"
                         }`}
                     >
                       <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
@@ -241,11 +241,11 @@ export default function CatalogueDetailsModal({
 
                     : [
 
-                        { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
+                      { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
 
-                        { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
+                      { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
 
-                      ]
+                    ]
 
                   ).map((doc, dIdx) => (
 
@@ -289,7 +289,7 @@ export default function CatalogueDetailsModal({
                   <FileCheck2 className="w-4 h-4 text-amber-600" />
                   <span>Verified Condition Notes</span>
                 </div>
-                <p className="text-slate-700 leading-relaxed text-[11px]">
+                <p className="text-slate-700 leading-relaxed text-[10px]">
                   {vehicle.conditionSummary || "Clean pass across all structural compliance markers. One-owner Japanese vehicle with complete service history."}
                 </p>
                 {vehicle.knownDefects && vehicle.knownDefects.length > 0 && (
@@ -335,8 +335,8 @@ export default function CatalogueDetailsModal({
                       setSelectedZone(z);
                     }}
                     className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${selectedZone === z
-                        ? "bg-white text-slate-900 shadow-2xs"
-                        : "text-slate-500 hover:text-slate-800"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-500 hover:text-slate-800"
                       }`}
                   >
                     {z.replace("_", " ")}

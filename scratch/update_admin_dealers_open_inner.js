@@ -551,7 +551,7 @@ export default function DealerApprovalsView() {
   // B. MAIN DEALERS OVERVIEW (Everything Open Without Tabs)
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Banner & Executive Overview Summary              */}
       {/* ─────────────────────────────────────────────────────────── */}
