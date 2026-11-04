@@ -240,23 +240,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     audio.playSubtleClick();
   };
 
-  const handleAddPresetDoc = (name: string, type: string, size: string) => {
-    if (uploadedDocs.some((d) => d.name === name)) {
-      return;
-    }
-    setUploadedDocs((prev) => [
-      ...prev,
-      {
-        name,
-        type,
-        url: "https://example.com/reports/" + name.toLowerCase(),
-        size,
-        uploadedAt: new Date().toISOString().slice(0, 10),
-      },
-    ]);
-    audio.playSubtleClick();
-  };
-
   // Real-time Parallel Pricing Conversion
   const nzdEquivalent = fobPriceJPY
     ? Math.round(Number(fobPriceJPY) * JPY_TO_NZD_EXCHANGE_RATE)
@@ -736,219 +719,196 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION D. IMAGES AND DOCUMENTS                           */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
-                  <ImageIcon className="w-4 h-4 text-purple-600" />
+                  <ImageIcon className="w-4 h-4 text-slate-700" />
                   <span>Images &amp; Supporting Documents</span>
                 </div>
-                <span className="text-[11px]  text-slate-500 font-medium">Section 4 of 5</span>
+                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 4 of 5</span>
               </div>
 
-              {/* ─────────────────────────────────────────────────────── */}
-              {/* SUBSECTION 1: IMAGES                                    */}
-              {/* ─────────────────────────────────────────────────────── */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[11px] font-bold">
-                      Images
-                    </span>
-                    <label className="text-xs font-bold text-slate-800">
-                      Vehicle Photographs ({images.length} added)
-                    </label>
-                  </div>
-                  <span className="text-[11px] text-slate-500">PNG, JPG, WEBP</span>
-                </div>
-
-                {/* Drag & Drop Multi-Image Dropzone */}
-                <div
-                  onDragOver={handleImageDragOver}
-                  onDragLeave={handleImageDragLeave}
-                  onDrop={handleImageDrop}
-                  onClick={() => imageInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-5 sm:p-6 text-center transition-all cursor-pointer ${isDraggingImage
-                    ? "border-[#0A0A0A] bg-purple-50/40 ring-2 ring-[#0A0A0A]/10"
-                    : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
-                    }`}
-                >
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    multiple
-                    accept="image/png,image/jpeg,image/webp"
-                    onChange={handleImageFileInputChange}
-                    className="hidden"
-                  />
-                  <div className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 shadow-2xs">
-                    <UploadCloud className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <p className="text-xs font-bold text-slate-800">
-                    Drag &amp; drop vehicle images here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Upload exterior angles, interior, dashboard, and defects photos (PNG, JPG, WEBP)
-                  </p>
-                </div>
-
-                {/* Thumbnail Gallery of Uploaded Photos */}
-                {images.length > 0 && (
-                  <div className="space-y-2 pt-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                      Uploaded Vehicle Photos ({images.length})
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
-                      {images.map((imgUrl, idx) => (
-                        <div
-                          key={idx}
-                          className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${idx === 0 ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/10" : "border-slate-200"
-                            }`}
-                        >
-                          <img
-                            src={imgUrl}
-                            alt={`Photo ${idx + 1}`}
-                            className="w-full h-full object-contain"
-                          />
-                          {idx === 0 && (
-                            <span className="absolute top-1 left-1 bg-[#0A0A0A] text-white text-[9px] font-bold px-1.5 py-0.2 rounded ">
-                              Main
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveImage(idx);
-                            }}
-                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
-                            title="Remove photo"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
+              {/* Parallel 2-Column Grid for Both File Inputs in One Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                {/* ─────────────────────────────────────────────────────── */}
+                {/* COLUMN 1: VEHICLE IMAGES                                */}
+                {/* ─────────────────────────────────────────────────────── */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-bold">
+                        Images
+                      </span>
+                      <label className="text-xs font-bold text-slate-800">
+                        Vehicle Photographs ({images.length})
+                      </label>
                     </div>
+                    <span className="text-[11px] text-slate-500 font-mono">PNG, JPG, WEBP</span>
                   </div>
-                )}
-              </div>
 
-              {/* Card Divider */}
-              <div className="border-t border-slate-200/80" />
-
-              {/* ─────────────────────────────────────────────────────── */}
-              {/* SUBSECTION 2: SUPPORTING DOCUMENTS                      */}
-              {/* ─────────────────────────────────────────────────────── */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold">
-                      Supporting Documents
-                    </span>
-                    <label className="text-xs font-bold text-slate-800">
-                      Compliance &amp; Inspection Documents ({uploadedDocs.length} added)
-                    </label>
-                  </div>
-                  <span className="text-[11px] text-slate-500">PDF, DOC, DOCX</span>
-                </div>
-
-                {/* Drag & Drop Document Dropzone */}
-                <div
-                  onDragOver={handleDocDragOver}
-                  onDragLeave={handleDocDragLeave}
-                  onDrop={handleDocDrop}
-                  onClick={() => docInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-5 sm:p-6 text-center transition-all cursor-pointer ${isDraggingDoc
-                    ? "border-[#0A0A0A] bg-blue-50/40 ring-2 ring-[#0A0A0A]/10"
-                    : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                  {/* Drag & Drop Multi-Image Dropzone */}
+                  <div
+                    onDragOver={handleImageDragOver}
+                    onDragLeave={handleImageDragLeave}
+                    onDrop={handleImageDrop}
+                    onClick={() => imageInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${
+                      isDraggingImage
+                        ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
+                        : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                     }`}
-                >
-                  <input
-                    ref={docInputRef}
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,application/pdf"
-                    onChange={handleDocFileInputChange}
-                    className="hidden"
-                  />
-                  <div className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 shadow-2xs">
-                    <FileText className="w-5 h-5 text-blue-600" />
+                  >
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      multiple
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handleImageFileInputChange}
+                      className="hidden"
+                    />
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 shadow-2xs">
+                      <UploadCloud className="w-5 h-5 text-slate-600" />
+                    </div>
+                    <p className="text-xs font-bold text-slate-800">
+                      Drag &amp; drop vehicle images, or <span className="text-slate-950 underline underline-offset-2">browse files</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Angles, interior, dashboard, defects
+                    </p>
                   </div>
-                  <p className="text-xs font-bold text-slate-800">
-                    Drag &amp; drop document files here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Upload official auction sheets, JEVIC odometer certificates, MPI clearances, or MR2A dossiers (PDF)
-                  </p>
-                </div>
 
-                {/* Quick Add Preset Documents */}
-                <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                  <span className="text-[11px] font-semibold text-slate-600">Quick Presets:</span>
-                  <button
-                    type="button"
-                    onClick={() => handleAddPresetDoc("USS_Tokyo_Official_Auction_Sheet.pdf", "AUCTION_SHEET", "2.4 MB")}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-semibold transition-colors cursor-pointer"
-                  >
-                    + USS Auction Sheet
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddPresetDoc("JEVIC_Digital_Odometer_Certificate.pdf", "JEVIC_CERTIFICATE", "1.1 MB")}
-                    className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-semibold transition-colors cursor-pointer"
-                  >
-                    + JEVIC Certificate
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddPresetDoc("NZTA_MR2A_Entry_Dossier.pdf", "MR2A_DOSSIER", "1.8 MB")}
-                    className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-[11px] font-semibold transition-colors cursor-pointer"
-                  >
-                    + NZTA MR2A Dossier
-                  </button>
-                </div>
-
-                {/* Attached Documents List */}
-                {uploadedDocs.length > 0 && (
-                  <div className="space-y-2 pt-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                      Attached Supporting Documents ({uploadedDocs.length})
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {uploadedDocs.map((doc, dIdx) => (
-                        <div
-                          key={dIdx}
-                          className="p-3 rounded-xl bg-slate-50/90 border border-slate-200 flex items-center justify-between gap-2.5 hover:bg-slate-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 text-blue-600 shadow-2xs">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <div className="min-w-0">
-                              <span className="text-xs font-semibold text-slate-900 truncate block">
-                                {doc.name}
+                  {/* Thumbnail Gallery of Uploaded Photos */}
+                  {images.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                        Uploaded Photos ({images.length})
+                      </span>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        {images.map((imgUrl, idx) => (
+                          <div
+                            key={idx}
+                            className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${
+                              idx === 0 ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200"
+                            }`}
+                          >
+                            <img
+                              src={imgUrl}
+                              alt={`Photo ${idx + 1}`}
+                              className="w-full h-full object-contain"
+                            />
+                            {idx === 0 && (
+                              <span className="absolute top-1 left-1 bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.2 rounded font-mono">
+                                Main
                               </span>
-                              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 ">
-                                <span>{doc.size || "1.5 MB"}</span>
-                                <span>•</span>
-                                <span className="uppercase text-slate-600 font-sans font-medium">
-                                  {doc.type.replace(/_/g, " ")}
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(idx);
+                              }}
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-slate-800 hover:bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-xs"
+                              title="Remove photo"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ─────────────────────────────────────────────────────── */}
+                {/* COLUMN 2: SUPPORTING DOCUMENTS                         */}
+                {/* ─────────────────────────────────────────────────────── */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-bold">
+                        Documents
+                      </span>
+                      <label className="text-xs font-bold text-slate-800">
+                        Supporting Documents ({uploadedDocs.length})
+                      </label>
+                    </div>
+                    <span className="text-[11px] text-slate-500 font-mono">PDF, DOC, DOCX</span>
+                  </div>
+
+                  {/* Drag & Drop Document Dropzone */}
+                  <div
+                    onDragOver={handleDocDragOver}
+                    onDragLeave={handleDocDragLeave}
+                    onDrop={handleDocDrop}
+                    onClick={() => docInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${
+                      isDraggingDoc
+                        ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
+                        : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      ref={docInputRef}
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,application/pdf"
+                      onChange={handleDocFileInputChange}
+                      className="hidden"
+                    />
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 shadow-2xs">
+                      <FileText className="w-5 h-5 text-slate-600" />
+                    </div>
+                    <p className="text-xs font-bold text-slate-800">
+                      Drag &amp; drop document files, or <span className="text-slate-950 underline underline-offset-2">browse files</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Auction sheets, JEVIC, MPI, MR2A dossiers
+                    </p>
+                  </div>
+
+                  {/* Attached Documents List */}
+                  {uploadedDocs.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                        Attached Documents ({uploadedDocs.length})
+                      </span>
+                      <div className="space-y-2">
+                        {uploadedDocs.map((doc, dIdx) => (
+                          <div
+                            key={dIdx}
+                            className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2.5 hover:bg-slate-100/70 transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 text-slate-600 shadow-2xs">
+                                <FileText className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-xs font-medium text-slate-900 truncate block">
+                                  {doc.name}
                                 </span>
+                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
+                                  <span>{doc.size || "1.5 MB"}</span>
+                                  <span>•</span>
+                                  <span className="uppercase text-slate-600 font-sans font-medium">
+                                    {doc.type.replace(/_/g, " ")}
+                                  </span>
+                                </div>
                               </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDoc(dIdx)}
+                              className="w-6 h-6 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-2xs"
+                              title="Remove document"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveDoc(dIdx)}
-                            className="w-7 h-7 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-2xs"
-                            title="Remove document"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
 
