@@ -157,12 +157,12 @@ export default function DealershipProfileView() {
                   audio.playSubtleClick();
                   setActiveSubTab(tab.id as any);
                 }}
-                className={`btn-outline px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${isActive
-                  ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
-                  : "bg-white text-slate-700 hover:bg-slate-50"
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 border ${isActive
+                  ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                  : "bg-white text-slate-600 hover:bg-slate-50 border-slate-200"
                   }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-rose-400" : "text-slate-500"}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-slate-400"}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -254,7 +254,7 @@ export default function DealershipProfileView() {
 
             {/* Simplified Delivery Note */}
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-xs flex items-center gap-2.5 text-slate-600">
-              <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <Truck className="w-4 h-4 text-slate-500 shrink-0" />
               <span className="text-[11px]">
                 Fixed price includes <strong>2 standard domestic transport movements</strong> (Port ➔ Compliance Hub ➔ Greenlane Yard).
               </span>
@@ -271,10 +271,10 @@ export default function DealershipProfileView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                   Section 4 Commercial Model
                 </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
                   Fixed Wholesale Landed Formula
                 </span>
               </div>
@@ -287,7 +287,7 @@ export default function DealershipProfileView() {
             </div>
 
             {/* Zone Selector Pill */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200">
+            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
               {(["ZONE_1", "ZONE_2", "ZONE_3", "ZONE_4", "ZONE_5"] as ZoneId[]).map((zKey) => (
                 <button
                   key={zKey}
@@ -296,7 +296,7 @@ export default function DealershipProfileView() {
                     audio.playSubtleClick();
                     setSelectedPreviewZone(zKey);
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${selectedPreviewZone === zKey
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${selectedPreviewZone === zKey
                     ? "bg-white text-slate-900 shadow-2xs"
                     : "text-slate-600 hover:text-slate-900"
                     }`}
@@ -308,9 +308,9 @@ export default function DealershipProfileView() {
           </div>
 
           {/* Active Zone Detail Card */}
-          <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100/60 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-bold text-[#C3002F] uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 Selected Schedule
               </span>
               <h3 className="text-base font-bold text-slate-900 mt-0.5">
@@ -322,7 +322,7 @@ export default function DealershipProfileView() {
             </div>
 
             <div className="text-right shrink-0">
-              <span className="text-[10px] text-slate-400 block uppercase font-bold">Standard 2x NZ Tow Total</span>
+              <span className="text-[10px] text-slate-400 block uppercase font-semibold">Standard 2x NZ Tow Total</span>
               <span className="text-xl font-bold  text-slate-900">
                 ${activeZoneConfig.deliveryCostNZD.toLocaleString()} NZD
               </span>
@@ -332,35 +332,31 @@ export default function DealershipProfileView() {
           {/* 5 Component Breakdown Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 text-xs">
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[11px] text-slate-400 block uppercase font-bold">RoRo Marine Freight</span>
+              <span className="text-[11px] text-slate-400 block uppercase font-semibold">RoRo Marine Freight</span>
               <span className="text-base font-bold  text-slate-900 block">
                 ${activeZoneConfig.oceanFreightNZD.toLocaleString()} NZD
               </span>
-              <span className="text-[10px] text-slate-500 block">Yokohama to Auckland/Lyttelton</span>
             </div>
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[11px] text-slate-400 block uppercase font-bold">Customs &amp; MPI Bio</span>
+              <span className="text-[11px] text-slate-400 block uppercase font-semibold">Customs &amp; MPI Bio</span>
               <span className="text-base font-bold  text-slate-900 block">
                 ${activeZoneConfig.customsProcessingNZD.toLocaleString()} NZD
               </span>
-              <span className="text-[10px] text-slate-500 block">Heat treatment &amp; entry clearance</span>
             </div>
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[11px] text-slate-400 block uppercase font-bold">MR2A Compliance</span>
+              <span className="text-[11px] text-slate-400 block uppercase font-semibold">MR2A Compliance</span>
               <span className="text-base font-bold  text-slate-900 block">
                 ${activeZoneConfig.complianceInspectionNZD.toLocaleString()} NZD
               </span>
-              <span className="text-[10px] text-slate-500 block">Standard structural &amp; emissions check</span>
             </div>
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[11px] text-slate-400 block uppercase font-bold">2x Domestic Movements</span>
+              <span className="text-[11px] text-slate-400 block uppercase font-semibold">2x Domestic Movements</span>
               <span className="text-base font-bold  text-slate-900 block">
                 ${activeZoneConfig.deliveryCostNZD.toLocaleString()} NZD
               </span>
-              <span className="text-[10px] text-slate-500 block">Port to center &amp; to Greenlane</span>
             </div>
 
             <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
@@ -368,23 +364,13 @@ export default function DealershipProfileView() {
               <span className="text-base font-bold  text-slate-900 block">
                 ${activeZoneConfig.programmeFeeNZD.toLocaleString()} NZD
               </span>
-              <span className="text-[10px] text-slate-500 block">Nissan certified provenance fee</span>
-            </div>
-          </div>
-
-          {/* Section 4 Boundary Guarantee Notice */}
-          <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs flex items-start gap-3.5 text-amber-900">
-            <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="space-y-1 leading-relaxed text-[11px]">
-              <strong className="block font-bold">Commercial Boundary Policy (Section 4):</strong>
-              The fixed Total Buy Price assumes a standard compliance pass. Potential additional dealer costs such as compliance defect repairs, repair certification, or requested accessories will be itemized with photographic evidence and presented for your active approval before work proceeds.
             </div>
           </div>
 
           {/* Full Comparative Zone Matrix (Zone 1 - 5) */}
           <div className="pt-4 border-t border-slate-100 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">
+              <h3 className="font-bold text-xs uppercase text-slate-500">
                 National Geographic Schedule Benchmark (Zone 1 - 5)
               </h3>
               <span className="text-[10px] text-slate-400 ">
@@ -392,18 +378,18 @@ export default function DealershipProfileView() {
               </span>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 touch-scroll navy-scrollbar">
+            <div className="overflow-x-auto rounded-xl border border-slate-200 touch-scroll navy-scrollbar">
               <table className="w-full text-xs text-left min-w-[720px]">
-                <thead className="bg-[#0A0A0A] text-white text-[10px] font-bold uppercase tracking-wider border-b border-[#27272A]">
+                <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th className="py-3.5 px-4 text-slate-200">Zone ID</th>
-                    <th className="py-3.5 px-4 text-slate-200">Territory</th>
-                    <th className="py-3.5 px-4 text-slate-200">RoRo Ocean</th>
-                    <th className="py-3.5 px-4 text-slate-200">Customs &amp; Bio</th>
-                    <th className="py-3.5 px-4 text-slate-200">MR2A Standard</th>
-                    <th className="py-3.5 px-4 text-slate-200">2x NZ Tow</th>
-                    <th className="py-3.5 px-4 text-slate-200">Programme Fee</th>
-                    <th className="py-3.5 px-4 text-right text-slate-200">Fixed Overhead Total</th>
+                    <th className="py-3 px-4 text-slate-600">Zone ID</th>
+                    <th className="py-3 px-4 text-slate-600">Territory</th>
+                    <th className="py-3 px-4 text-slate-600">RoRo Ocean</th>
+                    <th className="py-3 px-4 text-slate-600">Customs &amp; Bio</th>
+                    <th className="py-3 px-4 text-slate-600">MR2A Standard</th>
+                    <th className="py-3 px-4 text-slate-600">2x NZ Tow</th>
+                    <th className="py-3 px-4 text-slate-600">Programme Fee</th>
+                    <th className="py-3 px-4 text-right text-slate-700">Fixed Overhead Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -416,15 +402,15 @@ export default function DealershipProfileView() {
                       <tr
                         key={zid}
                         className={`transition-colors ${isMyZone
-                          ? "bg-rose-50/60 font-semibold text-slate-900"
-                          : "hover:bg-slate-50/50 text-slate-600"
+                          ? "bg-slate-50/80 font-medium text-slate-900"
+                          : "hover:bg-slate-50/40 text-slate-600"
                           }`}
                       >
                         <td className="py-3 px-4  font-bold">
                           <span className="flex items-center gap-1.5">
                             {zid}
                             {isMyZone && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#C3002F] text-white uppercase font-sans">
+                              <span className="px-2 py-0.5 rounded text-[9px] bg-slate-900 text-white font-semibold uppercase tracking-wider">
                                 Assigned
                               </span>
                             )}
@@ -434,7 +420,7 @@ export default function DealershipProfileView() {
                         <td className="py-3 px-4 ">${z.oceanFreightNZD.toLocaleString()}</td>
                         <td className="py-3 px-4 ">${z.customsProcessingNZD.toLocaleString()}</td>
                         <td className="py-3 px-4 ">${z.complianceInspectionNZD.toLocaleString()}</td>
-                        <td className="py-3 px-4  font-bold">${z.deliveryCostNZD.toLocaleString()}</td>
+                        <td className="py-3 px-4  font-bold text-slate-900">${z.deliveryCostNZD.toLocaleString()}</td>
                         <td className="py-3 px-4 ">${z.programmeFeeNZD.toLocaleString()}</td>
                         <td className="py-3 px-4 text-right  font-bold text-slate-900">
                           ${totalFixed.toLocaleString()} NZD
@@ -457,10 +443,10 @@ export default function DealershipProfileView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                   Dealer Governance
                 </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
                   Role-Based Access Control
                 </span>
               </div>
@@ -522,10 +508,10 @@ export default function DealershipProfileView() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C3002F]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                   Contractual Evidence
                 </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
                   Legally Executed
                 </span>
               </div>
@@ -553,13 +539,14 @@ export default function DealershipProfileView() {
               <strong className="text-sm font-bold text-slate-900 block">
                 {currentDealer?.termsAcceptedVersion || "v2026.1"}
               </strong>
-              <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span className="text-[11px] text-slate-600 font-medium flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Both Acknowledgements Checked</span>
               </span>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Execution Date</span>
               <strong className="text-sm font-bold text-slate-900 block">
                 {currentDealer?.termsAcceptedAt ? new Date(currentDealer.termsAcceptedAt).toLocaleDateString("en-NZ", { dateStyle: "long" }) : "15 October 2026"}
               </strong>
@@ -569,6 +556,7 @@ export default function DealershipProfileView() {
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Authorized Signatory</span>
               <strong className="text-sm font-bold text-slate-900 block">
                 {currentDealer?.primaryContactName || "David Miller"}
               </strong>
@@ -580,74 +568,74 @@ export default function DealershipProfileView() {
 
           {/* Section 4 Commercial Boundary Two-Column Comparison */}
           <div className="space-y-3 pt-2">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-500">
               Section 4: Commercial Boundary Specification
             </h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               {/* Left Column: Included in Total Buy Price */}
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-4 space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-emerald-200 text-emerald-900 font-bold text-xs">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-3">
+                <div className="flex items-center gap-2 pb-2.5 border-b border-slate-200 text-slate-900 font-bold text-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Included in Total Buy Price</span>
                 </div>
                 <ul className="space-y-2 text-[11px] text-slate-700">
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Vehicle acquisition cost</strong> (Japan wholesale FOB rate)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Standard door-to-door shipment</strong> (Pacific RoRo transit)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Customs processing and NZ GST</strong> (15% import clearance)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Standard compliance inspection toward MR2A</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Two standard NZ delivery movements</strong> (Port to Centre, Centre to Yard)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Nissan programme component</strong> using approved dealer wording</span>
                   </li>
                 </ul>
               </div>
 
               {/* Right Column: Potential Additional Dealer Cost */}
-              <div className="rounded-2xl border border-amber-200 bg-amber-50/40 p-4 space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-amber-200 text-amber-900 font-bold text-xs">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-3">
+                <div className="flex items-center gap-2 pb-2.5 border-b border-slate-200 text-slate-900 font-bold text-xs">
                   <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
                   <span>Potential Additional Dealer Cost (Separately Chargeable)</span>
                 </div>
                 <ul className="space-y-2 text-[11px] text-slate-700">
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Compliance repairs</strong> (OEM replacement parts required for pass)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Repair certification / engineering evidence</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Parts, labour or testing</strong> beyond standard compliance</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Border flag clearance</strong> (special quarantine or fumigation)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Non-standard storage, transport or redelivery</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                     <span><strong>Dealer-requested accessories, modifications or grooming</strong></span>
                   </li>
                 </ul>
