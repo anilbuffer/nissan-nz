@@ -204,7 +204,7 @@ export default function DealerApprovalsView() {
             {isApproved ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono shadow-2xs">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Authorized Franchise</span>
+                <span>{selectedDealer.registrationRole || (selectedDealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")} (Authorized)</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 font-mono shadow-2xs">
@@ -561,7 +561,7 @@ export default function DealerApprovalsView() {
                     className="w-full py-3.5 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Authorize Franchise &amp; Assign Zone</span>
+                    <span>Authorize {dealer.registrationRole || (dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")} &amp; Assign Zone</span>
                   </button>
 
                   <button
@@ -577,7 +577,7 @@ export default function DealerApprovalsView() {
                 <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs text-emerald-900 space-y-1">
                   <div className="flex items-center gap-1.5 font-bold">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Franchise Fully Operational</span>
+                    <span>{dealer.registrationRole || (dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan Facility" : "NZ Dealer")} Fully Operational</span>
                   </div>
                   <p className="text-[11px] text-emerald-800">
                     This dealership holds authorized credentials to browse wholesale stock, place 24h locks, and access guaranteed landed pricing.
@@ -740,8 +740,11 @@ export default function DealerApprovalsView() {
                       <div className="group-hover:text-[#C3002F] transition-colors font-bold text-sm">
                         {d.legalTradingName}
                       </div>
-                      <div className="text-[11px] font-mono text-slate-400 font-normal mt-0.5">
-                        {d.dealerCode} · {d.address}
+                      <div className="text-[11px] font-mono text-slate-400 font-normal mt-0.5 flex items-center gap-1.5 flex-wrap">
+                        <span>{d.dealerCode} · {d.address}</span>
+                        <span className="px-1.5 py-0.2 rounded text-[10px] bg-slate-100 text-slate-700 font-semibold font-sans">
+                          {d.registrationRole || (d.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")}
+                        </span>
                       </div>
                     </td>
 

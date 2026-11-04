@@ -74,7 +74,7 @@ export default function DealerDetailsModal({
                   {dealer.dealerCode}
                 </span>
                 <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-white/10 text-white border border-white/15">
-                  {dealer.status === "APPROVED" ? "Approved Franchise" : "Pending Authorization"}
+                  {dealer.registrationRole || (dealer.category === "JAPAN_HQ" || dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")} · {dealer.status === "APPROVED" ? "Approved" : "Pending Authorization"}
                 </span>
               </div>
               <h2 id="dealer-details-title" className="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5">
@@ -134,6 +134,13 @@ export default function DealerDetailsModal({
               </h3>
 
               <div className="space-y-2 pt-1 text-xs">
+                <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500">Registration Role:</span>
+                  <span className="font-semibold text-slate-900">
+                    {dealer.registrationRole || (dealer.category === "JAPAN_HQ" || dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")}
+                  </span>
+                </div>
+
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <span className="text-slate-500">NZBN:</span>
                   <span className="font-mono font-semibold text-slate-900 flex items-center gap-1">
@@ -285,11 +292,11 @@ export default function DealerDetailsModal({
             {dealer.status === "PENDING_APPROVAL" ? (
               <span className="font-medium flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-slate-500" />
-                <span>Pending initial franchise authorization and pricing zone sign-off.</span>
+                <span>Pending initial {dealer.registrationRole || (dealer.category === "JAPAN_HQ" || dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")} authorization and pricing zone sign-off.</span>
               </span>
             ) : (
               <span className="text-slate-600">
-                Authorized Nissan Franchisee with live ordering rights.
+                Authorized {dealer.registrationRole || (dealer.category === "JAPAN_HQ" || dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan Facility" : "NZ Dealer")} with live ordering rights.
               </span>
             )}
           </div>
@@ -319,7 +326,7 @@ export default function DealerDetailsModal({
                     className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white font-semibold text-xs transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
                   >
                     <CheckCircle2 className="w-4 h-4 text-white" />
-                    <span>Approve Franchise</span>
+                    <span>Approve {dealer.registrationRole || (dealer.category === "JAPAN_HQ" || dealer.termsAcceptedVersion?.includes("JP-EXPORT") ? "Nissan Japan" : "NZ Dealer")}</span>
                   </button>
                 )}
               </>

@@ -59,6 +59,8 @@ export interface DealerAccount {
   returnedAt?: string;
   holdingCreditLimitNZD?: number;
   maxConcurrentHolds?: number;
+  category?: "DEALER_NZ" | "JAPAN_HQ" | "PROGRAMME_USER";
+  registrationRole?: "NZ Dealer" | "Nissan Japan" | "Programme";
 }
 
 export interface UserAccount {
@@ -81,6 +83,8 @@ export interface UserAccount {
   maxActiveHolds?: number;
   permissions?: string[];
   createdAt?: string;
+  category?: "DEALER_NZ" | "JAPAN_HQ" | "PROGRAMME_USER";
+  registrationRole?: "NZ Dealer" | "Nissan Japan" | "Programme";
 }
 
 export type PlatformPermission =

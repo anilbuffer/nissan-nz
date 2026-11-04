@@ -15,10 +15,47 @@ import {
   X,
   AlertTriangle,
   UserCheck,
+  Globe,
 } from "lucide-react";
 
 interface AdminDashboardViewProps {
   onNavigateTab: (tabId: string) => void;
+}
+
+// Helper to strictly resolve any registration item to one of the 3 sections on /register:
+// "NZ Dealer" | "Nissan Japan" | "Programme"
+function getRegistrationSectionRole(item?: {
+  registrationRole?: string;
+  category?: string;
+  role?: string;
+  termsAcceptedVersion?: string;
+} | null): "NZ Dealer" | "Nissan Japan" | "Programme" {
+  if (!item) return "NZ Dealer";
+  if (
+    item.registrationRole === "NZ Dealer" ||
+    item.registrationRole === "Nissan Japan" ||
+    item.registrationRole === "Programme"
+  ) {
+    return item.registrationRole;
+  }
+  if (item.category === "DEALER_NZ") return "NZ Dealer";
+  if (item.category === "JAPAN_HQ") return "Nissan Japan";
+  if (item.category === "PROGRAMME_USER") return "Programme";
+
+  if (item.role === "NISSAN_JAPAN" || item.termsAcceptedVersion?.includes("JP-EXPORT")) {
+    return "Nissan Japan";
+  }
+  if (
+    item.role === "READONLY_PROGRAMME_USER" ||
+    item.role?.toLowerCase().includes("programme")
+  ) {
+    return "Programme";
+  }
+  if (item.role === "DEALER_USER" || item.role === "DEALER_ADMIN") {
+    return "NZ Dealer";
+  }
+
+  return "NZ Dealer";
 }
 
 export default function AdminDashboardView({ onNavigateTab }: AdminDashboardViewProps) {
@@ -44,9 +81,9 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
   const [declineTargetDealer, setDeclineTargetDealer] = useState<DealerAccount | null>(null);
   const [declineReason, setDeclineReason] = useState("");
 
-  // 1. Pending Dealer Onboarding Requests from /register
+  // 1. Pending Dealer Onboarding Requests from /register (NZ Dealer)
   const pendingDealers = useMemo(
-    () => dealers.filter((d) => d.status === "PENDING_APPROVAL" && !d.termsAcceptedVersion?.includes("JP-EXPORT")),
+    () => dealers.filter((d) => d.status === "PENDING_APPROVAL" && d.category !== "JAPAN_HQ" && !d.termsAcceptedVersion?.includes("JP-EXPORT")),
     [dealers]
   );
 
@@ -55,8 +92,9 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
     () => users.filter((u) => !u.active),
     [users]
   );
+  // Nissan Japan HQ marshalling facilities from /register
   const pendingFacilities = useMemo(
-    () => dealers.filter((d) => d.status === "PENDING_APPROVAL" && d.termsAcceptedVersion?.includes("JP-EXPORT")),
+    () => dealers.filter((d) => d.status === "PENDING_APPROVAL" && (d.category === "JAPAN_HQ" || d.termsAcceptedVersion?.includes("JP-EXPORT"))),
     [dealers]
   );
   const totalOnboardingRequests = pendingUsers.length + pendingFacilities.length;
@@ -125,7 +163,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const dealerOnboardingCount = pendingDealers.length + pendingUsers.length;
+  const dealerOnboardingCount = pendingDealers.length + pendingFacilities.length + pendingUsers.length;
   const reservationQueueCount = activeHolds.length;
 
   return (
@@ -139,7 +177,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
             Operations Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Priority queues for franchise dealer onboarding approvals, staff registrations, and 24h exclusivity holds.
+            Priority queues for NZ Dealer, Nissan Japan, and Programme onboarding approvals, and 24h exclusivity holds.
           </p>
         </div>
       </div>
@@ -163,14 +201,14 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Card 1: Dealer Onboarding Approval Requests              */}
+      {/* 1. Card 1: Registration & Onboarding Approval Requests      */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-slate-800" />
             <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-              Dealer Onboarding Approval Requests
+              Onboarding &amp; Registration Approval Requests
             </h2>
             <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-semibold border border-slate-200">
               {dealerOnboardingCount}
@@ -182,7 +220,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
             onClick={() => onNavigateTab("admin-dealers")}
             className="text-xs font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
           >
-            <span>Manage All Dealers</span>
+            <span>Manage All Registrations</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -190,11 +228,11 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
         {dealerOnboardingCount === 0 ? (
           <div className="py-6 px-4 bg-slate-50 rounded-xl text-center text-sm text-slate-500 flex items-center justify-center gap-2 border border-slate-200/60">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>No pending dealer onboarding approval requests.</span>
+            <span>No pending onboarding or registration approval requests.</span>
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {/* A. Pending Franchise Dealer Registrations from /register */}
+            {/* A. Pending NZ Dealer Registrations from /register */}
             {pendingDealers.map((dealer) => {
               const defaultZone = dealer.pricingZoneId || "ZONE_1";
               return (
@@ -203,16 +241,16 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                   className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-slate-700">
-                      <Building2 className="w-5 h-5 text-slate-600" />
+                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-[#0A0A0A]">
+                      <Building2 className="w-5 h-5 text-[#0A0A0A]" />
                     </div>
                     <div className="min-w-0">
                       <div className="text-sm font-bold text-slate-900 truncate">
                         {dealer.legalTradingName}
                       </div>
                       <div className="mt-0.5">
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-dark-50 text-dark-700 border border-blue-200 inline-block font-mono">
-                          Franchise Dealership
+                        <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded bg-[#0A0A0A] text-white border border-[#0A0A0A] inline-flex items-center gap-1 font-mono shadow-2xs">
+                          {getRegistrationSectionRole(dealer)}
                         </span>
                       </div>
                     </div>
@@ -252,56 +290,123 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
               );
             })}
 
-            {/* B. Pending Personnel / Staff Registrations from /register */}
-            {pendingUsers.map((u) => (
-              <div
-                key={u.id}
-                className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-slate-700">
-                    <UserCheck className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-bold text-slate-900 truncate">
-                      {u.name}
+            {/* B. Pending Nissan Japan HQ Registrations from /register */}
+            {pendingFacilities.map((facility) => {
+              const defaultZone = facility.pricingZoneId || "ZONE_1";
+              return (
+                <div
+                  key={facility.id}
+                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-[#0A0A0A]">
+                      <Globe className="w-5 h-5 text-[#0A0A0A]" />
                     </div>
-                    <div className="mt-0.5">
-                      <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-dark-50 text-dark-700 border border-blue-200 inline-block font-mono">
-                        {u.role.replace(/_/g, " ")}
-                      </span>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-900 truncate">
+                        {facility.legalTradingName}
+                      </div>
+                      <div className="mt-0.5">
+                        <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded bg-[#0A0A0A] text-white border border-[#0A0A0A] inline-flex items-center gap-1 font-mono shadow-2xs">
+                          {getRegistrationSectionRole(facility)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      setSelectedUserForDetails(u);
-                    }}
-                    className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
-                  >
-                    Review
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeclineUser(u.id, u.name)}
-                    className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Decline
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleApproveUser(u.id, u.name)}
-                    className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
-                  >
-                    Approve
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSelectedDealerForDetails(facility);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                    >
+                      Review
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setDeclineTargetDealer(facility);
+                        setDeclineReason("");
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(facility.id, defaultZone)}
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                    >
+                      Approve
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
+            {/* C. Pending Programme / Personnel Registrations from /register */}
+            {pendingUsers.map((u) => {
+              const roleLabel = getRegistrationSectionRole(u);
+              const isJapan = roleLabel === "Nissan Japan";
+
+              return (
+                <div
+                  key={u.id}
+                  className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 rounded-xl transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-14 sm:w-16 h-10 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden text-[#0A0A0A]">
+                      {isJapan ? (
+                        <Globe className="w-5 h-5 text-[#0A0A0A]" />
+                      ) : (
+                        <UserCheck className="w-5 h-5 text-[#0A0A0A]" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-900 truncate">
+                        {u.name}
+                      </div>
+                      <div className="mt-0.5">
+                        <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded bg-[#0A0A0A] text-white border border-[#0A0A0A] inline-flex items-center gap-1 font-mono shadow-2xs">
+                          {roleLabel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSelectedUserForDetails(u);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:border-slate-300 rounded-lg transition-colors shadow-2xs cursor-pointer"
+                    >
+                      Review
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeclineUser(u.id, u.name)}
+                      className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApproveUser(u.id, u.name)}
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A0A0A] hover:bg-[#444444] rounded-lg transition-colors shadow-2xs cursor-pointer active:scale-[0.98]"
+                    >
+                      Approve
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -504,7 +609,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
           <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-[#0A0A0A] shrink-0">
                   <UserCheck className="w-4 h-4" />
                 </div>
                 <div>
@@ -540,11 +645,13 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60">
                 <span className="text-slate-500 font-medium">Requested Role:</span>
-                <span className="text-blue-700 font-bold uppercase">{selectedUserForDetails.role.replace(/_/g, " ")}</span>
+                <span className="font-bold font-mono px-2 py-0.5 rounded text-xs bg-[#0A0A0A] text-white border border-[#0A0A0A]">
+                  {getRegistrationSectionRole(selectedUserForDetails)}
+                </span>
               </div>
               {selectedUserForDetails.dealershipName && (
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
-                  <span className="text-slate-500 font-medium">Organization / Franchise:</span>
+                  <span className="text-slate-500 font-medium">Organization / Entity:</span>
                   <span className="text-slate-900 font-semibold">{selectedUserForDetails.dealershipName}</span>
                 </div>
               )}

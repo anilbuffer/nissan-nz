@@ -116,7 +116,7 @@ export const DEFAULT_RESERVATION_CONFIG: ReservationConfig = {
   maxActiveHoldsPerDealer: 5,
 };
 
-const STORAGE_KEY = "dealer_platform_programme_state_v12";
+const STORAGE_KEY = "dealer_platform_programme_state_v13";
 
 export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
@@ -1257,24 +1257,30 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       primaryContactEmail: string;
     }
   ): DealerAccount => {
+    const isJapanHQ = dealerData.category === "JAPAN_HQ" || dealerData.termsAcceptedVersion?.includes("JP-EXPORT");
+    const roleTitle: "NZ Dealer" | "Nissan Japan" | "Programme" = dealerData.registrationRole || (isJapanHQ ? "Nissan Japan" : "NZ Dealer");
+    const regCategory = dealerData.category || (isJapanHQ ? "JAPAN_HQ" : "DEALER_NZ");
+
     const newDealer: DealerAccount = {
       id: `DEALER_${Date.now()}`,
       dealerCode: dealerData.dealerCode,
       legalTradingName: dealerData.legalTradingName,
       nzbn: dealerData.nzbn || "9429000000000",
-      address: dealerData.address || "New Zealand Showroom Depot",
-      region: dealerData.region || "Auckland",
+      address: dealerData.address || (isJapanHQ ? "Yokohama Daikoku Port Terminal" : "New Zealand Showroom Depot"),
+      region: dealerData.region || (isJapanHQ ? "Yokohama / Daikoku" : "Auckland"),
       pricingZoneId: dealerData.pricingZoneId || "ZONE_1",
       status: "PENDING_APPROVAL",
-      primaryContactName: dealerData.primaryContactName || "Authorized Dealer Principal",
+      primaryContactName: dealerData.primaryContactName || "Authorized Representative",
       primaryContactEmail: dealerData.primaryContactEmail,
       primaryContactPhone: dealerData.primaryContactPhone || "+64 9 000 0000",
-      termsAcceptedVersion: dealerData.termsAcceptedVersion || "v2026.1",
+      termsAcceptedVersion: dealerData.termsAcceptedVersion || (isJapanHQ ? "v2026.1-JP-EXPORT" : "v2026.1"),
       termsAcceptedAt: dealerData.termsAcceptedAt || new Date().toISOString(),
       costBoundaryAccepted: dealerData.costBoundaryAccepted ?? true,
       emailVerified: true,
       holdingCreditLimitNZD: 350000,
       maxConcurrentHolds: 3,
+      category: regCategory,
+      registrationRole: roleTitle,
     };
 
     setDealers((prev) => [newDealer, ...prev]);
@@ -1282,12 +1288,21 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     logAudit({
       actorName: newDealer.primaryContactName,
       actorEmail: newDealer.primaryContactEmail,
-      actorRole: "DEALER_USER",
+      actorRole: isJapanHQ ? "NISSAN_JAPAN" : "DEALER_USER",
       action: "DEALER_ONBOARDING_SUBMITTED",
       category: "AUTHENTICATION",
       objectType: "DealerAccount",
       objectId: newDealer.id,
-      details: `New dealer application submitted for ${newDealer.legalTradingName} (${newDealer.dealerCode}). Email verified. Terms v2026.1 accepted.`,
+      details: `New ${roleTitle} application submitted for ${newDealer.legalTradingName} (${newDealer.dealerCode}). Role: ${roleTitle}. Email verified.`,
+    });
+
+    addNotification({
+      type: "DEALER_APPLICATION",
+      title: `New Registration Request: ${roleTitle}`,
+      desc: `Registration application received for ${newDealer.legalTradingName} (${newDealer.dealerCode}). Role: ${roleTitle}.`,
+      targetRole: "AUTOHUB_ADMIN",
+      dealerId: newDealer.id,
+      linkUrl: "/admin/dashboard",
     });
 
     return newDealer;
@@ -1320,27 +1335,45 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
 
   // 13. User Management Actions
   const addUser = (userData: Omit<UserAccount, "id">): UserAccount => {
+    const isPending = userData.active === false;
+    const roleTitle: "NZ Dealer" | "Nissan Japan" | "Programme" =
+      userData.registrationRole || (userData.role === "READONLY_PROGRAMME_USER" ? "Programme" : userData.role === "NISSAN_JAPAN" ? "Nissan Japan" : "NZ Dealer");
+
     const newUser: UserAccount = {
       ...userData,
       id: `USR_${Date.now()}`,
       createdAt: new Date().toISOString(),
-      active: true,
+      active: userData.active ?? true,
       mfaEnabled: userData.mfaEnabled ?? true,
-      lastLoginAt: "Pending Invitation",
+      lastLoginAt: isPending ? "Pending Verification" : "Pending Invitation",
       lastLoginIp: "—",
+      registrationRole: roleTitle,
+      category: userData.category || (userData.role === "READONLY_PROGRAMME_USER" ? "PROGRAMME_USER" : "DEALER_NZ"),
     };
     setUsers((prev) => [newUser, ...prev]);
 
     logAudit({
-      actorName: "Sarah Jenkins",
-      actorEmail: "ops@autohub.co.nz",
-      actorRole: "AUTOHUB_ADMIN",
-      action: "USER_INVITED",
+      actorName: isPending ? newUser.name : "Sarah Jenkins",
+      actorEmail: isPending ? newUser.email : "ops@autohub.co.nz",
+      actorRole: isPending ? newUser.role : "AUTOHUB_ADMIN",
+      action: isPending ? "USER_ONBOARDING_SUBMITTED" : "USER_INVITED",
       category: "AUTHENTICATION",
       objectType: "UserAccount",
       objectId: newUser.id,
-      details: `Invited new platform user ${newUser.name} (${newUser.email}) with role ${newUser.role}.`,
+      details: isPending
+        ? `New registration submitted for ${newUser.name} (${newUser.email}). Role: ${roleTitle}.`
+        : `Invited new platform user ${newUser.name} (${newUser.email}) with role ${newUser.role}.`,
     });
+
+    if (isPending) {
+      addNotification({
+        type: "DEALER_APPLICATION",
+        title: `New Registration Request: ${roleTitle}`,
+        desc: `Registration request received for ${newUser.name} (${newUser.email}). Role: ${roleTitle}.`,
+        targetRole: "AUTOHUB_ADMIN",
+        linkUrl: "/admin/dashboard",
+      });
+    }
 
     return newUser;
   };

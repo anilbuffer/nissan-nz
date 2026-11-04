@@ -508,6 +508,8 @@ export default function DealerRegistrationWizard() {
           pricingZoneId: selectedLocation.zoneId,
           termsAcceptedVersion: "v2026.1",
           costBoundaryAccepted: true,
+          category: "DEALER_NZ",
+          registrationRole: "NZ Dealer",
         });
       } else if (category === "JAPAN_HQ") {
         registerDealerApplication({
@@ -522,6 +524,8 @@ export default function DealerRegistrationWizard() {
           pricingZoneId: "ZONE_1",
           termsAcceptedVersion: "v2026.1-JP-EXPORT",
           costBoundaryAccepted: true,
+          category: "JAPAN_HQ",
+          registrationRole: "Nissan Japan",
         });
       } else {
         addUser({
@@ -532,6 +536,8 @@ export default function DealerRegistrationWizard() {
           title: programmeData.jobTitle,
           dealershipName: programmeData.organisation,
           role: programmeData.requestedRole,
+          category: "PROGRAMME_USER",
+          registrationRole: "Programme",
           active: false,
         });
       }
