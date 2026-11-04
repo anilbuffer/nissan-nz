@@ -427,7 +427,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     readOnly
                     value={stockId || nextSerialStockId}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-900 cursor-default select-all"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-900 cursor-default select-all"
                   />
                   <span className="text-[10px] text-slate-400 block font-mono">Sequential stock reference</span>
                 </div>
@@ -439,7 +439,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     required
                     value={vinChassis}
                     onChange={(e) => setVinChassis(e.target.value.toUpperCase())}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[10px] text-slate-400 block">Mandatory Japanese chassis / VIN stamp</span>
                 </div>
@@ -450,7 +450,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={make}
                     onChange={(e) => setMake(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-semibold transition-colors"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal transition-colors"
                   />
                 </div>
 
@@ -461,7 +461,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     required
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
                 </div>
 
@@ -481,7 +481,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="number"
                     value={year}
                     onChange={(e) => setYear(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
 
@@ -497,7 +497,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     <select
                       value={odometerUnit}
                       onChange={(e) => setOdometerUnit(e.target.value as "km" | "mi")}
-                      className="px-2.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-pointer"
+                      className="px-2.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-pointer"
                     >
                       <option value="km">km</option>
                       <option value="mi">mi</option>
@@ -509,12 +509,12 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <label className="text-xs font-bold text-slate-700 block">Transmission</label>
                   <input
                     type="text"
-                    
+
                     value={transmission}
                     onChange={(e) => setTransmission(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
-                  
+
                 </div>
 
                 <div className="space-y-1.5">
@@ -531,12 +531,12 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <label className="text-xs font-bold text-slate-700 block">Powertrain / Fuel</label>
                   <input
                     type="text"
-                    
+
                     value={fuelType}
                     onChange={(e) => setFuelType(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
-                  
+
                 </div>
               </div>
             </div>
@@ -559,7 +559,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 <select
                   value={overallCondition}
                   onChange={(e) => setOverallCondition(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                  className="w-full px-3.5 py-2 text-xs font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                 >
                   <option value="★ 5.0 - Showroom Pristine Condition">★ 5.0 - Showroom Pristine Condition (Demonstration Grade)</option>
                   <option value="★ 4.5 - Excellent Clean Japanese Condition">★ 4.5 - Excellent Clean Japanese Condition (Minimal Wear)</option>
@@ -577,7 +577,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <select
                     value={auctionGrade}
                     onChange={(e) => setAuctionGrade(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
                     <option value="5.0">★ 5.0 (Near New)</option>
                     <option value="4.5">★ 4.5 (Excellent)</option>
@@ -593,7 +593,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <select
                     value={interiorGrade}
                     onChange={(e) => setInteriorGrade(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
                     <option value="A">Grade A (Immaculate)</option>
                     <option value="B">Grade B (Normal Wear)</option>
@@ -606,7 +606,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <select
                     value={exteriorGrade}
                     onChange={(e) => setExteriorGrade(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
                     <option value="A">Grade A (Factory Clean)</option>
                     <option value="B">Grade B (Minor Blemishes)</option>
@@ -702,7 +702,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       required
                       value={fobPriceJPY}
                       onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                   </div>
                   <span className="text-[10px] text-slate-400 block">Direct Japanese auction acquisition price</span>
@@ -714,7 +714,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value.toUpperCase() as "JPY" | "NZD" | "USD")}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[10px] text-slate-400 block font-mono">Default: JPY</span>
                 </div>
@@ -731,7 +731,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       type="text"
                       readOnly
                       value={fobPriceJPY ? `${nzdEquivalent.toLocaleString()} NZD` : "— NZD"}
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-700 focus:outline-none cursor-default"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 focus:outline-none cursor-default"
                     />
                   </div>
                   <span className="text-[10px] text-slate-400 font-mono">
@@ -851,11 +851,11 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 {/* Listing Status Dropdown with All MVP Lifecycles */}
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">Listing Status (MVP Lifecycle)</label>
+                  <label className="text-xs font-bold text-slate-700 block">Listing Status</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as VehicleStatus)}
-                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
                     <option value="DRAFT">Draft — Inbound Japanese Yard Preparation</option>
                     <option value="AVAILABLE">Available — Published to Central Dealer Catalogue</option>
@@ -872,7 +872,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="date"
                     value={createdAt}
                     onChange={(e) => setCreatedAt(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] transition-colors"
                   />
                 </div>
 
@@ -882,7 +882,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     value={stockReference}
                     onChange={(e) => setStockReference(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[10px] text-slate-400 block">Japanese auction lot number or AutoHub reference</span>
                 </div>
@@ -893,7 +893,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     readOnly
                     value={new Date().toISOString().slice(0, 10)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-600 cursor-default"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-600 cursor-default"
                   />
                 </div>
               </div>
