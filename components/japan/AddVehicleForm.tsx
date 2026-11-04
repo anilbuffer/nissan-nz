@@ -13,7 +13,6 @@ import {
   Save,
   Star,
   FileCheck2,
-  ChevronRight,
   ShieldCheck,
   Hash,
   UploadCloud,
@@ -21,11 +20,7 @@ import {
   FileText,
   DollarSign,
   Tag,
-  Calendar,
-  Layers,
   Image as ImageIcon,
-  Paperclip,
-  Trash2,
 } from "lucide-react";
 
 interface AddVehicleFormProps {
@@ -216,6 +211,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     ? Math.round(Number(fobPriceJPY) * JPY_TO_NZD_EXCHANGE_RATE)
     : 0;
 
+  // Computed live catalogue preview variables
+  const hasTitleDetails = Boolean(model.trim() || year);
+  const specTokens = [grade.trim(), transmission.trim(), color.trim()].filter(Boolean);
+
   // ───────────────────────────────────────────────────────────
   // Form Submission
   // ───────────────────────────────────────────────────────────
@@ -236,7 +235,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     const finalFob = fobPriceJPY ? Number(fobPriceJPY) : 0;
     const finalModel = model.trim() || "Nissan Note e-Power";
     const finalGrade = grade.trim() || "Standard Grade";
-    const finalImages = images.length > 0 ? images : ["/images/cars/note.png"];
+    const finalImages = images.length > 0 ? images : [];
     const finalRef = stockReference.trim() || `USS-JAA-${finalStockId.slice(-4)}`;
 
     addVehicle({
@@ -412,14 +411,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <Hash className="w-4 h-4 text-[#C3002F]" />
                   <span>A. Vehicle Identification</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 1 of 5</span>
+                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 1 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700 block">Stock ID</label>
-                    <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <label className="text-xs font-bold text-slate-800 block">Stock ID</label>
+                    <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
                       Auto-Generated
                     </span>
                   </div>
@@ -429,23 +428,24 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     value={stockId || nextSerialStockId}
                     className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-900 cursor-default select-all"
                   />
-                  <span className="text-[10px] text-slate-400 block font-mono">Sequential stock reference</span>
+                  <span className="text-[11px] text-slate-500 block font-mono">Sequential stock reference</span>
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">Chassis / VIN *</label>
+                  <label className="text-xs font-bold text-slate-800 block">Chassis / VIN *</label>
                   <input
                     type="text"
                     required
                     value={vinChassis}
                     onChange={(e) => setVinChassis(e.target.value.toUpperCase())}
+                    placeholder="e.g. E12-123456"
                     className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
-                  <span className="text-[10px] text-slate-400 block">Mandatory Japanese chassis / VIN stamp</span>
+                  <span className="text-[11px] text-slate-500 block">Mandatory Japanese chassis / VIN stamp</span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Make</label>
+                  <label className="text-xs font-bold text-slate-800 block">Make</label>
                   <input
                     type="text"
                     value={make}
@@ -455,38 +455,41 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">Model *</label>
+                  <label className="text-xs font-bold text-slate-800 block">Model *</label>
                   <input
                     type="text"
                     required
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
+                    placeholder="e.g. Note e-POWER, Leaf, Serena, X-Trail"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Variant / Trim</label>
+                  <label className="text-xs font-bold text-slate-800 block">Variant / Trim</label>
                   <input
                     type="text"
                     value={grade}
                     onChange={(e) => setGrade(e.target.value)}
+                    placeholder="e.g. X, Nismo, Highway Star"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Model Year</label>
+                  <label className="text-xs font-bold text-slate-800 block">Model Year</label>
                   <input
                     type="number"
                     value={year}
                     onChange={(e) => setYear(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
+                    placeholder="e.g. 2023"
                     className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Odometer Reading (km) *</label>
+                  <label className="text-xs font-bold text-slate-800 block">Odometer Reading (km) *</label>
                   <div className="relative">
                     <input
                       type="number"
@@ -497,44 +500,43 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       placeholder="e.g. 28400"
                       className="w-full pl-3.5 pr-20 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-mono font-semibold text-slate-400">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-mono font-semibold text-slate-500">
                       km (JEVIC)
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Transmission</label>
+                  <label className="text-xs font-bold text-slate-800 block">Transmission</label>
                   <input
                     type="text"
-
                     value={transmission}
                     onChange={(e) => setTransmission(e.target.value)}
+                    placeholder="e.g. Automatic, e-Power Drive"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
-
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Exterior Colour</label>
+                  <label className="text-xs font-bold text-slate-800 block">Exterior Colour</label>
                   <input
                     type="text"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
+                    placeholder="e.g. Pearl White, Brilliant Silver"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Powertrain / Fuel</label>
+                  <label className="text-xs font-bold text-slate-800 block">Powertrain / Fuel</label>
                   <input
                     type="text"
-
                     value={fuelType}
                     onChange={(e) => setFuelType(e.target.value)}
+                    placeholder="e.g. e-Power, Petrol, 100% Electric"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
-
                 </div>
               </div>
             </div>
@@ -548,12 +550,12 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <FileCheck2 className="w-4 h-4 text-emerald-600" />
                   <span>B. Vehicle Condition</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 2 of 5</span>
+                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 2 of 5</span>
               </div>
 
               {/* Overall Vehicle Condition / Summary */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 block">Overall Vehicle Condition / Grade</label>
+                <label className="text-xs font-bold text-slate-800 block">Overall Vehicle Condition / Grade</label>
                 <select
                   value={overallCondition}
                   onChange={(e) => setOverallCondition(e.target.value)}
@@ -571,7 +573,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               {/* Auction, Interior & Exterior Grades */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Auction Grade</label>
+                  <label className="text-xs font-bold text-slate-800 block">Auction Grade</label>
                   <select
                     value={auctionGrade}
                     onChange={(e) => setAuctionGrade(e.target.value)}
@@ -587,7 +589,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Interior Grade</label>
+                  <label className="text-xs font-bold text-slate-800 block">Interior Grade</label>
                   <select
                     value={interiorGrade}
                     onChange={(e) => setInteriorGrade(e.target.value)}
@@ -600,7 +602,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Exterior Grade</label>
+                  <label className="text-xs font-bold text-slate-800 block">Exterior Grade</label>
                   <select
                     value={exteriorGrade}
                     onChange={(e) => setExteriorGrade(e.target.value)}
@@ -615,23 +617,24 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
               {/* Known Defects */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-bold text-slate-700 block">Known Defects &amp; Inspection Remarks</label>
+                <label className="text-xs font-bold text-slate-800 block">Known Defects &amp; Inspection Remarks</label>
                 <textarea
                   rows={2}
                   value={knownDefects}
                   onChange={(e) => setKnownDefects(e.target.value)}
+                  placeholder="Record any minor panel scratches, wear, or note verified clean inspection pass..."
                   className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                 />
               </div>
 
               {/* Condition Report & Supporting Document Status */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
                     <div className="min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Condition Report</span>
-                      <span className="text-xs font-medium text-slate-800 truncate block">{conditionReportName}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Condition Report</span>
+                      <span className="text-xs font-medium text-slate-900 truncate block">{conditionReportName}</span>
                     </div>
                   </div>
                   <button
@@ -650,12 +653,12 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   />
                 </div>
 
-                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
                     <div className="min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Supporting Document</span>
-                      <span className="text-xs font-medium text-slate-800 truncate block">{supportingDocName}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Supporting Document</span>
+                      <span className="text-xs font-medium text-slate-900 truncate block">{supportingDocName}</span>
                     </div>
                   </div>
                   <button
@@ -685,14 +688,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <DollarSign className="w-4 h-4 text-emerald-600" />
                   <span>C. Vehicle Pricing Inputs</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 3 of 5</span>
+                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 3 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">FOB Acquisition Price (JPY) *</label>
+                  <label className="text-xs font-bold text-slate-800 block">FOB Acquisition Price (JPY) *</label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-500">
                       ¥
                     </span>
                     <input
@@ -706,23 +709,23 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                   </div>
-                  <span className="text-[10px] text-slate-400 block font-mono">FOB acquisition baseline (Japanese Yen)</span>
+                  <span className="text-[11px] text-slate-500 block font-mono">FOB acquisition baseline (Japanese Yen)</span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Indicative Base (NZD)</label>
+                  <label className="text-xs font-bold text-slate-800 block">Indicative Base (NZD)</label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-500">
                       $
                     </span>
                     <input
                       type="text"
                       readOnly
                       value={fobPriceJPY ? `${nzdEquivalent.toLocaleString()} NZD` : "— NZD"}
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-700 focus:outline-none cursor-default"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-800 focus:outline-none cursor-default"
                     />
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-slate-500 font-mono">
                     Official rate: 0.01085
                   </span>
                 </div>
@@ -738,16 +741,16 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <ImageIcon className="w-4 h-4 text-purple-600" />
                   <span>Images &amp; Supporting Documents</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 4 of 5</span>
+                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 4 of 5</span>
               </div>
 
               {/* Upload Multiple Vehicle Photographs */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700 block">
+                  <label className="text-xs font-bold text-slate-800 block">
                     Upload Multiple Vehicle Photographs ({images.length} added)
                   </label>
-                  <span className="text-[11px] text-slate-400">Transparent PNG studio cutout recommended</span>
+                  <span className="text-[11px] text-slate-500">Transparent PNG studio cutout or JPG photo</span>
                 </div>
 
                 {/* Drag & Drop Multi-Image Dropzone */}
@@ -769,13 +772,13 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onChange={handleImageFileInputChange}
                     className="hidden"
                   />
-                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2.5 text-slate-500 shadow-2xs">
-                    <UploadCloud className="w-6 h-6 text-slate-500" />
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2.5 text-slate-600 shadow-2xs">
+                    <UploadCloud className="w-6 h-6 text-slate-600" />
                   </div>
                   <p className="text-xs font-bold text-slate-800">
                     Drag &amp; drop multiple vehicle images here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-500 mt-1">
                     Upload exterior angles, interior, dashboard, and defects photos (PNG, JPG, WEBP)
                   </p>
                 </div>
@@ -783,7 +786,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 {/* Thumbnail Gallery of Uploaded Photos */}
                 {images.length > 0 && (
                   <div className="space-y-2 pt-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
                       Uploaded Vehicle Photos ({images.length})
                     </span>
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
@@ -833,17 +836,17 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <Tag className="w-4 h-4 text-blue-600" />
                   <span>E. Listing Information</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400 font-semibold">Section 5 of 5</span>
+                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 5 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 {/* Listing Status Dropdown: Initial entry can be Draft or Available */}
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">Listing Status</label>
+                  <label className="text-xs font-bold text-slate-800 block">Listing Status</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as VehicleStatus)}
-                    className="w-full px-3.5 py-2 text-xs font-semibold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
                     <option value="AVAILABLE">Available — Published to Programme Catalogue</option>
                     <option value="DRAFT">Draft — Inbound Japanese Yard Preparation</option>
@@ -851,7 +854,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Created Date</label>
+                  <label className="text-xs font-bold text-slate-800 block">Created Date</label>
                   <input
                     type="date"
                     value={createdAt}
@@ -861,23 +864,24 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">Relevant Stock Reference</label>
+                  <label className="text-xs font-bold text-slate-800 block">Relevant Stock Reference</label>
                   <input
                     type="text"
                     value={stockReference}
                     onChange={(e) => setStockReference(e.target.value)}
+                    placeholder="e.g. USS-Tokyo-Lot#4021"
                     className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
-                  <span className="text-[10px] text-slate-400 block">Japanese auction lot number or AutoHub reference</span>
+                  <span className="text-[11px] text-slate-500 block">Japanese auction lot number or AutoHub reference</span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Last Updated Date</label>
+                  <label className="text-xs font-bold text-slate-800 block">Last Updated Date</label>
                   <input
                     type="text"
                     readOnly
                     value={new Date().toISOString().slice(0, 10)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-600 cursor-default"
+                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-default"
                   />
                 </div>
               </div>
@@ -923,48 +927,84 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
           {/* ─────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-6">
             <div className="bg-white rounded-[16px] border border-slate-200 p-6 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                  Live Catalogue Preview
-                </span>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${status === "AVAILABLE"
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : status === "RESERVED"
-                    ? "bg-amber-50 text-amber-800 border-amber-200"
-                    : status === "ALLOCATED"
-                      ? "bg-sky-50 text-sky-700 border-sky-200"
-                      : "bg-slate-100 text-slate-700 border-slate-200"
-                  }`}>
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[11px] uppercase font-bold tracking-wider text-slate-700">
+                    Live Catalogue Preview
+                  </span>
+                </div>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${status === "AVAILABLE"
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                    : status === "RESERVED"
+                      ? "bg-amber-50 text-amber-800 border-amber-300"
+                      : status === "ALLOCATED"
+                        ? "bg-sky-50 text-sky-800 border-sky-300"
+                        : "bg-slate-100 text-slate-700 border-slate-300"
+                    }`}
+                >
                   {status}
                 </span>
               </div>
 
-              {/* Studio Car Photo Preview */}
-              <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center p-4">
-                <div className="absolute bottom-3 w-4/5 h-4 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
-                <img
-                  src={images[activePreviewIdx] || images[0] || "/images/cars/note.png"}
-                  alt={model || "Nissan Vehicle Preview"}
-                  className="w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.1)] relative z-10 select-none transition-all duration-200"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/images/cars/note.png";
-                  }}
-                />
+              {/* Studio Car Photo Preview OR Default Blank Image */}
+              {images.length > 0 ? (
+                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-200/80 flex items-center justify-center p-4">
+                  <div className="absolute bottom-3 w-4/5 h-4 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
+                  <img
+                    src={images[activePreviewIdx] || images[0]}
+                    alt={model || "Nissan Vehicle Preview"}
+                    className="w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.12)] relative z-10 select-none transition-all duration-200"
+                  />
 
-                <div className="absolute top-3 left-3 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-bold border border-slate-200/80 shadow-2xs flex items-center gap-1">
-                  <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                  <span>Grade {auctionGrade || "4.5"}</span>
-                </div>
+                  <div className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-bold border border-slate-200/90 shadow-2xs flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    <span>Grade {auctionGrade || "—"}</span>
+                  </div>
 
-                <div className="absolute top-3 right-3 z-20 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-slate-700 font-mono text-[10px] font-bold border border-slate-200/80 shadow-2xs">
-                  {stockId ? `#${stockId}` : "#NEW-UNIT"}
+                  <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[10px] font-bold border border-slate-200/90 shadow-2xs">
+                    {stockId ? `#${stockId}` : "#NEW-UNIT"}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div
+                  onClick={() => imageInputRef.current?.click()}
+                  className="relative aspect-[16/10] w-full rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/80 hover:bg-slate-50 flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all group select-none"
+                  title="Click to upload vehicle photo"
+                >
+                  <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white text-slate-700 font-mono text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    <span>Grade {auctionGrade || "—"}</span>
+                  </div>
+
+                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white text-slate-700 font-mono text-[10px] font-semibold border border-slate-200 shadow-2xs">
+                    {stockId ? `#${stockId}` : "#NEW-UNIT"}
+                  </div>
+
+                  {/* Centered Placeholder Graphic */}
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-slate-400 group-hover:text-slate-600 group-hover:border-slate-300 group-hover:scale-105 transition-all mb-2.5">
+                    <Car className="w-7 h-7 stroke-[1.5]" />
+                  </div>
+
+                  <span className="text-xs font-bold text-slate-800 block">
+                    No Vehicle Photograph Added
+                  </span>
+                  <span className="text-[11px] text-slate-500 mt-0.5 block max-w-[210px] leading-tight">
+                    Upload photos in Section D or click here to add vehicle photos
+                  </span>
+
+                  <div className="mt-3 px-3 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs text-[11px] font-semibold text-slate-700 flex items-center gap-1.5 group-hover:border-slate-300">
+                    <UploadCloud className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Upload Photograph</span>
+                  </div>
+                </div>
+              )}
 
               {/* Interactive Thumbnail Angles Switcher in Live Preview */}
               {images.length > 1 && (
                 <div className="space-y-1">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
                     Preview Angles ({images.length})
                   </span>
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
@@ -989,80 +1029,162 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               )}
 
               {/* Vehicle Title & Specifications */}
-              <div className="space-y-1">
-                <h3 className="font-bold text-base text-slate-900 tracking-tight leading-snug">
-                  {year || "2023"} {make} {model || "Vehicle"}
-                </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  {grade || "Standard Trim"} · {transmission || "Automatic"} · {color || "Color"}
-                </p>
-                <div className="text-[11px] text-emerald-700 font-medium">
-                  {overallCondition}
+              <div className="space-y-1.5">
+                {hasTitleDetails ? (
+                  <h3 className="font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug">
+                    {year ? `${year} ` : ""}{make || "Nissan"} {model || "Vehicle"}
+                  </h3>
+                ) : (
+                  <div className="space-y-0.5">
+                    <h3 className="font-semibold text-base text-slate-400 tracking-tight leading-snug italic">
+                      {make || "Nissan"} Vehicle Model &amp; Year Pending
+                    </h3>
+                    <span className="text-[10px] text-slate-400 block font-normal">
+                      Fill Model &amp; Year in Section A to update
+                    </span>
+                  </div>
+                )}
+
+                {specTokens.length > 0 ? (
+                  <p className="text-xs text-slate-700 font-medium">
+                    {specTokens.join(" · ")}
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-400 italic">
+                    Trim · Transmission · Exterior Colour pending
+                  </p>
+                )}
+
+                <div className="pt-0.5">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
+                    <span className="truncate">{overallCondition}</span>
+                  </div>
                 </div>
               </div>
 
               {/* 4-Stat Mini Grid */}
-              <div className="grid grid-cols-2 gap-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 text-xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Odometer</span>
-                  <strong className="text-slate-900 font-mono text-xs font-bold block">
-                    {odometerKm ? `${Number(odometerKm).toLocaleString()} ${odometerUnit}` : "— km"}
-                  </strong>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
+                    Odometer
+                  </span>
+                  {odometerKm !== "" && Number(odometerKm) >= 0 ? (
+                    <strong className="text-slate-900 font-mono text-xs font-bold block truncate">
+                      {Number(odometerKm).toLocaleString()} {odometerUnit}
+                    </strong>
+                  ) : (
+                    <span className="text-slate-400 font-mono text-xs block">
+                      — km (Pending)
+                    </span>
+                  )}
                 </div>
+
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Currency</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
+                    Currency
+                  </span>
                   <strong className="text-slate-900 font-mono text-xs font-bold block truncate">
                     {currency}
                   </strong>
                 </div>
+
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Transmission</span>
-                  <span className="text-slate-700 text-xs font-medium block truncate">{transmission || "—"}</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
+                    Transmission
+                  </span>
+                  {transmission ? (
+                    <span className="text-slate-900 text-xs font-medium block truncate">
+                      {transmission}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400 text-xs italic block">
+                      —
+                    </span>
+                  )}
                 </div>
+
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Photos / Docs</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
+                    Photos / Docs
+                  </span>
                   <span className="text-slate-700 text-xs font-medium block truncate">
-                    {images.length} photos uploaded
+                    {images.length > 0 ? (
+                      <strong className="text-slate-900 font-semibold">{images.length} photos uploaded</strong>
+                    ) : (
+                      <span className="text-slate-400">0 photos uploaded</span>
+                    )}
                   </span>
                 </div>
               </div>
 
               {/* Parallel FOB Pricing (JPY & NZD) */}
-              <div className="pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
+              <div className="pt-3 border-t border-slate-200/80 grid grid-cols-2 gap-3">
                 <div className="space-y-0.5">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
                     FOB Price (JPY)
                   </span>
-                  <span className="text-lg font-bold text-slate-900 font-mono tracking-tight block">
-                    {fobPriceJPY ? `¥${Number(fobPriceJPY).toLocaleString()}` : "¥—"}
-                  </span>
+                  {fobPriceJPY ? (
+                    <span className="text-xl font-black text-slate-950 font-mono tracking-tight block">
+                      ¥{Number(fobPriceJPY).toLocaleString()}
+                    </span>
+                  ) : (
+                    <div className="space-y-0.5">
+                      <span className="text-lg font-bold text-slate-400 font-mono block">
+                        ¥ —
+                      </span>
+                      <span className="text-[10px] text-slate-400 block font-normal">
+                        Awaiting pricing
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-0.5 sm:text-right">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
                     FOB Price (NZD)
                   </span>
-                  <span className="text-lg font-bold text-slate-900 font-mono tracking-tight block">
-                    {fobPriceJPY ? `$${nzdEquivalent.toLocaleString()} NZD` : "$— NZD"}
-                  </span>
+                  {fobPriceJPY ? (
+                    <span className="text-xl font-black text-slate-950 font-mono tracking-tight block">
+                      ${nzdEquivalent.toLocaleString()}{" "}
+                      <span className="text-xs font-bold text-slate-500 font-sans">
+                        NZD
+                      </span>
+                    </span>
+                  ) : (
+                    <div className="space-y-0.5 sm:text-right">
+                      <span className="text-lg font-bold text-slate-400 font-mono block">
+                        $ — NZD
+                      </span>
+                      <span className="text-[10px] text-slate-400 block font-normal">
+                        Rate: 0.01085
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {stockReference && (
-                <div className="pt-1 text-[11px] font-mono text-slate-400 border-t border-slate-100">
-                  Ref: <strong className="text-slate-600">{stockReference}</strong>
+                <div className="pt-2 text-[11px] font-mono text-slate-500 border-t border-slate-200/80 flex items-center justify-between">
+                  <span>Reference:</span>
+                  <strong className="text-slate-800 font-semibold">{stockReference}</strong>
                 </div>
               )}
             </div>
 
             {/* Quick Tips Box */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500 space-y-1">
-              <strong className="text-slate-900 font-bold block flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>JEVIC &amp; Export Verification</span>
-              </strong>
-              <p className="text-[11px] leading-relaxed">
-                Saving this record associates all uploaded photographs, USS condition reports, and JEVIC certificates directly with stock #{stockId || "NIS-NEW"}.
+            <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200 text-xs space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                </div>
+                <span className="text-xs font-bold text-slate-900">JEVIC &amp; Export Verification</span>
+              </div>
+              <p className="text-[11px] leading-relaxed text-slate-600">
+                Saving this record associates all uploaded photographs, USS condition reports, and JEVIC certificates directly with stock{" "}
+                <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200 text-[10px]">
+                  #{stockId || "NIS-NEW"}
+                </span>
+                .
               </p>
             </div>
           </div>

@@ -30,7 +30,7 @@ const autoFillCode = `    setTimeout(() => {
     setFuelType("100% Electric");
     setDriveType("4WD");
     setEngineCc(0);
-    setOverallCondition("★ 4.5 - Excellent Clean Japanese Condition");
+    setOverallCondition("4.5 - Excellent Clean Japanese Condition");
     setAuctionGrade("4.5");
     setInteriorGrade("A");
     setExteriorGrade("A");
