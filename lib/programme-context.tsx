@@ -24,6 +24,7 @@ import {
   MOCK_RESERVATIONS,
   MOCK_NOTIFICATIONS,
 } from "./mock-data";
+import { enrichVehicleWithAngleImages } from "./vehicle-media";
 import { calculateLandedPrice, PricingConfig, DEFAULT_PRICING_CONFIG } from "./pricing-calculator";
 import { audio } from "./sound";
 
@@ -157,22 +158,23 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             const syncedVehicles = MOCK_VEHICLES.map((mock) => {
               const live = parsed.vehicles.find((v: Vehicle) => v.id === mock.id);
               if (live) {
+                const enrichedMock = enrichVehicleWithAngleImages(mock);
                 return {
-                  ...mock,
+                  ...enrichedMock,
                   ...live,
-                  images: (live.images && live.images.length > 0) ? live.images : mock.images,
+                  images: (live.images && live.images.length > 1) ? live.images : enrichedMock.images,
                   supportingDocuments: (live.supportingDocuments && live.supportingDocuments.length > 0) ? live.supportingDocuments : mock.supportingDocuments,
                   conditionReportName: live.conditionReportName || mock.conditionReportName,
                   conditionReportUrl: live.conditionReportUrl || mock.conditionReportUrl,
                 };
               }
-              return mock;
+              return enrichVehicleWithAngleImages(mock);
             });
             // Include any dynamically user-added vehicles created in session (prioritized at the top)
             const addedByUser = parsed.vehicles.filter((v: Vehicle) => !MOCK_VEHICLES.some((m) => m.id === v.id));
-            setVehicles([...addedByUser, ...syncedVehicles]);
+            setVehicles([...addedByUser.map(enrichVehicleWithAngleImages), ...syncedVehicles]);
           } else {
-            setVehicles(MOCK_VEHICLES);
+            setVehicles(MOCK_VEHICLES.map(enrichVehicleWithAngleImages));
           }
           if (parsed.orders) setOrders(parsed.orders);
           if (parsed.dealers) {
@@ -1431,7 +1433,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
 
   // 14. Reset to Defaults
   const resetToDefaultData = () => {
-    setVehicles(MOCK_VEHICLES);
+    setVehicles(MOCK_VEHICLES.map(enrichVehicleWithAngleImages));
     setOrders(MOCK_ORDERS);
     setDealers(MOCK_DEALERS);
     setAuditLogs(MOCK_AUDIT_LOGS);

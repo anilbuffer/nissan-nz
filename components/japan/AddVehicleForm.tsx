@@ -5,6 +5,7 @@ import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
+import { getModelAngleImages } from "@/lib/vehicle-media";
 import {
   Car,
   CheckCircle2,
@@ -252,17 +253,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
   const specTokens = [grade.trim(), transmission.trim(), driveType, color.trim(), engineCc ? `${engineCc}cc` : ""].filter(Boolean);
 
   const getModelDefaultImages = (modelName: string): string[] => {
-    const m = modelName.toLowerCase();
-    if (m.includes("note")) return ["/images/cars/note.png", "/images/cars/angles/note-front.jpg", "/images/cars/angles/note-side.jpg", "/images/cars/angles/note-rear-quarter.jpg", "/images/cars/angles/note-interior.jpg"];
-    if (m.includes("x-trail") || m.includes("xtrail")) return ["/images/cars/xtrail.png"];
-    if (m.includes("leaf")) return ["/images/cars/leaf.png"];
-    if (m.includes("serena")) return ["/images/cars/serena.png"];
-    if (m.includes("ariya")) return ["/images/cars/ariya.png"];
-    if (m.includes("kicks")) return ["/images/cars/kicks.png"];
-    if (m.includes("dayz")) return ["/images/cars/dayz.png"];
-    if (m.includes("elgrand")) return ["/images/cars/elgrand.png"];
-    if (m.includes("navara")) return ["/images/cars/navara.png"];
-    return ["/images/cars/note.png"];
+    return getModelAngleImages(modelName);
   };
 
   // ───────────────────────────────────────────────────────────

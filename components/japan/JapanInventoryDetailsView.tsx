@@ -5,9 +5,12 @@ import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
+import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
+import { getModelAngleImages, getAngleLabel, getCanonicalModelName } from "@/lib/vehicle-media";
 import AmendVehicleForm from "./AmendVehicleForm";
 import {
   ArrowLeft,
+  Camera,
   Car,
   ShieldCheck,
   CheckCircle2,
@@ -117,8 +120,9 @@ export default function JapanInventoryDetailsView({
     );
   }
 
-  const images =
-    vehicle.images && vehicle.images.length > 0 ? vehicle.images : ["/images/cars/kicks.png"];
+  const images = (vehicle.images && vehicle.images.length > 1)
+    ? vehicle.images
+    : getModelAngleImages(vehicle.model, vehicle.images?.[0] || "/images/cars/kicks.png");
 
   const activeImage = images[activeImageIdx] || images[0];
   const isAvailable = vehicle.status === "AVAILABLE";
@@ -428,25 +432,28 @@ export default function JapanInventoryDetailsView({
               {images.length > 1 && (
                 <div className="space-y-1.5 mt-4">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1">
-                    High-Resolution Studio Angles ({images.length})
+                    Multi-Angle Gallery ({images.length} Perspectives)
                   </span>
                   <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-                    {images.map((img, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          audio.playSubtleClick();
-                          setActiveImageIdx(idx);
-                        }}
-                        className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
-                          ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white"
-                          : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
-                          }`}
-                      >
-                        <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
-                      </button>
-                    ))}
+                    {images.map((img, idx) => {
+                      const isActive = activeImageIdx === idx;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            setActiveImageIdx(idx);
+                          }}
+                          className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 flex items-center justify-center ${isActive
+                            ? "border-[#C3002F] ring-2 ring-[#C3002F]/20 bg-white shadow-2xs"
+                            : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
+                            }`}
+                        >
+                          <img src={img} alt="Vehicle Perspective" className="w-full h-full object-contain" />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -753,6 +760,19 @@ export default function JapanInventoryDetailsView({
           <span>Cryptographic Export Register</span>
           <span className="text-slate-700 font-bold">SHA-256 Verified</span>
         </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 4.5 Matching Model Fleet Units in Japan Staging             */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+        <SameModelVehiclesShowcase
+          currentVehicle={vehicle}
+          allVehicles={vehicles}
+          isAdmin={true}
+          portal="japan"
+          title={`Fleet Depth · Other ${getCanonicalModelName(vehicle.model)} Units in Japan Yard Staging`}
+        />
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}

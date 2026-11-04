@@ -10,8 +10,11 @@ import { calculateLandedPrice, OFFICIAL_PRICING_ZONES, JPY_TO_NZD_EXCHANGE_RATE 
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
 import AddVehicleAdditionalCostModal from "@/components/admin/AddVehicleAdditionalCostModal";
+import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
+import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import {
   ArrowLeft,
+  Camera,
   Car,
   CheckCircle2,
   Copy,
@@ -269,7 +272,11 @@ export default function FullPageVehicleDetail({
     };
   });
 
-  const images = vehicle.images && vehicle.images.length > 0 ? vehicle.images : ["/images/cars/dayz.png"];
+  const images = useMemo(() => {
+    const existing = vehicle.images && vehicle.images.length > 0 ? vehicle.images : [];
+    if (existing.length > 1) return existing;
+    return getModelAngleImages(vehicle.model, existing[0]);
+  }, [vehicle]);
   const activeImage = images[activeImageIdx] || images[0];
 
   const isAvailable = vehicle.status === "AVAILABLE";
@@ -677,25 +684,28 @@ export default function FullPageVehicleDetail({
               {images.length > 1 && (
                 <div className="space-y-1.5 mt-4">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1">
-                    High-Resolution Studio Angles ({images.length})
+                    Multi-Angle Gallery ({images.length} Perspectives)
                   </span>
                   <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-                    {images.map((img, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          audio.playSubtleClick();
-                          setActiveImageIdx(idx);
-                        }}
-                        className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 ${activeImageIdx === idx
-                          ? "border-slate-900 ring-2 ring-slate-900/10 bg-white"
-                          : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
-                          }`}
-                      >
-                        <img src={img} alt="Thumbnail" className="w-full h-full object-contain" />
-                      </button>
-                    ))}
+                    {images.map((img, idx) => {
+                      const isActive = activeImageIdx === idx;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            setActiveImageIdx(idx);
+                          }}
+                          className={`w-20 h-14 rounded-xl border-2 p-1 overflow-hidden transition-all cursor-pointer bg-slate-50 shrink-0 flex items-center justify-center ${isActive
+                            ? "border-slate-900 ring-2 ring-slate-900/10 bg-white shadow-2xs"
+                            : "border-slate-200 hover:border-slate-300 opacity-75 hover:opacity-100"
+                            }`}
+                        >
+                          <img src={img} alt="Vehicle Perspective" className="w-full h-full object-contain" />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1172,6 +1182,18 @@ export default function FullPageVehicleDetail({
             )}
           </div>
         </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3.4 Multiple Sibling Units of Same Model in Central Fleet   */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+        <SameModelVehiclesShowcase
+          currentVehicle={vehicle}
+          allVehicles={vehicles}
+          isAdmin={isAdmin}
+          portal={isAdmin ? "admin" : "dealer"}
+        />
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}

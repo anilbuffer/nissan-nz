@@ -515,7 +515,11 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-22",
     "location": "Yokohama Yard (Bay 4)",
     "images": [
-      "/images/cars/note.png"
+      "/images/cars/note.png",
+      "/images/cars/angles/note-front.jpg",
+      "/images/cars/angles/note-side.jpg",
+      "/images/cars/angles/note-rear-quarter.jpg",
+      "/images/cars/angles/note-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9041.pdf",
     "supportingDocuments": [
@@ -570,7 +574,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-20",
     "location": "Yokohama Yard (Bay 2)",
     "images": [
-      "/images/cars/xtrail.png"
+      "/images/cars/xtrail.png",
+      "/images/cars/angles/xtrail-rear.jpg",
+      "/images/cars/angles/xtrail-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9042.pdf",
     "supportingDocuments": [
@@ -628,7 +634,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-18",
     "location": "Yokohama Yard (Bay 7)",
     "images": [
-      "/images/cars/serena.png"
+      "/images/cars/serena.png",
+      "/images/cars/angles/serena-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9043.pdf",
     "supportingDocuments": [
@@ -683,7 +690,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-25",
     "location": "Kobe Export Terminal",
     "images": [
-      "/images/cars/leaf.png"
+      "/images/cars/leaf.png",
+      "/images/cars/angles/leaf-rear.jpg",
+      "/images/cars/angles/leaf-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9044.pdf",
     "supportingDocuments": [
@@ -738,7 +747,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-28",
     "location": "Yokohama Yard (Bay 1)",
     "images": [
-      "/images/cars/ariya.png"
+      "/images/cars/ariya.png",
+      "/images/cars/angles/ariya-rear.jpg",
+      "/images/cars/angles/ariya-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9045.pdf",
     "supportingDocuments": [
@@ -795,7 +806,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-24",
     "location": "Yokohama Yard (Bay 2)",
     "images": [
-      "/images/cars/kicks.png"
+      "/images/cars/kicks.png",
+      "/images/cars/angles/kicks-rear.jpg",
+      "/images/cars/angles/kicks-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9046.pdf",
     "supportingDocuments": [
@@ -853,7 +866,11 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-29",
     "location": "Yokohama Yard (Bay 6)",
     "images": [
-      "/images/cars/note.png"
+      "/images/cars/note.png",
+      "/images/cars/angles/note-front.jpg",
+      "/images/cars/angles/note-side.jpg",
+      "/images/cars/angles/note-rear-quarter.jpg",
+      "/images/cars/angles/note-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9047.pdf",
     "supportingDocuments": [
@@ -908,7 +925,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-15",
     "location": "Port of Auckland Delivery Yard",
     "images": [
-      "/images/cars/xtrail.png"
+      "/images/cars/xtrail.png",
+      "/images/cars/angles/xtrail-rear.jpg",
+      "/images/cars/angles/xtrail-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9048.pdf",
     "supportingDocuments": [
@@ -963,7 +982,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-22",
     "location": "Yokohama Yard (Bay 5)",
     "images": [
-      "/images/cars/dayz.png"
+      "/images/cars/dayz.png",
+      "/images/cars/angles/dayz-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9049.pdf",
     "supportingDocuments": [
@@ -1018,7 +1038,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-21",
     "location": "Yokohama Yard (Bay 6)",
     "images": [
-      "/images/cars/elgrand.png"
+      "/images/cars/elgrand.png",
+      "/images/cars/angles/elgrand-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9050.pdf",
     "supportingDocuments": [
@@ -1073,7 +1094,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-26",
     "location": "Kobe Export Terminal",
     "images": [
-      "/images/cars/navara.png"
+      "/images/cars/navara.png",
+      "/images/cars/angles/navara-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9051.pdf",
     "supportingDocuments": [
@@ -1128,7 +1150,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-23",
     "location": "Yokohama Yard (Bay 3)",
     "images": [
-      "/images/cars/leaf.png"
+      "/images/cars/leaf.png",
+      "/images/cars/angles/leaf-rear.jpg",
+      "/images/cars/angles/leaf-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9052.pdf",
     "supportingDocuments": [
@@ -1183,7 +1207,11 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-24",
     "location": "Yokohama Yard (Bay 4)",
     "images": [
-      "/images/cars/note.png"
+      "/images/cars/note.png",
+      "/images/cars/angles/note-front.jpg",
+      "/images/cars/angles/note-side.jpg",
+      "/images/cars/angles/note-rear-quarter.jpg",
+      "/images/cars/angles/note-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9053.pdf",
     "supportingDocuments": [
@@ -1238,7 +1266,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-20",
     "location": "Yokohama Yard (Bay 7)",
     "images": [
-      "/images/cars/serena.png"
+      "/images/cars/serena.png",
+      "/images/cars/angles/serena-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9054.pdf",
     "supportingDocuments": [
@@ -1293,7 +1322,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-27",
     "location": "Yokohama Yard (Bay 2)",
     "images": [
-      "/images/cars/kicks.png"
+      "/images/cars/kicks.png",
+      "/images/cars/angles/kicks-rear.jpg",
+      "/images/cars/angles/kicks-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9055.pdf",
     "supportingDocuments": [
@@ -1348,7 +1379,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-25",
     "location": "Yokohama Yard (Bay 5)",
     "images": [
-      "/images/cars/dayz.png"
+      "/images/cars/dayz.png",
+      "/images/cars/angles/dayz-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9056.pdf",
     "supportingDocuments": [
@@ -1402,7 +1434,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-19",
     "location": "Yokohama Yard (Bay 6)",
     "images": [
-      "/images/cars/elgrand.png"
+      "/images/cars/elgrand.png",
+      "/images/cars/angles/elgrand-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9057.pdf",
     "supportingDocuments": [
@@ -1457,7 +1490,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-28",
     "location": "Kobe Export Terminal",
     "images": [
-      "/images/cars/navara.png"
+      "/images/cars/navara.png",
+      "/images/cars/angles/navara-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9058.pdf",
     "supportingDocuments": [
@@ -1512,7 +1546,11 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-26",
     "location": "Yokohama Yard (Bay 4)",
     "images": [
-      "/images/cars/note.png"
+      "/images/cars/note.png",
+      "/images/cars/angles/note-front.jpg",
+      "/images/cars/angles/note-side.jpg",
+      "/images/cars/angles/note-rear-quarter.jpg",
+      "/images/cars/angles/note-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9059.pdf",
     "supportingDocuments": [
@@ -1566,7 +1604,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-18",
     "location": "Yokohama Yard (Bay 2)",
     "images": [
-      "/images/cars/xtrail.png"
+      "/images/cars/xtrail.png",
+      "/images/cars/angles/xtrail-rear.jpg",
+      "/images/cars/angles/xtrail-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9060.pdf",
     "supportingDocuments": [
@@ -1621,7 +1661,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-17",
     "location": "Kobe Export Terminal",
     "images": [
-      "/images/cars/leaf.png"
+      "/images/cars/leaf.png",
+      "/images/cars/angles/leaf-rear.jpg",
+      "/images/cars/angles/leaf-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9061.pdf",
     "supportingDocuments": [
@@ -1676,7 +1718,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-21",
     "location": "Yokohama Yard (Bay 7)",
     "images": [
-      "/images/cars/serena.png"
+      "/images/cars/serena.png",
+      "/images/cars/angles/serena-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9062.pdf",
     "supportingDocuments": [
@@ -1731,7 +1774,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-23",
     "location": "Yokohama Yard (Bay 5)",
     "images": [
-      "/images/cars/dayz.png"
+      "/images/cars/dayz.png",
+      "/images/cars/angles/dayz-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9063.pdf",
     "supportingDocuments": [
@@ -1793,7 +1837,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-28",
     "location": "Yokohama Yard (Bay 1)",
     "images": [
-      "/images/cars/ariya.png"
+      "/images/cars/ariya.png",
+      "/images/cars/angles/ariya-rear.jpg",
+      "/images/cars/angles/ariya-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9064.pdf",
     "supportingDocuments": [
@@ -1847,7 +1893,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-27",
     "location": "Yokohama Yard (Bay 3)",
     "images": [
-      "/images/cars/kicks.png"
+      "/images/cars/kicks.png",
+      "/images/cars/angles/kicks-rear.jpg",
+      "/images/cars/angles/kicks-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9065.pdf",
     "supportingDocuments": [
@@ -1902,7 +1950,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "inspectionDate": "2026-10-29",
     "location": "Yokohama Yard (Bay 6)",
     "images": [
-      "/images/cars/elgrand.png"
+      "/images/cars/elgrand.png",
+      "/images/cars/angles/elgrand-interior.jpg"
     ],
     "conditionReportUrl": "https://example.com/reports/NIS-2026-9066.pdf",
     "supportingDocuments": [

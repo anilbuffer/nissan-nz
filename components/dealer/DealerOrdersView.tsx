@@ -10,6 +10,8 @@ import StatusBadge from "@/components/common/StatusBadge";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { audio } from "@/lib/sound";
+import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
+import { getModelAngleImages, getCanonicalModelName } from "@/lib/vehicle-media";
 import {
   CheckCircle2,
   Clock,
@@ -105,7 +107,7 @@ function ZeroEmissionBadge() {
 
 export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   const { currentDealer, currentUser } = useAuth();
-  const { orders, reservations, releaseHold, cancelReservation, respondToAdditionalCost, confirmAllocation, reservationConfig, pricingConfig } = useProgramme();
+  const { vehicles, orders, reservations, releaseHold, cancelReservation, respondToAdditionalCost, confirmAllocation, reservationConfig, pricingConfig } = useProgramme();
 
   const [activeTab, setActiveTab] = useState<"ORDERS" | "HOLDS">(mode === "RESERVE" ? "HOLDS" : "ORDERS");
 
