@@ -208,7 +208,7 @@ export default function AddVehicleAdditionalCostModal({
               Cost Amount (NZD Excl. GST) *
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-2.5 text-xs font-mono font-bold text-slate-400">
+              <span className="absolute left-3.5 top-3 text-xs font-mono font-bold text-slate-400">
                 NZ$
               </span>
               <input

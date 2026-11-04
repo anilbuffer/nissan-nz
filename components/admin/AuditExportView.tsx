@@ -836,11 +836,11 @@ export default function AuditExportView() {
                 <span>Audit Ledger Events by Domain</span>
               </h3>
 
-              <div className="space-y-2.5">
+              <div className="space-y-4 lg:space-y-6">
                 {Object.entries(eventsByCategory).map(([cat, count]) => {
                   const percentage = Math.round((count / auditLogs.length) * 100);
                   return (
-                    <div key={cat} className="space-y-1">
+                    <div key={cat} className="space-y-1.5 lg:space-y-2.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-mono font-semibold text-slate-700">{cat}</span>
                         <span className="font-mono text-slate-500">
@@ -868,7 +868,7 @@ export default function AuditExportView() {
 
               <div className="divide-y divide-slate-100">
                 {topActors.map((actor) => (
-                  <div key={actor.name} className="py-2.5 flex items-center justify-between text-xs">
+                  <div key={actor.name} className="py-4 flex items-center justify-between text-xs">
                     <div>
                       <span className="font-bold text-slate-900">{actor.name}</span>
                       <span className="text-[10px] font-mono text-slate-400 ml-2">
