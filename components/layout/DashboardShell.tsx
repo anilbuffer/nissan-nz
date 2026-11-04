@@ -48,6 +48,22 @@ export default function DashboardShell({
   const [viewingVehicleId, setViewingVehicleId] = useState<string | null>(initialVehicleId || null);
   const [globalSearch, setGlobalSearch] = useState("");
 
+  // Automatically default to mini-sidebar on iPad / tablet screens (< 1280px) to maximize content space
+  useEffect(() => {
+    const handleResponsiveSidebar = () => {
+      if (typeof window !== "undefined") {
+        if (window.innerWidth >= 768 && window.innerWidth < 1280) {
+          setIsSidebarCollapsed(true);
+        } else if (window.innerWidth >= 1280) {
+          setIsSidebarCollapsed(false);
+        }
+      }
+    };
+    handleResponsiveSidebar();
+    window.addEventListener("resize", handleResponsiveSidebar);
+    return () => window.removeEventListener("resize", handleResponsiveSidebar);
+  }, []);
+
   // Sync viewing vehicle ID when route changes
   useEffect(() => {
     if (initialVehicleId) {
@@ -555,7 +571,7 @@ export default function DashboardShell({
         {/* Top Header across all panels with responsive search and mobile menu trigger */}
         <Header
           onToggleSidebar={() => {
-            if (typeof window !== "undefined" && window.innerWidth < 1024) {
+            if (typeof window !== "undefined" && window.innerWidth < 768) {
               setIsMobileDrawerOpen((prev) => !prev);
             } else {
               setIsSidebarCollapsed((prev) => !prev);
@@ -572,7 +588,7 @@ export default function DashboardShell({
         />
 
         {/* Scrollable View Content Canvas - Fluid Responsive for Desktop/Laptop/Tablet/Mobile */}
-        <main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 lg:p-8 pb-24 lg:pb-8 touch-scroll">
+        <main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 lg:p-7 xl:p-8 pb-20 md:pb-6 touch-scroll">
           <div className="max-w-[1680px] 2xl:max-w-[1960px] w-full mx-auto">
             {renderViewContent()}
           </div>

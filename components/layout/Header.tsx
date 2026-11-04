@@ -149,13 +149,13 @@ export default function Header({
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
           >
-            <Menu className="w-5 h-5 lg:hidden text-slate-700" />
-            <PanelLeft className="w-5 h-5 hidden lg:block text-slate-600" />
+            <Menu className="w-5 h-5 md:hidden text-slate-700" />
+            <PanelLeft className="w-5 h-5 hidden md:block text-slate-600" />
           </button>
         )}
 
-        {/* Top-Left Nissan Branding (Mobile & Collapsed Desktop) */}
-        <div className={`flex items-center gap-2.5 shrink-0 ${isSidebarCollapsed ? "lg:flex" : "lg:hidden"}`}>
+        {/* Top-Left Nissan Branding (Mobile & Collapsed Desktop/Tablet) */}
+        <div className={`flex items-center gap-2.5 shrink-0 ${isSidebarCollapsed ? "md:flex" : "md:hidden"}`}>
           <img
             src="/nissan-logo.png"
             alt="Nissan"

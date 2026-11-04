@@ -121,7 +121,7 @@ export default function MobileBottomNav({
   return (
     <nav
       aria-label="Mobile Bottom Navigation"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 mobile-bottom-nav pb-safe border-t border-slate-800/80"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 mobile-bottom-nav pb-safe border-t border-slate-800/80"
     >
       <div className="grid grid-cols-4 items-center h-16 max-w-lg mx-auto px-2">
         {tabs.map((tab) => {

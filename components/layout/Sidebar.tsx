@@ -554,18 +554,18 @@ export default function Sidebar({
 
   return (
     <>
-      {/* 1. Desktop & Laptop Persistent Sidebar (Hidden on <1024px) */}
+      {/* 1. Desktop & iPad/Tablet Persistent Sidebar (Hidden on <768px) */}
       <aside
-        className={`hidden lg:flex relative h-full bg-[#000000] border-r border-slate-800/80 flex-col justify-between transition-sidebar z-30 select-none overflow-hidden shrink-0 ${isCollapsed ? "w-[76px]" : "w-[248px]"
+        className={`hidden md:flex relative h-full bg-[#000000] border-r border-slate-800/80 flex-col justify-between transition-sidebar z-30 select-none overflow-hidden shrink-0 ${isCollapsed ? "w-[76px]" : "w-[248px]"
           }`}
         aria-label="Platform Sidebar Navigation"
       >
         {renderNavContent(false)}
       </aside>
 
-      {/* 2. iPad & Mobile Slide-Out Drawer (<1024px) */}
+      {/* 2. Mobile Phone Slide-Out Drawer (<768px) */}
       {isMobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
+        <div className="md:hidden fixed inset-0 z-50 flex">
           {/* Frosted Backdrop */}
           <div
             className="fixed inset-0 drawer-backdrop animate-in fade-in duration-200"
