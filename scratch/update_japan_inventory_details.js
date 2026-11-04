@@ -164,3 +164,4 @@ if (unusedHandlerRegex.test(code)) {
 
 fs.writeFileSync('components/japan/JapanInventoryDetailsView.tsx', code, 'utf8');
 console.log('Successfully updated JapanInventoryDetailsView.tsx');
+

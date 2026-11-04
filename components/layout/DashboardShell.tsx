@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import MobileBottomNav from "./MobileBottomNav";
@@ -42,6 +42,7 @@ export default function DashboardShell({
 }: DashboardShellProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { currentUser, switchRole } = useAuth();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);

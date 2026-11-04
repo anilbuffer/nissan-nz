@@ -638,7 +638,7 @@ export default function AmendVehicleForm({
                   <label className="text-xs font-bold text-slate-800 block">Transmission</label>
                   <select
                     value={transmission}
-                    onChange={(e) => setTransmission(e.target.value)}
+                    onChange={(e) => setTransmission(e.target.value as any)}
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium cursor-pointer transition-colors"
                   >
                     <option value="Automatic">Automatic Transmission</option>
@@ -663,7 +663,7 @@ export default function AmendVehicleForm({
                   <label className="text-xs font-bold text-slate-800 block">Powertrain / Fuel</label>
                   <select
                     value={fuelType}
-                    onChange={(e) => setFuelType(e.target.value)}
+                    onChange={(e) => setFuelType(e.target.value as any)}
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium cursor-pointer transition-colors"
                   >
                     <option value="e-Power">e-Power (Electric Generator)</option>
@@ -677,7 +677,7 @@ export default function AmendVehicleForm({
                   <label className="text-xs font-bold text-slate-800 block">Drive System</label>
                   <select
                     value={driveType}
-                    onChange={(e) => setDriveType(e.target.value)}
+                    onChange={(e) => setDriveType(e.target.value as any)}
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-medium cursor-pointer transition-colors"
                   >
                     <option value="2WD">2WD (Front/Rear Wheel)</option>

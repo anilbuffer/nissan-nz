@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -11,20 +10,9 @@ import {
   Search,
   X,
   ArrowUpRight,
-  Lock,
   Car,
-  Sparkles,
-  CheckCircle2,
-  Filter,
-  ShieldCheck,
-  MapPin,
   ChevronRight,
-  SlidersHorizontal,
-  Hash,
-  Gauge,
-  Fuel,
 } from "lucide-react";
-import { Vehicle } from "@/lib/types";
 
 interface GlobalSearchModalProps {
   isOpen: boolean;
@@ -62,7 +50,6 @@ export default function GlobalSearchModal({
     if (isOpen) {
       setQuery(initialQuery);
       setSelectedIndex(0);
-      // Prevent background scrolling while modal is active
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       setTimeout(() => {
@@ -76,67 +63,75 @@ export default function GlobalSearchModal({
     }
   }, [isOpen, initialQuery]);
 
-  // Quick filter presets
+  // Clean, focused filter presets
   const filterPresets = [
-    { id: "ALL", label: "All Stock", count: vehicles.filter((v) => v.status !== "WITHDRAWN").length },
-    { id: "AVAILABLE", label: "Available to Reserve", count: vehicles.filter((v) => v.status === "AVAILABLE").length },
-    { id: "NOTE", label: "Note e-Power", count: vehicles.filter((v) => v.model?.toLowerCase().includes("note")).length },
-    { id: "LEAF", label: "Leaf EV", count: vehicles.filter((v) => v.model?.toLowerCase().includes("leaf")).length },
-    { id: "X-TRAIL", label: "X-Trail", count: vehicles.filter((v) => v.model?.toLowerCase().includes("x-trail")).length },
-    { id: "SERENA", label: "Serena", count: vehicles.filter((v) => v.model?.toLowerCase().includes("serena")).length },
-    { id: "KICKS", label: "Kicks", count: vehicles.filter((v) => v.model?.toLowerCase().includes("kicks")).length },
-    { id: "DAYZ", label: "Dayz", count: vehicles.filter((v) => v.model?.toLowerCase().includes("dayz")).length },
-    { id: "ELGRAND", label: "Elgrand", count: vehicles.filter((v) => v.model?.toLowerCase().includes("elgrand")).length },
-    { id: "NAVARA", label: "Navara", count: vehicles.filter((v) => v.model?.toLowerCase().includes("navara")).length },
-    { id: "ARIYA", label: "Ariya", count: vehicles.filter((v) => v.model?.toLowerCase().includes("ariya")).length },
-    { id: "GRADE_45", label: "Grade 4.5+", count: vehicles.filter((v) => parseFloat(v.auctionGrade || "0") >= 4.5).length },
+    { id: "ALL", label: "All Stock" },
+    { id: "AVAILABLE", label: "Available" },
+    { id: "NOTE", label: "Note e-Power" },
+    { id: "LEAF", label: "Leaf EV" },
+    { id: "X-TRAIL", label: "X-Trail" },
+    { id: "SERENA", label: "Serena" },
+    { id: "HYBRID", label: "Hybrid" },
+    { id: "E-POWER", label: "e-Power" },
   ];
 
-  // Live filtered vehicle listings
+  // Intelligent, multi-token search engine that works well
   const filteredVehicles = useMemo(() => {
     return vehicles.filter((v) => {
       if (v.status === "WITHDRAWN") return false;
 
-      // 1. Category Preset Filter
+      // 1. Preset filter match
       if (activeFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
       if (activeFilter === "NOTE" && !v.model?.toLowerCase().includes("note")) return false;
       if (activeFilter === "LEAF" && !v.model?.toLowerCase().includes("leaf")) return false;
       if (activeFilter === "X-TRAIL" && !v.model?.toLowerCase().includes("x-trail")) return false;
       if (activeFilter === "SERENA" && !v.model?.toLowerCase().includes("serena")) return false;
-      if (activeFilter === "KICKS" && !v.model?.toLowerCase().includes("kicks")) return false;
-      if (activeFilter === "DAYZ" && !v.model?.toLowerCase().includes("dayz")) return false;
-      if (activeFilter === "ELGRAND" && !v.model?.toLowerCase().includes("elgrand")) return false;
-      if (activeFilter === "NAVARA" && !v.model?.toLowerCase().includes("navara")) return false;
-      if (activeFilter === "ARIYA" && !v.model?.toLowerCase().includes("ariya")) return false;
-      if (activeFilter === "GRADE_45" && parseFloat(v.auctionGrade || "0") < 4.5) return false;
+      if (activeFilter === "HYBRID" && !v.fuelType?.toLowerCase().includes("hybrid")) return false;
+      if (
+        activeFilter === "E-POWER" &&
+        !v.fuelType?.toLowerCase().includes("power") &&
+        !v.model?.toLowerCase().includes("power")
+      ) {
+        return false;
+      }
 
-      // 2. Free Text Query Search
+      // 2. Multi-term free text search
       if (!query || !query.trim()) return true;
-      const q = query.trim().toLowerCase();
 
-      const modelMatch = v.model?.toLowerCase().includes(q);
-      const makeMatch = v.make?.toLowerCase().includes(q);
-      const stockMatch = v.stockId?.toLowerCase().includes(q);
-      const vinMatch = v.vinChassis?.toLowerCase().includes(q);
-      const fuelMatch = v.fuelType?.toLowerCase().includes(q);
-      const gradeMatch = v.auctionGrade?.toLowerCase().includes(q) || v.grade?.toLowerCase().includes(q);
-      const yearMatch = String(v.year).includes(q);
-      const locationMatch = v.location?.toLowerCase().includes(q);
-      const colorMatch = v.color?.toLowerCase().includes(q);
-      const transmissionMatch = v.transmission?.toLowerCase().includes(q);
+      const rawQuery = query.trim().toLowerCase();
+      const tokens = rawQuery.split(/\s+/).filter(Boolean);
 
-      return (
-        modelMatch ||
-        makeMatch ||
-        stockMatch ||
-        vinMatch ||
-        fuelMatch ||
-        gradeMatch ||
-        yearMatch ||
-        locationMatch ||
-        colorMatch ||
-        transmissionMatch
-      );
+      const cleanVin = (v.vinChassis || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const cleanStock = (v.stockId || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      const searchableText = [
+        v.year,
+        v.make,
+        v.model,
+        v.grade,
+        v.color,
+        v.fuelType,
+        v.transmission,
+        v.location,
+        v.stockId,
+        v.vinChassis,
+        cleanVin,
+        cleanStock,
+        v.auctionGrade ? `grade ${v.auctionGrade}` : "",
+        v.status,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      // Every word token in the query must match the vehicle
+      return tokens.every((token) => {
+        const cleanToken = token.replace(/[^a-z0-9]/g, "");
+        return (
+          searchableText.includes(token) ||
+          (cleanToken.length >= 2 && (cleanVin.includes(cleanToken) || cleanStock.includes(cleanToken)))
+        );
+      });
     });
   }, [vehicles, query, activeFilter]);
 
@@ -157,7 +152,7 @@ export default function GlobalSearchModal({
     }
   };
 
-  // Keyboard navigation inside modal
+  // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
 
@@ -199,22 +194,21 @@ export default function GlobalSearchModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-start justify-center pt-8 sm:pt-16 p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-8 sm:pt-16 p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150 font-sans"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
         }
       }}
     >
-      <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-4xl w-full overflow-hidden flex flex-col max-h-[88vh] animate-in zoom-in-95 duration-200">
-        {/* 1. Modal Top Bar with Search Input */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#C3002F] flex items-center justify-center shrink-0 border border-rose-100">
-              <Search className="w-5 h-5" />
-            </div>
-
-            <div className="relative flex-1">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150">
+        
+        {/* 1. Modal Top Bar with Outlined Search Input */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white sticky top-0 z-20 space-y-3">
+          <div className="flex items-center gap-2.5">
+            {/* Outlined Search Field */}
+            <div className="relative flex-1 flex items-center bg-slate-50 hover:bg-white focus-within:bg-white rounded-xl border border-slate-300 hover:border-slate-400 focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-900/10 transition-all px-3.5 py-2.5 shadow-2xs">
+              <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -224,8 +218,8 @@ export default function GlobalSearchModal({
                   setSelectedIndex(0);
                   if (onQueryChange) onQueryChange(e.target.value);
                 }}
-                placeholder="Search make, model, year, VIN, stock ID, grade or keyword..."
-                className="w-full text-sm sm:text-base font-semibold text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent pr-8"
+                placeholder="Search make, model, year, VIN, stock ID, or keyword..."
+                className="w-full text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent pr-7"
               />
               {query && (
                 <button
@@ -235,26 +229,28 @@ export default function GlobalSearchModal({
                     if (onQueryChange) onQueryChange("");
                     searchInputRef.current?.focus();
                   }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-md hover:bg-slate-200/60 transition-colors cursor-pointer"
                   title="Clear search"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
 
+            {/* Clean Close / ESC Button */}
             <button
               type="button"
               onClick={onClose}
-              className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 flex items-center gap-1.5"
+              className="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-2xs"
+              title="Close search"
             >
-              <span className="hidden sm:inline">ESC</span>
+              <span className="hidden sm:inline font-mono text-[11px]">ESC</span>
               <X className="w-4 h-4 sm:hidden" />
             </button>
           </div>
 
-          {/* Quick Filter Chips Carousel */}
-          <div className="flex items-center gap-1.5 sm:gap-2 mt-3.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+          {/* Clean, Simple Filter Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
             {filterPresets.map((f) => {
               const isActive = activeFilter === f.id;
               return (
@@ -266,47 +262,32 @@ export default function GlobalSearchModal({
                     setActiveFilter(f.id);
                     setSelectedIndex(0);
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 flex items-center gap-1.5 shrink-0 cursor-pointer ${isActive
-                    ? "bg-[#C3002F] text-white shadow-xs shadow-rose-200"
-                    : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200/60"
-                    }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap cursor-pointer ${
+                    isActive
+                      ? "bg-slate-900 text-white font-semibold shadow-2xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 font-medium"
+                  }`}
                 >
-                  <span>{f.label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${isActive ? "bg-white/20 text-white" : "bg-white text-slate-500 border border-slate-200/80"
-                      }`}
-                  >
-                    {f.count}
-                  </span>
+                  {f.label}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* 2. Results Header Status Bar */}
-        <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">
-              {filteredVehicles.length} {filteredVehicles.length === 1 ? "Vehicle" : "Vehicles"} Found
-            </span>
-            {query && (
-              <span className="text-slate-400">
-                matching &ldquo;<span className="font-medium text-slate-700">{query}</span>&rdquo;
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-medium text-slate-600">
-              {isAdminOrJapan ? "Yokohama & Kobe Export Feeds" : `Landed ${dealerZone} Schedule`}
-            </span>
-          </div>
+        {/* 2. Results Count Bar */}
+        <div className="px-5 py-2 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>
+            <strong className="text-slate-800 font-semibold">{filteredVehicles.length}</strong> {filteredVehicles.length === 1 ? "vehicle" : "vehicles"} found
+            {query && <span> for &ldquo;{query}&rdquo;</span>}
+          </span>
+          <span className="text-[11px] text-slate-400 font-mono">
+            {isAdminOrJapan ? "Central Inventory" : `Pricing: ${dealerZone}`}
+          </span>
         </div>
 
-        {/* 3. Scrollable Vehicle Listing Cards */}
-        <div ref={listRef} className="flex-1 overflow-y-auto divide-y divide-slate-100 p-2 sm:p-3 space-y-1.5">
+        {/* 3. Streamlined Clean Vehicle List */}
+        <div ref={listRef} className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1 divide-y-0">
           {filteredVehicles.map((vehicle, idx) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
@@ -318,92 +299,63 @@ export default function GlobalSearchModal({
                 data-index={idx}
                 onClick={() => handleSelectVehicle(vehicle.id)}
                 onMouseEnter={() => setSelectedIndex(idx)}
-                className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl cursor-pointer transition-all duration-150 border ${isSelected
-                  ? "bg-rose-50/40 border-[#C3002F]/40 shadow-xs"
-                  : "bg-white hover:bg-slate-50/80 border-slate-100 hover:border-slate-200"
-                  }`}
+                className={`group flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer transition-all duration-150 border ${
+                  isSelected
+                    ? "bg-slate-50 border-slate-300 shadow-2xs"
+                    : "bg-white hover:bg-slate-50/70 border-transparent hover:border-slate-200"
+                }`}
               >
-                {/* Left: Thumbnail & Main Dossier */}
-                <div className="flex items-start sm:items-center gap-3.5 min-w-0">
-                  <div className="relative w-20 h-16 sm:w-24 sm:h-18 rounded-xl bg-slate-100 border border-slate-200/80 p-1 flex items-center justify-center shrink-0 overflow-hidden group-hover:border-slate-300">
+                {/* Left: Thumbnail & Core Identification */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-14 h-10 sm:w-16 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-0.5 flex items-center justify-center shrink-0 overflow-hidden">
                     <img
                       src={vehicle.images?.[0] || "/images/cars/kicks.png"}
                       alt={vehicle.model}
-                      className="w-full h-full object-contain filter drop-shadow-xs transition-transform duration-200 group-hover:scale-105"
+                      className="w-full h-full object-contain select-none"
                     />
-                    <div className="absolute top-1 left-1 bg-white/90 backdrop-blur-xs px-1 py-0.2 rounded text-[9px] font-bold text-slate-800 border border-slate-200/80">
-                      ★ {vehicle.auctionGrade}
-                    </div>
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-xs sm:text-sm text-slate-900 truncate">
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </h4>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold border border-slate-200/80 shrink-0">
+                      <span className="text-[10px] font-mono text-slate-400 font-medium shrink-0">
                         #{vehicle.stockId}
                       </span>
                     </div>
-
-                    <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
-                      {vehicle.grade} · {vehicle.color} · VIN: {vehicle.vinChassis}
+                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                      {vehicle.grade ? `${vehicle.grade} · ` : ""}{vehicle.fuelType} · {vehicle.odometerKm.toLocaleString()} km · {vehicle.color}
                     </p>
-
-                    {/* Metadata tags */}
-                    <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-1 flex-wrap">
-                      <span className="flex items-center gap-1 font-semibold text-slate-600">
-                        <Fuel className="w-3.5 h-3.5 text-slate-400" />
-                        {vehicle.fuelType}
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1 font-mono text-slate-600">
-                        <Gauge className="w-3.5 h-3.5 text-slate-400" />
-                        {vehicle.odometerKm.toLocaleString()} km
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1 text-slate-500">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                        {vehicle.location}
-                      </span>
-                    </div>
                   </div>
                 </div>
 
-                {/* Right: Pricing, Status Pill, Action Button */}
-                <div className="flex items-center justify-between sm:justify-end gap-3.5 sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                  <div className="text-left sm:text-right">
-                    <div className="text-base sm:text-lg font-bold font-mono text-slate-900 tracking-tight leading-tight">
+                {/* Right: Price, Status & Chevron */}
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right">
+                    <span className="font-bold font-mono text-xs sm:text-sm text-slate-900">
                       ${price.totalBuyPriceNZD.toLocaleString()}
-                      <span className="text-xs font-semibold text-slate-400 ml-1">NZD</span>
-                    </div>
-                    <div className="text-[11px] text-slate-400 font-mono">
-                      FOB ¥{vehicle.fobPriceJPY.toLocaleString()}
-                    </div>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-sans ml-1">NZD</span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {isAvailable ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        AVAILABLE
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        <Lock className="w-3 h-3 text-amber-500" />
-                        RESERVED
-                      </span>
-                    )}
+                  {isAvailable ? (
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      AVAILABLE
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-amber-50 text-amber-700 border border-amber-200">
+                      RESERVED
+                    </span>
+                  )}
 
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${isSelected
-                        ? "bg-[#C3002F] text-white shadow-xs"
-                        : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-900"
-                        }`}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  </div>
+                  <ChevronRight
+                    className={`w-4 h-4 transition-transform ${
+                      isSelected
+                        ? "text-slate-800 translate-x-0.5"
+                        : "text-slate-300 group-hover:text-slate-600"
+                    }`}
+                  />
                 </div>
               </div>
             );
@@ -412,19 +364,19 @@ export default function GlobalSearchModal({
           {/* Empty State */}
           {filteredVehicles.length === 0 && (
             <div className="py-12 px-4 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto border border-slate-200">
-                <Car className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto border border-slate-200">
+                <Car className="w-5 h-5" />
               </div>
               <div>
                 <h5 className="font-bold text-sm text-slate-800">
-                  No vehicles found matching &ldquo;{query || activeFilter}&rdquo;
+                  No vehicles found matching &ldquo;{query}&rdquo;
                 </h5>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
-                  Try searching by different keywords like &ldquo;Note&rdquo;, &ldquo;X-Trail&rdquo;, &ldquo;Serena&rdquo;, &ldquo;Grade 4.5&rdquo;, or reset your active filters.
+                  Try searching by model, year, VIN (e.g. E13), or reset filters.
                 </p>
               </div>
 
-              <div className="flex items-center justify-center gap-2 pt-2">
+              <div className="flex items-center justify-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -432,68 +384,55 @@ export default function GlobalSearchModal({
                     setActiveFilter("ALL");
                     if (onQueryChange) onQueryChange("");
                   }}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors"
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
                 >
-                  Reset All Filters
+                  Reset Search
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* 4. Modal Footer with Keyboard Shortcuts and Navigation */}
-        <div className="p-3 sm:px-5 sm:py-3 bg-slate-50 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="hidden sm:flex items-center gap-2">
+        {/* 4. Minimalist Modal Footer */}
+        <div className="px-5 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="hidden sm:flex items-center gap-2 text-slate-500">
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">
-                ↑
-              </kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs ml-0.5">
-                ↓
-              </kbd>{" "}
-              Navigate
+              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">↑</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs ml-0.5">↓</kbd>
+              {" "}navigate
             </span>
             <span>•</span>
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">
-                ↵
-              </kbd>{" "}
-              Open Dossier
+              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">↵</kbd>
+              {" "}select
             </span>
             <span>•</span>
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">
-                ESC
-              </kbd>{" "}
-              Close
+              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">ESC</kbd>
+              {" "}close
             </span>
           </div>
 
-          <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-            <span className="font-mono text-slate-500 font-semibold text-xs">
-              Total Programme Stock: {vehicles.length} Units
-            </span>
-
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                onClose();
-                if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") {
-                  router.push("/admin/catalogue");
-                } else if (pathname.startsWith("/japan") || currentUser?.role === "NISSAN_JAPAN") {
-                  router.push("/japan/inventory");
-                } else {
-                  router.push("/dealer/stocks");
-                }
-              }}
-              className="text-[#C3002F] hover:underline font-bold text-xs flex items-center gap-1 cursor-pointer"
-            >
-              <span>Explore Complete Catalogue</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              audio.playSubtleClick();
+              onClose();
+              if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") {
+                router.push("/admin/catalogue");
+              } else if (pathname.startsWith("/japan") || currentUser?.role === "NISSAN_JAPAN") {
+                router.push("/japan/inventory");
+              } else {
+                router.push("/dealer/stocks");
+              }
+            }}
+            className="text-slate-700 hover:text-[#C3002F] font-semibold text-xs flex items-center gap-1 cursor-pointer transition-colors ml-auto"
+          >
+            <span>View Full Catalogue</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
         </div>
+
       </div>
     </div>
   );

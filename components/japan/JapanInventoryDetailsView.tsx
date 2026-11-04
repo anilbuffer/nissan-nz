@@ -502,7 +502,14 @@ export default function JapanInventoryDetailsView({
                 </h3>
                 <button
                   type="button"
-                  onClick={() => setIsAmendmentOpen(true)}
+                  onClick={() => {
+                  audio.playSubtleClick();
+                  if (onAmend) {
+                    onAmend(vehicle.id);
+                  } else {
+                    setIsAmending(true);
+                  }
+                }}
                   className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer flex items-center gap-1"
                 >
                   <Edit3 className="w-3 h-3" />

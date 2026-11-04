@@ -113,3 +113,4 @@ inviteModal = inviteModal.replace(
 );
 fs.writeFileSync('components/admin/InviteUserModal.tsx', inviteModal, 'utf8');
 console.log('Updated InviteUserModal.tsx');
+
