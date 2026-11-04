@@ -340,7 +340,7 @@ export default function AddVehicleAdditionalCostModal({
               type="submit"
               className="px-5 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
             >
-              <Send className="w-3.5 h-3.5 text-emerald-400" />
+              <Send className="w-3.5 h-3.5 text-white" />
               <span>Submit for Dealer Approval</span>
             </button>
           </div>
