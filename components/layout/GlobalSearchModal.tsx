@@ -9,9 +9,7 @@ import { audio } from "@/lib/sound";
 import {
   Search,
   X,
-  ArrowUpRight,
   Car,
-  ChevronRight,
 } from "lucide-react";
 
 interface GlobalSearchModalProps {
@@ -33,69 +31,35 @@ export default function GlobalSearchModal({
   const { vehicles } = useProgramme();
 
   const [query, setQuery] = useState(initialQuery);
-  const [activeFilter, setActiveFilter] = useState<string>("ALL");
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const dealerZone = currentDealer?.pricingZoneId || "ZONE_1";
-  const isAdminOrJapan =
-    currentUser?.role === "AUTOHUB_ADMIN" ||
-    currentUser?.role === "NISSAN_JAPAN" ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/japan");
 
-  // Keep local query in sync with initialQuery when modal opens
+  // Initialize query and focus input only when modal opens (not on every parent re-render)
   useEffect(() => {
     if (isOpen) {
-      setQuery(initialQuery);
+      setQuery(initialQuery || "");
       setSelectedIndex(0);
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
-      setTimeout(() => {
+      
+      const timer = setTimeout(() => {
         searchInputRef.current?.focus();
-        searchInputRef.current?.select();
       }, 50);
 
       return () => {
+        clearTimeout(timer);
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [isOpen, initialQuery]);
+  }, [isOpen]);
 
-  // Clean, focused filter presets
-  const filterPresets = [
-    { id: "ALL", label: "All Stock" },
-    { id: "AVAILABLE", label: "Available" },
-    { id: "NOTE", label: "Note e-Power" },
-    { id: "LEAF", label: "Leaf EV" },
-    { id: "X-TRAIL", label: "X-Trail" },
-    { id: "SERENA", label: "Serena" },
-    { id: "HYBRID", label: "Hybrid" },
-    { id: "E-POWER", label: "e-Power" },
-  ];
-
-  // Intelligent, multi-token search engine that works well
+  // High-performance multi-term search
   const filteredVehicles = useMemo(() => {
     return vehicles.filter((v) => {
       if (v.status === "WITHDRAWN") return false;
-
-      // 1. Preset filter match
-      if (activeFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
-      if (activeFilter === "NOTE" && !v.model?.toLowerCase().includes("note")) return false;
-      if (activeFilter === "LEAF" && !v.model?.toLowerCase().includes("leaf")) return false;
-      if (activeFilter === "X-TRAIL" && !v.model?.toLowerCase().includes("x-trail")) return false;
-      if (activeFilter === "SERENA" && !v.model?.toLowerCase().includes("serena")) return false;
-      if (activeFilter === "HYBRID" && !v.fuelType?.toLowerCase().includes("hybrid")) return false;
-      if (
-        activeFilter === "E-POWER" &&
-        !v.fuelType?.toLowerCase().includes("power") &&
-        !v.model?.toLowerCase().includes("power")
-      ) {
-        return false;
-      }
-
-      // 2. Multi-term free text search
       if (!query || !query.trim()) return true;
 
       const rawQuery = query.trim().toLowerCase();
@@ -117,14 +81,12 @@ export default function GlobalSearchModal({
         v.vinChassis,
         cleanVin,
         cleanStock,
-        v.auctionGrade ? `grade ${v.auctionGrade}` : "",
         v.status,
       ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
 
-      // Every word token in the query must match the vehicle
       return tokens.every((token) => {
         const cleanToken = token.replace(/[^a-z0-9]/g, "");
         return (
@@ -133,9 +95,9 @@ export default function GlobalSearchModal({
         );
       });
     });
-  }, [vehicles, query, activeFilter]);
+  }, [vehicles, query]);
 
-  // Navigate to appropriate vehicle dossier based on portal/role
+  // Navigate to appropriate vehicle view
   const handleSelectVehicle = (vehicleId: string) => {
     audio.playSubtleClick();
     onClose();
@@ -194,20 +156,20 @@ export default function GlobalSearchModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-8 sm:pt-16 p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150 font-sans"
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-10 sm:pt-20 p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150 font-sans"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
         }
       }}
     >
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150">
         
-        {/* 1. Modal Top Bar with Outlined Search Input */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white sticky top-0 z-20 space-y-3">
-          <div className="flex items-center gap-2.5">
-            {/* Outlined Search Field */}
-            <div className="relative flex-1 flex items-center bg-slate-50 hover:bg-white focus-within:bg-white rounded-xl border border-slate-300 hover:border-slate-400 focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-900/10 transition-all px-3.5 py-2.5 shadow-2xs">
+        {/* Top Search Input with Single Crisp Outline */}
+        <div className="p-3.5 sm:p-4 border-b border-slate-100 bg-white sticky top-0 z-20">
+          <div className="flex items-center gap-2">
+            {/* Single Outlined Search Box Container */}
+            <div className="relative flex-1 flex items-center bg-white rounded-xl border border-slate-300 hover:border-slate-400 focus-within:border-slate-900 focus-within:ring-2 focus-within:ring-slate-900/10 transition-all px-3 py-2 shadow-2xs">
               <Search className="w-4 h-4 text-slate-400 shrink-0 mr-2.5" />
               <input
                 ref={searchInputRef}
@@ -218,8 +180,9 @@ export default function GlobalSearchModal({
                   setSelectedIndex(0);
                   if (onQueryChange) onQueryChange(e.target.value);
                 }}
-                placeholder="Search make, model, year, VIN, stock ID, or keyword..."
-                className="w-full text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent pr-7"
+                placeholder="Search make, model, year, VIN, stock ID..."
+                className="w-full text-sm font-medium text-slate-900 placeholder:text-slate-400 bg-transparent border-0 outline-0 ring-0 focus:outline-none focus:ring-0 focus:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none !shadow-none !outline-none !ring-0 pr-6"
+                style={{ outline: "none", boxShadow: "none" }}
               />
               {query && (
                 <button
@@ -229,7 +192,7 @@ export default function GlobalSearchModal({
                     if (onQueryChange) onQueryChange("");
                     searchInputRef.current?.focus();
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-md hover:bg-slate-200/60 transition-colors cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
                   title="Clear search"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -237,60 +200,22 @@ export default function GlobalSearchModal({
               )}
             </div>
 
-            {/* Clean Close / ESC Button */}
+            {/* ESC / Close Button */}
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer border border-slate-200 shadow-2xs"
+              className="px-2.5 py-2 text-xs font-semibold text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 flex items-center gap-1 cursor-pointer border border-slate-200 shadow-2xs"
               title="Close search"
             >
-              <span className="hidden sm:inline font-mono text-[11px]">ESC</span>
-              <X className="w-4 h-4 sm:hidden" />
+              <span className="font-mono text-[11px]">ESC</span>
             </button>
           </div>
-
-          {/* Clean, Simple Filter Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
-            {filterPresets.map((f) => {
-              const isActive = activeFilter === f.id;
-              return (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => {
-                    audio.playSubtleClick();
-                    setActiveFilter(f.id);
-                    setSelectedIndex(0);
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap cursor-pointer ${
-                    isActive
-                      ? "bg-slate-900 text-white font-semibold shadow-2xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900 font-medium"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        {/* 2. Results Count Bar */}
-        <div className="px-5 py-2 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>
-            <strong className="text-slate-800 font-semibold">{filteredVehicles.length}</strong> {filteredVehicles.length === 1 ? "vehicle" : "vehicles"} found
-            {query && <span> for &ldquo;{query}&rdquo;</span>}
-          </span>
-          <span className="text-[11px] text-slate-400 font-mono">
-            {isAdminOrJapan ? "Central Inventory" : `Pricing: ${dealerZone}`}
-          </span>
-        </div>
-
-        {/* 3. Streamlined Clean Vehicle List */}
-        <div ref={listRef} className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-1 divide-y-0">
+        {/* Clean, Simple Search List: Thumbnail + Name + Price */}
+        <div ref={listRef} className="flex-1 overflow-y-auto p-2 space-y-1">
           {filteredVehicles.map((vehicle, idx) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
-            const isAvailable = vehicle.status === "AVAILABLE";
             const isSelected = selectedIndex === idx;
 
             return (
@@ -299,15 +224,15 @@ export default function GlobalSearchModal({
                 data-index={idx}
                 onClick={() => handleSelectVehicle(vehicle.id)}
                 onMouseEnter={() => setSelectedIndex(idx)}
-                className={`group flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer transition-all duration-150 border ${
+                className={`group flex items-center justify-between gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border ${
                   isSelected
                     ? "bg-slate-50 border-slate-300 shadow-2xs"
                     : "bg-white hover:bg-slate-50/70 border-transparent hover:border-slate-200"
                 }`}
               >
-                {/* Left: Thumbnail & Core Identification */}
+                {/* 1. Thumbnail + 2. Name */}
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-14 h-10 sm:w-16 sm:h-11 rounded-lg bg-slate-50 border border-slate-200 p-0.5 flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-12 h-9 rounded-lg bg-slate-50 border border-slate-200 p-0.5 flex items-center justify-center shrink-0 overflow-hidden">
                     <img
                       src={vehicle.images?.[0] || "/images/cars/kicks.png"}
                       alt={vehicle.model}
@@ -316,46 +241,18 @@ export default function GlobalSearchModal({
                   </div>
 
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-xs sm:text-sm text-slate-900 truncate">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
-                      </h4>
-                      <span className="text-[10px] font-mono text-slate-400 font-medium shrink-0">
-                        #{vehicle.stockId}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                      {vehicle.grade ? `${vehicle.grade} · ` : ""}{vehicle.fuelType} · {vehicle.odometerKm.toLocaleString()} km · {vehicle.color}
-                    </p>
+                    <h4 className="font-semibold text-xs sm:text-sm text-slate-900 truncate">
+                      {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.grade ? `(${vehicle.grade})` : ""}
+                    </h4>
                   </div>
                 </div>
 
-                {/* Right: Price, Status & Chevron */}
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right">
-                    <span className="font-bold font-mono text-xs sm:text-sm text-slate-900">
-                      ${price.totalBuyPriceNZD.toLocaleString()}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-sans ml-1">NZD</span>
-                  </div>
-
-                  {isAvailable ? (
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      AVAILABLE
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-amber-50 text-amber-700 border border-amber-200">
-                      RESERVED
-                    </span>
-                  )}
-
-                  <ChevronRight
-                    className={`w-4 h-4 transition-transform ${
-                      isSelected
-                        ? "text-slate-800 translate-x-0.5"
-                        : "text-slate-300 group-hover:text-slate-600"
-                    }`}
-                  />
+                {/* 3. Price */}
+                <div className="text-right shrink-0">
+                  <span className="font-bold font-mono text-xs sm:text-sm text-slate-900">
+                    ${price.totalBuyPriceNZD.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-sans ml-1">NZD</span>
                 </div>
               </div>
             );
@@ -363,74 +260,25 @@ export default function GlobalSearchModal({
 
           {/* Empty State */}
           {filteredVehicles.length === 0 && (
-            <div className="py-12 px-4 text-center space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto border border-slate-200">
-                <Car className="w-5 h-5" />
+            <div className="py-10 px-4 text-center space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto border border-slate-200">
+                <Car className="w-4 h-4" />
               </div>
-              <div>
-                <h5 className="font-bold text-sm text-slate-800">
-                  No vehicles found matching &ldquo;{query}&rdquo;
-                </h5>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
-                  Try searching by model, year, VIN (e.g. E13), or reset filters.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery("");
-                    setActiveFilter("ALL");
-                    if (onQueryChange) onQueryChange("");
-                  }}
-                  className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
-                >
-                  Reset Search
-                </button>
-              </div>
+              <p className="text-xs text-slate-500 font-medium">
+                No vehicles matching &ldquo;{query}&rdquo;
+              </p>
             </div>
           )}
         </div>
 
-        {/* 4. Minimalist Modal Footer */}
-        <div className="px-5 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="hidden sm:flex items-center gap-2 text-slate-500">
-            <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs ml-0.5">↓</kbd>
-              {" "}navigate
-            </span>
+        {/* Minimalist Footer */}
+        <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+          <span>{filteredVehicles.length} vehicles</span>
+          <div className="flex items-center gap-2">
+            <span>↑ ↓ navigate</span>
             <span>•</span>
-            <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">↵</kbd>
-              {" "}select
-            </span>
-            <span>•</span>
-            <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white font-mono text-[10px] text-slate-600 border border-slate-200 shadow-2xs">ESC</kbd>
-              {" "}close
-            </span>
+            <span>↵ select</span>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              onClose();
-              if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") {
-                router.push("/admin/catalogue");
-              } else if (pathname.startsWith("/japan") || currentUser?.role === "NISSAN_JAPAN") {
-                router.push("/japan/inventory");
-              } else {
-                router.push("/dealer/stocks");
-              }
-            }}
-            className="text-slate-700 hover:text-[#C3002F] font-semibold text-xs flex items-center gap-1 cursor-pointer transition-colors ml-auto"
-          >
-            <span>View Full Catalogue</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </button>
         </div>
 
       </div>
