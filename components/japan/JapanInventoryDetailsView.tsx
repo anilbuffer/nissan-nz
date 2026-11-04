@@ -5,6 +5,7 @@ import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
+import AmendVehicleForm from "./AmendVehicleForm";
 import {
   ArrowLeft,
   Car,
@@ -41,11 +42,13 @@ interface JapanInventoryDetailsViewProps {
   vehicleId: string;
   onBack: () => void;
   onToggleStatus?: (vehicleId: string) => void;
+  onAmend?: (vehicleId: string) => void;
 }
 
 export default function JapanInventoryDetailsView({
   vehicleId,
   onBack,
+  onAmend,
 }: JapanInventoryDetailsViewProps) {
   const { vehicles, dealers, updateVehicle, setVehicleStatus } = useProgramme();
   const [activeImageIdx, setActiveImageIdx] = useState(0);
@@ -53,7 +56,7 @@ export default function JapanInventoryDetailsView({
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   // Modal States
-  const [isAmendmentOpen, setIsAmendmentOpen] = useState(false);
+  const [isAmending, setIsAmending] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawReason, setWithdrawReason] = useState(
     "Yard Inspection: Cosmetic Paint / Panel Rectification Required"
@@ -81,23 +84,16 @@ export default function JapanInventoryDetailsView({
     return docs;
   }, [vehicle]);
 
-  // Amendment Form States initialized if vehicle exists
-  const [editModel, setEditModel] = useState(vehicle?.model || "");
-  const [editGrade, setEditGrade] = useState(vehicle?.grade || "");
-  const [editYear, setEditYear] = useState(vehicle?.year || 2022);
-  const [editOdo, setEditOdo] = useState(vehicle?.odometerKm || 25000);
-  const [editTransmission, setEditTransmission] = useState(vehicle?.transmission || "Automatic");
-  const [editFuel, setEditFuel] = useState(vehicle?.fuelType || "e-Power");
-  const [editDrive, setEditDrive] = useState(vehicle?.driveType || "2WD");
-  const [editEngineCc, setEditEngineCc] = useState<number | "">(vehicle?.engineCc || 1200);
-  const [editColor, setEditColor] = useState(vehicle?.color || "Pearl White");
-  const [editAuctionGrade, setEditAuctionGrade] = useState(vehicle?.auctionGrade || "4.5");
-  const [editInteriorGrade, setEditInteriorGrade] = useState(vehicle?.interiorGrade || "A");
-  const [editExteriorGrade, setEditExteriorGrade] = useState(vehicle?.exteriorGrade || "A");
-  const [editFobJPY, setEditFobJPY] = useState(vehicle?.fobPriceJPY || 2000000);
-  const [editLocation, setEditLocation] = useState(vehicle?.location || "Yokohama Export Terminal");
-  const [editCondition, setEditCondition] = useState(vehicle?.conditionSummary || "");
-  const [editDefects, setEditDefects] = useState(vehicle?.knownDefects?.join("\n") || "");
+  // If user opened Amend Details, display full-page AmendVehicleForm (not a modal)
+  if (isAmending && vehicle) {
+    return (
+      <AmendVehicleForm
+        vehicleId={vehicle.id}
+        onSuccessReturn={() => setIsAmending(false)}
+        onViewDetails={() => setIsAmending(false)}
+      />
+    );
+  }
 
   if (!vehicle) {
     return (
@@ -157,39 +153,6 @@ export default function JapanInventoryDetailsView({
     setActionNotice(`Unit #${vehicle.stockId} withdrawn from catalogue.`);
     setTimeout(() => setActionNotice(null), 3500);
   };
-
-  const handleSaveAmendment = (e: React.FormEvent) => {
-    e.preventDefault();
-    audio.playSuccessChime();
-    const parsedDefects = editDefects
-      .split("\n")
-      .map((d) => d.trim())
-      .filter(Boolean);
-
-    updateVehicle(vehicle.id, {
-      model: editModel,
-      grade: editGrade,
-      year: editYear,
-      odometerKm: editOdo,
-      transmission: editTransmission as Vehicle["transmission"],
-      fuelType: editFuel as Vehicle["fuelType"],
-      driveType: editDrive as Vehicle["driveType"],
-      engineCc: editEngineCc ? Number(editEngineCc) : 1200,
-      color: editColor,
-      auctionGrade: editAuctionGrade,
-      interiorGrade: editInteriorGrade,
-      exteriorGrade: editExteriorGrade,
-      fobPriceJPY: editFobJPY,
-      location: editLocation,
-      conditionSummary: editCondition,
-      knownDefects: parsedDefects.length > 0 ? parsedDefects : ["Clean pass verified"],
-    });
-
-    setIsAmendmentOpen(false);
-    setActionNotice(`Specifications & commercial terms updated for unit #${vehicle.stockId}.`);
-    setTimeout(() => setActionNotice(null), 3500);
-  };
-
   const handleMarkSold = () => {
     audio.playSuccessChime();
     setVehicleStatus(vehicle.id, "SOLD", "Delivered and handed over to dealer inventory");
@@ -290,30 +253,19 @@ export default function JapanInventoryDetailsView({
 
           {/* Quick Header Actions: Amendment, Publication & Status Management */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
-            {/* Amend Details Button */}
+            {/* Amend Details Button - Transitions to Full View (Not a modal) */}
             <button
               type="button"
               onClick={() => {
                 audio.playSubtleClick();
-                setEditModel(vehicle.model);
-                setEditGrade(vehicle.grade);
-                setEditYear(vehicle.year);
-                setEditOdo(vehicle.odometerKm);
-                setEditTransmission(vehicle.transmission);
-                setEditFuel(vehicle.fuelType);
-                setEditDrive(vehicle.driveType || "2WD");
-                setEditEngineCc(vehicle.engineCc || 1200);
-                setEditColor(vehicle.color || "Pearl White");
-                setEditAuctionGrade(vehicle.auctionGrade || "4.5");
-                setEditInteriorGrade(vehicle.interiorGrade || "A");
-                setEditExteriorGrade(vehicle.exteriorGrade || "A");
-                setEditFobJPY(vehicle.fobPriceJPY);
-                setEditLocation(vehicle.location || "Yokohama Export Terminal");
-                setEditCondition(vehicle.conditionSummary || "");
-                setEditDefects(vehicle.knownDefects?.join("\n") || "");
-                setIsAmendmentOpen(true);
+                if (onAmend) {
+                  onAmend(vehicle.id);
+                } else {
+                  setIsAmending(true);
+                }
               }}
-              className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5 cursor-pointer"
+              className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5 cursor-pointer hover:text-[#C3002F] hover:border-[#C3002F] transition-colors"
+              title="Amend vehicle specifications"
             >
               <Edit3 className="w-3.5 h-3.5 text-slate-500" />
               <span>Amend Details</span>
@@ -813,395 +765,7 @@ export default function JapanInventoryDetailsView({
         </button>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* MODAL 1: Premium Executive Vehicle Amendment Modal (US-08)  */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {isAmendmentOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Executive Header */}
-            <div className="px-6 py-5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#C3002F] shrink-0 shadow-2xs">
-                  <Edit3 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                      Amend Vehicle Specifications
-                    </h3>
-                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-[11px] font-bold border border-slate-200">
-                      #{vehicle.stockId}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Central Fleet Catalogue Management · VIN: <span className="font-mono font-semibold text-slate-700">{vehicle.vinChassis}</span>
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAmendmentOpen(false)}
-                className="w-9 h-9 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-100/80 transition-all flex items-center justify-center cursor-pointer shadow-2xs"
-                title="Close modal"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Scrollable Form Body */}
-            <form onSubmit={handleSaveAmendment} className="flex-1 overflow-y-auto navy-scrollbar p-6 space-y-5">
-
-              {/* SECTION 1: Core Vehicle Identification */}
-              <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/70">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                    <Car className="w-4 h-4 text-[#C3002F]" />
-                    <span>1. Core Identification &amp; Model</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Asset Identity</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Model Designation *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editModel}
-                      onChange={(e) => setEditModel(e.target.value)}
-                      placeholder="e.g. Note e-Power, Leaf, X-Trail"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Package / Grade *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editGrade}
-                      onChange={(e) => setEditGrade(e.target.value)}
-                      placeholder="e.g. Medalist, Nismo"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Model Year *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min={2015}
-                      max={2026}
-                      value={editYear}
-                      onChange={(e) => setEditYear(Number(e.target.value))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 2: Powertrain & Mechanical Specifications */}
-              <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/70">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                    <Fuel className="w-4 h-4 text-emerald-600" />
-                    <span>2. Powertrain &amp; Mechanical Specifications</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Technical Profile</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Powertrain / Fuel *
-                    </label>
-                    <select
-                      value={editFuel}
-                      onChange={(e) => setEditFuel(e.target.value as any)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="e-Power">e-Power (Electric Generator)</option>
-                      <option value="100% Electric">100% Electric (EV Zero Emission)</option>
-                      <option value="Hybrid">Hybrid Powertrain</option>
-                      <option value="Petrol">Petrol Internal Combustion</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Transmission *
-                    </label>
-                    <select
-                      value={editTransmission}
-                      onChange={(e) => setEditTransmission(e.target.value as any)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="Automatic">Automatic Transmission</option>
-                      <option value="e-Power Drive">e-Power Drive (One-Pedal)</option>
-                      <option value="CVT">CVT Continuously Variable</option>
-                      <option value="Manual">Manual Shift</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Drive System *
-                    </label>
-                    <select
-                      value={editDrive}
-                      onChange={(e) => setEditDrive(e.target.value as any)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="2WD">2WD (Front/Rear Wheel)</option>
-                      <option value="4WD">4WD (Intelligent All-Wheel)</option>
-                      <option value="e-4ORCE AWD">e-4ORCE AWD (Dual Motor)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Engine Displacement (cc)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min={0}
-                        step={100}
-                        value={editEngineCc}
-                        onChange={(e) => setEditEngineCc(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                        placeholder="e.g. 1200"
-                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono font-medium focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">
-                        cc
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Verified Odometer (km) *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        required
-                        min={0}
-                        value={editOdo}
-                        onChange={(e) => setEditOdo(Number(e.target.value))}
-                        className="w-full pl-3.5 pr-16 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 font-mono font-semibold text-[11px]">
-                        km JEVIC
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Exterior Colour
-                    </label>
-                    <input
-                      type="text"
-                      value={editColor}
-                      onChange={(e) => setEditColor(e.target.value)}
-                      placeholder="e.g. Pearl White, Brilliant Silver"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 3: Commercial Terms & Yard Marshalling */}
-              <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/70">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                    <MapPin className="w-4 h-4 text-sky-600" />
-                    <span>3. Commercial Pricing &amp; Yard Logistics</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">Commercial Terms</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                        FOB Price (JPY) *
-                      </label>
-                      <span className="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        ≈ ${Math.round(editFobJPY * JPY_TO_NZD_EXCHANGE_RATE).toLocaleString()} NZD
-                      </span>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs font-mono">
-                        ¥
-                      </span>
-                      <input
-                        type="number"
-                        required
-                        min={500000}
-                        step={10000}
-                        value={editFobJPY}
-                        onChange={(e) => setEditFobJPY(Number(e.target.value))}
-                        className="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-500 block">Baseline raw acquisition cost at export terminal</span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Japanese Marshalling Yard *
-                    </label>
-                    <select
-                      value={editLocation}
-                      onChange={(e) => setEditLocation(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="Yokohama Export Terminal">Yokohama Export Terminal (Bay 14 Marshalling Base)</option>
-                      <option value="Yokohama Yard (Bay 1)">Yokohama Yard (Bay 1)</option>
-                      <option value="Yokohama Yard (Bay 2)">Yokohama Yard (Bay 2)</option>
-                      <option value="Yokohama Yard (Bay 3)">Yokohama Yard (Bay 3)</option>
-                      <option value="Yokohama Yard (Bay 4)">Yokohama Yard (Bay 4)</option>
-                      <option value="Yokohama Yard (Bay 5)">Yokohama Yard (Bay 5)</option>
-                      <option value="Yokohama Yard (Bay 6)">Yokohama Yard (Bay 6)</option>
-                      <option value="Yokohama Yard (Bay 7)">Yokohama Yard (Bay 7)</option>
-                      <option value="Kobe Export Terminal">Kobe Export Terminal</option>
-                      <option value="Nagoya Port Terminal">Nagoya Port Terminal</option>
-                      <option value="Port of Auckland Delivery Yard">Port of Auckland Delivery Yard</option>
-                    </select>
-                    <span className="text-[10px] text-slate-500 block">Current physical holding bay location</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 4: Inspection Assessment & Condition Dossier */}
-              <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 space-y-4">
-                <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/70">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                    <FileCheck2 className="w-4 h-4 text-amber-600" />
-                    <span>4. Inspection Assessment &amp; Condition Dossier</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">USS / JAA Criteria</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Auction Grade *
-                    </label>
-                    <select
-                      value={editAuctionGrade}
-                      onChange={(e) => setEditAuctionGrade(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="5.0">★ 5.0 (Near New Pristine)</option>
-                      <option value="4.5">★ 4.5 (Excellent Clean Pass)</option>
-                      <option value="4.0">★ 4.0 (Good Commuter)</option>
-                      <option value="3.5">★ 3.5 (Fair Road Wear)</option>
-                      <option value="RA">★ RA (Repaired Verified Pass)</option>
-                      <option value="R">★ R (Repaired History)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Interior Grade *
-                    </label>
-                    <select
-                      value={editInteriorGrade}
-                      onChange={(e) => setEditInteriorGrade(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="A">Grade A (Immaculate Showroom)</option>
-                      <option value="B">Grade B (Normal Commuter Wear)</option>
-                      <option value="C">Grade C (Visible Blemishes / Marks)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Exterior Grade *
-                    </label>
-                    <select
-                      value={editExteriorGrade}
-                      onChange={(e) => setEditExteriorGrade(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all cursor-pointer"
-                    >
-                      <option value="A">Grade A (Factory Clean)</option>
-                      <option value="B">Grade B (Minor Blemishes)</option>
-                      <option value="C">Grade C (Scratches / Dents)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-1 text-xs">
-                  <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                    Condition Summary Dossier
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={editCondition}
-                    onChange={(e) => setEditCondition(e.target.value)}
-                    placeholder="Provide overview of overall vehicle condition, body integrity, and inspection notes..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-medium text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-bold text-slate-700 block uppercase tracking-wider">
-                      Recorded Defect Items / Inspection Markings
-                    </label>
-                    <span className="text-[10px] text-slate-400 font-mono">One item per line</span>
-                  </div>
-                  <textarea
-                    rows={2}
-                    value={editDefects}
-                    onChange={(e) => setEditDefects(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-medium text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] shadow-2xs transition-all"
-                    placeholder="e.g. Minor stone chip on lower front bumper (A1)&#10;Factory alloys in immaculate condition"
-                  />
-                </div>
-              </div>
-
-              {/* Sticky / Pinned Action Buttons in Footer */}
-              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-200/80">
-                <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Changes will update central catalogue and audit ledger</span>
-                </div>
-
-                <div className="flex items-center gap-2.5 justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setIsAmendmentOpen(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all cursor-pointer shadow-2xs"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-[#C3002F] text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2 active:scale-[0.98]"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Save &amp; Apply Amendments</span>
-                  </button>
-                </div>
-              </div>
-
-            </form>
-          </div>
-        </div>
-      )}
+      
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* MODAL 2: Withdrawal Reason Modal (US-08)                    */}

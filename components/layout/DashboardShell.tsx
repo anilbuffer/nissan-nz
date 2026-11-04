@@ -16,6 +16,7 @@ import JapanInventoryView from "@/components/japan/JapanInventoryView";
 import JapanInventoryDetailsView from "@/components/japan/JapanInventoryDetailsView";
 import BatchUploadView from "@/components/japan/BatchUploadView";
 import AddVehicleForm from "@/components/japan/AddVehicleForm";
+import AmendVehicleForm from "@/components/japan/AmendVehicleForm";
 import AdminDashboardView from "@/components/admin/AdminDashboardView";
 import AdminMenuPortalView from "@/components/admin/AdminMenuPortalView";
 import AdminReservationsView from "@/components/admin/AdminReservationsView";
@@ -143,6 +144,7 @@ export default function DashboardShell({
     ) {
       if (pathname === "/japan/upload" || pathname === "/japan/batch-upload" || initialTab === "upload" || initialTab === "japan-upload") return "japan-upload";
       if (pathname === "/japan/add-vehicle" || pathname === "/japan/add-single" || initialTab === "add-vehicle" || initialTab === "japan-add-single") return "japan-add-single";
+      if (pathname.startsWith("/japan/amend") || pathname === "/japan/amend-vehicle" || initialTab === "amend-vehicle" || initialTab === "japan-amend-vehicle") return "japan-amend-vehicle";
       if (pathname === "/japan/inventory" || pathname === "/japan" || initialTab === "inventory" || initialTab === "japan-inventory") return "japan-inventory";
       return "japan-inventory";
     }
@@ -317,6 +319,9 @@ export default function DashboardShell({
       case "japan-add-single":
       case "add-vehicle":
         return "/japan/add-vehicle";
+      case "japan-amend-vehicle":
+      case "amend-vehicle":
+        return "/japan/amend-vehicle";
       case "settings":
         return "/settings";
       default:
@@ -358,6 +363,24 @@ export default function DashboardShell({
 
   // Determine what view to render based on active tab
   const renderViewContent = () => {
+    // 0. Amend Vehicle Full-Page View (Japan Portal)
+    if (activeTab === "japan-amend-vehicle") {
+      const targetVehicleId = viewingVehicleId || searchParams?.get("id") || searchParams?.get("vehicleId") || initialVehicleId || "VEH_001";
+      return (
+        <AmendVehicleForm
+          vehicleId={targetVehicleId}
+          onSuccessReturn={() => {
+            setViewingVehicleId(null);
+            router.push("/japan/inventory");
+          }}
+          onViewDetails={(vId) => {
+            setViewingVehicleId(vId);
+            router.push(`/japan/inventory/${vId}`);
+          }}
+        />
+      );
+    }
+
     // 1. Vehicle Detail Full-Page View
     if (viewingVehicleId) {
       if (
@@ -511,6 +534,17 @@ export default function DashboardShell({
         case 'japan-add-single':
           return (
             <AddVehicleForm onSuccessReturn={() => router.push('/japan/inventory')} />
+          );
+        case 'japan-amend-vehicle':
+          return (
+            <AmendVehicleForm
+              vehicleId={searchParams?.get("id") || searchParams?.get("vehicleId") || initialVehicleId || "VEH_001"}
+              onSuccessReturn={() => router.push('/japan/inventory')}
+              onViewDetails={(vId) => {
+                setViewingVehicleId(vId);
+                router.push(`/japan/inventory/${vId}`);
+              }}
+            />
           );
         default:
           return (

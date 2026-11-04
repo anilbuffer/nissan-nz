@@ -66,33 +66,22 @@ export default function CatalogueDetailsModal({
     >
       <div className="relative w-full max-w-4xl bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+        <div className="px-6 py-4 bg-white text-slate-900 flex items-center justify-between border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-rose-400">
-              <Car className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0 shadow-2xs">
+              <Car className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-rose-400">
+                <span className="text-xs font-mono font-bold text-slate-600">
                   #{vehicle.stockId}
                 </span>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${vehicle.status === "AVAILABLE"
-                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                    : vehicle.status === "RESERVED"
-                      ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                      : "bg-slate-700 text-slate-300 border-slate-600"
-                    }`}
-                >
-                  {vehicle.status === "AVAILABLE"
-                    ? "Available For Hold"
-                    : vehicle.status === "RESERVED"
-                      ? "24h Exclusivity Lock Active"
-                      : vehicle.status}
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                  VIN: {vehicle.vinChassis}
                 </span>
               </div>
-              <h2 id="catalogue-details-title" className="text-lg font-bold text-white tracking-tight">
-                {vehicle.year} {vehicle.make} {vehicle.model}
+              <h2 id="catalogue-details-title" className="text-base sm:text-lg font-bold text-slate-900 tracking-tight mt-0.5">
+                {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.grade ? `(${vehicle.grade})` : ""}
               </h2>
             </div>
           </div>
@@ -103,8 +92,8 @@ export default function CatalogueDetailsModal({
               audio.playSubtleClick();
               onClose();
             }}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            title="Close dossier"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer border border-transparent hover:border-slate-200"
+            title="Close details"
           >
             <X className="w-5 h-5" />
           </button>

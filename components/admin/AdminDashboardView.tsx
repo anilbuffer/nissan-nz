@@ -518,17 +518,17 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       {/* ─────────────────────────────────────────────────────────── */}
       {declineTargetDealer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-2xl w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-[#C3002F] shrink-0">
-                  <AlertTriangle className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-[#C3002F] shrink-0">
+                  <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
                     Decline Dealership Application
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     {declineTargetDealer.legalTradingName} ({declineTargetDealer.dealerCode})
                   </p>
                 </div>
@@ -556,25 +556,6 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
                 placeholder="e.g., NZBN business entity check failed, territorial boundary overlap with existing franchise, or missing authorized signatory."
                 className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 resize-none font-sans"
               />
-
-              <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                <span className="text-xs text-slate-400 font-medium">Quick Presets:</span>
-                {[
-                  "NZBN Verification Inactive",
-                  "Territory Franchise Conflict",
-                  "Missing Authorised Signatory",
-                  "Credit Boundary Ineligible",
-                ].map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    onClick={() => setDeclineReason(preset)}
-                    className="text-xs px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors cursor-pointer"
-                  >
-                    {preset}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -606,7 +587,7 @@ export default function AdminDashboardView({ onNavigateTab }: AdminDashboardView
       {/* ─────────────────────────────────────────────────────────── */}
       {selectedUserForDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-2xl w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150 font-sans">
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-[#0A0A0A] shrink-0">

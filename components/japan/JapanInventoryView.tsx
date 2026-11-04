@@ -6,12 +6,14 @@ import { Vehicle } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { audio } from "@/lib/sound";
 import JapanInventoryDetailsView from "./JapanInventoryDetailsView";
+import AmendVehicleForm from "./AmendVehicleForm";
 import {
   Search,
   Plus,
   Eye,
   Clock,
   Upload,
+  Edit3,
 } from "lucide-react";
 
 interface JapanInventoryViewProps {
@@ -29,6 +31,7 @@ export default function JapanInventoryView({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [selectedVehicleForAmend, setSelectedVehicleForAmend] = useState<Vehicle | null>(null);
   const [selectedVehicleForDetails, setSelectedVehicleForDetails] = useState<Vehicle | null>(() => {
     if (urlVehicleId) {
       return vehicles.find((v) => v.id === urlVehicleId || v.stockId === urlVehicleId) || null;
@@ -41,6 +44,21 @@ export default function JapanInventoryView({
     toggleVehicleStatus(vehicleId);
   };
 
+  // If a vehicle is selected for amend, display the full Amend Vehicle Form view (same approach as /add-vehicle, not a modal)
+  if (selectedVehicleForAmend) {
+    return (
+      <AmendVehicleForm
+        vehicleId={selectedVehicleForAmend.id}
+        onSuccessReturn={() => setSelectedVehicleForAmend(null)}
+        onViewDetails={(vId) => {
+          const target = vehicles.find((v) => v.id === vId);
+          setSelectedVehicleForAmend(null);
+          if (target) setSelectedVehicleForDetails(target);
+        }}
+      />
+    );
+  }
+
   // If a vehicle is selected, display the full inner details page (Not a modal)
   if (selectedVehicleForDetails) {
     return (
@@ -48,6 +66,13 @@ export default function JapanInventoryView({
         vehicleId={selectedVehicleForDetails.id}
         onBack={() => setSelectedVehicleForDetails(null)}
         onToggleStatus={handleToggleStatus}
+        onAmend={(vId) => {
+          const target = vehicles.find((v) => v.id === vId);
+          if (target) {
+            setSelectedVehicleForAmend(target);
+            setSelectedVehicleForDetails(null);
+          }
+        }}
       />
     );
   }
@@ -357,6 +382,21 @@ export default function JapanInventoryView({
                           </button>
                         )}
 
+                        {/* Amend Details Action Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audio.playSubtleClick();
+                            setSelectedVehicleForAmend(vehicle);
+                          }}
+                          className="btn-outline text-xs py-1.5 px-3 cursor-pointer flex items-center gap-1.5 hover:text-[#C3002F] hover:border-[#C3002F] transition-colors"
+                          title="Amend vehicle specifications"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Amend Details</span>
+                        </button>
+
                         {/* Details Action Button - Rightmost */}
                         <button
                           type="button"
@@ -365,7 +405,7 @@ export default function JapanInventoryView({
                             audio.playSubtleClick();
                             setSelectedVehicleForDetails(vehicle);
                           }}
-                          className="btn-outline text-xs py-1.5 px-3 cursor-pointer"
+                          className="btn-outline text-xs py-1.5 px-3 cursor-pointer flex items-center gap-1.5"
                         >
                           <Eye className="w-3.5 h-3.5 text-slate-400" />
                           <span>Details</span>

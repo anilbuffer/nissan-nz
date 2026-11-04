@@ -107,16 +107,16 @@ export default function InviteUserModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-xl bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-5 bg-[#0A0A0A] text-white flex items-center justify-between border-b border-[#27272A]">
+        <div className="px-6 py-4 bg-white text-slate-900 flex items-center justify-between border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C3002F] to-[#A10026] flex items-center justify-center text-white shadow-soft">
-              <UserPlus className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-[#C3002F] shadow-2xs">
+              <UserPlus className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight">
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">
                 Invite Platform User
               </h2>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-slate-500">
                 Grant role-based access to Nissan NZ Used Vehicle Programme
               </p>
             </div>
@@ -127,7 +127,7 @@ export default function InviteUserModal({
               audio.playSubtleClick();
               onClose();
             }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer border border-transparent hover:border-slate-200"
           >
             <X className="w-5 h-5" />
           </button>
