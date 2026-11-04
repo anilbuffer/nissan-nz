@@ -569,7 +569,7 @@ export default function DealerRegistrationWizard() {
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-                Nissan New Zealand
+                Nissan
               </span>
               <h2 className="font-bold text-base text-white tracking-tight leading-tight">
                 {category === "DEALER_NZ"
@@ -622,18 +622,18 @@ export default function DealerRegistrationWizard() {
                   onClick={() => handleStepClick(step.id)}
                   disabled={step.id > currentStep}
                   className={`w-full flex items-center gap-3 p-2.5 sm:p-3 rounded-xl transition-all duration-200 text-left cursor-pointer ${isActive
-                      ? "bg-white/10 text-white shadow-xs border border-white/15 backdrop-blur-md font-bold"
-                      : isPassed
-                        ? "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
-                        : "text-slate-500 cursor-not-allowed opacity-40 border border-transparent"
+                    ? "bg-white/10 text-white shadow-xs border border-white/15 backdrop-blur-md font-bold"
+                    : isPassed
+                      ? "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+                      : "text-slate-500 cursor-not-allowed opacity-40 border border-transparent"
                     }`}
                 >
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-all ${isActive
-                        ? "bg-white text-black shadow-xs"
-                        : isPassed
-                          ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                          : "bg-slate-800 text-slate-500"
+                      ? "bg-white text-black shadow-xs"
+                      : isPassed
+                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                        : "bg-slate-800 text-slate-500"
                       }`}
                   >
                     {isPassed && !isActive ? <CheckCircle2 className="w-4 h-4" /> : step.id}
@@ -711,8 +711,8 @@ export default function DealerRegistrationWizard() {
                   type="button"
                   onClick={() => handleCategoryChange("DEALER_NZ")}
                   className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${category === "DEALER_NZ"
-                      ? "bg-[#0A0A0A] text-white shadow-xs"
-                      : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
+                    ? "bg-[#0A0A0A] text-white shadow-xs"
+                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
                     }`}
                 >
                   <Building2 className="w-3.5 h-3.5 shrink-0" />
@@ -723,8 +723,8 @@ export default function DealerRegistrationWizard() {
                   type="button"
                   onClick={() => handleCategoryChange("JAPAN_HQ")}
                   className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${category === "JAPAN_HQ"
-                      ? "bg-[#0A0A0A] text-white shadow-xs"
-                      : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
+                    ? "bg-[#0A0A0A] text-white shadow-xs"
+                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
                     }`}
                 >
                   <Globe className="w-3.5 h-3.5 shrink-0" />
@@ -735,8 +735,8 @@ export default function DealerRegistrationWizard() {
                   type="button"
                   onClick={() => handleCategoryChange("PROGRAMME_USER")}
                   className={`px-3 py-2.5 rounded-xl text-xs font-bold text-left sm:text-center transition-all cursor-pointer flex items-center sm:justify-center gap-2 ${category === "PROGRAMME_USER"
-                      ? "bg-[#0A0A0A] text-white shadow-xs"
-                      : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
+                    ? "bg-[#0A0A0A] text-white shadow-xs"
+                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/60"
                     }`}
                 >
                   <User className="w-3.5 h-3.5 shrink-0" />
@@ -1173,10 +1173,10 @@ export default function DealerRegistrationWizard() {
                       <div className="space-y-1.5 pt-1">
                         <label
                           className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${dealerData.acceptTerms && dealerData.acceptCostBoundary
-                              ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
-                              : errors.acceptTerms
-                                ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
-                                : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+                            ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
+                            : errors.acceptTerms
+                              ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
+                              : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
                             }`}
                         >
                           <input
@@ -1567,10 +1567,10 @@ export default function DealerRegistrationWizard() {
                       <div className="space-y-1.5 pt-1">
                         <label
                           className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${japanData.acceptTerms && japanData.acceptCostBoundary
-                              ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
-                              : errors.acceptTerms
-                                ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
-                                : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+                            ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
+                            : errors.acceptTerms
+                              ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
+                              : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
                             }`}
                         >
                           <input
@@ -1855,8 +1855,8 @@ export default function DealerRegistrationWizard() {
                               type="button"
                               onClick={() => updateProgrammeField("requestedRole", "READONLY_PROGRAMME_USER")}
                               className={`p-4 rounded-2xl border text-left transition-all cursor-pointer space-y-1.5 ${programmeData.requestedRole === "READONLY_PROGRAMME_USER"
-                                  ? "bg-slate-50 border-slate-900 ring-2 ring-slate-900/10 shadow-xs"
-                                  : "bg-white border-slate-200 hover:border-slate-300"
+                                ? "bg-slate-50 border-slate-900 ring-2 ring-slate-900/10 shadow-xs"
+                                : "bg-white border-slate-200 hover:border-slate-300"
                                 }`}
                             >
                               <div className="flex items-center justify-between">
@@ -1892,10 +1892,10 @@ export default function DealerRegistrationWizard() {
                         <div className="space-y-1.5 pt-1">
                           <label
                             className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${programmeData.acceptCompliance
-                                ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
-                                : errors.acceptCompliance
-                                  ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
-                                  : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+                              ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
+                              : errors.acceptCompliance
+                                ? "bg-rose-50/40 border-rose-300 ring-2 ring-rose-500/20"
+                                : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
                               }`}
                           >
                             <input

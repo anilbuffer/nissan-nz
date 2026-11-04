@@ -18,6 +18,7 @@ import {
   UploadCloud,
   X,
   FileText,
+  Trash2,
   DollarSign,
   Tag,
   Image as ImageIcon,
@@ -74,8 +75,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
   const [interiorGrade, setInteriorGrade] = useState("A");
   const [exteriorGrade, setExteriorGrade] = useState("A");
   const [knownDefects, setKnownDefects] = useState("");
-  const [conditionReportName, setConditionReportName] = useState("USS_Tokyo_Official_Auction_Sheet.pdf");
-  const [supportingDocName, setSupportingDocName] = useState("JEVIC_Digital_Odometer_Certificate.pdf");
+  const conditionReportName = "USS_Tokyo_Official_Auction_Sheet.pdf";
 
   // ───────────────────────────────────────────────────────────
   // C. Vehicle Pricing Inputs State
@@ -109,8 +109,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
   // Drag and drop state for images
   const [isDraggingImage, setIsDraggingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const conditionDocInputRef = useRef<HTMLInputElement>(null);
-  const supportingDocInputRef = useRef<HTMLInputElement>(null);
+
+  // Drag and drop state for supporting documents
+  const [isDraggingDoc, setIsDraggingDoc] = useState(false);
+  const docInputRef = useRef<HTMLInputElement>(null);
 
   // ───────────────────────────────────────────────────────────
   // E. Listing Information State (MVP Lifecycle)
@@ -174,35 +176,84 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     audio.playSubtleClick();
   };
 
-  // Document Upload Handlers
-  const handleConditionDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setConditionReportName(file.name);
-      audio.playSubtleClick();
-    }
-  };
+  // ───────────────────────────────────────────────────────────
+  // Supporting Documents Upload Handlers
+  // ───────────────────────────────────────────────────────────
+  const processDocFiles = (files: FileList | File[]) => {
+    Array.from(files).forEach((file) => {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      const isDoc = ext === "pdf" || ext === "doc" || ext === "docx" || file.type.includes("pdf") || file.type.includes("document");
+      if (!isDoc) {
+        alert(`File "${file.name}" is not a recognized document format (PDF, DOC, DOCX).`);
+        return;
+      }
+      const lower = file.name.toLowerCase();
+      const docType = lower.includes("jevic")
+        ? "JEVIC_CERTIFICATE"
+        : lower.includes("auction") || lower.includes("sheet") || lower.includes("uss")
+          ? "AUCTION_SHEET"
+          : lower.includes("mr2a")
+            ? "MR2A_DOSSIER"
+            : "SUPPORTING_DOC";
 
-  const handleSupportingDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSupportingDocName(file.name);
       setUploadedDocs((prev) => [
         ...prev,
         {
           name: file.name,
-          type: "SUPPORTING_DOC",
-          url: "https://example.com/reports/custom_doc.pdf",
+          type: docType,
+          url: "https://example.com/reports/" + encodeURIComponent(file.name),
           size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
           uploadedAt: new Date().toISOString().slice(0, 10),
         },
       ]);
       audio.playSubtleClick();
+    });
+  };
+
+  const handleDocDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(true);
+  };
+
+  const handleDocDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(false);
+  };
+
+  const handleDocDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingDoc(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processDocFiles(e.dataTransfer.files);
     }
   };
 
-  const handleRemoveDoc = (docName: string) => {
-    setUploadedDocs((prev) => prev.filter((d) => d.name !== docName));
+  const handleDocFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processDocFiles(e.target.files);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveDoc = (idxToRemove: number) => {
+    setUploadedDocs((prev) => prev.filter((_, idx) => idx !== idxToRemove));
+    audio.playSubtleClick();
+  };
+
+  const handleAddPresetDoc = (name: string, type: string, size: string) => {
+    if (uploadedDocs.some((d) => d.name === name)) {
+      return;
+    }
+    setUploadedDocs((prev) => [
+      ...prev,
+      {
+        name,
+        type,
+        url: "https://example.com/reports/" + name.toLowerCase(),
+        size,
+        uploadedAt: new Date().toISOString().slice(0, 10),
+      },
+    ]);
     audio.playSubtleClick();
   };
 
@@ -308,7 +359,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-full bg-slate-100 font-mono text-xs font-bold text-slate-700 border border-slate-200 shadow-2xs">
+          <span className="px-3 py-1.5 rounded-full bg-slate-100  text-xs font-bold text-slate-700 border border-slate-200 shadow-2xs">
             Export Terminal Staging
           </span>
         </div>
@@ -328,7 +379,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               Vehicle Registered Successfully
             </h2>
             <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-              Export unit <strong className="text-slate-800 font-mono font-bold">#{stockId || "NIS-NEW"}</strong> ({vinChassis}) is now saved into central programme inventory with status:{" "}
+              Export unit <strong className="text-slate-800  font-bold">#{stockId || "NIS-NEW"}</strong> ({vinChassis}) is now saved into central programme inventory with status:{" "}
               <span className="font-bold text-emerald-700">{status}</span>.
             </p>
           </div>
@@ -345,19 +396,19 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">Currency:</span>
-              <strong className="text-slate-900 font-mono">{currency}</strong>
+              <strong className="text-slate-900 ">{currency}</strong>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">FOB Price (JPY):</span>
-              <strong className="font-mono text-slate-900">¥{fobPriceJPY ? Number(fobPriceJPY).toLocaleString() : 0} JPY</strong>
+              <strong className=" text-slate-900">¥{fobPriceJPY ? Number(fobPriceJPY).toLocaleString() : 0} JPY</strong>
             </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">FOB Price (NZD Equivalent):</span>
-              <strong className="font-mono text-slate-900">${nzdEquivalent.toLocaleString()} NZD</strong>
+              <strong className=" text-slate-900">${nzdEquivalent.toLocaleString()} NZD</strong>
             </div>
             <div className="flex items-center justify-between py-1">
               <span className="text-slate-500">Images &amp; Documents Attached:</span>
-              <strong className="text-slate-900">{images.length} Photos</strong>
+              <strong className="text-slate-900">{images.length} Photos · {uploadedDocs.length} Docs</strong>
             </div>
           </div>
 
@@ -376,6 +427,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 setFobPriceJPY("");
                 setColor("");
                 setImages([]);
+                setUploadedDocs([]);
                 setKnownDefects("");
                 setStockReference("");
               }}
@@ -411,14 +463,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <Hash className="w-4 h-4 text-[#C3002F]" />
                   <span>A. Vehicle Identification</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 1 of 5</span>
+                <span className="text-[11px]  text-slate-500 font-medium">Section 1 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-slate-800 block">Stock ID</label>
-                    <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
+                    <span className="text-[10px]  text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
                       Auto-Generated
                     </span>
                   </div>
@@ -426,9 +478,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     readOnly
                     value={stockId || nextSerialStockId}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-900 cursor-default select-all"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-900 cursor-default select-all"
                   />
-                  <span className="text-[11px] text-slate-500 block font-mono">Sequential stock reference</span>
+                  <span className="text-[11px] text-slate-500 block ">Sequential stock reference</span>
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
@@ -439,7 +491,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     value={vinChassis}
                     onChange={(e) => setVinChassis(e.target.value.toUpperCase())}
                     placeholder="e.g. E12-123456"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[11px] text-slate-500 block">Mandatory Japanese chassis / VIN stamp</span>
                 </div>
@@ -484,7 +536,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     value={year}
                     onChange={(e) => setYear(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
                     placeholder="e.g. 2023"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                 </div>
 
@@ -498,9 +550,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       value={odometerKm}
                       onChange={(e) => setOdometerKm(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
                       placeholder="e.g. 28400"
-                      className="w-full pl-3.5 pr-20 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                      className="w-full pl-3.5 pr-20 py-2 text-xs  font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-mono font-semibold text-slate-500">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px]  font-semibold text-slate-500">
                       km (JEVIC)
                     </span>
                   </div>
@@ -550,7 +602,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <FileCheck2 className="w-4 h-4 text-emerald-600" />
                   <span>B. Vehicle Condition</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 2 of 5</span>
+                <span className="text-[11px]  text-slate-500 font-medium">Section 2 of 5</span>
               </div>
 
               {/* Overall Vehicle Condition / Summary */}
@@ -577,7 +629,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <select
                     value={auctionGrade}
                     onChange={(e) => setAuctionGrade(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
                     <option value="5.0">★ 5.0 (Near New)</option>
                     <option value="4.5">★ 4.5 (Excellent)</option>
@@ -626,57 +678,6 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                 />
               </div>
-
-              {/* Condition Report & Supporting Document Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Condition Report</span>
-                      <span className="text-xs font-medium text-slate-900 truncate block">{conditionReportName}</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => conditionDocInputRef.current?.click()}
-                    className="text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer shadow-2xs"
-                  >
-                    Upload New
-                  </button>
-                  <input
-                    ref={conditionDocInputRef}
-                    type="file"
-                    accept=".pdf,image/*"
-                    onChange={handleConditionDocUpload}
-                    className="hidden"
-                  />
-                </div>
-
-                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Supporting Document</span>
-                      <span className="text-xs font-medium text-slate-900 truncate block">{supportingDocName}</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => supportingDocInputRef.current?.click()}
-                    className="text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer shadow-2xs"
-                  >
-                    Upload New
-                  </button>
-                  <input
-                    ref={supportingDocInputRef}
-                    type="file"
-                    accept=".pdf,image/*"
-                    onChange={handleSupportingDocUpload}
-                    className="hidden"
-                  />
-                </div>
-              </div>
             </div>
 
             {/* ───────────────────────────────────────────────────────── */}
@@ -688,14 +689,14 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <DollarSign className="w-4 h-4 text-emerald-600" />
                   <span>C. Vehicle Pricing Inputs</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 3 of 5</span>
+                <span className="text-[11px]  text-slate-500 font-medium">Section 3 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-bold text-slate-800 block">FOB Acquisition Price (JPY) *</label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-500">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs  font-bold text-slate-500">
                       ¥
                     </span>
                     <input
@@ -706,26 +707,26 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       value={fobPriceJPY}
                       onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
                       placeholder="e.g. 1850000"
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs  font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                   </div>
-                  <span className="text-[11px] text-slate-500 block font-mono">FOB acquisition baseline (Japanese Yen)</span>
+                  <span className="text-[11px] text-slate-500 block ">FOB acquisition baseline (Japanese Yen)</span>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-800 block">Indicative Base (NZD)</label>
                   <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-500">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs  font-bold text-slate-500">
                       $
                     </span>
                     <input
                       type="text"
                       readOnly
                       value={fobPriceJPY ? `${nzdEquivalent.toLocaleString()} NZD` : "— NZD"}
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-800 focus:outline-none cursor-default"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs  font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-800 focus:outline-none cursor-default"
                     />
                   </div>
-                  <span className="text-[11px] text-slate-500 font-mono">
+                  <span className="text-[11px] text-slate-500 ">
                     Official rate: 0.01085
                   </span>
                 </div>
@@ -735,22 +736,29 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
             {/* ───────────────────────────────────────────────────────── */}
             {/* SECTION D. IMAGES AND DOCUMENTS                           */}
             {/* ───────────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
                   <ImageIcon className="w-4 h-4 text-purple-600" />
                   <span>Images &amp; Supporting Documents</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 4 of 5</span>
+                <span className="text-[11px]  text-slate-500 font-medium">Section 4 of 5</span>
               </div>
 
-              {/* Upload Multiple Vehicle Photographs */}
-              <div className="space-y-2">
+              {/* ─────────────────────────────────────────────────────── */}
+              {/* SUBSECTION 1: IMAGES                                    */}
+              {/* ─────────────────────────────────────────────────────── */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-800 block">
-                    Upload Multiple Vehicle Photographs ({images.length} added)
-                  </label>
-                  <span className="text-[11px] text-slate-500">Transparent PNG studio cutout or JPG photo</span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[11px] font-bold">
+                      Images
+                    </span>
+                    <label className="text-xs font-bold text-slate-800">
+                      Vehicle Photographs ({images.length} added)
+                    </label>
+                  </div>
+                  <span className="text-[11px] text-slate-500">PNG, JPG, WEBP</span>
                 </div>
 
                 {/* Drag & Drop Multi-Image Dropzone */}
@@ -759,8 +767,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   onDragLeave={handleImageDragLeave}
                   onDrop={handleImageDrop}
                   onClick={() => imageInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-6 sm:p-7 text-center transition-all cursor-pointer ${isDraggingImage
-                    ? "border-[#0A0A0A] bg-slate-100 ring-2 ring-[#0A0A0A]/10"
+                  className={`border-2 border-dashed rounded-2xl p-5 sm:p-6 text-center transition-all cursor-pointer ${isDraggingImage
+                    ? "border-[#0A0A0A] bg-purple-50/40 ring-2 ring-[#0A0A0A]/10"
                     : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                     }`}
                 >
@@ -772,11 +780,11 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onChange={handleImageFileInputChange}
                     className="hidden"
                   />
-                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2.5 text-slate-600 shadow-2xs">
-                    <UploadCloud className="w-6 h-6 text-slate-600" />
+                  <div className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 shadow-2xs">
+                    <UploadCloud className="w-5 h-5 text-purple-600" />
                   </div>
                   <p className="text-xs font-bold text-slate-800">
-                    Drag &amp; drop multiple vehicle images here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
+                    Drag &amp; drop vehicle images here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
                   </p>
                   <p className="text-[11px] text-slate-500 mt-1">
                     Upload exterior angles, interior, dashboard, and defects photos (PNG, JPG, WEBP)
@@ -785,8 +793,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
                 {/* Thumbnail Gallery of Uploaded Photos */}
                 {images.length > 0 && (
-                  <div className="space-y-2 pt-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                  <div className="space-y-2 pt-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
                       Uploaded Vehicle Photos ({images.length})
                     </span>
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
@@ -802,7 +810,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                             className="w-full h-full object-contain"
                           />
                           {idx === 0 && (
-                            <span className="absolute top-1 left-1 bg-[#0A0A0A] text-white text-[9px] font-bold px-1.5 py-0.2 rounded font-mono">
+                            <span className="absolute top-1 left-1 bg-[#0A0A0A] text-white text-[9px] font-bold px-1.5 py-0.2 rounded ">
                               Main
                             </span>
                           )}
@@ -824,7 +832,124 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 )}
               </div>
 
-              {/* Upload Supporting Documents: Hidden for now as requested */}
+              {/* Card Divider */}
+              <div className="border-t border-slate-200/80" />
+
+              {/* ─────────────────────────────────────────────────────── */}
+              {/* SUBSECTION 2: SUPPORTING DOCUMENTS                      */}
+              {/* ─────────────────────────────────────────────────────── */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold">
+                      Supporting Documents
+                    </span>
+                    <label className="text-xs font-bold text-slate-800">
+                      Compliance &amp; Inspection Documents ({uploadedDocs.length} added)
+                    </label>
+                  </div>
+                  <span className="text-[11px] text-slate-500">PDF, DOC, DOCX</span>
+                </div>
+
+                {/* Drag & Drop Document Dropzone */}
+                <div
+                  onDragOver={handleDocDragOver}
+                  onDragLeave={handleDocDragLeave}
+                  onDrop={handleDocDrop}
+                  onClick={() => docInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-2xl p-5 sm:p-6 text-center transition-all cursor-pointer ${isDraggingDoc
+                    ? "border-[#0A0A0A] bg-blue-50/40 ring-2 ring-[#0A0A0A]/10"
+                    : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                    }`}
+                >
+                  <input
+                    ref={docInputRef}
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,application/pdf"
+                    onChange={handleDocFileInputChange}
+                    className="hidden"
+                  />
+                  <div className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 shadow-2xs">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800">
+                    Drag &amp; drop document files here, or <span className="text-[#0A0A0A] underline underline-offset-2">browse files</span>
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Upload official auction sheets, JEVIC odometer certificates, MPI clearances, or MR2A dossiers (PDF)
+                  </p>
+                </div>
+
+                {/* Quick Add Preset Documents */}
+                <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                  <span className="text-[11px] font-semibold text-slate-600">Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPresetDoc("USS_Tokyo_Official_Auction_Sheet.pdf", "AUCTION_SHEET", "2.4 MB")}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    + USS Auction Sheet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPresetDoc("JEVIC_Digital_Odometer_Certificate.pdf", "JEVIC_CERTIFICATE", "1.1 MB")}
+                    className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    + JEVIC Certificate
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPresetDoc("NZTA_MR2A_Entry_Dossier.pdf", "MR2A_DOSSIER", "1.8 MB")}
+                    className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-[11px] font-semibold transition-colors cursor-pointer"
+                  >
+                    + NZTA MR2A Dossier
+                  </button>
+                </div>
+
+                {/* Attached Documents List */}
+                {uploadedDocs.length > 0 && (
+                  <div className="space-y-2 pt-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                      Attached Supporting Documents ({uploadedDocs.length})
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {uploadedDocs.map((doc, dIdx) => (
+                        <div
+                          key={dIdx}
+                          className="p-3 rounded-xl bg-slate-50/90 border border-slate-200 flex items-center justify-between gap-2.5 hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 text-blue-600 shadow-2xs">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <span className="text-xs font-semibold text-slate-900 truncate block">
+                                {doc.name}
+                              </span>
+                              <div className="flex items-center gap-1.5 text-[10px] text-slate-500 ">
+                                <span>{doc.size || "1.5 MB"}</span>
+                                <span>•</span>
+                                <span className="uppercase text-slate-600 font-sans font-medium">
+                                  {doc.type.replace(/_/g, " ")}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveDoc(dIdx)}
+                            className="w-7 h-7 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-2xs"
+                            title="Remove document"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* ───────────────────────────────────────────────────────── */}
@@ -836,7 +961,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <Tag className="w-4 h-4 text-blue-600" />
                   <span>E. Listing Information</span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 font-medium">Section 5 of 5</span>
+                <span className="text-[11px]  text-slate-500 font-medium">Section 5 of 5</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -859,7 +984,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="date"
                     value={createdAt}
                     onChange={(e) => setCreatedAt(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] transition-colors"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] transition-colors"
                   />
                 </div>
 
@@ -870,7 +995,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     value={stockReference}
                     onChange={(e) => setStockReference(e.target.value)}
                     placeholder="e.g. USS-Tokyo-Lot#4021"
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                   />
                   <span className="text-[11px] text-slate-500 block">Japanese auction lot number or AutoHub reference</span>
                 </div>
@@ -881,7 +1006,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     type="text"
                     readOnly
                     value={new Date().toISOString().slice(0, 10)}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-default"
+                    className="w-full px-3.5 py-2 text-xs  font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-default"
                   />
                 </div>
               </div>
@@ -935,7 +1060,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   </span>
                 </div>
                 <span
-                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${status === "AVAILABLE"
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold  border ${status === "AVAILABLE"
                     ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                     : status === "RESERVED"
                       ? "bg-amber-50 text-amber-800 border-amber-300"
@@ -958,32 +1083,30 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     className="w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.12)] relative z-10 select-none transition-all duration-200"
                   />
 
-                  <div className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[11px] font-bold border border-slate-200/90 shadow-2xs flex items-center gap-1.5">
+                  <div className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800  text-[11px] font-bold border border-slate-200/90 shadow-2xs flex items-center gap-1.5">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                     <span>Grade {auctionGrade || "—"}</span>
                   </div>
 
-                  <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800 font-mono text-[10px] font-bold border border-slate-200/90 shadow-2xs">
+                  <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-slate-800  text-[10px] font-bold border border-slate-200/90 shadow-2xs">
                     {stockId ? `#${stockId}` : "#NEW-UNIT"}
                   </div>
                 </div>
               ) : (
                 <div
-                  onClick={() => imageInputRef.current?.click()}
-                  className="relative aspect-[16/10] w-full rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/80 hover:bg-slate-50 flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all group select-none"
-                  title="Click to upload vehicle photo"
+                  className="relative aspect-[16/10] w-full rounded-2xl border border-slate-200 bg-slate-50 flex flex-col items-center justify-center p-6 text-center select-none"
                 >
-                  <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white text-slate-700 font-mono text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1.5">
+                  <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-white text-slate-700  text-[11px] font-semibold border border-slate-200 shadow-2xs flex items-center gap-1.5">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                     <span>Grade {auctionGrade || "—"}</span>
                   </div>
 
-                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white text-slate-700 font-mono text-[10px] font-semibold border border-slate-200 shadow-2xs">
+                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white text-slate-700  text-[10px] font-semibold border border-slate-200 shadow-2xs">
                     {stockId ? `#${stockId}` : "#NEW-UNIT"}
                   </div>
 
                   {/* Centered Placeholder Graphic */}
-                  <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-slate-400 group-hover:text-slate-600 group-hover:border-slate-300 group-hover:scale-105 transition-all mb-2.5">
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-slate-400 mb-2.5">
                     <Car className="w-7 h-7 stroke-[1.5]" />
                   </div>
 
@@ -991,13 +1114,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     No Vehicle Photograph Added
                   </span>
                   <span className="text-[11px] text-slate-500 mt-0.5 block max-w-[210px] leading-tight">
-                    Upload photos in Section D or click here to add vehicle photos
+                    Vehicle preview will appear here when photos are added in Section D
                   </span>
-
-                  <div className="mt-3 px-3 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs text-[11px] font-semibold text-slate-700 flex items-center gap-1.5 group-hover:border-slate-300">
-                    <UploadCloud className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Upload Photograph</span>
-                  </div>
                 </div>
               )}
 
@@ -1069,11 +1187,11 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     Odometer
                   </span>
                   {odometerKm !== "" && Number(odometerKm) >= 0 ? (
-                    <strong className="text-slate-900 font-mono text-xs font-bold block truncate">
+                    <strong className="text-slate-900  text-xs font-bold block truncate">
                       {Number(odometerKm).toLocaleString()} {odometerUnit}
                     </strong>
                   ) : (
-                    <span className="text-slate-400 font-mono text-xs block">
+                    <span className="text-slate-400  text-xs block">
                       — km (Pending)
                     </span>
                   )}
@@ -1083,7 +1201,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">
                     Currency
                   </span>
-                  <strong className="text-slate-900 font-mono text-xs font-bold block truncate">
+                  <strong className="text-slate-900  text-xs font-bold block truncate">
                     {currency}
                   </strong>
                 </div>
@@ -1108,10 +1226,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     Photos / Docs
                   </span>
                   <span className="text-slate-700 text-xs font-medium block truncate">
-                    {images.length > 0 ? (
-                      <strong className="text-slate-900 font-semibold">{images.length} photos uploaded</strong>
+                    {images.length > 0 || uploadedDocs.length > 0 ? (
+                      <strong className="text-slate-900 font-semibold">{images.length} photos · {uploadedDocs.length} docs</strong>
                     ) : (
-                      <span className="text-slate-400">0 photos uploaded</span>
+                      <span className="text-slate-400">0 photos · 0 docs</span>
                     )}
                   </span>
                 </div>
@@ -1124,12 +1242,12 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     FOB Price (JPY)
                   </span>
                   {fobPriceJPY ? (
-                    <span className="text-xl font-black text-slate-950 font-mono tracking-tight block">
+                    <span className="text-xl font-black text-slate-950  tracking-tight block">
                       ¥{Number(fobPriceJPY).toLocaleString()}
                     </span>
                   ) : (
                     <div className="space-y-0.5">
-                      <span className="text-lg font-bold text-slate-400 font-mono block">
+                      <span className="text-lg font-bold text-slate-400  block">
                         ¥ —
                       </span>
                       <span className="text-[10px] text-slate-400 block font-normal">
@@ -1144,7 +1262,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     FOB Price (NZD)
                   </span>
                   {fobPriceJPY ? (
-                    <span className="text-xl font-black text-slate-950 font-mono tracking-tight block">
+                    <span className="text-xl font-black text-slate-950  tracking-tight block">
                       ${nzdEquivalent.toLocaleString()}{" "}
                       <span className="text-xs font-bold text-slate-500 font-sans">
                         NZD
@@ -1152,7 +1270,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     </span>
                   ) : (
                     <div className="space-y-0.5 sm:text-right">
-                      <span className="text-lg font-bold text-slate-400 font-mono block">
+                      <span className="text-lg font-bold text-slate-400  block">
                         $ — NZD
                       </span>
                       <span className="text-[10px] text-slate-400 block font-normal">
@@ -1164,7 +1282,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               </div>
 
               {stockReference && (
-                <div className="pt-2 text-[11px] font-mono text-slate-500 border-t border-slate-200/80 flex items-center justify-between">
+                <div className="pt-2 text-[11px]  text-slate-500 border-t border-slate-200/80 flex items-center justify-between">
                   <span>Reference:</span>
                   <strong className="text-slate-800 font-semibold">{stockReference}</strong>
                 </div>
@@ -1181,7 +1299,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               </div>
               <p className="text-[11px] leading-relaxed text-slate-600">
                 Saving this record associates all uploaded photographs, USS condition reports, and JEVIC certificates directly with stock{" "}
-                <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200 text-[10px]">
+                <span className=" font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200 text-[10px]">
                   #{stockId || "NIS-NEW"}
                 </span>
                 .
