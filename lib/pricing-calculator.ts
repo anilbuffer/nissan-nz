@@ -10,6 +10,8 @@ export interface PricingConfig {
   complianceInspectionNZD: number;
   programmeFeeNZD: number;
   zoneDeliveryMatrix: Record<ZoneId, number>;
+  tariffProfileSubtotal?: number;
+  totalBuyPriceNZD?: number;
 }
 
 export const DEFAULT_PRICING_CONFIG: PricingConfig = {

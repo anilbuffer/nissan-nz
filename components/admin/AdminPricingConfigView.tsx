@@ -38,6 +38,9 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
   const [draftReservationConfig, setDraftReservationConfig] = useState<ReservationConfig>(reservationConfig);
   const [referenceFobJPY, setReferenceFobJPY] = useState<number>(2000000);
   const [selectedZone, setSelectedZone] = useState<ZoneId>("ZONE_5");
+  const [tariffSubtotalInput, setTariffSubtotalInput] = useState<string | null>(null);
+  const [totalBuyPriceInput, setTotalBuyPriceInput] = useState<string | null>(null);
+  const [manualTotalBuyPrice, setManualTotalBuyPrice] = useState<number | null>(null);
   const [showAllZones, setShowAllZones] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -50,6 +53,9 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       ...prev,
       [key]: value,
     }));
+    setTariffSubtotalInput(null);
+    setManualTotalBuyPrice(null);
+    setTotalBuyPriceInput(null);
     setHasChanges(true);
   };
 
@@ -61,13 +67,85 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
         [zoneId]: value,
       },
     }));
+    setTariffSubtotalInput(null);
+    setManualTotalBuyPrice(null);
+    setTotalBuyPriceInput(null);
     setHasChanges(true);
+  };
+
+  const handleSelectZone = (zid: ZoneId) => {
+    setSelectedZone(zid);
+    setTariffSubtotalInput(null);
+    setManualTotalBuyPrice(null);
+    setTotalBuyPriceInput(null);
+  };
+
+  const handleTariffSubtotalChange = (valStr: string) => {
+    setTariffSubtotalInput(valStr);
+    if (valStr.trim() === "") return;
+    const num = Number(valStr);
+    if (isNaN(num)) return;
+    const nonZoneTotal =
+      (Number(draftConfig.oceanFreightNZD) || 0) +
+      (Number(draftConfig.customsProcessingNZD) || 0) +
+      (Number(draftConfig.complianceInspectionNZD) || 0) +
+      (Number(draftConfig.programmeFeeNZD) || 0);
+    const newZoneDelivery = Math.max(0, num - nonZoneTotal);
+    setManualTotalBuyPrice(null);
+    setTotalBuyPriceInput(null);
+    setDraftConfig((prev) => ({
+      ...prev,
+      tariffProfileSubtotal: num,
+      zoneDeliveryMatrix: {
+        ...prev.zoneDeliveryMatrix,
+        [selectedZone]: newZoneDelivery,
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const handleTariffSubtotalBlur = () => {
+    setTariffSubtotalInput(null);
+  };
+
+  const handleTotalBuyPriceChange = (valStr: string) => {
+    setTotalBuyPriceInput(valStr);
+    if (valStr.trim() === "") return;
+    const num = Number(valStr);
+    if (isNaN(num)) return;
+
+    setManualTotalBuyPrice(num);
+
+    const nonDeliveryLandedBase =
+      fobNZD +
+      gstNZD +
+      (Number(draftConfig.oceanFreightNZD) || 0) +
+      (Number(draftConfig.customsProcessingNZD) || 0) +
+      (Number(draftConfig.complianceInspectionNZD) || 0) +
+      (Number(draftConfig.programmeFeeNZD) || 0);
+    const newZoneDelivery = Math.max(0, num - nonDeliveryLandedBase);
+
+    setDraftConfig((prev) => ({
+      ...prev,
+      totalBuyPriceNZD: num,
+      zoneDeliveryMatrix: {
+        ...prev.zoneDeliveryMatrix,
+        [selectedZone]: newZoneDelivery,
+      },
+    }));
+    setHasChanges(true);
+  };
+
+  const handleTotalBuyPriceBlur = () => {
+    setTotalBuyPriceInput(null);
   };
 
   const handleSave = () => {
     audio.playSuccessChime();
     updatePricingConfig(draftConfig);
     updateReservationConfig(draftReservationConfig);
+    setTariffSubtotalInput(null);
+    setTotalBuyPriceInput(null);
     setHasChanges(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -77,6 +155,9 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
     audio.playSubtleClick();
     setDraftConfig(DEFAULT_PRICING_CONFIG);
     resetPricingConfig();
+    setTariffSubtotalInput(null);
+    setManualTotalBuyPrice(null);
+    setTotalBuyPriceInput(null);
     setHasChanges(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -97,13 +178,18 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
   const customsAndGstCombined = customsFee + gstNZD;
 
   // Total Buy Price (Landed, Complied, and Delivered)
-  const totalBuyPrice =
+  const computedTotalBuyPrice =
     fobNZD +
     oceanFreight +
     customsAndGstCombined +
     compliance +
     zoneDelivery +
     programmeFee;
+
+  const totalBuyPrice =
+    manualTotalBuyPrice !== null
+      ? manualTotalBuyPrice
+      : (draftConfig.totalBuyPriceNZD ?? computedTotalBuyPrice);
 
   const zoneKeys: ZoneId[] = ["ZONE_1", "ZONE_2", "ZONE_3", "ZONE_4", "ZONE_5"];
 
@@ -197,6 +283,8 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                     value={referenceFobJPY}
                     onChange={(e) => {
                       setReferenceFobJPY(Math.max(0, Number(e.target.value)));
+                      setManualTotalBuyPrice(null);
+                      setTotalBuyPriceInput(null);
                       setHasChanges(true);
                     }}
                     className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
@@ -293,7 +381,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
                       <button
                         key={zid}
                         type="button"
-                        onClick={() => setSelectedZone(zid)}
+                        onClick={() => handleSelectZone(zid)}
                         className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${isSelected
                           ? "bg-slate-900 text-white shadow-2xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -355,20 +443,65 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
               </td>
             </tr>
 
-            {/* 7. Fixed Cost Profile Pricing (Tariff Subtotal) */}
+            {/* 7. Tariff Profile Subtotal (Fixed Cost Profile Pricing) */}
             <tr className="bg-slate-50/70 border-t border-slate-200">
               <td className="py-3 px-4 sm:px-6">
-                <div className="font-bold text-slate-900 text-xs sm:text-sm">
-                  Fixed Cost Profile Pricing
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-900 text-xs sm:text-sm">
+                    Tariff Profile Subtotal
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded bg-slate-200/90 text-slate-700 text-[10px] font-mono font-bold">
+                    {selectedZone.replace("ZONE_", "Zone ")}
+                  </span>
                 </div>
               </td>
               <td className="py-3 px-4">
-                <span className="inline-block px-2.5 py-1 rounded bg-slate-200/80 text-slate-700 text-xs font-semibold font-mono">
-                  Tariff Profile Subtotal
-                </span>
+                <div className="relative">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-slate-400">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    step="25"
+                    value={tariffSubtotalInput !== null ? tariffSubtotalInput : fixedCostProfileNZD}
+                    onChange={(e) => handleTariffSubtotalChange(e.target.value)}
+                    onBlur={handleTariffSubtotalBlur}
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-mono font-bold text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+                  />
+                </div>
               </td>
-              <td className="py-3 px-4 sm:px-6 text-right font-mono font-bold text-slate-900">
-                +${fixedCostProfileNZD.toLocaleString()} NZD
+              <td className="py-3 px-4 sm:px-6 text-right">
+                <span className="font-mono font-bold text-slate-900">
+                  +${fixedCostProfileNZD.toLocaleString()} NZD
+                </span>
+                <span className="text-[10px] text-slate-400 block">Total landed fixed profile</span>
+              </td>
+            </tr>
+
+            {/* 8. Total Landed Buy Price (Fixed Profile Price) */}
+            <tr className="bg-slate-100/80 border-t-2 border-slate-300">
+              <td className="py-3.5 px-4 sm:px-6">
+                <div className="font-bold text-slate-950 text-xs sm:text-sm">
+                  Total Landed Buy Price
+                </div>
+              </td>
+              <td className="py-3.5 px-4">
+                <div className="relative">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-slate-400">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    step="50"
+                    value={totalBuyPriceInput !== null ? totalBuyPriceInput : totalBuyPrice}
+                    onChange={(e) => handleTotalBuyPriceChange(e.target.value)}
+                    onBlur={handleTotalBuyPriceBlur}
+                    className="w-full pl-6 pr-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono font-bold text-xs sm:text-sm text-slate-950 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+                  />
+                </div>
+              </td>
+              <td className="py-3.5 px-4 sm:px-6 text-right font-mono font-bold text-sm sm:text-base text-slate-950">
+                ${totalBuyPrice.toLocaleString()} NZD
               </td>
             </tr>
 
@@ -408,7 +541,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
               return (
                 <div
                   key={zid}
-                  onClick={() => setSelectedZone(zid)}
+                  onClick={() => handleSelectZone(zid)}
                   className={`p-2.5 rounded-lg border cursor-pointer transition-all ${isSelected
                     ? "bg-slate-50 border-slate-900 ring-1 ring-slate-900"
                     : "bg-white border-slate-200 hover:border-slate-300"
