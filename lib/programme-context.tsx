@@ -159,13 +159,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
               if (live) {
                 return {
                   ...mock,
-                  status: live.status || mock.status,
-                  reservedByDealerId: live.reservedByDealerId || mock.reservedByDealerId,
-                  reservedAt: live.reservedAt || mock.reservedAt,
-                  reservationExpiresAt: live.reservationExpiresAt || mock.reservationExpiresAt,
-                  allocationMode: live.allocationMode !== undefined ? live.allocationMode : mock.allocationMode,
-                  additionalCosts: live.additionalCosts || mock.additionalCosts,
-                  location: live.location || mock.location,
+                  ...live,
                   images: (live.images && live.images.length > 0) ? live.images : mock.images,
                   supportingDocuments: (live.supportingDocuments && live.supportingDocuments.length > 0) ? live.supportingDocuments : mock.supportingDocuments,
                   conditionReportName: live.conditionReportName || mock.conditionReportName,
@@ -174,9 +168,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
               }
               return mock;
             });
-            // Include any dynamically user-added vehicles created in session
+            // Include any dynamically user-added vehicles created in session (prioritized at the top)
             const addedByUser = parsed.vehicles.filter((v: Vehicle) => !MOCK_VEHICLES.some((m) => m.id === v.id));
-            setVehicles([...syncedVehicles, ...addedByUser]);
+            setVehicles([...addedByUser, ...syncedVehicles]);
           } else {
             setVehicles(MOCK_VEHICLES);
           }

@@ -58,7 +58,10 @@ export default function JapanInventoryView({
       const matchStock = v.stockId.toLowerCase().includes(q);
       const matchModel = v.model.toLowerCase().includes(q);
       const matchVin = v.vinChassis.toLowerCase().includes(q);
-      if (!matchStock && !matchModel && !matchVin) return false;
+      const matchGrade = (v.grade || "").toLowerCase().includes(q);
+      const matchColor = (v.color || "").toLowerCase().includes(q);
+      const matchLoc = (v.location || "").toLowerCase().includes(q);
+      if (!matchStock && !matchModel && !matchVin && !matchGrade && !matchColor && !matchLoc) return false;
     }
 
     if (statusFilter !== "ALL" && v.status !== statusFilter) {
@@ -69,6 +72,7 @@ export default function JapanInventoryView({
   });
 
   const availableCount = vehicles.filter((v) => v.status === "AVAILABLE").length;
+  const draftCount = vehicles.filter((v) => v.status === "DRAFT").length;
   const reservedCount = vehicles.filter((v) => v.status === "RESERVED").length;
   const withdrawnCount = vehicles.filter((v) => v.status === "WITHDRAWN").length;
 
@@ -186,6 +190,7 @@ export default function JapanInventoryView({
           {[
             { id: "ALL", label: "All Units", count: vehicles.length },
             { id: "AVAILABLE", label: "Available", count: availableCount },
+            { id: "DRAFT", label: "Draft Intake", count: draftCount },
             { id: "RESERVED", label: "Reserved", count: reservedCount },
             { id: "WITHDRAWN", label: "Withdrawn", count: withdrawnCount },
           ].map((st) => (
@@ -215,13 +220,14 @@ export default function JapanInventoryView({
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="overflow-x-auto touch-scroll navy-scrollbar">
-          <table className="w-full text-left text-xs min-w-[640px]">
+          <table className="w-full text-left text-xs min-w-[720px]">
             {/* Clean Light Executive Table Header */}
             <thead className="bg-slate-50/90 border-b border-slate-200 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3.5 px-6">Vehicle / Model</th>
                 <th className="py-3.5 px-4">Stock ID &amp; VIN</th>
-                <th className="py-3.5 px-4">FOB Price (JPY)</th>
+                <th className="py-3.5 px-4">FOB Price</th>
+                <th className="py-3.5 px-4">Staging Yard</th>
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-6 text-right">Action</th>
               </tr>
@@ -229,8 +235,11 @@ export default function JapanInventoryView({
             <tbody className="divide-y divide-slate-100">
               {filteredVehicles.map((vehicle) => {
                 const isAvailable = vehicle.status === "AVAILABLE";
+                const isDraft = vehicle.status === "DRAFT";
                 const isReserved = vehicle.status === "RESERVED";
+                const isAllocated = vehicle.status === "ALLOCATED";
                 const isWithdrawn = vehicle.status === "WITHDRAWN";
+                const isSold = vehicle.status === "SOLD";
 
                 return (
                   <tr
@@ -245,16 +254,16 @@ export default function JapanInventoryView({
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <img
-                          src={vehicle.images?.[0] || "/images/cars/kicks.png"}
+                          src={vehicle.images?.[0] || "/images/cars/note.png"}
                           alt={vehicle.model || "Vehicle"}
                           className="w-14 h-10 object-contain rounded-xl border border-slate-200 bg-slate-50 p-0.5 shrink-0 select-none group-hover:scale-105 transition-transform"
                         />
                         <div>
                           <div className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors">
-                            {vehicle.year} {vehicle.model}
+                            {vehicle.year} {vehicle.make || "Nissan"} {vehicle.model}
                           </div>
                           <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                            {vehicle.grade || "Standard Edition"}
+                            {vehicle.grade || "Standard Edition"} · {vehicle.fuelType || "e-Power"} · {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
                           </div>
                         </div>
                       </div>
@@ -267,8 +276,23 @@ export default function JapanInventoryView({
                     </td>
 
                     {/* FOB Price JPY */}
-                    <td className="py-4 px-4 font-mono font-bold text-slate-900 text-sm">
-                      ¥{vehicle.fobPriceJPY.toLocaleString()}
+                    <td className="py-4 px-4 font-mono">
+                      <div className="font-bold text-slate-900 text-sm">
+                        ¥{vehicle.fobPriceJPY.toLocaleString()}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-sans">
+                        {vehicle.purchasePriceBasis || "FOB"} · {vehicle.currency || "JPY"}
+                      </div>
+                    </td>
+
+                    {/* Staging Yard */}
+                    <td className="py-4 px-4">
+                      <div className="font-medium text-slate-800 truncate max-w-[150px]">
+                        {vehicle.location || "Yokohama Export Terminal"}
+                      </div>
+                      <div className="text-[10px] font-mono text-slate-400">
+                        {vehicle.auctionGrade ? `★ Grade ${vehicle.auctionGrade}` : "Certified Pass"}
+                      </div>
                     </td>
 
                     {/* Status Pill Badge */}
@@ -277,10 +301,22 @@ export default function JapanInventoryView({
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
                           AVAILABLE
                         </span>
+                      ) : isDraft ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-slate-100 text-slate-700 border border-slate-300">
+                          DRAFT
+                        </span>
                       ) : isReserved ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-amber-50 text-amber-800 border border-amber-300">
                           <Clock className="w-2.5 h-2.5 text-amber-600 animate-pulse" />
                           <span>RESERVED</span>
+                        </span>
+                      ) : isAllocated ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-sky-50 text-sky-700 border border-sky-200">
+                          ALLOCATED
+                        </span>
+                      ) : isSold ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-purple-50 text-purple-700 border border-purple-200">
+                          SOLD
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-slate-100 text-slate-600 border border-slate-200">
@@ -296,6 +332,14 @@ export default function JapanInventoryView({
                         {isReserved ? (
                           <span className="text-[11px] font-mono text-amber-700 bg-amber-50/80 px-2.5 py-1 rounded-lg border border-amber-200/60 font-semibold">
                             Held by Dealer
+                          </span>
+                        ) : isAllocated ? (
+                          <span className="text-[11px] font-mono text-sky-700 bg-sky-50/80 px-2.5 py-1 rounded-lg border border-sky-200/60 font-semibold">
+                            Allocated
+                          </span>
+                        ) : isSold ? (
+                          <span className="text-[11px] font-mono text-purple-700 bg-purple-50/80 px-2.5 py-1 rounded-lg border border-purple-200/60 font-semibold">
+                            Delivered
                           </span>
                         ) : (
                           <button

@@ -64,9 +64,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
   const [odometerUnit, setOdometerUnit] = useState<"km" | "mi">("km");
   const [transmission, setTransmission] = useState("");
   const [color, setColor] = useState("");
-  const [fuelType, setFuelType] = useState("");
-  const [driveType, setDriveType] = useState("");
-  const [engineCc, setEngineCc] = useState<number | "">("");
+  const [fuelType, setFuelType] = useState("e-Power");
+  const [driveType, setDriveType] = useState("2WD");
+  const [engineCc, setEngineCc] = useState<number | "">(1200);
+  const [location, setLocation] = useState("Yokohama Export Terminal");
 
   // ───────────────────────────────────────────────────────────
   // B. Vehicle Condition State
@@ -248,7 +249,21 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
   // Computed live catalogue preview variables
   const hasTitleDetails = Boolean(model.trim() || year);
-  const specTokens = [grade.trim(), transmission.trim(), color.trim()].filter(Boolean);
+  const specTokens = [grade.trim(), transmission.trim(), driveType, color.trim(), engineCc ? `${engineCc}cc` : ""].filter(Boolean);
+
+  const getModelDefaultImages = (modelName: string): string[] => {
+    const m = modelName.toLowerCase();
+    if (m.includes("note")) return ["/images/cars/note.png", "/images/cars/angles/note-front.jpg", "/images/cars/angles/note-side.jpg", "/images/cars/angles/note-rear-quarter.jpg", "/images/cars/angles/note-interior.jpg"];
+    if (m.includes("x-trail") || m.includes("xtrail")) return ["/images/cars/xtrail.png"];
+    if (m.includes("leaf")) return ["/images/cars/leaf.png"];
+    if (m.includes("serena")) return ["/images/cars/serena.png"];
+    if (m.includes("ariya")) return ["/images/cars/ariya.png"];
+    if (m.includes("kicks")) return ["/images/cars/kicks.png"];
+    if (m.includes("dayz")) return ["/images/cars/dayz.png"];
+    if (m.includes("elgrand")) return ["/images/cars/elgrand.png"];
+    if (m.includes("navara")) return ["/images/cars/navara.png"];
+    return ["/images/cars/note.png"];
+  };
 
   // ───────────────────────────────────────────────────────────
   // Form Submission
@@ -270,8 +285,11 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
     const finalFob = fobPriceJPY ? Number(fobPriceJPY) : 0;
     const finalModel = model.trim() || "Nissan Note e-Power";
     const finalGrade = grade.trim() || "Standard Grade";
-    const finalImages = images.length > 0 ? images : [];
+    const finalImages = images.length > 0 ? images : getModelDefaultImages(finalModel);
     const finalRef = stockReference.trim() || `USS-JAA-${finalStockId.slice(-4)}`;
+    const parsedDefects = knownDefects
+      ? knownDefects.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean)
+      : ["Clean pre-export inspection pass"];
 
     addVehicle({
       stockId: finalStockId,
@@ -292,12 +310,12 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
       exteriorGrade: exteriorGrade || "A",
       overallCondition: overallCondition,
       conditionSummary: `${overallCondition}. ${knownDefects || "Clean pre-export pass verified."}`,
-      location: "Yokohama Export Terminal",
+      location: location.trim() || "Yokohama Export Terminal",
       images: finalImages,
       conditionReportUrl: "https://example.com/reports/yokohama_pass.pdf",
       conditionReportName: conditionReportName,
       supportingDocuments: uploadedDocs,
-      knownDefects: knownDefects ? [knownDefects] : ["Clean pre-export inspection pass"],
+      knownDefects: parsedDefects.length > 0 ? parsedDefects : ["Clean pre-export inspection pass"],
       fobPriceJPY: finalFob,
       currency: currency,
       purchasePriceBasis: purchasePriceBasis,
@@ -586,6 +604,49 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal placeholder-slate-400 transition-colors"
                   />
                 </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-800 block">Drive System</label>
+                  <select
+                    value={driveType}
+                    onChange={(e) => setDriveType(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal cursor-pointer transition-colors"
+                  >
+                    <option value="2WD">2WD (Front/Rear Wheel)</option>
+                    <option value="4WD">4WD (Intelligent All-Wheel)</option>
+                    <option value="e-4ORCE AWD">e-4ORCE AWD (Dual Motor)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-800 block">Engine Capacity (cc)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={engineCc}
+                    onChange={(e) => setEngineCc(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
+                    placeholder="e.g. 1200"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-mono transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-3">
+                  <label className="text-xs font-bold text-slate-800 block">Japanese Yard / Staging Terminal</label>
+                  <select
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] font-normal cursor-pointer transition-colors"
+                  >
+                    <option value="Yokohama Export Terminal">Yokohama Export Terminal (Bay 14 Marshalling Base)</option>
+                    <option value="Yokohama Yard (Bay 1)">Yokohama Yard (Bay 1)</option>
+                    <option value="Yokohama Yard (Bay 2)">Yokohama Yard (Bay 2)</option>
+                    <option value="Yokohama Yard (Bay 3)">Yokohama Yard (Bay 3)</option>
+                    <option value="Kobe Export Terminal">Kobe Export Terminal</option>
+                    <option value="Nagoya Port Terminal">Nagoya Port Terminal</option>
+                    <option value="Osaka Marshalling Terminal">Osaka Marshalling Terminal</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -688,9 +749,9 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 <span className="text-[11px]  text-slate-500 font-medium">Section 3 of 5</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-800 block">FOB Acquisition Price (JPY) *</label>
+                  <label className="text-xs font-bold text-slate-800 block">Acquisition Price (JPY) *</label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs  font-bold text-slate-500">
                       ¥
@@ -706,7 +767,21 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       className="w-full pl-8 pr-3.5 py-2 text-xs  font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                   </div>
-                  <span className="text-[11px] text-slate-500 block ">FOB acquisition baseline (Japanese Yen)</span>
+                  <span className="text-[11px] text-slate-500 block ">Japanese purchase price baseline</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-800 block">Pricing Terms Basis</label>
+                  <select
+                    value={purchasePriceBasis}
+                    onChange={(e) => setPurchasePriceBasis(e.target.value as "FOB" | "CIF" | "EXW")}
+                    className="w-full px-3.5 py-2 text-xs font-semibold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                  >
+                    <option value="FOB">FOB (Free On Board)</option>
+                    <option value="CIF">CIF (Cost, Ins., Freight)</option>
+                    <option value="EXW">EXW (Ex-Works / Yard)</option>
+                  </select>
+                  <span className="text-[11px] text-slate-500 block">Incoterm contract basis</span>
                 </div>
 
                 <div className="space-y-1.5">
@@ -765,11 +840,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onDragLeave={handleImageDragLeave}
                     onDrop={handleImageDrop}
                     onClick={() => imageInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${
-                      isDraggingImage
+                    className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${isDraggingImage
                         ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
                         : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     <input
                       ref={imageInputRef}
@@ -800,9 +874,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                         {images.map((imgUrl, idx) => (
                           <div
                             key={idx}
-                            className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${
-                              idx === 0 ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200"
-                            }`}
+                            className={`relative aspect-[4/3] rounded-xl border overflow-hidden p-1 bg-slate-50 group ${idx === 0 ? "border-slate-900 ring-2 ring-slate-900/10" : "border-slate-200"
+                              }`}
                           >
                             <img
                               src={imgUrl}
@@ -854,11 +927,10 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onDragLeave={handleDocDragLeave}
                     onDrop={handleDocDrop}
                     onClick={() => docInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${
-                      isDraggingDoc
+                    className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${isDraggingDoc
                         ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
                         : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     <input
                       ref={docInputRef}

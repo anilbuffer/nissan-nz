@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
+import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import {
   ArrowLeft,
@@ -89,8 +90,13 @@ export default function JapanInventoryDetailsView({
   const [editTransmission, setEditTransmission] = useState(vehicle?.transmission || "Automatic");
   const [editFuel, setEditFuel] = useState(vehicle?.fuelType || "e-Power");
   const [editDrive, setEditDrive] = useState(vehicle?.driveType || "2WD");
+  const [editEngineCc, setEditEngineCc] = useState<number | "">(vehicle?.engineCc || 1200);
+  const [editColor, setEditColor] = useState(vehicle?.color || "Pearl White");
+  const [editAuctionGrade, setEditAuctionGrade] = useState(vehicle?.auctionGrade || "4.5");
+  const [editInteriorGrade, setEditInteriorGrade] = useState(vehicle?.interiorGrade || "A");
+  const [editExteriorGrade, setEditExteriorGrade] = useState(vehicle?.exteriorGrade || "A");
   const [editFobJPY, setEditFobJPY] = useState(vehicle?.fobPriceJPY || 2000000);
-  const [editLocation, setEditLocation] = useState(vehicle?.location || "Yokohama Yard (Bay 2)");
+  const [editLocation, setEditLocation] = useState(vehicle?.location || "Yokohama Export Terminal");
   const [editCondition, setEditCondition] = useState(vehicle?.conditionSummary || "");
   const [editDefects, setEditDefects] = useState(vehicle?.knownDefects?.join("\n") || "");
 
@@ -169,6 +175,11 @@ export default function JapanInventoryDetailsView({
       transmission: editTransmission as Vehicle["transmission"],
       fuelType: editFuel as Vehicle["fuelType"],
       driveType: editDrive as Vehicle["driveType"],
+      engineCc: editEngineCc ? Number(editEngineCc) : 1200,
+      color: editColor,
+      auctionGrade: editAuctionGrade,
+      interiorGrade: editInteriorGrade,
+      exteriorGrade: editExteriorGrade,
       fobPriceJPY: editFobJPY,
       location: editLocation,
       conditionSummary: editCondition,
@@ -187,7 +198,7 @@ export default function JapanInventoryDetailsView({
     setTimeout(() => setActionNotice(null), 3500);
   };
 
-  const estimatedNZD = Math.round((vehicle.fobPriceJPY || 0) * 0.01085);
+  const estimatedNZD = Math.round((vehicle.fobPriceJPY || 0) * JPY_TO_NZD_EXCHANGE_RATE);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-7xl mx-auto">
@@ -309,9 +320,14 @@ export default function JapanInventoryDetailsView({
                 setEditOdo(vehicle.odometerKm);
                 setEditTransmission(vehicle.transmission);
                 setEditFuel(vehicle.fuelType);
-                setEditDrive(vehicle.driveType);
+                setEditDrive(vehicle.driveType || "2WD");
+                setEditEngineCc(vehicle.engineCc || 1200);
+                setEditColor(vehicle.color || "Pearl White");
+                setEditAuctionGrade(vehicle.auctionGrade || "4.5");
+                setEditInteriorGrade(vehicle.interiorGrade || "A");
+                setEditExteriorGrade(vehicle.exteriorGrade || "A");
                 setEditFobJPY(vehicle.fobPriceJPY);
-                setEditLocation(vehicle.location);
+                setEditLocation(vehicle.location || "Yokohama Export Terminal");
                 setEditCondition(vehicle.conditionSummary || "");
                 setEditDefects(vehicle.knownDefects?.join("\n") || "");
                 setIsAmendmentOpen(true);
@@ -423,29 +439,29 @@ export default function JapanInventoryDetailsView({
           </span>
         </div>
 
-        {/* 2. AUCTION GRADE */}
+        {/* 2. AUCTION & INSPECTION GRADE */}
         <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            AUCTION GRADE
+            AUCTION &amp; INSPECTION GRADE
           </span>
           <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-            ★ {vehicle.auctionGrade || "4.5"} / {vehicle.interiorGrade || "A"}
+            ★ {vehicle.auctionGrade || "4.5"}
           </div>
-          <span className="text-[11px] text-slate-500 block truncate">
-            USS / JAA Inspection
+          <span className="text-[11px] text-slate-600 font-medium block truncate">
+            Int: Grade {vehicle.interiorGrade || "A"} · Ext: Grade {vehicle.exteriorGrade || "A"}
           </span>
         </div>
 
         {/* 3. FOB BASELINE (JPY) */}
         <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            FOB BASELINE (JPY)
+            ACQUISITION BASELINE ({vehicle.currency || "JPY"})
           </span>
           <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
             ¥{vehicle.fobPriceJPY.toLocaleString()}
           </div>
           <span className="text-[11px] text-slate-500 block truncate">
-            Japan Acquisition Cost
+            {vehicle.purchasePriceBasis || "FOB"} Japan Cost
           </span>
         </div>
 
@@ -455,9 +471,9 @@ export default function JapanInventoryDetailsView({
             YARD STAGING
           </span>
           <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
-            {vehicle.location || "Yokohama Yard"}
+            {vehicle.location || "Yokohama Export Terminal"}
           </div>
-          <span className="text-[11px] text-slate-500 block truncate">
+          <span className="text-[11px] text-emerald-600 font-semibold block truncate">
             Export Bay Ready
           </span>
         </div>
@@ -484,13 +500,13 @@ export default function JapanInventoryDetailsView({
                 {/* Auction Grade Pill */}
                 <div className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-white/95 backdrop-blur-sm text-xs font-mono font-bold text-slate-800 border border-slate-200 shadow-soft flex items-center gap-1.5">
                   <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                  <span>Auction Grade {vehicle.auctionGrade} / {vehicle.interiorGrade || "A"}</span>
+                  <span>Auction Grade {vehicle.auctionGrade || "4.5"} · Int {vehicle.interiorGrade || "A"} · Ext {vehicle.exteriorGrade || "A"}</span>
                 </div>
 
                 {/* Yard Location Pill */}
                 <div className="absolute bottom-4 right-4 z-20 px-3 py-1 rounded-xl bg-white/95 backdrop-blur-sm text-slate-800 border border-slate-200/90 font-mono text-xs flex items-center gap-1.5 shadow-soft">
                   <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
-                  <span>{vehicle.location || "Yokohama Yard"}</span>
+                  <span>{vehicle.location || "Yokohama Export Terminal"}</span>
                 </div>
               </div>
 
@@ -601,6 +617,11 @@ export default function JapanInventoryDetailsView({
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Stock Serial ID:</span>
+                  <span className="font-mono font-bold text-slate-800">#{vehicle.stockId}</span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
                   <span className="text-slate-500">Make &amp; Model:</span>
                   <span className="font-bold text-slate-800">{vehicle.make || "Nissan"} {vehicle.model}</span>
                 </div>
@@ -623,9 +644,23 @@ export default function JapanInventoryDetailsView({
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500">Transmission / Drive:</span>
+                  <span className="text-slate-500">Engine Displacement:</span>
+                  <span className="font-mono font-bold text-slate-900">
+                    {vehicle.engineCc ? `${vehicle.engineCc.toLocaleString()} cc` : "1,200 cc"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Transmission:</span>
                   <span className="font-medium text-slate-800">
-                    {vehicle.transmission} · {vehicle.driveType || "2WD"}
+                    {vehicle.transmission}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Drive System:</span>
+                  <span className="font-medium text-slate-800">
+                    {vehicle.driveType || "2WD"}
                   </span>
                 </div>
 
@@ -642,9 +677,30 @@ export default function JapanInventoryDetailsView({
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Auction / Inspection Grade:</span>
+                  <span className="font-bold text-slate-900">
+                    ★ {vehicle.auctionGrade || "4.5"} (Int: {vehicle.interiorGrade || "A"} · Ext: {vehicle.exteriorGrade || "A"})
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Staging Terminal:</span>
+                  <span className="font-medium text-slate-800">
+                    {vehicle.location || "Yokohama Export Terminal"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
                   <span className="text-slate-500">Relevant Stock Ref:</span>
                   <span className="font-mono text-slate-700 font-semibold">
                     {vehicle.stockReference || `USS-JAA-${vehicle.stockId.slice(-4)}`}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-slate-500">Commercial Terms:</span>
+                  <span className="font-mono text-slate-800 font-semibold">
+                    {vehicle.purchasePriceBasis || "FOB"} · {vehicle.currency || "JPY"}
                   </span>
                 </div>
 
@@ -667,7 +723,7 @@ export default function JapanInventoryDetailsView({
             {/* Pinned Yard Clearance Footer */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span className="font-sans">Staging Bay:</span>
-              <strong className="text-slate-900 font-mono">{vehicle.location || "Yokohama Port"}</strong>
+              <strong className="text-slate-900 font-mono">{vehicle.location || "Yokohama Export Terminal"}</strong>
             </div>
           </div>
         </div>
@@ -688,7 +744,7 @@ export default function JapanInventoryDetailsView({
               </h3>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-bold">
-                  ★ Grade {vehicle.auctionGrade} / {vehicle.interiorGrade || "A"}
+                  ★ Grade {vehicle.auctionGrade || "4.5"} · Int {vehicle.interiorGrade || "A"} · Ext {vehicle.exteriorGrade || "A"}
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
                   MR2A Pre-Verified
@@ -954,6 +1010,83 @@ export default function JapanInventoryDetailsView({
                     <option value="Hybrid">Hybrid</option>
                     <option value="e-Power">e-Power</option>
                     <option value="100% Electric">100% Electric</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Drive System *</label>
+                  <select
+                    value={editDrive}
+                    onChange={(e) => setEditDrive(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium cursor-pointer"
+                  >
+                    <option value="2WD">2WD</option>
+                    <option value="4WD">4WD</option>
+                    <option value="e-4ORCE AWD">e-4ORCE AWD</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Engine Displacement (cc)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={editEngineCc}
+                    onChange={(e) => setEditEngineCc(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-mono font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Exterior Colour</label>
+                  <input
+                    type="text"
+                    value={editColor}
+                    onChange={(e) => setEditColor(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Auction Grade</label>
+                  <select
+                    value={editAuctionGrade}
+                    onChange={(e) => setEditAuctionGrade(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium cursor-pointer"
+                  >
+                    <option value="5.0">★ 5.0 (Near New)</option>
+                    <option value="4.5">★ 4.5 (Excellent)</option>
+                    <option value="4.0">★ 4.0 (Good)</option>
+                    <option value="3.5">★ 3.5 (Fair)</option>
+                    <option value="RA">★ RA (Repaired Minor)</option>
+                    <option value="R">★ R (Repaired)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Interior Grade</label>
+                  <select
+                    value={editInteriorGrade}
+                    onChange={(e) => setEditInteriorGrade(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium cursor-pointer"
+                  >
+                    <option value="A">Grade A (Immaculate)</option>
+                    <option value="B">Grade B (Normal Wear)</option>
+                    <option value="C">Grade C (Wear / Marks)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Exterior Grade</label>
+                  <select
+                    value={editExteriorGrade}
+                    onChange={(e) => setEditExteriorGrade(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-900 font-medium cursor-pointer"
+                  >
+                    <option value="A">Grade A (Factory Clean)</option>
+                    <option value="B">Grade B (Minor Blemishes)</option>
+                    <option value="C">Grade C (Scratches/Dents)</option>
                   </select>
                 </div>
               </div>

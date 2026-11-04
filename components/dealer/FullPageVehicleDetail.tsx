@@ -85,15 +85,15 @@ export default function FullPageVehicleDetail({
   // Find vehicle from live programme context
   const rawVehicle =
     vehicleData ||
-    vehicles.find((v) => v.id === vehicleId) ||
+    vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId) ||
     vehicles[0] ||
     MOCK_VEHICLES[0];
 
-  // Guarantee transparent studio PNG cutouts from MOCK_VEHICLES always take precedence
+  // Guarantee studio photos from user uploads or fallback mock cutouts
   const mockMatch = MOCK_VEHICLES.find((m) => m.id === rawVehicle.id);
   const vehicle = {
     ...rawVehicle,
-    images: mockMatch?.images || rawVehicle.images,
+    images: (rawVehicle.images && rawVehicle.images.length > 0) ? rawVehicle.images : (mockMatch?.images || ["/images/cars/note.png"]),
   };
 
   const images =
