@@ -690,7 +690,7 @@ export default function DealerRegistrationWizard() {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-black border border-slate-200 text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0 self-start sm:self-auto"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Demo Autofill</span>
+                <span>Pre-fill Application Data</span>
               </button>
             )}
           </div>

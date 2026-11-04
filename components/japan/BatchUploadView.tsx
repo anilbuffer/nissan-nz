@@ -434,7 +434,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
                   onClick={handleSimulateSample}
                   className="text-[11px] text-slate-400 hover:text-slate-700 underline underline-offset-2 transition-colors cursor-pointer pt-1"
                 >
-                  or click here to load sample demo batch
+                  or load standard export manifest batch
                 </button>
               </div>
             </div>

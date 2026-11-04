@@ -486,22 +486,20 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Odometer Reading</label>
-                  <div className="flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">Odometer Reading (km) *</label>
+                  <div className="relative">
                     <input
                       type="number"
+                      required
+                      min={0}
                       value={odometerKm}
                       onChange={(e) => setOdometerKm(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                      className="flex-1 px-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                      placeholder="e.g. 28400"
+                      className="w-full pl-3.5 pr-20 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
-                    <select
-                      value={odometerUnit}
-                      onChange={(e) => setOdometerUnit(e.target.value as "km" | "mi")}
-                      className="px-2.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 cursor-pointer"
-                    >
-                      <option value="km">km</option>
-                      <option value="mi">mi</option>
-                    </select>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-mono font-semibold text-slate-400">
+                      km (JEVIC)
+                    </span>
                   </div>
                 </div>
 
@@ -692,37 +690,27 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block">Vehicle Acquisition Price *</label>
+                  <label className="text-xs font-bold text-slate-700 block">FOB Acquisition Price (JPY) *</label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
-                      {currency === "JPY" ? "¥" : "$"}
+                      ¥
                     </span>
                     <input
                       type="number"
                       required
+                      min={0}
+                      step={10000}
                       value={fobPriceJPY}
                       onChange={(e) => setFobPriceJPY(e.target.value === "" ? "" : parseInt(e.target.value) || 0)}
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
+                      placeholder="e.g. 1850000"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
                     />
                   </div>
-                  <span className="text-[10px] text-slate-400 block">Direct Japanese auction acquisition price</span>
+                  <span className="text-[10px] text-slate-400 block font-mono">FOB acquisition baseline (Japanese Yen)</span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 block">Currency</label>
-                  <input
-                    type="text"
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value.toUpperCase() as "JPY" | "NZD" | "USD")}
-                    className="w-full px-3.5 py-2 text-xs font-mono font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] placeholder-slate-400 transition-colors"
-                  />
-                  <span className="text-[10px] text-slate-400 block font-mono">Default: JPY</span>
-                </div>
-
-                {/* Purchase Price Basis field: Hidden for now */}
-
-                <div className="space-y-1.5 sm:col-span-3">
-                  <label className="text-xs font-bold text-slate-700 block">Equivalent Amount (NZD)</label>
+                  <label className="text-xs font-bold text-slate-700 block">Indicative Base (NZD)</label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
                       $
@@ -731,11 +719,11 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                       type="text"
                       readOnly
                       value={fobPriceJPY ? `${nzdEquivalent.toLocaleString()} NZD` : "— NZD"}
-                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-normal bg-slate-100 rounded-xl border border-slate-200 text-slate-700 focus:outline-none cursor-default"
+                      className="w-full pl-8 pr-3.5 py-2 text-xs font-mono font-bold bg-slate-100 rounded-xl border border-slate-200 text-slate-700 focus:outline-none cursor-default"
                     />
                   </div>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    Real-time indicative conversion (FX: 0.01085)
+                    Official rate: 0.01085
                   </span>
                 </div>
               </div>
@@ -849,20 +837,16 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                {/* Listing Status Dropdown with All MVP Lifecycles */}
+                {/* Listing Status Dropdown: Initial entry can be Draft or Available */}
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-bold text-slate-700 block">Listing Status</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as VehicleStatus)}
-                    className="w-full px-3.5 py-2 text-xs font-normal bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
+                    className="w-full px-3.5 py-2 text-xs font-semibold bg-slate-50 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]/10 focus:border-[#0A0A0A] cursor-pointer transition-colors"
                   >
+                    <option value="AVAILABLE">Available — Published to Programme Catalogue</option>
                     <option value="DRAFT">Draft — Inbound Japanese Yard Preparation</option>
-                    <option value="AVAILABLE">Available — Published to Central Dealer Catalogue</option>
-                    <option value="RESERVED">Reserved — Dealer 24-Hour Exclusivity Hold</option>
-                    <option value="ALLOCATED">Allocated — Confirmed Wholesale Order</option>
-                    <option value="WITHDRAWN">Withdrawn — Yard Rectification / Hold</option>
-                    <option value="SOLD">Sold / Completed — Dealership Handover Done</option>
                   </select>
                 </div>
 

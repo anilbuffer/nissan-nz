@@ -9,7 +9,6 @@ import { MOCK_VEHICLES } from "@/lib/mock-data";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
-import DirectAllocationModal from "./DirectAllocationModal";
 import CatalogueDetailsModal from "@/components/admin/CatalogueDetailsModal";
 import {
   Search,
@@ -42,13 +41,6 @@ interface DealerStockCatalogProps {
   externalSearchQuery?: string;
 }
 
-function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
-  if (vehicle.allocationMode) return vehicle.allocationMode;
-  const num = parseInt(vehicle.stockId.replace(/\D/g, "") || "0", 10);
-  return num % 2 === 0 ? "RESERVE" : "ALLOCATION";
-}
-
-
 export default function DealerStockCatalog({
   onSelectVehicle,
   externalSearchQuery,
@@ -75,7 +67,7 @@ export default function DealerStockCatalog({
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "AVAILABLE" | "RESERVED" | "ALLOCATED" | "BUYED">("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "AVAILABLE" | "RESERVED" | "ALLOCATED" | "SOLD">("ALL");
   const [dossierVehicle, setDossierVehicle] = useState<Vehicle | null>(null);
 
   // Layout View Mode (Grid vs List) with Smooth Transition
@@ -92,9 +84,6 @@ export default function DealerStockCatalog({
 
   // Reservation Modal (for quick reserve from card)
   const [reserveVehicle, setReserveVehicle] = useState<Vehicle | null>(null);
-
-  // Allocation Modal (for direct allocation from card)
-  const [allocateVehicle, setAllocateVehicle] = useState<Vehicle | null>(null);
 
   // Reset all filters
   const handleResetFilters = () => {
@@ -155,7 +144,7 @@ export default function DealerStockCatalog({
         if (statusFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
         if (statusFilter === "RESERVED" && v.status !== "RESERVED") return false;
         if (statusFilter === "ALLOCATED" && v.status !== "ALLOCATED") return false;
-        if (statusFilter === "BUYED" && v.status !== "BUYED") return false;
+        if (statusFilter === "SOLD" && v.status !== "SOLD" && v.status !== "BUYED") return false;
 
         if (effectiveSearch) {
           const q = effectiveSearch.toLowerCase();
@@ -284,18 +273,18 @@ export default function DealerStockCatalog({
               type="button"
               onClick={() => {
                 audio.playSubtleClick();
-                setStatusFilter("BUYED");
+                setStatusFilter("SOLD");
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "BUYED"
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "SOLD"
                 ? "bg-[#0A0A0A] text-white shadow-xs"
                 : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
                 }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
-              <span>Buyed</span>
-              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "BUYED" ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"
+              <span>Sold</span>
+              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "SOLD" ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"
                 }`}>
-                {vehicles.filter((v) => v.status === "BUYED").length}
+                {vehicles.filter((v) => v.status === "SOLD" || v.status === "BUYED").length}
               </span>
             </button>
           </div>
@@ -487,10 +476,10 @@ export default function DealerStockCatalog({
 
                     {!isAvailable && (
                       <div className="absolute bottom-1 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md shadow-lg text-[11px] font-mono font-bold animate-in fade-in">
-                        {vehicle.status === "BUYED" ? (
+                        {(vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
                           <>
                             <CheckCircle2 className="w-3 h-3 text-purple-400 shrink-0" />
-                            <span className="text-purple-300">Buyed</span>
+                            <span className="text-purple-300">Sold</span>
                           </>
                         ) : vehicle.status === "ALLOCATED" ? (
                           <>
@@ -552,10 +541,10 @@ export default function DealerStockCatalog({
                         <Lock className="w-3.5 h-3.5 text-amber-400" />
                         <span>Reserve</span>
                       </button>
-                    ) : vehicle.status === "BUYED" ? (
+                    ) : (vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
                       <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
                         <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
-                        <span>Buyed</span>
+                        <span>Sold</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
                       <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono flex items-center gap-1.5 shadow-2xs">
@@ -581,8 +570,6 @@ export default function DealerStockCatalog({
           {filteredVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
-            const retailEstimate = Math.round(price.totalBuyPriceNZD * 1.28);
-            const grossMargin = retailEstimate - price.totalBuyPriceNZD;
 
             return (
               <div
@@ -601,10 +588,10 @@ export default function DealerStockCatalog({
 
                   {!isAvailable && (
                     <div className="absolute bottom-1 z-20 px-2.5 py-0.5 rounded-full bg-slate-900/90 shadow-md font-bold text-[9px] font-mono flex items-center gap-1">
-                      {vehicle.status === "BUYED" ? (
+                      {(vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
                         <>
                           <CheckCircle2 className="w-2.5 h-2.5 text-purple-400" />
-                          <span className="text-purple-300">Buyed</span>
+                          <span className="text-purple-300">Sold</span>
                         </>
                       ) : vehicle.status === "ALLOCATED" ? (
                         <>
@@ -657,11 +644,11 @@ export default function DealerStockCatalog({
                       </span>
                     </div>
                     <div>
-                      <span className="text-sm font-mono font-bold text-emerald-600 block leading-tight">
-                        +${grossMargin.toLocaleString()}
+                      <span className="text-sm font-mono font-bold text-slate-800 block leading-tight truncate">
+                        {vehicle.transmission || "Automatic"}
                       </span>
                       <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
-                        Est. Margin
+                        Transmission
                       </span>
                     </div>
                   </div>
@@ -721,10 +708,10 @@ export default function DealerStockCatalog({
                         <Lock className="w-3.5 h-3.5 text-amber-400" />
                         <span>Reserve</span>
                       </button>
-                    ) : vehicle.status === "BUYED" ? (
+                    ) : (vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
                       <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
-                        <span>Buyed</span>
+                        <span>Sold</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
                       <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
@@ -760,13 +747,6 @@ export default function DealerStockCatalog({
         vehicle={reserveVehicle}
         onClose={() => setReserveVehicle(null)}
         onSuccess={handleReservationSuccess}
-      />
-
-      {/* Direct Allocation Modal */}
-      <DirectAllocationModal
-        vehicle={allocateVehicle}
-        onClose={() => setAllocateVehicle(null)}
-        onSuccess={() => setAllocateVehicle(null)}
       />
     </div>
   );

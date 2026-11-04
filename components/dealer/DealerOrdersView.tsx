@@ -103,7 +103,7 @@ function ZeroEmissionBadge() {
 }
 
 export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
-  const { currentDealer } = useAuth();
+  const { currentDealer, currentUser } = useAuth();
   const { orders, reservations, releaseHold, cancelReservation, respondToAdditionalCost, confirmAllocation, reservationConfig, pricingConfig } = useProgramme();
 
   const [activeTab, setActiveTab] = useState<"ORDERS" | "HOLDS">(mode === "RESERVE" ? "HOLDS" : "ORDERS");
@@ -125,23 +125,25 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   const [mobileSubTab, setMobileSubTab] = useState<"LIST" | "DETAIL">("LIST");
   const [viewingOrderId, setViewingOrderId] = useState<string | null>(null);
 
-  // Filter orders for this dealer
+  const targetDealerId = currentDealer?.id || currentUser?.dealerId;
+
+  // Filter orders strictly for this dealer (strict tenant boundary)
   const dealerOrders = orders.filter(
-    (o) => !currentDealer?.id || o.dealerId === currentDealer.id
+    (o) => (targetDealerId ? o.dealerId === targetDealerId : false)
   );
 
-  // Filter 24h holds for this dealer
+  // Filter 24h holds strictly for this dealer
   const dealerHolds = reservations.filter(
     (r) =>
       r.status === "ACTIVE_HOLD" &&
-      (!currentDealer?.id || r.dealerId === currentDealer.id)
+      (targetDealerId ? r.dealerId === targetDealerId : false)
   );
 
-  // Filter confirmed wholesale allocations for this dealer
+  // Filter confirmed wholesale allocations strictly for this dealer
   const dealerConfirmedHolds = reservations.filter(
     (r) =>
       r.status === "CONFIRMED_ALLOCATED" &&
-      (!currentDealer?.id || r.dealerId === currentDealer.id)
+      (targetDealerId ? r.dealerId === targetDealerId : false)
   );
 
   const [selectedOrderId, setSelectedOrderId] = useState<string>(
@@ -490,9 +492,9 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                             ${res.priceSnapshot.totalBuyPriceNZD.toLocaleString()} NZD
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1 border-t border-slate-200/60">
-                          <span>FOB: ¥{res.priceSnapshot.fobJPY.toLocaleString()}</span>
-                          <span className="text-emerald-700 font-semibold">Terms Agreed</span>
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1 border-t border-slate-200/60">
+                          <span>Delivery: {res.priceSnapshot.zoneId || "ZONE_1"}</span>
+                          <span className="text-emerald-700 font-semibold">24h Price Lock</span>
                         </div>
                       </div>
                     </div>
@@ -577,10 +579,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                     const landedPrice: LandedPriceBreakdown =
                       selectedOrder.priceBreakdown ||
                       calculateLandedPrice(selectedOrder.vehicle.fobPriceJPY, activeZoneId, pricingConfig);
-
-                    const retailEstimateNZD = Math.round(landedPrice.totalBuyPriceNZD * 1.28);
-                    const projectedMarginNZD = retailEstimateNZD - landedPrice.totalBuyPriceNZD;
-                    const marginPercentage = ((projectedMarginNZD / landedPrice.totalBuyPriceNZD) * 100).toFixed(1);
 
                     return (
                       <div className="space-y-5">
@@ -746,14 +744,11 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                                     <span>Commercial Allocation</span>
                                   </div>
 
-                                  {/* 1. FOB Acquisition Price */}
+                                  {/* 1. Vehicle Base Price */}
                                   <div className="py-2 flex items-center justify-between gap-3">
-                                    <span className="text-slate-600 font-medium">FOB Acquisition Price:</span>
+                                    <span className="text-slate-600 font-medium">Vehicle Base Price (NZD):</span>
                                     <span className="font-mono font-medium text-slate-900 text-right">
-                                      ¥{selectedOrder.vehicle.fobPriceJPY.toLocaleString()}
-                                      <span className="text-slate-400 font-normal text-[11px] ml-1">
-                                        (~${landedPrice.fobNZD.toLocaleString()} NZD)
-                                      </span>
+                                      ${landedPrice.fobNZD.toLocaleString()} NZD
                                     </span>
                                   </div>
 
@@ -801,19 +796,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                                       ${landedPrice.programmeFeeNZD.toLocaleString()} NZD
                                     </span>
                                   </div>
-
-                                  {/* 7. Fixed Cost Profile */}
-                                  <div className="py-2 px-2.5 flex items-center justify-between gap-3 bg-slate-50 rounded-lg border border-slate-200/80 my-1">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-slate-900 font-bold">Fixed Cost Profile:</span>
-                                      <span className="text-[10px] text-slate-500 font-mono">
-                                        ({selectedZoneConfig.zoneName.split("-")[0]?.trim() || activeZoneId})
-                                      </span>
-                                    </div>
-                                    <span className="font-mono font-bold text-slate-950 text-right">
-                                      +${(landedPrice.fixedCostProfileNZD || (landedPrice.oceanFreightNZD + landedPrice.customsProcessingNZD + landedPrice.complianceInspectionNZD + landedPrice.zoneDeliveryNZD + landedPrice.programmeFeeNZD)).toLocaleString()} NZD
-                                    </span>
-                                  </div>
                                 </div>
                               </div>
 
@@ -832,27 +814,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                                   <strong className="font-mono text-base sm:text-lg font-bold text-slate-950">
                                     ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
                                   </strong>
-                                </div>
-
-                                {/* Retail Guidance & Projected Margin Box */}
-                                <div className="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
-                                  <div>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
-                                      Est. NZ Retail Guidance
-                                    </span>
-                                    <span className="font-mono font-bold text-slate-900 text-xs">
-                                      ${retailEstimateNZD.toLocaleString()} NZD
-                                    </span>
-                                  </div>
-                                  <div className="text-right">
-                                    <span className="text-[10px] font-semibold text-emerald-700 flex items-center justify-end gap-1">
-                                      <TrendingUp className="w-3 h-3" />
-                                      <span>Projected Dealer Margin</span>
-                                    </span>
-                                    <span className="font-mono font-bold text-emerald-800 text-xs">
-                                      +${projectedMarginNZD.toLocaleString()} ({marginPercentage}%)
-                                    </span>
-                                  </div>
                                 </div>
 
                                 {/* Primary Dealer Order Allocation Status Banner */}
@@ -919,16 +880,16 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         </span>
                       </div>
 
-                      {/* 3. FOB BASELINE (JPY) */}
+                      {/* 3. DELIVERY DESTINATION */}
                       <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                          FOB BASELINE (JPY)
+                          DELIVERY DESTINATION
                         </span>
-                        <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                          ¥{selectedOrder.priceBreakdown.fobJPY.toLocaleString()}
+                        <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight truncate">
+                          {selectedOrder.pricingZoneId || selectedOrder.priceBreakdown?.zoneId || currentDealer?.pricingZoneId || "ZONE_1"}
                         </div>
                         <span className="text-[11px] text-slate-500 block truncate">
-                          Japan Acquisition Cost
+                          {selectedOrder.deliveryAddress || "Franchise Hub Delivery"}
                         </span>
                       </div>
 

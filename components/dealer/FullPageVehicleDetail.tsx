@@ -9,7 +9,6 @@ import { MOCK_VEHICLES } from "@/lib/mock-data";
 import { calculateLandedPrice, OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
-import DirectAllocationModal from "./DirectAllocationModal";
 import AddVehicleAdditionalCostModal from "@/components/admin/AddVehicleAdditionalCostModal";
 import { AdditionalCostItem } from "@/lib/types";
 import {
@@ -59,12 +58,6 @@ function ZeroEmissionBadge() {
   );
 }
 
-function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
-  if (vehicle.allocationMode) return vehicle.allocationMode;
-  const num = parseInt(vehicle.stockId.replace(/\D/g, "") || "0", 10);
-  return num % 2 === 0 ? "RESERVE" : "ALLOCATION";
-}
-
 export default function FullPageVehicleDetail({
   vehicleId,
   vehicleData,
@@ -111,7 +104,6 @@ export default function FullPageVehicleDetail({
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [selectedZone, setSelectedZone] = useState<ZoneId>(dealerZone);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
-  const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
   const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
   const [viewingDocument, setViewingDocument] = useState<{ name: string; type: string; date: string; size?: string } | null>(null);
@@ -196,9 +188,9 @@ export default function FullPageVehicleDetail({
     releaseHold(vehicle.id, "Reservation rejected by Central Operations Admin");
   };
 
-  const handleAdminMarkAsBuyed = () => {
+  const handleAdminMarkAsSold = () => {
     audio.playSuccessChime();
-    setVehicleStatus(vehicle.id, "BUYED", "Vehicle purchase marked as Buyed by Operations Admin");
+    setVehicleStatus(vehicle.id, "SOLD", "Vehicle wholesale settlement completed by Operations Admin");
   };
 
   // Keep fobInput synced with vehicle
@@ -228,11 +220,6 @@ export default function FullPageVehicleDetail({
     updateVehicle(vehicle.id, { additionalCosts: updated });
     audio.playSubtleClick();
   };
-
-  // Dealer Commercial Margins
-  const retailEstimateNZD = Math.round(landedPrice.totalBuyPriceNZD * 1.28);
-  const projectedMarginNZD = retailEstimateNZD - landedPrice.totalBuyPriceNZD;
-  const marginPercentage = ((projectedMarginNZD / landedPrice.totalBuyPriceNZD) * 100).toFixed(1);
 
   const isAvailable = vehicle.status === "AVAILABLE";
   const isHeldByCurrentDealer = vehicle.reservedByDealerId === currentDealer?.id;
@@ -327,7 +314,7 @@ export default function FullPageVehicleDetail({
                     ? "bg-amber-50 text-amber-800 border-amber-200"
                     : vehicle.status === "ALLOCATED"
                       ? "bg-blue-50 text-blue-800 border-blue-200"
-                      : vehicle.status === "BUYED"
+                      : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
                         ? "bg-purple-50 text-purple-800 border-purple-200 font-bold"
                         : "bg-slate-100 text-slate-700 border-slate-200"
                 }`}
@@ -341,7 +328,7 @@ export default function FullPageVehicleDetail({
                       ? "bg-amber-500"
                       : vehicle.status === "ALLOCATED"
                         ? "bg-blue-500"
-                        : vehicle.status === "BUYED"
+                        : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
                           ? "bg-purple-600"
                           : "bg-slate-400"
                   }`}
@@ -351,8 +338,8 @@ export default function FullPageVehicleDetail({
                   ? "Withdrawn (Nissan Japan Only)"
                   : vehicle.status === "AVAILABLE"
                     ? "Live in Catalogue"
-                    : vehicle.status === "BUYED"
-                      ? "Buyed (Purchase Confirmed)"
+                    : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
+                      ? "Sold (Settled)"
                       : vehicle.status}
               </span>
             </div>
@@ -404,13 +391,7 @@ export default function FullPageVehicleDetail({
               <span>Withdrawn from Catalogue</span>
             </span>
           )}
-          {vehicle.status === "BUYED" && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 text-purple-800 border border-purple-200">
-              <CheckCircle2 className="w-3 h-3 text-purple-600" />
-              <span>Buyed</span>
-            </span>
-          )}
-          {vehicle.status === "SOLD" && (
+          {(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
               <CheckCircle2 className="w-3 h-3 text-purple-600" />
               <span>Sold &amp; Handed Over</span>
@@ -697,19 +678,6 @@ export default function FullPageVehicleDetail({
                     ${landedPrice.programmeFeeNZD.toLocaleString()} NZD
                   </span>
                 </div>
-
-                {/* 7. Fixed Cost Profile (Added Parameter) */}
-                <div className="py-2 px-2.5 flex items-center justify-between gap-3 bg-slate-50 rounded-lg border border-slate-200/80 my-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-900 font-bold">Fixed Cost Profile:</span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      ({selectedZoneConfig.zoneName.split("-")[0]?.trim()})
-                    </span>
-                  </div>
-                  <span className="font-mono font-bold text-slate-950 text-right">
-                    +${(landedPrice.fixedCostProfileNZD || (landedPrice.oceanFreightNZD + landedPrice.customsProcessingNZD + landedPrice.complianceInspectionNZD + landedPrice.zoneDeliveryNZD + landedPrice.programmeFeeNZD)).toLocaleString()} NZD
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -733,27 +701,6 @@ export default function FullPageVehicleDetail({
               {/* Dealer: Commercial Margin & Exclusivity Procurement Action integrated into the Price Schedule Card */}
               {!isAdmin && (
                 <div className="pt-2 border-t border-slate-100 space-y-3">
-                  {/* Retail Guidance & Projected Margin Box */}
-                  <div className="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
-                        Est. NZ Retail Guidance
-                      </span>
-                      <span className="font-mono font-bold text-slate-900 text-xs">
-                        ${retailEstimateNZD.toLocaleString()} NZD
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] font-semibold text-emerald-700 flex items-center justify-end gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        <span>Projected Dealer Margin</span>
-                      </span>
-                      <span className="font-mono font-bold text-emerald-800 text-xs">
-                        +${projectedMarginNZD.toLocaleString()} ({marginPercentage}%)
-                      </span>
-                    </div>
-                  </div>
-
                   {/* Primary Dealer Procurement Action Button */}
                   <div>
                     {isAvailable ? (
@@ -792,11 +739,11 @@ export default function FullPageVehicleDetail({
                           View Orders →
                         </button>
                       </div>
-                    ) : vehicle.status === "BUYED" ? (
+                    ) : (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") ? (
                       <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center justify-between">
                         <span className="font-semibold flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-600 shrink-0" />
-                          <span>Buyed · Purchase Finalized</span>
+                          <span>Sold · Wholesale Settled</span>
                         </span>
                         <button
                           type="button"
@@ -833,7 +780,7 @@ export default function FullPageVehicleDetail({
                       <ShieldCheck className="w-4 h-4 text-slate-900" />
                       <span className="text-xs font-bold text-slate-900 tracking-tight">Admin Operations &amp; Allocation Control</span>
                     </div>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${vehicle.status === "BUYED"
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")
                       ? "bg-purple-100 text-purple-800"
                       : vehicle.status === "ALLOCATED"
                         ? "bg-sky-100 text-sky-800"
@@ -841,7 +788,7 @@ export default function FullPageVehicleDetail({
                           ? "bg-amber-100 text-amber-800"
                           : "bg-emerald-100 text-emerald-800"
                       }`}>
-                      {vehicle.status === "BUYED" ? "PAID" : vehicle.status}
+                      {(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") ? "SETTLED" : vehicle.status}
                     </span>
                   </div>
 
@@ -905,35 +852,35 @@ export default function FullPageVehicleDetail({
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Next Step:</span>
-                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Buyed</span>
+                          <span className="text-slate-800 font-medium">Verify wholesale payment &amp; mark as Settled</span>
                         </div>
                       </div>
                       <div className="pt-1">
                         <button
                           type="button"
-                          onClick={handleAdminMarkAsBuyed}
+                          onClick={handleAdminMarkAsSold}
                           className="w-full py-3 px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                         >
                           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>Mark as Buyed</span>
+                          <span>Mark Wholesale Settled</span>
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {vehicle.status === "BUYED" && (
+                  {(vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED") && (
                     <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 text-slate-900 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-purple-950 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                          <span>Vehicle Marked as Buyed</span>
+                          <span>Vehicle Wholesale Settled</span>
                         </span>
                         <span className="text-[10px] font-mono font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">
-                          Buyed
+                          Settled
                         </span>
                       </div>
                       <p className="text-xs text-slate-600">
-                        Purchase is finalized. This status is maintained and visible to all dealers and administrators across the network.
+                        Purchase is finalized. This vehicle is settled and recorded in the dealer allocation ledger.
                       </p>
                     </div>
                   )}
@@ -1006,18 +953,32 @@ export default function FullPageVehicleDetail({
               </span>
             </div>
 
-            {/* 3. FOB BASELINE (JPY) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                FOB BASELINE (JPY)
-              </span>
-              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                ¥{vehicle.fobPriceJPY.toLocaleString()}
+            {/* 3. POWERTRAIN / DRIVE (Dealers) or FOB BASELINE (Admin) */}
+            {isAdmin ? (
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  FOB BASELINE (JPY)
+                </span>
+                <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                  ¥{vehicle.fobPriceJPY.toLocaleString()}
+                </div>
+                <span className="text-[11px] text-slate-500 block truncate">
+                  Japan Acquisition Cost
+                </span>
               </div>
-              <span className="text-[11px] text-slate-500 block truncate">
-                Japan Acquisition Cost
-              </span>
-            </div>
+            ) : (
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  POWERTRAIN / DRIVE
+                </span>
+                <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+                  {vehicle.driveType || "2WD"} · {vehicle.fuelType || "Petrol"}
+                </div>
+                <span className="text-[11px] text-emerald-600 font-semibold block truncate">
+                  {vehicle.transmission || "Automatic"}
+                </span>
+              </div>
+            )}
 
             {/* 4. YARD STAGING */}
             <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
@@ -1496,20 +1457,6 @@ export default function FullPageVehicleDetail({
           <Download className="w-4 h-4 text-emerald-400 shrink-0 animate-bounce" />
           <span>{docDownloadToast}</span>
         </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 6. Direct Vehicle Allocation Modal                          */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {isAllocateModalOpen && (
-        <DirectAllocationModal
-          vehicle={vehicle}
-          onClose={() => setIsAllocateModalOpen(false)}
-          onSuccess={() => {
-            setIsAllocateModalOpen(false);
-            router.push("/dealer/orders");
-          }}
-        />
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}

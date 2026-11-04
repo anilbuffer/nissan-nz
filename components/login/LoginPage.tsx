@@ -80,7 +80,7 @@ export default function LoginPage() {
     } else if (tab === "JAPAN") {
       setEmail("kenji.sato@nissan.co.jp");
     } else {
-      setEmail("marcus.vance@nissan.co.nz");
+      setEmail("cameron.scott@nissan.co.nz");
     }
   };
 
@@ -105,7 +105,7 @@ export default function LoginPage() {
         setAuthStep("MFA");
       } else {
         audio.playWarningChime();
-        setErrorMsg("Unrecognized email address. Click 'Auto-fill demo' to use a pre-configured dealer account.");
+        setErrorMsg("Unrecognized email address. Please select an authorized account profile or enter a registered business email.");
       }
       setIsSubmitting(false);
     }, 400);
@@ -339,11 +339,11 @@ export default function LoginPage() {
                         if (activeTab === "DEALER") setEmail("dealer@aucklandnissan.co.nz");
                         if (activeTab === "ADMIN") setEmail("ops@autohub.co.nz");
                         if (activeTab === "JAPAN") setEmail("kenji.sato@nissan.co.jp");
-                        if (activeTab === "PROGRAMME") setEmail("marcus.vance@nissan.co.nz");
+                        if (activeTab === "PROGRAMME") setEmail("cameron.scott@nissan.co.nz");
                       }}
                       className="text-[11px] font-semibold text-[#C3002F] hover:text-[#A10026] hover:underline cursor-pointer"
                     >
-                      Auto-fill demo
+                      Fill Credentials
                     </button>
                   </div>
                   <div className="relative">
@@ -606,7 +606,7 @@ export default function LoginPage() {
                         onClick={handleAutoFillOtp}
                         className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer"
                       >
-                        Auto-fill demo code
+                        Use Verification Code
                       </button>
                     </div>
                   </div>

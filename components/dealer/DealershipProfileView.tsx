@@ -93,22 +93,24 @@ export default function DealershipProfileView() {
   const dealerZone = currentDealer?.pricingZoneId || "ZONE_1";
   const activeZoneConfig = OFFICIAL_PRICING_ZONES[selectedPreviewZone];
 
-  // Dealership specific statistics
+  const targetDealerId = currentDealer?.id || currentUser?.dealerId;
+
+  // Dealership specific statistics (strict tenant boundary)
   const activeOrdersCount = orders.filter(
-    (o) => !currentDealer?.id || o.dealerId === currentDealer.id
+    (o) => (targetDealerId ? o.dealerId === targetDealerId : false)
   ).length;
 
   const activeHoldsCount = reservations.filter(
     (r) =>
       r.status === "ACTIVE_HOLD" &&
-      (!currentDealer?.id || r.dealerId === currentDealer.id)
+      (targetDealerId ? r.dealerId === targetDealerId : false)
   ).length;
 
   // Filter users belonging to this dealership
   const dealerStaff = users.filter(
     (u) =>
-      u.dealerId === (currentDealer?.id || "DEALER_001") ||
-      u.dealershipName?.includes(currentDealer?.legalTradingName || "Auckland Nissan")
+      (targetDealerId && u.dealerId === targetDealerId) ||
+      (currentDealer?.legalTradingName && u.dealershipName?.includes(currentDealer.legalTradingName))
   );
 
   const handleDownloadAgreement = () => {

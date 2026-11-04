@@ -1020,6 +1020,18 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     );
 
     const targetOrder = orders.find((o) => o.id === orderId);
+
+    // If order reaches final milestone DELIVERED, transition vehicle to SOLD per PRD §4 & §5
+    if (nextMilestone === "DELIVERED" && targetOrder?.vehicleId) {
+      setVehicles((prev) =>
+        prev.map((v) =>
+          v.id === targetOrder.vehicleId
+            ? { ...v, status: "SOLD" }
+            : v
+        )
+      );
+    }
+
     logAudit({
       actorName: "Sarah Jenkins",
       actorEmail: "ops@autohub.co.nz",

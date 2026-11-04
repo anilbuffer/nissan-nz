@@ -62,21 +62,46 @@ export default function DashboardShell({
     }
   }, [initialVehicleId, pathname]);
 
+  // Role Access Route Guard: Redirect unauthorized cross-portal navigation
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const isAdminRoute = pathname.startsWith("/admin") || portal === "admin";
+    const isJapanRoute = pathname.startsWith("/japan") || portal === "japan";
+    const isProgrammeRoute = pathname.startsWith("/programme") || portal === "programme";
+    const isDealerRoute = pathname.startsWith("/dealer") || portal === "dealer";
+
+    if (currentUser.role === "DEALER_USER" || currentUser.role === "DEALER_ADMIN") {
+      if (isAdminRoute || isJapanRoute || isProgrammeRoute) {
+        router.replace("/dealer/stocks");
+      }
+    } else if (currentUser.role === "NISSAN_JAPAN") {
+      if (isAdminRoute || isDealerRoute || isProgrammeRoute) {
+        router.replace("/japan/inventory");
+      }
+    } else if (currentUser.role === "READONLY_PROGRAMME_USER") {
+      if (isAdminRoute || isDealerRoute || isJapanRoute) {
+        router.replace("/programme/stock");
+      }
+    }
+  }, [currentUser, pathname, portal, router]);
+
   // Determine active view tab based on pathname and initialTab
   const resolveActiveTab = (): string => {
     if (pathname.includes("/vehicles/")) {
-      if (pathname.startsWith("/admin") || portal === "admin" || currentUser?.role === "AUTOHUB_ADMIN") {
+      if (currentUser?.role === "AUTOHUB_ADMIN" && (pathname.startsWith("/admin") || portal === "admin")) {
         return "admin-catalogue";
       }
       return "dealer-stock";
     }
     if (pathname === "/settings" || initialTab === "settings") return "settings";
 
-    // 1. Admin Portal routes (Priority when in admin path, portal, or admin role)
+    // 1. Admin Portal routes (Strictly AUTOHUB_ADMIN only)
     if (
-      pathname.startsWith("/admin") ||
-      portal === "admin" ||
-      (currentUser?.role === "AUTOHUB_ADMIN" && !pathname.startsWith("/dealer") && !pathname.startsWith("/japan"))
+      currentUser?.role === "AUTOHUB_ADMIN" &&
+      (pathname.startsWith("/admin") ||
+        portal === "admin" ||
+        (!pathname.startsWith("/dealer") && !pathname.startsWith("/japan") && !pathname.startsWith("/programme")))
     ) {
       if (pathname === "/admin/orders" || initialTab === "orders" || initialTab === "admin-orders") return "admin-orders";
       if (pathname === "/admin/dashboard" || initialTab === "dashboard" || initialTab === "admin-dashboard") return "admin-dashboard";
@@ -93,11 +118,12 @@ export default function DashboardShell({
       return "admin-dashboard";
     }
 
-    // 2. Japan Portal routes
+    // 2. Japan Portal routes (Strictly NISSAN_JAPAN or AUTOHUB_ADMIN)
     if (
-      pathname.startsWith("/japan") ||
-      portal === "japan" ||
-      (currentUser?.role === "NISSAN_JAPAN" && !pathname.startsWith("/dealer") && !pathname.startsWith("/admin"))
+      (currentUser?.role === "NISSAN_JAPAN" || currentUser?.role === "AUTOHUB_ADMIN") &&
+      (pathname.startsWith("/japan") ||
+        portal === "japan" ||
+        (currentUser?.role === "NISSAN_JAPAN" && !pathname.startsWith("/dealer") && !pathname.startsWith("/admin")))
     ) {
       if (pathname === "/japan/upload" || pathname === "/japan/batch-upload" || initialTab === "upload" || initialTab === "japan-upload") return "japan-upload";
       if (pathname === "/japan/add-vehicle" || pathname === "/japan/add-single" || initialTab === "add-vehicle" || initialTab === "japan-add-single") return "japan-add-single";
@@ -105,14 +131,15 @@ export default function DashboardShell({
       return "japan-inventory";
     }
 
-    // 2b. Programme Portal routes
+    // 2b. Programme Portal routes (Strictly READONLY_PROGRAMME_USER or AUTOHUB_ADMIN)
     if (
-      pathname.startsWith("/programme") ||
-      portal === "programme" ||
-      (currentUser?.role === "READONLY_PROGRAMME_USER" &&
-        !pathname.startsWith("/dealer") &&
-        !pathname.startsWith("/admin") &&
-        !pathname.startsWith("/japan"))
+      (currentUser?.role === "READONLY_PROGRAMME_USER" || currentUser?.role === "AUTOHUB_ADMIN") &&
+      (pathname.startsWith("/programme") ||
+        portal === "programme" ||
+        (currentUser?.role === "READONLY_PROGRAMME_USER" &&
+          !pathname.startsWith("/dealer") &&
+          !pathname.startsWith("/admin") &&
+          !pathname.startsWith("/japan")))
     ) {
       if (pathname === "/programme/stock" || initialTab === "programme-stock" || initialTab === "stock") return "programme-stock";
       if (pathname === "/programme/reservations" || initialTab === "programme-reservations" || initialTab === "reservations") return "programme-reservations";
@@ -328,15 +355,7 @@ export default function DashboardShell({
           />
         );
       }
-      const isDealerVehicleView =
-        portal === "dealer" ||
-        (typeof pathname === "string" && pathname.startsWith("/dealer"));
-
-      const isAdminVehicleView =
-        !isDealerVehicleView &&
-        (portal === "admin" ||
-          (typeof pathname === "string" && pathname.startsWith("/admin")) ||
-          currentUser?.role === "AUTOHUB_ADMIN");
+      const isAdminVehicleView = currentUser?.role === "AUTOHUB_ADMIN";
 
       return (
         <FullPageVehicleDetail
@@ -364,13 +383,12 @@ export default function DashboardShell({
       );
     }
 
-    // 3. Admin Portal Views (Path begins with /admin OR portal is admin OR admin role on neutral route)
+    // 3. Admin Portal Views (Strictly AUTOHUB_ADMIN only)
     if (
-      pathname.startsWith('/admin') ||
-      portal === 'admin' ||
-      (currentUser?.role === 'AUTOHUB_ADMIN' &&
-        !pathname.startsWith('/dealer') &&
-        !pathname.startsWith('/japan'))
+      currentUser?.role === 'AUTOHUB_ADMIN' &&
+      (pathname.startsWith('/admin') ||
+        portal === 'admin' ||
+        (!pathname.startsWith('/dealer') && !pathname.startsWith('/japan') && !pathname.startsWith('/programme')))
     ) {
       switch (activeTab) {
         case 'admin-menu':
@@ -446,13 +464,14 @@ export default function DashboardShell({
       }
     }
 
-    // 4. Japan Portal Views (Path begins with /japan OR portal is japan OR Japan role on neutral route)
+    // 4. Japan Portal Views (Strictly NISSAN_JAPAN or AUTOHUB_ADMIN)
     if (
-      pathname.startsWith('/japan') ||
-      portal === 'japan' ||
-      (currentUser?.role === 'NISSAN_JAPAN' &&
-        !pathname.startsWith('/dealer') &&
-        !pathname.startsWith('/admin'))
+      (currentUser?.role === 'NISSAN_JAPAN' || currentUser?.role === 'AUTOHUB_ADMIN') &&
+      (pathname.startsWith('/japan') ||
+        portal === 'japan' ||
+        (currentUser?.role === 'NISSAN_JAPAN' &&
+          !pathname.startsWith('/dealer') &&
+          !pathname.startsWith('/admin')))
     ) {
       switch (activeTab) {
         case 'japan-inventory':
@@ -480,14 +499,15 @@ export default function DashboardShell({
       }
     }
 
-    // 4b. Programme Portal Views (Path begins with /programme OR portal is programme OR Programme role on neutral route)
+    // 4b. Programme Portal Views (Strictly READONLY_PROGRAMME_USER or AUTOHUB_ADMIN)
     if (
-      pathname.startsWith('/programme') ||
-      portal === 'programme' ||
-      (currentUser?.role === 'READONLY_PROGRAMME_USER' &&
-        !pathname.startsWith('/dealer') &&
-        !pathname.startsWith('/admin') &&
-        !pathname.startsWith('/japan'))
+      (currentUser?.role === 'READONLY_PROGRAMME_USER' || currentUser?.role === 'AUTOHUB_ADMIN') &&
+      (pathname.startsWith('/programme') ||
+        portal === 'programme' ||
+        (currentUser?.role === 'READONLY_PROGRAMME_USER' &&
+          !pathname.startsWith('/dealer') &&
+          !pathname.startsWith('/admin') &&
+          !pathname.startsWith('/japan')))
     ) {
       const subTab = activeTab.startsWith("programme-") ? (activeTab.replace("programme-", "") as "stock" | "reservations" | "orders") : "stock";
       return <ProgrammeUserPortalView initialSubTab={subTab} />;

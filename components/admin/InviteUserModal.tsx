@@ -303,37 +303,6 @@ export default function InviteUserModal({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="block font-medium text-slate-600 mb-1">
-                    Purchasing Authority Limit (NZD)
-                  </label>
-                  <div className="relative">
-                    <DollarSign className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                    <input
-                      type="number"
-                      step={25000}
-                      value={holdingLimitNZD}
-                      onChange={(e) => setHoldingLimitNZD(Number(e.target.value))}
-                      className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-900 text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-medium text-slate-600 mb-1">
-                    Max Concurrent Holds
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={maxActiveHolds}
-                    onChange={(e) => setMaxActiveHolds(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-900 text-xs"
-                  />
-                </div>
-              </div>
             </div>
           )}
 
