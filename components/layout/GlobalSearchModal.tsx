@@ -44,7 +44,7 @@ export default function GlobalSearchModal({
       setSelectedIndex(0);
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
-      
+
       const timer = setTimeout(() => {
         searchInputRef.current?.focus();
       }, 50);
@@ -163,8 +163,8 @@ export default function GlobalSearchModal({
         }
       }}
     >
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150">
-        
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95 duration-150">
+
         {/* Top Search Input with Single Crisp Outline */}
         <div className="p-3.5 sm:p-4 border-b border-slate-100 bg-white sticky top-0 z-20">
           <div className="flex items-center gap-2">
@@ -224,11 +224,10 @@ export default function GlobalSearchModal({
                 data-index={idx}
                 onClick={() => handleSelectVehicle(vehicle.id)}
                 onMouseEnter={() => setSelectedIndex(idx)}
-                className={`group flex items-center justify-between gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border ${
-                  isSelected
+                className={`group flex items-center justify-between gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border ${isSelected
                     ? "bg-slate-50 border-slate-300 shadow-2xs"
                     : "bg-white hover:bg-slate-50/70 border-transparent hover:border-slate-200"
-                }`}
+                  }`}
               >
                 {/* 1. Thumbnail + 2. Name */}
                 <div className="flex items-center gap-3 min-w-0">

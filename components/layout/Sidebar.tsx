@@ -379,7 +379,7 @@ export default function Sidebar({
         </div>
 
         {/* Bottom User Profile Section: Opens Settings & Logout Popover */}
-        <div className="relative z-20 p-3 border-t border-slate-800/80 bg-[#060B14]">
+        <div className="relative z-20 p-3 ">
           {!collapsed ? (
             <div>
               {/* Clickable Profile Card */}
@@ -389,19 +389,19 @@ export default function Sidebar({
                   setIsProfileMenuOpen(!isProfileMenuOpen);
                 }}
                 title="Click for Settings & Logout"
-                className={`flex items-center justify-between p-2 rounded-2xl transition-all cursor-pointer group ${pathname === "/settings" || activeTab === "settings"
-                  ? "bg-gradient-to-r from-white/[0.12] to-white/[0.04] border border-white/15 ring-1 ring-white/10"
+                className={`flex items-center justify-between p-2 rounded-xl transition-all cursor-pointer group ${pathname === "/settings" || activeTab === "settings"
+                  ? "bg-gradient-to-r from-white/[0.12] to-white/[0.04] border border-white/20 ring-1 ring-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
                   : isProfileMenuOpen
-                    ? "bg-white/10 border border-white/10"
-                    : "hover:bg-white/[0.06] border border-transparent"
+                    ? "bg-white/10 border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.35)]"
+                    : "bg-white/[0.03] border border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.35)] hover:bg-white/[0.07] hover:border-white/20 hover:shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
                   }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="relative">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border border-slate-700 font-bold text-xs text-white shadow-xs flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border border-slate-600/70 font-bold text-xs text-white shadow-[0_2px_6px_rgba(0,0,0,0.4)] ring-1 ring-white/10 flex items-center justify-center shrink-0">
                       {currentUser?.name.charAt(0) || "U"}
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#000000]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#060B14]" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-white truncate group-hover:text-rose-200 transition-colors">
@@ -482,13 +482,15 @@ export default function Sidebar({
                 }}
                 title="Click for Settings & Logout"
                 aria-label="User account & options"
-                className={`relative w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs text-white transition-all cursor-pointer ${pathname === "/settings" || activeTab === "settings"
-                  ? "ring-2 ring-[#C3002F]"
-                  : "hover:ring-2 hover:ring-rose-500/50"
+                className={`relative w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 border flex items-center justify-center font-bold text-xs text-white transition-all cursor-pointer ${pathname === "/settings" || activeTab === "settings"
+                  ? "border-white/20 ring-2 ring-[#C3002F] shadow-[0_4px_16px_rgba(195,0,47,0.3)]"
+                  : isProfileMenuOpen
+                    ? "border-white/20 ring-2 ring-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+                    : "border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.35)] hover:border-white/25 hover:shadow-[0_4px_14px_rgba(0,0,0,0.45)]"
                   }`}
               >
                 {currentUser?.name.charAt(0) || "U"}
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#000000]" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#060B14]" />
               </button>
 
               {/* Collapsed Popover Menu */}
