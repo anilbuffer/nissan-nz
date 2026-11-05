@@ -28,6 +28,8 @@ import RolesPermissionsView from "@/components/admin/RolesPermissionsView";
 import AdminPricingConfigView from "@/components/admin/AdminPricingConfigView";
 import PlatformSettingsView from "@/components/settings/PlatformSettingsView";
 import ProgrammeUserPortalView from "@/components/programme/ProgrammeUserPortalView";
+import FullPageOrderDetail from "@/components/programme/FullPageOrderDetail";
+import { useProgramme } from "@/lib/programme-context";
 
 interface DashboardShellProps {
   initialVehicleId?: string;
@@ -46,6 +48,7 @@ export default function DashboardShell({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { currentUser, switchRole } = useAuth();
+  const { orders } = useProgramme();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -92,6 +95,11 @@ export default function DashboardShell({
       if (parts[1]) {
         setViewingOrderId(parts[1]);
       }
+    } else if (pathname.includes("/programme/orders/")) {
+      const parts = pathname.split("/programme/orders/");
+      if (parts[1]) {
+        setViewingOrderId(parts[1]);
+      }
     } else {
       setViewingOrderId(null);
     }
@@ -128,10 +136,16 @@ export default function DashboardShell({
   // Determine active view tab based on pathname and initialTab
   const resolveActiveTab = (): string => {
     if (pathname.includes("/vehicles/")) {
+      if (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER") {
+        return "programme-stock";
+      }
       if (currentUser?.role === "AUTOHUB_ADMIN" && (pathname.startsWith("/admin") || portal === "admin")) {
         return "admin-catalogue";
       }
       return "dealer-stock";
+    }
+    if (pathname.includes("/orders/") && (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER")) {
+      return "programme-orders";
     }
     if (pathname === "/settings" || initialTab === "settings") return "settings";
 
@@ -366,6 +380,8 @@ export default function DashboardShell({
       router.push(`/admin/vehicles/${vehicleId}`);
     } else if (pathname.startsWith("/japan") || portal === "japan" || currentUser?.role === "NISSAN_JAPAN") {
       router.push(`/japan/inventory/${vehicleId}`);
+    } else if (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER") {
+      router.push(`/programme/vehicles/${vehicleId}`);
     } else {
       router.push(`/dealer/vehicles/${vehicleId}`);
     }
@@ -379,6 +395,8 @@ export default function DashboardShell({
       router.push("/admin/catalogue");
     } else if (pathname.startsWith("/japan") || portal === "japan" || currentUser?.role === "NISSAN_JAPAN") {
       router.push("/japan/inventory");
+    } else if (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER") {
+      router.push("/programme/stock");
     } else {
       router.push("/dealer/stocks");
     }
@@ -421,16 +439,45 @@ export default function DashboardShell({
           />
         );
       }
+      const isProgrammeContext =
+        portal === "programme" ||
+        pathname.startsWith("/programme") ||
+        currentUser?.role === "READONLY_PROGRAMME_USER";
+
       const isAdminVehicleView =
         (portal === "admin" || pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") &&
         portal !== "dealer" &&
-        !pathname.startsWith("/dealer");
+        !pathname.startsWith("/dealer") &&
+        !isProgrammeContext;
 
       return (
         <FullPageVehicleDetail
           vehicleId={viewingVehicleId}
           onBack={handleBackFromVehicle}
           isAdmin={isAdminVehicleView}
+          isProgramme={isProgrammeContext}
+          backLabel={isProgrammeContext ? "Back to Stock Catalogue" : undefined}
+        />
+      );
+    }
+
+    // 1b. Order Detail Full-Page View (Programme Portal)
+    if (viewingOrderId && (portal === "programme" || pathname.startsWith("/programme") || currentUser?.role === "READONLY_PROGRAMME_USER")) {
+      const targetOrder = orders.find((o) => o.id === viewingOrderId || o.orderNumber === viewingOrderId) || orders[0];
+      return (
+        <FullPageOrderDetail
+          orderId={viewingOrderId}
+          orderData={targetOrder}
+          backLabel="Back to Wholesale Orders"
+          onBack={() => {
+            setViewingOrderId(null);
+            router.push("/programme/orders");
+          }}
+          onViewVehicle={(vId) => {
+            setViewingOrderId(null);
+            setViewingVehicleId(vId);
+            router.push(`/programme/vehicles/${vId}`);
+          }}
         />
       );
     }

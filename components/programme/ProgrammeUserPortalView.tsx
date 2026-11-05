@@ -11,6 +11,8 @@ import { Vehicle, Order, ZoneId } from "@/lib/types";
 import StatusBadge from "@/components/common/StatusBadge";
 import Pagination from "@/components/common/Pagination";
 import { getVehiclePriorityScore } from "@/lib/vehicle-priority";
+import FullPageVehicleDetail from "@/components/dealer/FullPageVehicleDetail";
+import FullPageOrderDetail from "@/components/programme/FullPageOrderDetail";
 import {
   Car,
   Building2,
@@ -30,6 +32,8 @@ import {
 
 interface ProgrammeUserPortalViewProps {
   initialSubTab?: "stock" | "reservations" | "orders";
+  initialVehicleId?: string;
+  initialOrderId?: string;
 }
 
 function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
@@ -40,6 +44,8 @@ function getVehicleAction(vehicle: Vehicle): "RESERVE" | "ALLOCATION" {
 
 export default function ProgrammeUserPortalView({
   initialSubTab = "stock",
+  initialVehicleId,
+  initialOrderId,
 }: ProgrammeUserPortalViewProps) {
   const router = useRouter();
   const { currentUser, currentDealer } = useAuth();
@@ -51,10 +57,26 @@ export default function ProgrammeUserPortalView({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedZone, setSelectedZone] = useState<ZoneId>("ZONE_1");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [selectedVehicleForDossier, setSelectedVehicleForDossier] = useState<Vehicle | null>(null);
-  const [selectedOrderForDossier, setSelectedOrderForDossier] = useState<Order | null>(null);
+  const [viewingVehicle, setViewingVehicle] = useState<Vehicle | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [viewingFromTab, setViewingFromTab] = useState<"stock" | "reservations" | "orders">(initialSubTab);
   const [copiedVin, setCopiedVin] = useState(false);
   const [now] = useState(() => Date.now());
+
+  // Initialize viewing vehicle or order if passed as props
+  useEffect(() => {
+    if (initialVehicleId) {
+      const v = vehicles.find((item) => item.id === initialVehicleId || item.stockId === initialVehicleId);
+      if (v) setViewingVehicle(v);
+    }
+  }, [initialVehicleId, vehicles]);
+
+  useEffect(() => {
+    if (initialOrderId) {
+      const o = orders.find((item) => item.id === initialOrderId || item.orderNumber === initialOrderId);
+      if (o) setViewingOrder(o);
+    }
+  }, [initialOrderId, orders]);
 
   // Sync state if route changes
   useEffect(() => {
@@ -188,6 +210,51 @@ export default function ProgrammeUserPortalView({
     "DELIVERED",
   ];
 
+  // ─────────────────────────────────────────────────────────────
+  // A. FULL INNER PAGE: VEHICLE DETAILS (Same as Dealer/Admin)
+  // ─────────────────────────────────────────────────────────────
+  if (viewingVehicle) {
+    return (
+      <FullPageVehicleDetail
+        vehicleId={viewingVehicle.id}
+        vehicleData={viewingVehicle}
+        isAdmin={false}
+        isProgramme={true}
+        backLabel={viewingFromTab === "reservations" ? "Back to Exclusivity Holds" : "Back to Stock Catalogue"}
+        onBack={() => {
+          audio.playSubtleClick();
+          setViewingVehicle(null);
+          router.push(`/programme/${viewingFromTab || "stock"}`);
+        }}
+      />
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // B. FULL INNER PAGE: ORDER DETAILS (Same as Dealer/Admin)
+  // ─────────────────────────────────────────────────────────────
+  if (viewingOrder) {
+    return (
+      <FullPageOrderDetail
+        orderId={viewingOrder.id}
+        orderData={viewingOrder}
+        backLabel="Back to Wholesale Orders"
+        onBack={() => {
+          audio.playSubtleClick();
+          setViewingOrder(null);
+          router.push("/programme/orders");
+        }}
+        onViewVehicle={(vId) => {
+          const v = vehicles.find((item) => item.id === vId);
+          if (v) {
+            setViewingVehicle(v);
+            setViewingFromTab("orders");
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-5 max-w-7xl mx-auto font-sans text-slate-800 pb-16">
       {/* ─────────────────────────────────────────────────────────── */}
@@ -315,24 +382,22 @@ export default function ProgrammeUserPortalView({
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
-              {/* Status Filter Pills */}
-              <div className="flex items-center gap-1">
-                {["ALL", "AVAILABLE", "RESERVED", "ALLOCATED"].map((status) => (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => {
-                      audio.playSubtleClick();
-                      setStatusFilter(status);
-                    }}
-                    className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${statusFilter === status
-                      ? "bg-[#0A0A0A] text-white shadow-2xs"
-                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                      }`}
-                  >
-                    {status}
-                  </button>
-                ))}
+              {/* Status Filter Dropdown */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Status:</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    audio.playSubtleClick();
+                    setStatusFilter(e.target.value);
+                  }}
+                  className="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] cursor-pointer shadow-2xs"
+                >
+                  <option value="ALL">ALL</option>
+                  <option value="AVAILABLE">AVAILABLE</option>
+                  <option value="RESERVED">RESERVED</option>
+                  <option value="ALLOCATED">ALLOCATED</option>
+                </select>
               </div>
 
               {/* Pricing Zone Selector */}
@@ -375,20 +440,22 @@ export default function ProgrammeUserPortalView({
           </div>
 
           <div className="overflow-x-auto touch-scroll navy-scrollbar">
-            <table className="w-full text-left text-xs text-slate-700 min-w-[700px]">
+            <table className="w-full text-left text-xs text-slate-700 min-w-[760px]">
               <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-5 font-bold text-slate-700">Vehicle &amp; Stock ID</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Grade &amp; Mileage</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">{selectedZone.replace("_", " ")} Landed Price</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Catalogue Status</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Vehicle</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Stock ID</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Grade</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Mileage</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Landed Price</th>
+                  <th className="py-3 px-5 font-bold text-slate-700">Status</th>
                   <th className="py-3 px-5 font-bold text-slate-700 text-right">Dossier</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
                 {filteredVehicles.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-slate-400">
+                    <td colSpan={7} className="py-12 text-center text-slate-400">
                       No vehicles found matching current criteria.
                     </td>
                   </tr>
@@ -396,95 +463,73 @@ export default function ProgrammeUserPortalView({
                   paginatedVehicles.map((vehicle) => {
                     const price = calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
                     return (
-                      <tr key={vehicle.id} className="hover:bg-slate-50/70 transition-colors">
-                        {/* 1. Vehicle & Stock ID */}
+                      <tr
+                        key={vehicle.id}
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          setViewingFromTab("stock");
+                          setViewingVehicle(vehicle);
+                          router.push(`/programme/vehicles/${vehicle.id}`);
+                        }}
+                        className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
+                      >
+                        {/* 1. Vehicle */}
                         <td className="py-3.5 px-5">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
                               <img
                                 src={vehicle.images?.[0] || "/images/cars/note.png"}
                                 alt={vehicle.model}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                               />
                             </div>
-                            <div>
-                              <div className="font-bold text-slate-900 text-xs sm:text-sm">
-                                {vehicle.year} {vehicle.make} {vehicle.model}
-                              </div>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="font-mono text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">
-                                  #{vehicle.stockId}
-                                </span>
-                                <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
-                                  {vehicle.grade}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* 2. Grade & Mileage */}
-                        <td className="py-3.5 px-5">
-                          <div className="font-mono text-xs font-bold text-slate-800 flex items-center gap-1">
-                            <span className="px-1.5 py-0.2 bg-slate-100 text-slate-900 rounded border border-slate-200 text-[11px]">
-                              Grade {vehicle.grade || vehicle.auctionGrade || "4.5"}
+                            <span className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors text-xs sm:text-sm whitespace-nowrap">
+                              {vehicle.year} {vehicle.make} {vehicle.model}
                             </span>
                           </div>
-                          <div className="font-mono text-[11px] text-slate-500 mt-0.5">
-                            {vehicle.odometerKm.toLocaleString()} km
-                          </div>
                         </td>
 
-                        {/* 3. Landed Price */}
-                        <td className="py-3.5 px-5">
-                          <div className="font-mono font-bold text-slate-900 text-xs sm:text-sm">
+                        {/* 2. Stock ID */}
+                        <td className="py-3.5 px-5 whitespace-nowrap">
+                          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            #{vehicle.stockId}
+                          </span>
+                        </td>
+
+                        {/* 3. Grade */}
+                        <td className="py-3.5 px-5 whitespace-nowrap">
+                          <span className="font-mono text-xs font-bold text-slate-800">
+                            Grade {vehicle.grade || vehicle.auctionGrade || "4.5"}
+                          </span>
+                        </td>
+
+                        {/* 4. Mileage */}
+                        <td className="py-3.5 px-5 font-mono text-xs font-medium text-slate-600 whitespace-nowrap">
+                          {vehicle.odometerKm.toLocaleString()} km
+                        </td>
+
+                        {/* 5. Landed Price */}
+                        <td className="py-3.5 px-5 whitespace-nowrap">
+                          <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm">
                             ${price.totalBuyPriceNZD.toLocaleString()} NZD
-                          </div>
-                          <div className="text-[10px] text-slate-400">
-                            Fixed Profile ({selectedZone.replace("_", " ")})
-                          </div>
+                          </span>
                         </td>
 
-                        {/* 4. Catalogue Status & Admin Assigned Action */}
-                        <td className="py-3.5 px-5">
-                          <div className="flex flex-col gap-1.5 items-start">
-                            <StatusBadge status={vehicle.status} size="sm" />
-
-                            {vehicle.status === "AVAILABLE" && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  audio.playSubtleClick();
-                                  const currentMode = getVehicleAction(vehicle);
-                                  const nextMode = currentMode === "ALLOCATION" ? "RESERVE" : "ALLOCATION";
-                                  updateVehicle(vehicle.id, { allocationMode: nextMode });
-                                }}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold border transition-colors cursor-pointer hover:opacity-80 bg-slate-50 border-slate-200 text-slate-700"
-                                title="Click to toggle Admin assigned action mode for dealers"
-                              >
-                                {getVehicleAction(vehicle) === "ALLOCATION" ? (
-                                  <>
-                                    <Ship className="w-2.5 h-2.5 text-emerald-600" />
-                                    <span>Assigned: Allocation</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Lock className="w-2.5 h-2.5 text-amber-600" />
-                                    <span>Assigned: Reserve</span>
-                                  </>
-                                )}
-                              </button>
-                            )}
-                          </div>
+                        {/* 6. Catalogue Status */}
+                        <td className="py-3.5 px-5 whitespace-nowrap">
+                          <StatusBadge status={vehicle.status} size="sm" />
                         </td>
 
-                        {/* 5. Dossier Action */}
-                        <td className="py-3.5 px-5 text-right">
+                        {/* 7. Dossier Action */}
+                        <td className="py-3.5 px-5 text-right whitespace-nowrap">
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               audio.playSubtleClick();
-                              setSelectedVehicleForDossier(vehicle);
+                              setViewingFromTab("stock");
+                              setViewingVehicle(vehicle);
+                              router.push(`/programme/vehicles/${vehicle.id}`);
                             }}
                             className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                           >
@@ -578,10 +623,22 @@ export default function ProgrammeUserPortalView({
                     const isActive = reservation.status === "ACTIVE_HOLD";
 
                     return (
-                      <tr key={reservation.id} className="hover:bg-slate-50/70 transition-colors">
+                      <tr
+                        key={reservation.id}
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          const matched = vehicles.find((v) => v.id === reservation.vehicleId) || reservation.vehicle;
+                          if (matched) {
+                            setViewingFromTab("reservations");
+                            setViewingVehicle(matched);
+                            router.push(`/programme/vehicles/${matched.id}`);
+                          }
+                        }}
+                        className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
+                      >
                         {/* 1. Reserved Vehicle */}
                         <td className="py-3.5 px-5">
-                          <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                          <div className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors text-xs sm:text-sm">
                             {reservation.vehicle?.year} {reservation.vehicle?.model}
                           </div>
                           <div className="font-mono text-[10px] text-slate-500 mt-0.5">
@@ -623,10 +680,15 @@ export default function ProgrammeUserPortalView({
                         <td className="py-3.5 px-5 text-right">
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               audio.playSubtleClick();
-                              const matched = vehicles.find((v) => v.id === reservation.vehicleId);
-                              if (matched) setSelectedVehicleForDossier(matched);
+                              const matched = vehicles.find((v) => v.id === reservation.vehicleId) || reservation.vehicle;
+                              if (matched) {
+                                setViewingFromTab("reservations");
+                                setViewingVehicle(matched);
+                                router.push(`/programme/vehicles/${matched.id}`);
+                              }
                             }}
                             className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                           >
@@ -718,10 +780,19 @@ export default function ProgrammeUserPortalView({
                     const currentIdx = MILESTONES_ORDER.indexOf(order.currentMilestone);
 
                     return (
-                      <tr key={order.id} className="hover:bg-slate-50/70 transition-colors">
+                      <tr
+                        key={order.id}
+                        onClick={() => {
+                          audio.playSubtleClick();
+                          setViewingFromTab("orders");
+                          setViewingOrder(order);
+                          router.push(`/programme/orders/${order.id}`);
+                        }}
+                        className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
+                      >
                         {/* 1. Order & Vehicle */}
                         <td className="py-3.5 px-5">
-                          <div className="font-bold text-slate-900 font-mono text-xs">
+                          <div className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors font-mono text-xs">
                             {order.orderNumber}
                           </div>
                           <div className="text-xs text-slate-700 font-medium mt-0.5">
@@ -766,9 +837,12 @@ export default function ProgrammeUserPortalView({
                         <td className="py-3.5 px-5 text-right">
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               audio.playSubtleClick();
-                              setSelectedOrderForDossier(order);
+                              setViewingFromTab("orders");
+                              setViewingOrder(order);
+                              router.push(`/programme/orders/${order.id}`);
                             }}
                             className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                           >
@@ -793,369 +867,6 @@ export default function ProgrammeUserPortalView({
             onPageChange={(p) => setOrdersPage(p)}
             itemName="orders"
           />
-        </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 7. ENRICHED MODAL: Comprehensive Vehicle Spec Dossier       */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {selectedVehicleForDossier && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-[16px] border border-slate-200 shadow-2xl max-w-3xl w-full p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                    #{selectedVehicleForDossier.stockId}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${selectedVehicleForDossier.status === "AVAILABLE"
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      : selectedVehicleForDossier.status === "RESERVED"
-                        ? "bg-amber-50 text-amber-700 border-amber-200"
-                        : "bg-blue-50 text-blue-700 border-blue-200"
-                      }`}
-                  >
-                    {selectedVehicleForDossier.status}
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
-                  {selectedVehicleForDossier.year} {selectedVehicleForDossier.make} {selectedVehicleForDossier.model}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedVehicleForDossier(null)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Photo & Pricing Banner */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              <div className="sm:col-span-7 h-48 sm:h-56 bg-slate-50 rounded-2xl border border-slate-200 p-3 flex items-center justify-center overflow-hidden">
-                <img
-                  src={selectedVehicleForDossier.images?.[0] || "/images/cars/note.png"}
-                  alt={selectedVehicleForDossier.model}
-                  className="max-h-full max-w-full object-contain filter drop-shadow-md"
-                />
-              </div>
-
-              <div className="sm:col-span-5 p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">
-                  Commercial Pricing Schedule
-                </span>
-
-                <div>
-                  <div className="text-2xl font-bold font-mono text-[#C3002F]">
-                    ${calculateLandedPrice(selectedVehicleForDossier.fobPriceJPY, selectedZone).totalBuyPriceNZD.toLocaleString()} NZD
-                  </div>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Guaranteed landed for {selectedZone.replace("_", " ")}
-                  </span>
-                </div>
-
-                <div className="pt-2 border-t border-slate-200/80 text-xs space-y-1 font-mono">
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span className="font-sans text-[11px]">Base FOB (Japan):</span>
-                    <strong className="text-slate-900">¥{selectedVehicleForDossier.fobPriceJPY.toLocaleString()}</strong>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span className="font-sans text-[11px]">Inclusions:</span>
-                    <span className="text-[11px] font-sans text-emerald-700 font-semibold">CIF, GST, MR2A</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Complete Specifications Grid */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
-                Technical Specifications &amp; Identifiers
-              </span>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">VIN / Chassis</span>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="font-mono font-bold text-slate-900 truncate">{selectedVehicleForDossier.vinChassis}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyVin(selectedVehicleForDossier.vinChassis)}
-                      className="text-slate-400 hover:text-slate-700 ml-1 p-0.5"
-                      title="Copy VIN"
-                    >
-                      {copiedVin ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Auction Grade</span>
-                  <span className="font-mono font-bold text-slate-900 text-sm mt-1 block">
-                    Grade {selectedVehicleForDossier.grade || selectedVehicleForDossier.auctionGrade || "4.5"}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Verified Odometer</span>
-                  <span className="font-mono font-bold text-slate-900 text-sm mt-1 block">
-                    {selectedVehicleForDossier.odometerKm.toLocaleString()} km
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Powertrain / Fuel</span>
-                  <span className="font-bold text-slate-900 text-sm mt-1 block truncate">
-                    {selectedVehicleForDossier.fuelType || "e-Power"}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Transmission</span>
-                  <span className="font-medium text-slate-800 text-xs mt-1 block truncate">
-                    {selectedVehicleForDossier.transmission || "Automatic"}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Drive Type</span>
-                  <span className="font-medium text-slate-800 text-xs mt-1 block">
-                    {selectedVehicleForDossier.driveType || "2WD"}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Exterior Color</span>
-                  <span className="font-medium text-slate-800 text-xs mt-1 block truncate">
-                    {selectedVehicleForDossier.color || "Pearl White"}
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Yard Bay Location</span>
-                  <span className="font-medium text-slate-800 text-xs mt-1 block truncate">
-                    {selectedVehicleForDossier.location || "Yokohama Port"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Supporting Documents (Attached during Add Vehicle intake) */}
-
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
-
-              <div className="flex items-center justify-between">
-
-                <span className="font-bold text-slate-800">Supporting Documents (Intake Archive):</span>
-
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold">
-
-                  {(selectedVehicleForDossier.supportingDocuments?.length || 2)} Files
-
-                </span>
-
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-
-                {(selectedVehicleForDossier.supportingDocuments && selectedVehicleForDossier.supportingDocuments.length > 0
-
-                  ? selectedVehicleForDossier.supportingDocuments
-
-                  : [
-
-                    { name: "USS_Tokyo_Official_Auction_Sheet.pdf", type: "AUCTION_SHEET", size: "2.4 MB" },
-
-                    { name: "JEVIC_Digital_Odometer_Certificate.pdf", type: "JEVIC_CERTIFICATE", size: "1.1 MB" },
-
-                  ]
-
-                ).map((doc, dIdx) => (
-
-                  <div
-
-                    key={dIdx}
-
-                    className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs"
-
-                  >
-
-                    <div className="min-w-0">
-
-                      <span className="font-bold text-slate-800 text-[11px] truncate block">
-
-                        {doc.name}
-
-                      </span>
-
-                      <span className="text-[10px] text-blue-700 font-mono">
-
-                        {doc.type.replace(/_/g, " ")}
-
-                      </span>
-
-                    </div>
-
-                    <span className="text-[10px] text-slate-400 font-mono shrink-0">
-
-                      {doc.size || "PDF"}
-
-                    </span>
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            </div>
-
-            {/* Condition remarks if available */}
-            {selectedVehicleForDossier.conditionSummary && (
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                <span className="font-bold text-slate-700 block">Inspection Condition Dossier:</span>
-                <p className="text-slate-600 leading-relaxed font-normal">
-                  {selectedVehicleForDossier.conditionSummary}
-                </p>
-              </div>
-            )}
-
-            {/* Modal Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-              <span className="text-xs text-slate-400 font-mono">
-                NSC Oversight Clearance · Verified Read-Only
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedVehicleForDossier(null)}
-                className="px-5 py-2 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
-              >
-                Close Spec
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 8. ENRICHED MODAL: Wholesale Order Logistics Dossier        */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      {selectedOrderForDossier && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="bg-white rounded-[16px] border border-slate-200 shadow-2xl max-w-4xl w-full p-6 sm:p-7 space-y-6 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
-            {/* 1. Modal Header (Symmetric to /admin/vehicles/VEH_023) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 shrink-0 shadow-2xs">
-                  <Car className="w-7 h-7" />
-                </div>
-
-                <div className="space-y-1.5 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
-                      #{selectedOrderForDossier.vehicle?.stockId}
-                    </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
-                      {selectedOrderForDossier.orderNumber}
-                    </span>
-                    <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs">
-                      <Ship className="w-3 h-3 text-sky-600" />
-                      <span>Allocated &amp; Shipping Secured</span>
-                    </span>
-                  </div>
-
-                  <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-                    {selectedOrderForDossier.vehicle?.year} {selectedOrderForDossier.vehicle?.make} {selectedOrderForDossier.vehicle?.model}
-                  </h1>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
-                <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="font-semibold text-slate-800">{selectedOrderForDossier.dealerName}</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedOrderForDossier(null)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer border border-transparent hover:border-slate-200"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 2. Top Two Cards Strip: 4 KPI Metrics Strip */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {/* 1. ODOMETER (JEVIC) */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  ODOMETER (JEVIC)
-                </span>
-                <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                  {(selectedOrderForDossier.vehicle?.odometerKm || 25600).toLocaleString()} km
-                </div>
-              </div>
-
-              {/* 2. AUCTION & INSPECTION GRADE */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  AUCTION &amp; INSPECTION GRADE
-                </span>
-                <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-                  ★ {selectedOrderForDossier.vehicle?.auctionGrade || "4.5"}
-                </div>
-              </div>
-
-              {/* 3. TOTAL BUY PRICE (NZD) */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  TOTAL BUY PRICE (NZD)
-                </span>
-                <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                  ${selectedOrderForDossier.priceBreakdown?.totalBuyPriceNZD?.toLocaleString()} NZD
-                </div>
-              </div>
-
-              {/* 4. DELIVERY ETA / VESSEL */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                  DELIVERY ETA / VESSEL
-                </span>
-                <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
-                  {selectedOrderForDossier.etaDeliveryDate || "Pending Schedule"}
-                </div>
-              </div>
-            </div>
-
-            {/* Door to Door Order Delivery Corridor (Matching Reference Layout) */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
-                  Delivery Corridor Milestones (5 Programme Stages)
-                </span>
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                  Live RoRo Status
-                </span>
-              </div>
-              <OrderCorridorTimeline order={selectedOrderForDossier} />
-            </div>
-
-            {/* Modal Footer */}
-            <div className="flex items-center justify-end pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSelectedOrderForDossier(null)}
-                className="px-5 py-2 bg-[#0A0A0A] hover:bg-[#444444] text-white rounded-xl text-xs font-semibold cursor-pointer transition-colors"
-              >
-                Close Details
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

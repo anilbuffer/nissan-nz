@@ -49,6 +49,7 @@ interface FullPageVehicleDetailProps {
   vehicleData?: Vehicle;
   onBack?: () => void;
   isAdmin?: boolean;
+  isProgramme?: boolean;
   backLabel?: string;
 }
 
@@ -72,6 +73,7 @@ export default function FullPageVehicleDetail({
   vehicleData,
   onBack,
   isAdmin: isAdminProp,
+  isProgramme: isProgrammeProp,
   backLabel,
 }: FullPageVehicleDetailProps) {
   const router = useRouter();
@@ -93,15 +95,21 @@ export default function FullPageVehicleDetail({
   } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
 
-  // Determine role perspective strictly: Admin route/role vs Dealer route/role
+  // Determine role perspective strictly: Programme vs Admin vs Dealer
   const isDealerContext = typeof pathname === "string" && pathname.startsWith("/dealer");
   const isAdminContext = typeof pathname === "string" && pathname.startsWith("/admin");
+  const isProgrammeContext =
+    isProgrammeProp !== undefined
+      ? isProgrammeProp
+      : (typeof pathname === "string" && pathname.startsWith("/programme")) ||
+        currentUser?.role === "READONLY_PROGRAMME_USER";
+
   const isAdmin =
     isAdminProp !== undefined
       ? isAdminProp
-      : isAdminContext || (currentUser?.role === "AUTOHUB_ADMIN" && !isDealerContext);
+      : !isProgrammeContext && (isAdminContext || (currentUser?.role === "AUTOHUB_ADMIN" && !isDealerContext));
 
-  const isDealer = currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN";
+  const isDealer = !isProgrammeContext && (currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN");
   const dealerZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
 
   // Find vehicle from live programme context or fallback to mock data
@@ -539,14 +547,27 @@ export default function FullPageVehicleDetail({
 
           {/* Quick Header Actions: Tailored strictly to role responsibilities */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
-            {!isAdmin && currentDealer && (
+            {isProgrammeContext ? (
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+                <span className="font-semibold text-slate-800">Programme Central Oversight</span>
+                {reservingDealerName && (
+                  <>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-600 font-mono">
+                      {isReserved ? `Held: ${reservingDealerName}` : `Allocated: ${reservingDealerName}`}
+                    </span>
+                  </>
+                )}
+              </div>
+            ) : !isAdmin && currentDealer ? (
               <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-2xs">
                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
                 <span className="font-semibold text-slate-800">{currentDealer.legalTradingName}</span>
                 <span className="text-slate-300">·</span>
                 <span className="text-slate-500 font-mono">{dealerZone}</span>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -714,9 +735,237 @@ export default function FullPageVehicleDetail({
         <div className="lg:col-span-5 h-full flex flex-col">
           <div className="bg-white rounded-[16px] p-6 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-full flex flex-col justify-between space-y-5">
             {/* ──────────────────────────────────────────────────────── */}
-            {/* ADMIN COMMERCIAL VIEW                                    */}
+            {/* PROGRAMME COMMERCIAL VIEW                                */}
             {/* ──────────────────────────────────────────────────────── */}
-            {isAdmin ? (
+            {isProgrammeContext ? (
+              <div className="space-y-4">
+                {/* Japanese Baseline Pricing Box */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C3002F]" />
+                      Japanese Baseline Pricing ({vehicle.purchasePriceBasis || "FOB"})
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200 text-[10px] font-mono font-bold">
+                      {vehicle.purchasePriceBasis || "FOB"} · {vehicle.currency || "JPY"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-900 tracking-tight">
+                      ¥{vehicle.fobPriceJPY.toLocaleString()}
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono">JPY</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Raw Japan auction purchase price prior to ocean shipping (~${landedPrice.fobNZD.toLocaleString()} NZD equiv.)
+                  </p>
+                  <div className="pt-2 border-t border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between font-mono">
+                    <span className="text-slate-400 font-sans">Dispatch Vessel:</span>
+                    <strong className="text-slate-900 font-bold">Port of Auckland (RoRo V.48)</strong>
+                  </div>
+                </div>
+
+                {/* 5-Zone Wholesale Landed Matrix Selector */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-semibold uppercase tracking-wider text-slate-500">
+                      Wholesale Landed by Delivery Zone
+                    </span>
+                    <span className="font-mono text-slate-400">
+                      Active: {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
+                    </span>
+                  </div>
+                  <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1">
+                    {zonesWithPrices.map((z) => {
+                      const isSelected = selectedZone === z.id;
+                      return (
+                        <button
+                          key={z.id}
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            setSelectedZone(z.id);
+                          }}
+                          className={`flex-1 py-2 px-1 rounded-lg text-center transition-all cursor-pointer ${isSelected
+                            ? "bg-white text-slate-900 font-bold shadow-2xs ring-1 ring-slate-300"
+                            : "text-slate-600 hover:text-slate-900 font-medium"
+                            }`}
+                        >
+                          <span className="block text-xs font-bold leading-tight">{z.code}</span>
+                          <span className="block text-[11px] font-mono font-bold text-slate-900 leading-tight mt-0.5">
+                            ${z.fixedProfilePrice.toLocaleString()}
+                          </span>
+                          <span className="block text-[9px] font-mono text-slate-400 leading-tight">
+                            Tow ${z.towingCost}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Price Breakdown Line Items */}
+                <div className="divide-y divide-slate-100 text-xs">
+                  <div className="py-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <span>Pricing Component</span>
+                    <span>Calculated Value (NZD)</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Base Vehicle Purchase (FOB):</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.fobNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Ocean Freight (CIF Tokyo - NZ):</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.oceanFreightNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Customs Processing &amp; NZ GST (15% CIF):</span>
+                    <span className="font-mono font-medium text-slate-900">
+                      ${(landedPrice.customsProcessingNZD + landedPrice.gstNZD).toLocaleString()} NZD
+                    </span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">MR2A Compliance &amp; Inspection:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.complianceInspectionNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">
+                      Domestic Delivery ({selectedZoneConfig.zoneName.split("-")[0]?.trim()}):
+                    </span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.zoneDeliveryNZD.toLocaleString()} NZD</span>
+                  </div>
+                  <div className="py-1.5 flex items-center justify-between">
+                    <span className="text-slate-600">Nissan Programme Component:</span>
+                    <span className="font-mono font-medium text-slate-900">${landedPrice.programmeFeeNZD.toLocaleString()} NZD</span>
+                  </div>
+                </div>
+
+                {/* Total Landed Buy Price Box */}
+                <div className="py-2.5 px-3.5 flex items-center justify-between gap-3 bg-slate-50 rounded-xl border border-slate-200">
+                  <div>
+                    <strong className="text-xs text-slate-900 block font-bold">
+                      Total Buy Price ({selectedZone.replace("ZONE_", "Zone ")}):
+                    </strong>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      Guaranteed landed total for {selectedZoneConfig.zoneName.split("-")[0]?.trim()}
+                    </span>
+                  </div>
+                  <strong className="font-mono text-base sm:text-lg font-bold text-slate-950">
+                    ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
+                  </strong>
+                </div>
+
+                {/* Programme Allocation & Oversight Lifecycle Status */}
+                <div className="pt-2 border-t border-slate-100 space-y-3">
+                  {isAvailable && (
+                    <div className="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200 text-slate-900 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>Central Stock Status: Available</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 rounded-full">
+                          CENTRAL CATALOGUE
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        This unit is staged in central catalogue inventory and currently available for reservation by authorized Nissan NZ franchise dealers across Zones 1–5.
+                      </p>
+                    </div>
+                  )}
+
+                  {isReserved && (
+                    <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 text-slate-900 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Active Franchise Dealer Hold</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded">
+                          {remainingTime ? remainingTime.label : "Active Hold"}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-600 space-y-1.5 p-3 rounded-lg bg-white border border-slate-200/80 font-sans">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Reserving Dealership:</span>
+                          <span className="font-bold text-slate-900">{reservingDealerName}</span>
+                        </div>
+                        {activeReservation && (
+                          <>
+                            <div className="flex justify-between text-[11px]">
+                              <span className="text-slate-500">Buyer Contact:</span>
+                              <span className="text-slate-700 font-medium">
+                                {activeReservation.userName} ({activeReservation.userEmail})
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-[11px]">
+                              <span className="text-slate-500">Request ID:</span>
+                              <span className="font-mono font-bold text-slate-800">
+                                {activeReservation.requestId}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-[11px]">
+                              <span className="text-slate-500">Holding Expiry:</span>
+                              <span className="font-mono text-slate-800 font-medium">
+                                {new Date(activeReservation.expiresAt).toLocaleString("en-NZ")}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Exclusive 24-hour dealership reservation active. Awaiting franchise order conversion or expiration.
+                      </p>
+                    </div>
+                  )}
+
+                  {isAllocated && (
+                    <div className="p-3.5 rounded-xl bg-sky-50/60 border border-sky-200 text-slate-900 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <Ship className="w-4 h-4 text-sky-600" />
+                          <span>Wholesale Allocation Secured</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-sky-800 bg-sky-100/80 border border-sky-200 px-2 py-0.5 rounded">
+                          ALLOCATED
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-600 flex justify-between p-3 rounded-lg bg-white border border-slate-200/80">
+                        <span className="text-slate-500">Allocated Dealership:</span>
+                        <span className="font-bold text-slate-900">{reservingDealerName}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Vehicle allocation confirmed and locked into the RoRo ocean shipping corridor.
+                      </p>
+                    </div>
+                  )}
+
+                  {isSold && (
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold flex items-center gap-1.5 text-slate-900">
+                          <CheckCircle2 className="w-4 h-4 text-slate-600" />
+                          <span>Wholesale Settled &amp; Sold</span>
+                        </span>
+                        <span className="text-[10px] font-mono font-bold text-slate-700 bg-slate-200/80 border border-slate-300/80 px-2 py-0.5 rounded">
+                          SETTLED
+                        </span>
+                      </div>
+                      <div className="p-3 rounded-lg bg-white border border-slate-200/80 text-xs text-slate-600">
+                        <span className="text-slate-600 text-[11px]">Final handover and title transfer completed for {reservingDealerName}.</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Read-Only Programme Governance Banner */}
+                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span>NSC Governance Registry</span>
+                    <span className="text-slate-600 font-semibold">Read-Only Oversight</span>
+                  </div>
+                </div>
+              </div>
+            ) : isAdmin ? (
               <div className="space-y-4">
                 {/* Acquisition Baseline Box */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
