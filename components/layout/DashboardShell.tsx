@@ -118,6 +118,10 @@ export default function DashboardShell({
       if (isAdminRoute || isDealerRoute || isJapanRoute) {
         router.replace("/programme/stock");
       }
+    } else if (currentUser.role === "AUTOHUB_ADMIN") {
+      if (isDealerRoute || isJapanRoute || isProgrammeRoute) {
+        router.replace("/admin/dashboard");
+      }
     }
   }, [currentUser, pathname, portal, router]);
 
@@ -660,8 +664,8 @@ export default function DashboardShell({
         />
 
         {/* Scrollable View Content Canvas - Fluid Responsive for Desktop/Laptop/Tablet/Mobile */}
-        <main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 lg:p-7 xl:p-8 pb-20 md:pb-6 touch-scroll">
-          <div className="max-w-[1680px] 2xl:max-w-[1960px] w-full mx-auto">
+        <main className="flex-1 overflow-y-auto p-2.5 xs:p-3.5 sm:p-5 md:p-6 lg:p-7 xl:p-8 3xl:p-10 pb-20 md:pb-6 touch-scroll">
+          <div className="max-w-[1680px] 2xl:max-w-[1960px] 3xl:max-w-[2400px] w-full mx-auto">
             {renderViewContent()}
           </div>
         </main>

@@ -29,6 +29,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
   const [notification, setNotification] = useState<string | null>(null);
   const [selectedResForDetails, setSelectedResForDetails] = useState<ReservationRequest | null>(null);
   const [confirmDialogRes, setConfirmDialogRes] = useState<ReservationRequest | null>(null);
+  const [now] = useState(() => Date.now());
 
   // Filter and prioritize active holds first
   const filteredReservations = reservations
@@ -67,7 +68,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
 
   // Calculate dynamic countdown & warning status
   const calcRemainingTime = (expiresAt: string) => {
-    const diffMs = new Date(expiresAt).getTime() - Date.now();
+    const diffMs = new Date(expiresAt).getTime() - now;
     if (diffMs <= 0) {
       return { label: "Expired", isExpired: true, isWarning: false, hours: 0, minutes: 0 };
     }

@@ -40,16 +40,6 @@ export default function UserManagementView() {
   const [zoneFilter, setZoneFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
-  // If a user is selected, render their full details page
-  if (selectedUserId) {
-    return (
-      <UserDetailsView
-        userId={selectedUserId}
-        onBack={() => setSelectedUserId(null)}
-      />
-    );
-  }
-
   // Filtered users
   const filteredUsers = users.filter((u) => {
     // Search query matches name, email, dealership, phone
@@ -89,6 +79,16 @@ export default function UserManagementView() {
     const start = (validPage - 1) * ITEMS_PER_PAGE;
     return filteredUsers.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredUsers, currentPage, totalPages]);
+
+  // If a user is selected, render their full details page
+  if (selectedUserId) {
+    return (
+      <UserDetailsView
+        userId={selectedUserId}
+        onBack={() => setSelectedUserId(null)}
+      />
+    );
+  }
 
   // KPI calculations
 

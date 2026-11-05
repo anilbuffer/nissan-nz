@@ -135,7 +135,7 @@ export default function Header({
   }, []);
 
   return (
-    <header className="h-[60px] bg-white border-b border-slate-200/90 px-3 sm:px-6 flex items-center justify-between gap-2.5 sm:gap-4 sticky top-0 z-30 shrink-0">
+    <header className="h-[56px] xs:h-[60px] bg-white border-b border-slate-200/90 px-2.5 xs:px-3 sm:px-6 flex items-center justify-between gap-2 xs:gap-2.5 sm:gap-4 sticky top-0 z-30 shrink-0">
       {/* Left: Sidebar Toggle Icon + Global Search Bar Trigger */}
       <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-xl min-w-0">
         {onToggleSidebar && (

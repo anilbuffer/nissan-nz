@@ -47,39 +47,6 @@ export default function JapanInventoryView({
     toggleVehicleStatus(vehicleId);
   };
 
-  // If a vehicle is selected for amend, display the full Amend Vehicle Form view (same approach as /add-vehicle, not a modal)
-  if (selectedVehicleForAmend) {
-    return (
-      <AmendVehicleForm
-        vehicleId={selectedVehicleForAmend.id}
-        onSuccessReturn={() => setSelectedVehicleForAmend(null)}
-        onViewDetails={(vId) => {
-          const target = vehicles.find((v) => v.id === vId);
-          setSelectedVehicleForAmend(null);
-          if (target) setSelectedVehicleForDetails(target);
-        }}
-      />
-    );
-  }
-
-  // If a vehicle is selected, display the full inner details page (Not a modal)
-  if (selectedVehicleForDetails) {
-    return (
-      <JapanInventoryDetailsView
-        vehicleId={selectedVehicleForDetails.id}
-        onBack={() => setSelectedVehicleForDetails(null)}
-        onToggleStatus={handleToggleStatus}
-        onAmend={(vId) => {
-          const target = vehicles.find((v) => v.id === vId);
-          if (target) {
-            setSelectedVehicleForAmend(target);
-            setSelectedVehicleForDetails(null);
-          }
-        }}
-      />
-    );
-  }
-
   const filteredVehicles = vehicles.filter((v) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -126,6 +93,39 @@ export default function JapanInventoryView({
   const draftCount = vehicles.filter((v) => v.status === "DRAFT").length;
   const reservedCount = vehicles.filter((v) => v.status === "RESERVED").length;
   const withdrawnCount = vehicles.filter((v) => v.status === "WITHDRAWN").length;
+
+  // If a vehicle is selected for amend, display the full Amend Vehicle Form view (same approach as /add-vehicle, not a modal)
+  if (selectedVehicleForAmend) {
+    return (
+      <AmendVehicleForm
+        vehicleId={selectedVehicleForAmend.id}
+        onSuccessReturn={() => setSelectedVehicleForAmend(null)}
+        onViewDetails={(vId) => {
+          const target = vehicles.find((v) => v.id === vId);
+          setSelectedVehicleForAmend(null);
+          if (target) setSelectedVehicleForDetails(target);
+        }}
+      />
+    );
+  }
+
+  // If a vehicle is selected, display the full inner details page (Not a modal)
+  if (selectedVehicleForDetails) {
+    return (
+      <JapanInventoryDetailsView
+        vehicleId={selectedVehicleForDetails.id}
+        onBack={() => setSelectedVehicleForDetails(null)}
+        onToggleStatus={handleToggleStatus}
+        onAmend={(vId) => {
+          const target = vehicles.find((v) => v.id === vId);
+          if (target) {
+            setSelectedVehicleForAmend(target);
+            setSelectedVehicleForDetails(null);
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">

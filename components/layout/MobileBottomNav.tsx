@@ -80,7 +80,30 @@ export default function MobileBottomNav({
       ];
     }
 
-    // Default: Dealer Portal
+    if (pathname.startsWith("/programme") || currentUser?.role === "READONLY_PROGRAMME_USER") {
+      return [
+        {
+          id: "programme-stock",
+          label: "Stock",
+          icon: Car,
+          href: "/programme/stock",
+        },
+        {
+          id: "programme-reservations",
+          label: "Holds",
+          icon: Clock,
+          href: "/programme/reservations",
+        },
+        {
+          id: "programme-orders",
+          label: "Orders",
+          icon: Package,
+          href: "/programme/orders",
+        },
+      ];
+    }
+
+    // Default: Dealer Portal (DEALER_USER, DEALER_ADMIN)
     return [
       {
         id: "dealer-stock",
@@ -99,12 +122,6 @@ export default function MobileBottomNav({
         label: "Reserve",
         icon: Lock,
         href: "/dealer/reserve",
-      },
-      {
-        id: "dealer-profile",
-        label: "Dealership",
-        icon: MapPin,
-        href: "/dealer/profile",
       },
     ];
   };

@@ -73,6 +73,39 @@ export default function CatalogueDetailsModal({
     size: string;
   } | null>(null);
 
+  const vehicleDocs = useMemo(() => {
+    if (!vehicle) return [];
+    const docs = [...(vehicle.supportingDocuments || [])];
+    if (vehicle.conditionReportName && !docs.some((d) => d.name === vehicle.conditionReportName)) {
+      docs.unshift({
+        name: vehicle.conditionReportName,
+        type: "AUCTION_SHEET",
+        url: vehicle.conditionReportUrl || "https://example.com/reports/condition.pdf",
+        size: "2.4 MB",
+        uploadedAt: vehicle.createdAt || "2026-10-22",
+      });
+    }
+    if (docs.length === 0) {
+      docs.push(
+        {
+          name: "USS_Tokyo_Official_Auction_Sheet.pdf",
+          type: "AUCTION_SHEET",
+          url: "https://example.com/reports/uss.pdf",
+          size: "2.4 MB",
+          uploadedAt: "2026-10-22",
+        },
+        {
+          name: "JEVIC_Digital_Odometer_Certificate.pdf",
+          type: "JEVIC_CERTIFICATE",
+          url: "https://example.com/reports/jevic.pdf",
+          size: "1.1 MB",
+          uploadedAt: "2026-10-22",
+        }
+      );
+    }
+    return docs;
+  }, [vehicle]);
+
   if (!vehicle) return null;
 
   // Live vehicle from context (to reflect real-time additional costs & status changes)
@@ -123,38 +156,6 @@ export default function CatalogueDetailsModal({
   const isAllocated = vehicle.status === "ALLOCATED";
   const isSold = vehicle.status === "SOLD" || vehicle.status === "BUYED";
   const isWithdrawn = vehicle.status === "WITHDRAWN";
-
-  const vehicleDocs = useMemo(() => {
-    const docs = [...(vehicle?.supportingDocuments || [])];
-    if (vehicle?.conditionReportName && !docs.some((d) => d.name === vehicle.conditionReportName)) {
-      docs.unshift({
-        name: vehicle.conditionReportName,
-        type: "AUCTION_SHEET",
-        url: vehicle.conditionReportUrl || "https://example.com/reports/condition.pdf",
-        size: "2.4 MB",
-        uploadedAt: vehicle.createdAt || "2026-10-22",
-      });
-    }
-    if (docs.length === 0) {
-      docs.push(
-        {
-          name: "USS_Tokyo_Official_Auction_Sheet.pdf",
-          type: "AUCTION_SHEET",
-          url: "https://example.com/reports/uss.pdf",
-          size: "2.4 MB",
-          uploadedAt: "2026-10-22",
-        },
-        {
-          name: "JEVIC_Digital_Odometer_Certificate.pdf",
-          type: "JEVIC_CERTIFICATE",
-          url: "https://example.com/reports/jevic.pdf",
-          size: "1.1 MB",
-          uploadedAt: "2026-10-22",
-        }
-      );
-    }
-    return docs;
-  }, [vehicle]);
 
   const handleCopyVin = () => {
     navigator.clipboard.writeText(vehicle.vinChassis);
@@ -628,7 +629,8 @@ export default function CatalogueDetailsModal({
                   const isPending = cost.status === "PENDING_DEALER_APPROVAL";
                   const isApproved = cost.status === "APPROVED";
                   const isDeclined = cost.status === "DECLINED";
-                  const canAct = !isAdmin && isPending && (!cost.dealerId || cost.dealerId === currentDealer?.id || liveVehicle.reservedByDealerId === currentDealer?.id);
+                  const isDealer = currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN";
+                  const canAct = isDealer && !isAdmin && isPending && (!cost.dealerId || cost.dealerId === currentDealer?.id || liveVehicle.reservedByDealerId === currentDealer?.id);
 
                   return (
                     <div
@@ -889,7 +891,7 @@ export default function CatalogueDetailsModal({
             )}
           </div>
 
-          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-end">
             {vehicle.status === "RESERVED" && onNavigateToReservations && (
               <button
                 type="button"

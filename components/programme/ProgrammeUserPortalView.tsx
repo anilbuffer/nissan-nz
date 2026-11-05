@@ -54,6 +54,7 @@ export default function ProgrammeUserPortalView({
   const [selectedVehicleForDossier, setSelectedVehicleForDossier] = useState<Vehicle | null>(null);
   const [selectedOrderForDossier, setSelectedOrderForDossier] = useState<Order | null>(null);
   const [copiedVin, setCopiedVin] = useState(false);
+  const [now] = useState(() => Date.now());
 
   // Sync state if route changes
   useEffect(() => {
@@ -571,7 +572,7 @@ export default function ProgrammeUserPortalView({
                   </tr>
                 ) : (
                   paginatedHolds.map((reservation) => {
-                    const diffMs = new Date(reservation.expiresAt).getTime() - Date.now();
+                    const diffMs = new Date(reservation.expiresAt).getTime() - now;
                     const hoursRemaining = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
                     const minutesRemaining = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
                     const isActive = reservation.status === "ACTIVE_HOLD";

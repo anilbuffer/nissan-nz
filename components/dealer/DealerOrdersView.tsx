@@ -133,8 +133,9 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   const targetDealerId = currentDealer?.id || currentUser?.dealerId;
 
   // Filter orders strictly for this dealer (strict tenant boundary)
-  const dealerOrders = orders.filter(
-    (o) => (targetDealerId ? o.dealerId === targetDealerId : false)
+  const dealerOrders = useMemo(
+    () => orders.filter((o) => (targetDealerId ? o.dealerId === targetDealerId : false)),
+    [orders, targetDealerId]
   );
 
   // Filter 24h holds strictly for this dealer
@@ -154,23 +155,26 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   const [selectedOrderId, setSelectedOrderId] = useState<string>(
     dealerOrders[0]?.id || ""
   );
+  const [now] = useState(() => Date.now());
 
   // Keep selected order valid
   const selectedOrder =
     dealerOrders.find((o) => o.id === selectedOrderId) || dealerOrders[0];
 
   // Filtered orders list by search query and milestone
-  const filteredOrders = dealerOrders.filter((order) => {
+  const filteredOrders = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return (
-      !q ||
-      order.orderNumber.toLowerCase().includes(q) ||
-      order.vehicle.vinChassis.toLowerCase().includes(q) ||
-      order.vehicle.stockId.toLowerCase().includes(q) ||
-      order.vehicle.model.toLowerCase().includes(q) ||
-      (order.vesselName && order.vesselName.toLowerCase().includes(q))
-    );
-  });
+    return dealerOrders.filter((order) => {
+      return (
+        !q ||
+        order.orderNumber.toLowerCase().includes(q) ||
+        order.vehicle.vinChassis.toLowerCase().includes(q) ||
+        order.vehicle.stockId.toLowerCase().includes(q) ||
+        order.vehicle.model.toLowerCase().includes(q) ||
+        (order.vesselName && order.vesselName.toLowerCase().includes(q))
+      );
+    });
+  }, [dealerOrders, searchQuery]);
 
   // Orders Pagination (10 entries max per page)
   const ORDERS_PER_PAGE = 10;
@@ -451,7 +455,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {dealerHolds.map((res) => {
-                const diffMs = new Date(res.expiresAt).getTime() - Date.now();
+                const diffMs = new Date(res.expiresAt).getTime() - now;
                 const remHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
                 const remMins = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
                 const isExpiringSoon = remHours < (reservationConfig?.warningThresholdHours || 2);

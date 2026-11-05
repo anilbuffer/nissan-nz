@@ -337,11 +337,7 @@ export default function JapanInventoryDetailsView({
           <div className="mt-5 pt-4 border-t border-amber-200/60 bg-amber-50/70 -mx-6 -mb-6 px-6 py-3.5 flex items-center gap-2 text-xs text-amber-900">
             <Lock className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
-              Unit is locked under a 24-hour exclusivity hold by{" "}
-              <strong className="text-amber-950 font-bold">
-                {reservedDealer?.legalTradingName || "NZ Dealer Network Partner"}
-              </strong>
-              .
+              Unit is locked under an active 24-hour exclusivity hold by an authorised New Zealand Franchise Dealer.
             </span>
           </div>
         )}

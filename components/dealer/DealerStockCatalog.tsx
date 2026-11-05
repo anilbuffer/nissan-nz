@@ -53,6 +53,7 @@ export default function DealerStockCatalog({
   const pathname = usePathname();
   const isAdminView = pathname?.startsWith("/admin");
   const { currentDealer, currentUser } = useAuth();
+  const isDealer = currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN";
   const {
     vehicles: rawVehicles,
     reserveVehicle: atomicReserve,
@@ -465,7 +466,7 @@ export default function DealerStockCatalog({
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {isAdminView ? (
+                    {isAdminView || !isDealer ? (
                       <button
                         type="button"
                         onClick={(e) => {
@@ -683,7 +684,7 @@ export default function DealerStockCatalog({
                       <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
                     </button>
 
-                    {isAdminView ? (
+                    {isAdminView || !isDealer ? (
                       <button
                         type="button"
                         onClick={(e) => {

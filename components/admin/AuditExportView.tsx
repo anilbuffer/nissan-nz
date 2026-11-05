@@ -108,6 +108,7 @@ export default function AuditExportView() {
   const [activeTab, setActiveTab] = useState<"LEDGER" | "EXPORTS" | "ANALYTICS">("LEDGER");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRangeFilter, setDateRangeFilter] = useState<"ALL" | "24H" | "7D" | "30D">("ALL");
+  const [now] = useState(() => Date.now());
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
 
   // Filtered audit events
@@ -126,7 +127,6 @@ export default function AuditExportView() {
       if (dateRangeFilter !== "ALL") {
         const eventTime = log.timestamp ? new Date(log.timestamp).getTime() : 0;
         if (isNaN(eventTime) || eventTime === 0) return false;
-        const now = Date.now();
         if (dateRangeFilter === "24H" && now - eventTime > 24 * 60 * 60 * 1000) return false;
         if (dateRangeFilter === "7D" && now - eventTime > 7 * 24 * 60 * 60 * 1000) return false;
         if (dateRangeFilter === "30D" && now - eventTime > 30 * 24 * 60 * 60 * 1000) return false;

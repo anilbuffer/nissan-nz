@@ -358,11 +358,11 @@ export default function AtomicReservationModal({
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-2xs transition-all cursor-pointer text-center"
               >
                 Cancel
               </button>
@@ -371,7 +371,7 @@ export default function AtomicReservationModal({
                 type="button"
                 disabled={isSubmitting || !ackTermsAndPrice || !ackCancellationStatement}
                 onClick={handleConfirmReservation}
-                className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-xs transition-all shadow-xs cursor-pointer ${ackTermsAndPrice && ackCancellationStatement
+                className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-xs transition-all shadow-xs cursor-pointer ${ackTermsAndPrice && ackCancellationStatement
                     ? "bg-[#0A0A0A] hover:bg-[#27272A] text-white hover:shadow-soft active:scale-[0.98]"
                     : "bg-slate-200 text-slate-400 cursor-not-allowed"
                   }`}

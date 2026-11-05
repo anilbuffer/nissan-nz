@@ -56,6 +56,12 @@ const MILESTONE_SEQUENCE: { key: OrderMilestone; label: string }[] = [
   { key: "DELIVERED", label: "Delivered" },
 ];
 
+function getDefaultEtaDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 14);
+  return d.toISOString().slice(0, 10);
+}
+
 interface AllocationMilestonesViewProps {
   initialOrderId?: string;
   onSelectOrder?: (orderId: string) => void;
@@ -185,7 +191,7 @@ export default function AllocationMilestonesView({
         order.milestones?.find((m) => m.key === order.currentMilestone)?.notes ||
         "Carrier progression verified by Autohub Logistics."
       );
-      setEditingEta(order.etaDeliveryDate || new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
+      setEditingEta(order.etaDeliveryDate || getDefaultEtaDate());
       setEditingVessel(order.vesselName || "Trans-Pacific RoRo V.49");
       setEditingVoyage(order.voyageNumber || "TP-2649");
     }

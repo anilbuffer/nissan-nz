@@ -109,6 +109,8 @@ export default function GlobalSearchModal({
       currentUser?.role === "AUTOHUB_ADMIN"
     ) {
       router.push(`/admin/vehicles/${vehicleId}`);
+    } else if (currentUser?.role === "READONLY_PROGRAMME_USER" || pathname.startsWith("/programme")) {
+      router.push(`/vehicles/${vehicleId}`);
     } else {
       router.push(`/dealer/vehicles/${vehicleId}`);
     }

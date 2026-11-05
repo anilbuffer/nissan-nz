@@ -101,6 +101,7 @@ export default function FullPageVehicleDetail({
       ? isAdminProp
       : isAdminContext || (currentUser?.role === "AUTOHUB_ADMIN" && !isDealerContext);
 
+  const isDealer = currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN";
   const dealerZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
 
   // Find vehicle from live programme context or fallback to mock data
@@ -147,6 +148,7 @@ export default function FullPageVehicleDetail({
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [now] = useState(() => Date.now());
 
   // Admin Price Editing State
   const [isEditingPrice, setIsEditingPrice] = useState(false);
@@ -218,6 +220,40 @@ export default function FullPageVehicleDetail({
     return list;
   }, [vehicle]);
 
+  const images = useMemo(() => {
+    const existing = vehicle.images && vehicle.images.length > 0 ? vehicle.images : [];
+    if (existing.length > 1) return existing;
+    return getModelAngleImages(vehicle.model, existing[0]);
+  }, [vehicle]);
+
+  // Active reservation details from live reservations store
+  const activeReservation = useMemo(() => {
+    return (
+      reservations?.find(
+        (r) =>
+          (r.vehicleId === vehicle.id || r.vehicle?.id === vehicle.id) &&
+          r.status === "ACTIVE_HOLD"
+      ) ||
+      reservations?.find(
+        (r) => r.vehicleId === vehicle.id || r.vehicle?.id === vehicle.id
+      )
+    );
+  }, [reservations, vehicle.id]);
+
+  const remainingTime = useMemo(() => {
+    if (!activeReservation?.expiresAt) return null;
+    const diff = new Date(activeReservation.expiresAt).getTime() - now;
+    if (diff <= 0) return { label: "EXPIRED", isExpired: true, isWarning: false };
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const isWarning = hours < 2;
+    return {
+      label: `${hours}h ${mins}m remaining`,
+      isExpired: false,
+      isWarning,
+    };
+  }, [activeReservation, now]);
+
   if (!vehicle) {
     return (
       <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-soft max-w-xl mx-auto my-12">
@@ -272,11 +308,6 @@ export default function FullPageVehicleDetail({
     };
   });
 
-  const images = useMemo(() => {
-    const existing = vehicle.images && vehicle.images.length > 0 ? vehicle.images : [];
-    if (existing.length > 1) return existing;
-    return getModelAngleImages(vehicle.model, existing[0]);
-  }, [vehicle]);
   const activeImage = images[activeImageIdx] || images[0];
 
   const isAvailable = vehicle.status === "AVAILABLE";
@@ -298,34 +329,6 @@ export default function FullPageVehicleDetail({
       : vehicle.reservedByDealerId === "DEALER_001"
         ? "Auckland Nissan"
         : "Franchise Dealer Partner");
-
-  // Active reservation details from live reservations store
-  const activeReservation = useMemo(() => {
-    return (
-      reservations?.find(
-        (r) =>
-          (r.vehicleId === vehicle.id || r.vehicle?.id === vehicle.id) &&
-          r.status === "ACTIVE_HOLD"
-      ) ||
-      reservations?.find(
-        (r) => r.vehicleId === vehicle.id || r.vehicle?.id === vehicle.id
-      )
-    );
-  }, [reservations, vehicle.id]);
-
-  const remainingTime = useMemo(() => {
-    if (!activeReservation?.expiresAt) return null;
-    const diff = new Date(activeReservation.expiresAt).getTime() - Date.now();
-    if (diff <= 0) return { label: "EXPIRED", isExpired: true, isWarning: false };
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const isWarning = hours < 2;
-    return {
-      label: `${hours}h ${mins}m remaining`,
-      isExpired: false,
-      isWarning,
-    };
-  }, [activeReservation]);
 
   const isElectricOrHybrid =
     vehicle.fuelType === "100% Electric" ||
@@ -1097,7 +1100,7 @@ export default function FullPageVehicleDetail({
 
                 {/* Dealer Exclusivity Hold & Procurement Action */}
                 <div className="pt-2 border-t border-slate-100 space-y-3">
-                  {isAvailable ? (
+                  {isDealer && isAvailable ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -1109,6 +1112,16 @@ export default function FullPageVehicleDetail({
                       <Lock className="w-4 h-4 text-slate-400" />
                       <span>Place 24-Hour Exclusivity Hold (Reserve)</span>
                     </button>
+                  ) : !isDealer ? (
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{isAvailable ? "Catalogue Unit · Ready for Dealer Reservation" : vehicle.status}</span>
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded">
+                        Read-Only View
+                      </span>
+                    </div>
                   ) : isReserved && isHeldByCurrentDealer ? (
                     <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-xs flex items-center justify-between">
                       <span className="font-semibold flex items-center gap-2">
@@ -1497,7 +1510,7 @@ export default function FullPageVehicleDetail({
                   </div>
 
                   {/* Card Action / Settlement Footer */}
-                  {!isAdmin && isPending && (
+                  {!isAdmin && isPending && isDealer && (
                     <div className="mt-4 pt-3.5 border-t border-amber-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <p className="text-[11px] text-amber-900/80">
                         Approving incorporates this <strong className="font-mono text-slate-900">+${cost.amountNZD.toLocaleString()} NZD</strong> surcharge into your final landed buy price.
@@ -1520,6 +1533,13 @@ export default function FullPageVehicleDetail({
                           <span>Approve (+${cost.amountNZD.toLocaleString()} NZD)</span>
                         </button>
                       </div>
+                    </div>
+                  )}
+
+                  {!isAdmin && isPending && !isDealer && (
+                    <div className="mt-4 pt-3.5 border-t border-slate-200/80 flex items-center gap-2 text-xs text-slate-500 italic">
+                      <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span>Awaiting dealership cost variation approval before incorporation into landed price.</span>
                     </div>
                   )}
 

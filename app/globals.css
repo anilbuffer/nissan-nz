@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-xs: 20rem;
+  --breakpoint-3xl: 120rem;
+
   --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: var(--font-inter), "Inter", ui-monospace, monospace;
 

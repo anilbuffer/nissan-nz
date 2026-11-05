@@ -26,6 +26,9 @@ import {
   Car,
   Package,
   AlertCircle,
+  UserPlus,
+  Edit3,
+  X,
 } from "lucide-react";
 
 export default function DealershipProfileView() {
@@ -121,6 +124,38 @@ export default function DealershipProfileView() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+      {/* Toast Notice Banners */}
+      {staffSuccessNotice && (
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{staffSuccessNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStaffSuccessNotice(null)}
+            className="text-emerald-700 hover:text-emerald-900 text-xs cursor-pointer p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {downloadNotice && (
+        <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-slate-700 shrink-0" />
+            <span>{downloadNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDownloadNotice(null)}
+            className="text-slate-600 hover:text-slate-900 text-xs cursor-pointer p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header & Sub-Tabs (Soft Shadow + Outline)     */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -229,21 +264,36 @@ export default function DealershipProfileView() {
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1 sm:col-span-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Primary Contact
-                </span>
+              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-2 sm:col-span-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Primary Contact
+                  </span>
+                  {isDealerAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setIsEditContactOpen(true);
+                      }}
+                      className="text-[11px] font-semibold text-[#C3002F] hover:text-[#A10026] flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      <span>Edit Contact Details</span>
+                    </button>
+                  )}
+                </div>
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
                   <span className="text-sm font-bold text-slate-900">
                     {currentDealer?.primaryContactName || "David Miller"}
                   </span>
-                  <div className="flex items-center gap-3 text-slate-600 text-[11px]">
+                  <div className="flex items-center gap-3 text-slate-600 text-[11px] flex-wrap">
                     <span className="flex items-center gap-1">
                       <Mail className="w-3.5 h-3.5 text-slate-400" />
                       <span>{currentDealer?.primaryContactEmail || "dealer@aucklandnissan.co.nz"}</span>
                     </span>
                     <span>·</span>
-                    <span className="flex items-center gap-1 ">
+                    <span className="flex items-center gap-1">
                       <Phone className="w-3.5 h-3.5 text-slate-400" />
                       <span>{currentDealer?.primaryContactPhone || "+64 9 520 8899"}</span>
                     </span>
@@ -457,6 +507,24 @@ export default function DealershipProfileView() {
                 Franchise staff authorized to place atomic holds, review landed costs, and sign off order milestones.
               </p>
             </div>
+
+            {isDealerAdmin ? (
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setIsInviteModalOpen(true);
+                }}
+                className="px-4 py-2 bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs hover:shadow-soft transition-all self-start sm:self-auto shrink-0 active:scale-[0.98]"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Invite Authorized Buyer</span>
+              </button>
+            ) : (
+              <span className="text-[11px] font-mono text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl self-start sm:self-auto shrink-0">
+                Principal Authority Required to Invite Staff
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -645,6 +713,203 @@ export default function DealershipProfileView() {
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 italic">
               <strong>Mandatory Portal Disclosure:</strong> The portal must state that the fixed price assumes a standard compliance pass. Separately chargeable work will be identified at the time of invoicing and requires active dealer confirmation.
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 6. MODAL: Edit Primary Contact Details (DEALER_ADMIN only)  */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {isEditContactOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-800 shrink-0">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Edit Primary Dealership Contact
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Official contact credentials for wholesale delivery notices &amp; order execution.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditContactOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveContact} className="space-y-3.5 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Primary Contact Full Name <span className="text-[#C3002F]">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={contactNameInput}
+                  onChange={(e) => setContactNameInput(e.target.value)}
+                  placeholder="e.g. David Miller"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Business Email Address <span className="text-[#C3002F]">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={contactEmailInput}
+                  onChange={(e) => setContactEmailInput(e.target.value)}
+                  placeholder="e.g. dealer@aucklandnissan.co.nz"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Contact Phone Number <span className="text-[#C3002F]">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={contactPhoneInput}
+                  onChange={(e) => setContactPhoneInput(e.target.value)}
+                  placeholder="e.g. +64 9 520 8899"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsEditContactOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold cursor-pointer transition-all shadow-xs"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 7. MODAL: Invite Staff User (DEALER_ADMIN only)             */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {isInviteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-800 shrink-0">
+                  <UserPlus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Invite Authorized Dealership Buyer
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Grant procurement and reservation rights for {currentDealer?.legalTradingName || "your dealership"}.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsInviteModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleInviteStaff} className="space-y-3.5 text-xs">
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Staff Full Name <span className="text-[#C3002F]">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newStaffName}
+                  onChange={(e) => setNewStaffName(e.target.value)}
+                  placeholder="e.g. Jason Bell"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Corporate Email <span className="text-[#C3002F]">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={newStaffEmail}
+                  onChange={(e) => setNewStaffEmail(e.target.value)}
+                  placeholder="e.g. jason@dealership.co.nz"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Contact Phone
+                </label>
+                <input
+                  type="tel"
+                  value={newStaffPhone}
+                  onChange={(e) => setNewStaffPhone(e.target.value)}
+                  placeholder="e.g. +64 21 000 0000"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-slate-700 block">
+                  Assigned Authority Role
+                </label>
+                <select
+                  value={newStaffRole}
+                  onChange={(e) => setNewStaffRole(e.target.value as "DEALER_USER" | "DEALER_ADMIN")}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 text-xs cursor-pointer"
+                >
+                  <option value="DEALER_USER">Dealer User (Search Catalogue &amp; Reserve Stock)</option>
+                  <option value="DEALER_ADMIN">Dealer Administrator (Full Dealership Roster &amp; Management)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsInviteModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold cursor-pointer transition-all shadow-xs"
+                >
+                  Dispatch Staff Invitation
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
