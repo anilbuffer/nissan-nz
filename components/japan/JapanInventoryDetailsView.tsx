@@ -5,8 +5,7 @@ import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
-import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
-import { getModelAngleImages, getAngleLabel, getCanonicalModelName } from "@/lib/vehicle-media";
+import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import AmendVehicleForm from "./AmendVehicleForm";
 import {
   ArrowLeft,
@@ -760,19 +759,6 @@ export default function JapanInventoryDetailsView({
           <span>Cryptographic Export Register</span>
           <span className="text-slate-700 font-bold">SHA-256 Verified</span>
         </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 4.5 Matching Model Fleet Units in Japan Staging             */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <SameModelVehiclesShowcase
-          currentVehicle={vehicle}
-          allVehicles={vehicles}
-          isAdmin={true}
-          portal="japan"
-          title={`Fleet Depth · Other ${getCanonicalModelName(vehicle.model)} Units in Japan Yard Staging`}
-        />
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}

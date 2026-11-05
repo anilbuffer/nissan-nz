@@ -10,7 +10,6 @@ import { calculateLandedPrice, OFFICIAL_PRICING_ZONES, JPY_TO_NZD_EXCHANGE_RATE 
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
 import AddVehicleAdditionalCostModal from "@/components/admin/AddVehicleAdditionalCostModal";
-import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
 import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import {
   ArrowLeft,
@@ -1182,18 +1181,6 @@ export default function FullPageVehicleDetail({
             )}
           </div>
         </div>
-      </div>
-
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3.4 Multiple Sibling Units of Same Model in Central Fleet   */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <SameModelVehiclesShowcase
-          currentVehicle={vehicle}
-          allVehicles={vehicles}
-          isAdmin={isAdmin}
-          portal={isAdmin ? "admin" : "dealer"}
-        />
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}

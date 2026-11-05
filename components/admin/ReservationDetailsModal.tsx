@@ -5,8 +5,7 @@ import { ReservationRequest } from "@/lib/types";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { useProgramme } from "@/lib/programme-context";
-import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
-import { getModelAngleImages, getAngleLabel, getCanonicalModelName } from "@/lib/vehicle-media";
+import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import {
   X,
   Lock,
@@ -378,17 +377,6 @@ export default function ReservationDetailsModal({
             </div>
           </div>
 
-          {/* Sibling Units of Same Model in Fleet */}
-          <div className="bg-slate-50/70 rounded-xl border border-slate-200 p-4 space-y-3">
-            <SameModelVehiclesShowcase
-              currentVehicle={vehicle}
-              allVehicles={vehicles}
-              isAdmin={true}
-              portal="admin"
-              compact={true}
-              title={`Other ${getCanonicalModelName(vehicle?.model)} Units in Pipeline & Fleet`}
-            />
-          </div>
 
           {/* Confirm Dialog Input */}
           {confirmDialog && (

@@ -5,8 +5,7 @@ import { Vehicle } from "@/lib/types";
 import { calculateLandedPrice, OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { useProgramme } from "@/lib/programme-context";
-import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
-import { getModelAngleImages, getCanonicalModelName } from "@/lib/vehicle-media";
+import { getModelAngleImages } from "@/lib/vehicle-media";
 import {
   X,
   Car,

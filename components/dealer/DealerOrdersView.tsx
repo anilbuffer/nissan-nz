@@ -10,8 +10,7 @@ import StatusBadge from "@/components/common/StatusBadge";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { audio } from "@/lib/sound";
-import SameModelVehiclesShowcase from "@/components/common/SameModelVehiclesShowcase";
-import { getModelAngleImages, getCanonicalModelName } from "@/lib/vehicle-media";
+import { getModelAngleImages } from "@/lib/vehicle-media";
 import {
   CheckCircle2,
   Clock,
