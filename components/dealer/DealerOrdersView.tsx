@@ -245,85 +245,87 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Clean Simple Top Header & View Tabs (Soft Shadow + Outline) */}
+      {/* 1. Clean Simple Top Header & View Tabs (Hidden when inspecting an order) */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-            {mode === "RESERVE" ? `Vehicle Reservations (${dealerHolds.length})` : `Wholesale Orders (${dealerOrders.length})`}
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"} · {mode === "RESERVE" ? "Active 24-hour exclusivity reservations with guaranteed landed pricing locks." : "Live tracking of confirmed vehicle orders, ocean transit, and NZ compliance milestones."}
-          </p>
-        </div>
+      {!viewingOrderId && (
+        <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+              {mode === "RESERVE" ? `Vehicle Reservations (${dealerHolds.length})` : `Wholesale Orders (${dealerOrders.length})`}
+            </h1>
+            <p className="text-xs text-slate-500 font-medium">
+              {currentDealer?.legalTradingName || "Auckland Nissan City Ltd"} · {mode === "RESERVE" ? "Active 24-hour exclusivity reservations with guaranteed landed pricing locks." : "Live tracking of confirmed vehicle orders, ocean transit, and NZ compliance milestones."}
+            </p>
+          </div>
 
-        {/* Action / Navigation links */}
-        {mode === "ORDERS" ? (
-          <Link
-            href="/dealer/reserve"
-            className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs shrink-0 self-start sm:self-auto"
-          >
-            <Lock className="w-3.5 h-3.5 text-amber-500" />
-            <span>View Reservations</span>
-            <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-amber-100 text-amber-800 font-bold">
-              {dealerHolds.length}
-            </span>
-          </Link>
-        ) : mode === "RESERVE" ? (
-          <Link
-            href="/dealer/orders"
-            className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs shrink-0 self-start sm:self-auto"
-          >
-            <Ship className="w-3.5 h-3.5 text-slate-600" />
-            <span>Wholesale Orders</span>
-            <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-slate-100 text-slate-700 font-bold">
-              {dealerOrders.length}
-            </span>
-          </Link>
-        ) : (
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setActiveTab("ORDERS");
-                setViewingOrderId(null);
-              }}
-              className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "ORDERS"
-                ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
-                : "bg-white text-slate-700 hover:bg-slate-50"
-                }`}
+          {/* Action / Navigation links */}
+          {mode === "ORDERS" ? (
+            <Link
+              href="/dealer/reserve"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs shrink-0 self-start sm:self-auto"
             >
-              <Ship className={`w-3.5 h-3.5 ${activeTab === "ORDERS" ? "text-rose-400" : "text-slate-500"}`} />
-              <span>Active Orders</span>
-              <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "ORDERS" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
-                }`}>
-                {dealerOrders.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setActiveTab("HOLDS");
-                setViewingOrderId(null);
-              }}
-              className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "HOLDS"
-                ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
-                : "bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-            >
-              <Lock className={`w-3.5 h-3.5 ${activeTab === "HOLDS" ? "text-amber-400" : "text-amber-500"}`} />
-              <span>24h Reservations</span>
-              <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "HOLDS" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-900"
-                }`}>
+              <Lock className="w-3.5 h-3.5 text-amber-500" />
+              <span>View Reservations</span>
+              <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-amber-100 text-amber-800 font-bold">
                 {dealerHolds.length}
               </span>
-            </button>
-          </div>
-        )}
-      </div>
+            </Link>
+          ) : mode === "RESERVE" ? (
+            <Link
+              href="/dealer/orders"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs shrink-0 self-start sm:self-auto"
+            >
+              <Ship className="w-3.5 h-3.5 text-slate-600" />
+              <span>Wholesale Orders</span>
+              <span className="ml-1 px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-slate-100 text-slate-700 font-bold">
+                {dealerOrders.length}
+              </span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveTab("ORDERS");
+                  setViewingOrderId(null);
+                }}
+                className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "ORDERS"
+                  ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
+                  : "bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+              >
+                <Ship className={`w-3.5 h-3.5 ${activeTab === "ORDERS" ? "text-rose-400" : "text-slate-500"}`} />
+                <span>Active Orders</span>
+                <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "ORDERS" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
+                  }`}>
+                  {dealerOrders.length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  setActiveTab("HOLDS");
+                  setViewingOrderId(null);
+                }}
+                className={`btn-outline px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${activeTab === "HOLDS"
+                  ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
+                  : "bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+              >
+                <Lock className={`w-3.5 h-3.5 ${activeTab === "HOLDS" ? "text-amber-400" : "text-amber-500"}`} />
+                <span>24h Reservations</span>
+                <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${activeTab === "HOLDS" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-900"
+                  }`}>
+                  {dealerHolds.length}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Global Interactive Notification Toast */}
       {toastNotice && (
@@ -536,25 +538,23 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
           {/* If viewing a specific order detail dossier */}
           {viewingOrderId ? (
             <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Back to Orders Grid Action Bar */}
-              <div className="flex items-center justify-between bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex-wrap gap-3">
+              {/* Sleek Minimal Navigation Bar */}
+              <div className="flex items-center justify-between gap-3 pb-1">
                 <button
                   type="button"
                   onClick={() => {
                     audio.playSubtleClick();
                     setViewingOrderId(null);
                   }}
-                  className="btn-outline py-2 px-4 rounded-xl text-xs font-bold text-slate-800 hover:text-[#C3002F] flex items-center gap-2 cursor-pointer shadow-2xs transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 group text-xs w-fit"
                 >
-                  <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                  <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
                   <span>Back to Orders Grid</span>
                 </button>
 
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="font-mono text-slate-600 font-bold">
-                    Order: {selectedOrder?.orderNumber}
-                  </span>
-                </div>
+                <span className="font-mono text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                  Order: {selectedOrder?.orderNumber}
+                </span>
               </div>
 
               {/* Full-Width Detailed Order Cockpit */}
@@ -588,9 +588,6 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="font-mono text-xs font-bold text-slate-500">
                                 #{selectedOrder.vehicle.stockId}
-                              </span>
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold">
-                                Order: {selectedOrder.orderNumber}
                               </span>
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-[#C3002F] border border-rose-100">
                                 {selectedOrder.vehicle.fuelType}
@@ -857,7 +854,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
                           ODOMETER (JEVIC)
                         </span>
-                        <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                        <div className="text-sm sm:text-base font-bold font-mono text-slate-900 tracking-tight">
                           {selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}
                         </div>
                       </div>
@@ -867,7 +864,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
                           AUCTION GRADE
                         </span>
-                        <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+                        <div className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
                           ★ {selectedOrder.vehicle.auctionGrade || "4.5"} / {selectedOrder.vehicle.interiorGrade || "A"}
                         </div>
                       </div>
@@ -877,7 +874,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
                           DELIVERY DESTINATION
                         </span>
-                        <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight truncate">
+                        <div className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
                           {selectedOrder.pricingZoneId || selectedOrder.priceBreakdown?.zoneId || currentDealer?.pricingZoneId || "ZONE_1"}
                         </div>
                       </div>
@@ -887,7 +884,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
                           CORRIDOR STAGING
                         </span>
-                        <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+                        <div className="text-sm sm:text-base font-bold text-slate-900 truncate tracking-tight">
                           {selectedOrder.vesselName || selectedOrder.vehicle.location || "Yokohama Export Yard"}
                         </div>
                       </div>
