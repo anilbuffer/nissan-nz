@@ -199,8 +199,8 @@ export default function AllocationMilestonesView({
       {/* ═══════════════════════════════════════════════════════════════ */}
       {viewingOrder ? (
         <div className="space-y-6 animate-in fade-in duration-200">
-          {/* Top Navigation & Breadcrumb Bar */}
-          <div className="flex items-center justify-between gap-3 pb-1">
+          {/* Top Navigation & Action Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
             <button
               type="button"
               onClick={handleBackToOrders}
@@ -210,13 +210,36 @@ export default function AllocationMilestonesView({
               <span>Back to Orders</span>
             </button>
 
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
-                Order: {viewingOrder.orderNumber}
-              </span>
-              <span className="hidden sm:inline-block font-mono text-xs text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200">
-                VIN: {viewingOrder.vehicle?.vinChassis}
-              </span>
+            {/* Actions Bar moved up out of the card to prevent crowding */}
+            <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setSelectedOrderForCost(viewingOrder)}
+                className="btn-outline text-xs py-2 px-3.5 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-slate-500" />
+                <span>Additional Cost</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => startEditingMilestone(viewingOrder)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#333333] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>Update Milestone &amp; EDD</span>
+              </button>
+
+              {viewingOrder.vehicle?.id && (
+                <Link
+                  href={`/admin/vehicles/${viewingOrder.vehicle.id}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 text-xs"
+                  title="Open Vehicle Dossier"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Vehicle Dossier</span>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -250,43 +273,14 @@ export default function AllocationMilestonesView({
                 </div>
               </div>
 
-              {/* Quick Header Actions: Tailored to Admin Operations */}
-              <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
-                <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-2xs">
+              {/* Dealership Identity Pill (Clean & Uncrowded) */}
+              <div className="flex items-center shrink-0 self-start lg:self-center">
+                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs">
                   <Building2 className="w-3.5 h-3.5 text-slate-400" />
                   <span className="font-semibold text-slate-800">{viewingOrder.dealerName}</span>
                   <span className="text-slate-300">·</span>
                   <span className="text-slate-500 font-mono">{viewingOrder.pricingZoneId}</span>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedOrderForCost(viewingOrder)}
-                  className="btn-outline text-xs py-2 px-3.5 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <PlusCircle className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Additional Cost</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => startEditingMilestone(viewingOrder)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#333333] text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-[0.98]"
-                >
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>Update Milestone &amp; EDD</span>
-                </button>
-
-                {viewingOrder.vehicle?.id && (
-                  <Link
-                    href={`/admin/vehicles/${viewingOrder.vehicle.id}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 text-xs"
-                    title="Open Vehicle Dossier"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Vehicle Dossier</span>
-                  </Link>
-                )}
               </div>
             </div>
           </div>

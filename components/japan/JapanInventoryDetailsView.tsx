@@ -169,7 +169,7 @@ export default function JapanInventoryDetailsView({
   return (
     <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-7xl mx-auto">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Top Navigation & Action Notice Bar                       */}
+      {/* 1. Top Navigation & Action Bar                              */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
         <button
@@ -184,13 +184,81 @@ export default function JapanInventoryDetailsView({
           <span>Back to Inventory</span>
         </button>
 
-        {/* Action Notice Toast */}
-        {actionNotice && (
-          <div className="px-3.5 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-semibold shadow-soft border border-slate-200 animate-in fade-in flex items-center gap-2">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span>{actionNotice}</span>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto">
+          {/* Action Notice Toast */}
+          {actionNotice && (
+            <div className="px-3.5 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-semibold shadow-soft border border-slate-200 animate-in fade-in flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{actionNotice}</span>
+            </div>
+          )}
+
+          {/* Amend Details Button */}
+          <button
+            type="button"
+            onClick={() => {
+              audio.playSubtleClick();
+              if (onAmend) {
+                onAmend(vehicle.id);
+              } else {
+                setIsAmending(true);
+              }
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 group text-xs"
+            title="Amend vehicle specifications"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+            <span>Amend Details</span>
+          </button>
+
+          {/* Publication & Withdrawal Status Action Buttons */}
+          {isDraft && (
+            <button
+              type="button"
+              onClick={handlePublish}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Publish to Catalogue</span>
+            </button>
+          )}
+
+          {isAvailable && (
+            <button
+              type="button"
+              onClick={() => {
+                audio.playSubtleClick();
+                setIsWithdrawModalOpen(true);
+              }}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 hover:border-rose-200 transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+              <span>Withdraw from Catalogue</span>
+            </button>
+          )}
+
+          {isWithdrawn && (
+            <button
+              type="button"
+              onClick={handlePublish}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Re-publish to Catalogue</span>
+            </button>
+          )}
+
+          {isAllocated && (
+            <button
+              type="button"
+              onClick={handleMarkSold}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Mark Handover Completed</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
@@ -254,73 +322,12 @@ export default function JapanInventoryDetailsView({
             </div>
           </div>
 
-          {/* Quick Header Actions: Amendment, Publication & Status Management */}
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
-            {/* Amend Details Button - Transitions to Full View (Not a modal) */}
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                if (onAmend) {
-                  onAmend(vehicle.id);
-                } else {
-                  setIsAmending(true);
-                }
-              }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 group text-xs"
-              title="Amend vehicle specifications"
-            >
-              <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-              <span>Amend Details</span>
-            </button>
-
-            {/* Publication & Withdrawal Status Action Buttons */}
-            {isDraft && (
-              <button
-                type="button"
-                onClick={handlePublish}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Publish to Catalogue</span>
-              </button>
-            )}
-
-            {isAvailable && (
-              <button
-                type="button"
-                onClick={() => {
-                  audio.playSubtleClick();
-                  setIsWithdrawModalOpen(true);
-                }}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 hover:border-rose-200 transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-              >
-                <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                <span>Withdraw from Catalogue</span>
-              </button>
-            )}
-
-            {isWithdrawn && (
-              <button
-                type="button"
-                onClick={handlePublish}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Re-publish to Catalogue</span>
-              </button>
-            )}
-
-            {isAllocated && (
-              <button
-                type="button"
-                onClick={handleMarkSold}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Mark Handover Completed</span>
-              </button>
-            )}
+          {/* Card 1 Right: Terminal Yard Staging Pill (Clean & Uncrowded) */}
+          <div className="flex items-center shrink-0 self-start lg:self-center">
+            <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs">
+              <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
+              <span className="font-semibold text-slate-800">{vehicle.location || "Yokohama Export Terminal"}</span>
+            </div>
           </div>
         </div>
 
