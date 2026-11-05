@@ -193,7 +193,7 @@ export default function DealerStockCatalog({
   const availableCount = filteredVehicles.filter((v) => v.status === "AVAILABLE").length;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-7xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header with Vehicle Stock Title & Right-Aligned Tabs     */}
       {/* ─────────────────────────────────────────────────────────── */}
