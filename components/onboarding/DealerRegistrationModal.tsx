@@ -28,6 +28,7 @@ export default function DealerRegistrationModal({
   // Mandatory checkboxes - unticked by default as per US-02
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCostBoundary, setAcceptCostBoundary] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
 
@@ -44,7 +45,7 @@ export default function DealerRegistrationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto">
+      <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden my-auto">
         {/* Clean Executive Light Header */}
         <div className="bg-white px-6 py-5 text-slate-900 flex items-center justify-between border-b border-slate-200">
           <div className="flex items-center gap-3">
@@ -224,9 +225,19 @@ export default function DealerRegistrationModal({
 
             {/* Mandatory Commercial Acknowledgements (US-02) */}
             <div className="space-y-3 pt-2 border-t border-slate-100">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <FileText className="w-4 h-4 text-crimson-600" />
-                <span>3. Commercial Boundary & Terms Acceptance</span>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 font-semibold uppercase tracking-wider text-slate-500">
+                  <FileText className="w-4 h-4 text-crimson-600" />
+                  <span>3. Commercial Boundary &amp; Terms Acceptance</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsTermsModalOpen(true)}
+                  className="text-xs font-bold text-[#C3002F] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Particular Terms of Trade</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
               </div>
 
               {/* Price boundary explainer card */}
@@ -300,6 +311,16 @@ export default function DealerRegistrationModal({
           </form>
         )}
       </div>
+
+      <ParticularTermsModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+        onAccept={() => {
+          setAcceptTerms(true);
+          setAcceptCostBoundary(true);
+        }}
+        isAlreadyAccepted={acceptTerms && acceptCostBoundary}
+      />
     </div>
   );
 }

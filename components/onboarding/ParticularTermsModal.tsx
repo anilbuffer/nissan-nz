@@ -80,7 +80,7 @@ export default function ParticularTermsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden my-auto">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden my-auto">
         {/* ─────────────────────────────────────────────────────────── */}
         {/* HEADER                                                      */}
         {/* ─────────────────────────────────────────────────────────── */}
@@ -119,11 +119,10 @@ export default function ParticularTermsModal({
               audio.playSubtleClick();
               setActiveTab("TERMS");
             }}
-            className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-              activeTab === "TERMS"
-                ? "text-[#C3002F] border-[#C3002F]"
-                : "text-slate-500 border-transparent hover:text-slate-800"
-            }`}
+            className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === "TERMS"
+              ? "text-[#C3002F] border-[#C3002F]"
+              : "text-slate-500 border-transparent hover:text-slate-800"
+              }`}
           >
             <FileText className="w-4 h-4" />
             <span>Particular Terms of Trade</span>
@@ -135,11 +134,10 @@ export default function ParticularTermsModal({
               audio.playSubtleClick();
               setActiveTab("PRIVACY");
             }}
-            className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-              activeTab === "PRIVACY"
-                ? "text-[#C3002F] border-[#C3002F]"
-                : "text-slate-500 border-transparent hover:text-slate-800"
-            }`}
+            className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === "PRIVACY"
+              ? "text-[#C3002F] border-[#C3002F]"
+              : "text-slate-500 border-transparent hover:text-slate-800"
+              }`}
           >
             <Shield className="w-4 h-4" />
             <span>Privacy Policy</span>
@@ -483,3 +481,4 @@ export default function ParticularTermsModal({
     </div>
   );
 }
+
