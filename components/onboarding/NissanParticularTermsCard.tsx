@@ -23,6 +23,7 @@ export default function NissanParticularTermsCard({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Always initialize to unscrolled state on mount unless already accepted
   useEffect(() => {
@@ -36,6 +37,11 @@ export default function NissanParticularTermsCard({
         scrollRef.current.scrollTop = 0;
       }
     }
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, []);
 
   // When category changes, reset scroll position and states
@@ -50,6 +56,10 @@ export default function NissanParticularTermsCard({
         scrollRef.current.scrollTop = 0;
       }
     }
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = null;
+    }
   }, [category]);
 
   // When isAccepted changes from false to true, ensure scrolled state is active
@@ -60,11 +70,11 @@ export default function NissanParticularTermsCard({
     }
   }, [isAccepted]);
 
-  // Track scroll position to update % and trigger State 1 -> State 2
+  // Track scroll position to update % and trigger State 1 -> State 2 with a soft reading delay
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    
+
     // Safety guard: ensure the scrollable canvas has rendered its contents
     if (!scrollHeight || scrollHeight <= clientHeight + 100) return;
 
@@ -72,12 +82,20 @@ export default function NissanParticularTermsCard({
     const progress = Math.min(100, Math.max(0, Math.round((scrollTop / maxScroll) * 100)));
     setScrollProgress(progress);
 
-    // Unlocks State 2 ONLY when user has truly scrolled to the end:
-    // Requires progress >= 92% AND actual scroll movement (scrollTop > 150px)
+    // Unlocks State 2 with a natural 400ms reading delay once user reaches the bottom
     if (scrollTop > 150 && (progress >= 92 || scrollTop + clientHeight >= scrollHeight - 30)) {
-      if (!isScrolledToEnd) {
-        audio.playSubtleClick();
-        setIsScrolledToEnd(true);
+      if (!isScrolledToEnd && !scrollTimeoutRef.current) {
+        scrollTimeoutRef.current = setTimeout(() => {
+          audio.playSubtleClick();
+          setIsScrolledToEnd(true);
+          scrollTimeoutRef.current = null;
+        }, 400); // Soft 400ms reading pause delay before revealing green banner
+      }
+    } else {
+      // If user scrolls back up before the delay timer completes, cancel it
+      if (scrollTimeoutRef.current && !isScrolledToEnd) {
+        clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = null;
       }
     }
   };
@@ -98,7 +116,7 @@ export default function NissanParticularTermsCard({
             setIsScrolledToEnd(true);
           }
         }
-      }, 400);
+      }, 450);
     }
   };
 
@@ -129,41 +147,24 @@ export default function NissanParticularTermsCard({
 
   return (
     <div
-      className={`rounded-2xl border ${
-        error ? "border-rose-400 ring-2 ring-rose-500/20" : "border-slate-200/90"
-      } overflow-hidden bg-white shadow-soft transition-all`}
+      className={`rounded-2xl border ${error ? "border-rose-400 ring-2 ring-rose-500/20" : "border-slate-200/90"
+        } overflow-hidden bg-white shadow-soft transition-all`}
     >
       {/* ─────────────────────────────────────────────────────────── */}
       {/* CARD HEADER                                                 */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white px-5 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white px-4 sm:px-4 py-3 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100/90 text-[#C3002F] flex items-center justify-center shrink-0">
-            <FileText className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-100/90 text-[#C3002F] flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-bold text-base sm:text-lg text-slate-900 leading-tight">
+            <h3 className="font-bold text-sm text-slate-900 leading-tight">
               {category === "JAPAN_HQ"
                 ? "Nissan Global Japan Export Protocol & Terms"
                 : "Particular Terms of Trade"}
             </h3>
-            <p className="text-xs text-slate-500 leading-tight mt-0.5">
-              Official Nissan NZ Programme &amp; AutoHub Logistics Documentation • v2.4 (2026.2)
-            </p>
           </div>
-        </div>
-
-        <div>
-          {isAccepted ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 border border-emerald-300 text-xs font-bold text-emerald-800 shadow-2xs">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Accepted &amp; Bound</span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
-              Trade Customers Only
-            </span>
-          )}
         </div>
       </div>
 
@@ -174,11 +175,10 @@ export default function NissanParticularTermsCard({
         <button
           type="button"
           onClick={() => handleTabSwitch("TERMS")}
-          className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-            activeTab === "TERMS"
-              ? "text-[#C3002F] border-[#C3002F]"
-              : "text-slate-500 border-transparent hover:text-slate-800"
-          }`}
+          className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === "TERMS"
+            ? "text-[#C3002F] border-[#C3002F]"
+            : "text-slate-500 border-transparent hover:text-slate-800"
+            }`}
         >
           <FileText className="w-4 h-4" />
           <span>Particular Terms of Trade</span>
@@ -187,11 +187,10 @@ export default function NissanParticularTermsCard({
         <button
           type="button"
           onClick={() => handleTabSwitch("PRIVACY")}
-          className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-            activeTab === "PRIVACY"
-              ? "text-[#C3002F] border-[#C3002F]"
-              : "text-slate-500 border-transparent hover:text-slate-800"
-          }`}
+          className={`py-3 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === "PRIVACY"
+            ? "text-[#C3002F] border-[#C3002F]"
+            : "text-slate-500 border-transparent hover:text-slate-800"
+            }`}
         >
           <Shield className="w-4 h-4" />
           <span>Privacy Policy</span>
@@ -210,12 +209,12 @@ export default function NissanParticularTermsCard({
           <>
             {/* Document Header */}
             <div className="space-y-1 pb-2 border-b border-slate-100">
-              <h4 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+              <h4 className="font-bold text-sm text-slate-900 tracking-tight">
                 {category === "JAPAN_HQ"
                   ? "Nissan Global Japan Export Protocol & Marshalling Standards"
                   : "Nissan NZ Used Vehicle Programme Particular Terms of Trade"}
               </h4>
-              <p className="font-bold text-slate-800 text-xs">
+              <p className="font-bold text-slate-800 text-[10px]">
                 Trade Customers &amp; Authorized Dealership Network Only
               </p>
             </div>
@@ -358,15 +357,15 @@ export default function NissanParticularTermsCard({
 
             <div className="pt-2">
               <p className="font-bold text-slate-900 text-xs bg-slate-100/80 p-3 rounded-xl border border-slate-200">
-                By accepting these Particular Terms of Trade, the customer confirms that it has read,
+                By accepting these Particular Terms of Trade, the dealer confirms that it has read,
                 understood, and accepted the Commercial Boundary &amp; Terms of Trade in full.
               </p>
             </div>
 
             {/* Single text line fade green banner visible when full read/scrolled */}
             {isScrolledToEnd && (
-              <div className="p-3.5 sm:p-4 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] flex items-center gap-2.5 text-xs sm:text-sm font-semibold transition-opacity duration-700 animate-in fade-in">
-                <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] flex items-center gap-2.5 text-xs font-semibold transition-all duration-700 animate-in fade-in slide-in-from-bottom-1">
+                <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0" />
                 <span>You have reached the end of the Particular Terms of Trade.</span>
               </div>
             )}
@@ -421,7 +420,7 @@ export default function NissanParticularTermsCard({
 
             {/* Single text line fade green banner visible when full read/scrolled */}
             {isScrolledToEnd && (
-              <div className="p-3.5 sm:p-4 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] flex items-center gap-2.5 text-xs sm:text-sm font-semibold transition-opacity duration-700 animate-in fade-in">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] flex items-center gap-2.5 text-xs sm:text-sm font-semibold transition-all duration-700 animate-in fade-in slide-in-from-bottom-1">
                 <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
                 <span>You have reached the end of the Privacy Policy.</span>
               </div>
@@ -437,7 +436,7 @@ export default function NissanParticularTermsCard({
         <div className="bg-[#FFFBEB] border-t border-b border-[#FDE68A] px-5 py-2.5 flex items-center justify-between text-xs text-[#92400E]">
           <div className="flex items-center gap-2">
             <span className="text-[#DC2626] font-bold text-base leading-none">↓</span>
-            <span className="font-medium text-[#78350F] text-xs sm:text-sm">
+            <span className="font-medium text-[#78350F] text-xs">
               Please scroll through and view the entire terms to enable acceptance
             </span>
           </div>
@@ -451,7 +450,7 @@ export default function NissanParticularTermsCard({
       {/* FOOTER (MATCHING IMAGE 1 WHEN INCOMPLETE, IMAGE 2 WHEN DONE) */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="px-5 sm:px-6 py-4 bg-white border-t border-slate-100 flex items-center justify-between gap-4">
-        <div className="text-xs sm:text-sm text-slate-500 font-normal">
+        <div className="text-xs text-slate-500 font-normal">
           {isScrolledToEnd ? (
             <span className="flex items-center gap-1.5 text-slate-600">
               <span>✓ Terms fully viewed. You may now accept.</span>
@@ -479,7 +478,7 @@ export default function NissanParticularTermsCard({
             <button
               type="button"
               onClick={handleScrollToAgree}
-              className="px-4 sm:px-5 py-2.5 rounded-xl bg-[#E8EDF5] hover:bg-[#DCE4F0] text-[#64748B] hover:text-[#334155] border border-[#CBD5E1] font-bold text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
+              className="px-4 sm:px-5 py-2.5 rounded-xl bg-[#E8EDF5] hover:bg-[#DCE4F0] text-[#64748B] hover:text-[#334155] border border-[#CBD5E1] font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-2xs"
             >
               <CheckCircle2 className="w-4 h-4 text-[#94A3B8]" />
               <span>Scroll to Agree (↓)</span>
@@ -491,11 +490,10 @@ export default function NissanParticularTermsCard({
             <button
               type="button"
               onClick={handleAcceptClick}
-              className={`px-5 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all duration-300 cursor-pointer active:scale-[0.98] ${
-                isAccepted
-                  ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-                  : "bg-[#0A0A0A] hover:bg-[#262626] text-white shadow-md shadow-black/20 ring-2 ring-black/10 animate-in fade-in zoom-in-95 duration-500 hover:scale-[1.02]"
-              }`}
+              className={`px-5 sm:px-6 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all duration-300 cursor-pointer active:scale-[0.98] ${isAccepted
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                : "bg-[#0A0A0A] hover:bg-[#262626] text-white shadow-black/20 ring-2 ring-black/10 animate-in fade-in zoom-in-95 duration-500 hover:scale-[1.02]"
+                }`}
             >
               <CheckCircle2 className="w-4 h-4 text-white" />
               <span>{isAccepted ? "Accepted & Agreed" : "Accept & Agree to Terms"}</span>

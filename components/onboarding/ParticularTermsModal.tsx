@@ -346,8 +346,8 @@ export default function ParticularTermsModal({
 
               {/* Green End of Document Indicator (Visible when scrolled to bottom) */}
               {hasScrolledToBottom && (
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/90 text-emerald-800 flex items-center gap-2.5 text-xs font-semibold animate-in fade-in duration-300">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200/90 text-emerald-800 flex items-center gap-2.5 text-xs font-semibold animate-in fade-in duration-300">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                   <span>You have reached the end of the Particular Terms of Trade.</span>
                 </div>
               )}
@@ -469,7 +469,7 @@ export default function ParticularTermsModal({
                   onAccept();
                   onClose();
                 }}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-[#C3002F] hover:bg-[#A10026] active:scale-[0.98] rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-[#0A0A0A] hover:bg-[#262626] active:scale-[0.98] rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4 text-white" />
                 <span>Accept &amp; Agree to Terms</span>

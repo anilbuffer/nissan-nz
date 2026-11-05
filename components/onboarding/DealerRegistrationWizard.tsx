@@ -689,7 +689,7 @@ export default function DealerRegistrationWizard() {
           {/* Global Heading */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900">
                 {category === "DEALER_NZ"
                   ? "Dealer NZ Registration"
                   : category === "JAPAN_HQ"
@@ -773,7 +773,7 @@ export default function DealerRegistrationWizard() {
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Application Successfully Logged</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                   {category === "DEALER_NZ"
                     ? "Dealership Onboarding Received"
                     : category === "JAPAN_HQ"
@@ -881,10 +881,10 @@ export default function DealerRegistrationWizard() {
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-800">
                     Step {currentStep} of {activeSteps.length}
                   </span>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2 tracking-tight">
+                  <h2 className="text-base sm:text-xl font-bold text-slate-900 mt-2 tracking-tight">
                     {activeSteps[currentStep - 1].title}
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {activeSteps[currentStep - 1].subtitle}
                   </p>
                 </div>
@@ -1907,7 +1907,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-all active:scale-[0.98] group cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#262626] text-white text-xs font-semibold transition-all active:scale-[0.98] group cursor-pointer shadow-sm"
                   >
                     <span>Continue to Step {currentStep + 1}</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -1916,7 +1916,7 @@ export default function DealerRegistrationWizard() {
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+                    className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-[#0A0A0A] hover:bg-[#262626] text-white text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer shadow-sm"
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>
