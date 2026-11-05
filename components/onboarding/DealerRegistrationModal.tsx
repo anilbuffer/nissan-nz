@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, CheckCircle2, ShieldCheck, FileText, AlertTriangle, Building2, Mail, Phone, MapPin } from "lucide-react";
+import { X, CheckCircle2, ShieldCheck, FileText, AlertTriangle, Building2, Mail, Phone, MapPin, ExternalLink } from "lucide-react";
 import { MOCK_PRICING_ZONES } from "@/lib/mock-data";
+import ParticularTermsModal from "@/components/onboarding/ParticularTermsModal";
 
 interface DealerRegistrationModalProps {
   isOpen: boolean;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { audio } from "@/lib/sound";
 import { useProgramme } from "@/lib/programme-context";
+import ParticularTermsModal from "@/components/onboarding/ParticularTermsModal";
 import {
   Building2,
   Mail,
@@ -25,6 +26,7 @@ import {
   Globe,
   Briefcase,
   Check,
+  ExternalLink,
 } from "lucide-react";
 
 // Registration Categories
@@ -263,6 +265,7 @@ export default function DealerRegistrationWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   // Category 1: NZ Dealer Form Data
   const [dealerData, setDealerData] = useState<DealerFormData>({
@@ -1099,6 +1102,48 @@ export default function DealerRegistrationWizard() {
                   {/* Step 2: Commercial Boundary & Terms */}
                   {currentStep === 2 && (
                     <div className="space-y-6 animate-in fade-in duration-200">
+                      {/* Particular Terms of Trade Action Banner (Matching Reference Design) */}
+                      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-50/70 via-slate-50 to-white border border-rose-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start sm:items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-xl bg-white border border-rose-200/90 text-[#C3002F] flex items-center justify-center shrink-0 shadow-2xs">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-sm sm:text-base text-slate-900">
+                                Particular Terms of Trade
+                              </h3>
+                              {dealerData.acceptTerms && dealerData.acceptCostBoundary ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/90 border border-emerald-300 text-[10px] font-bold text-emerald-800">
+                                  <Check className="w-3 h-3" />
+                                  <span>Accepted &amp; Bound</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100/90 border border-amber-300 text-[10px] font-bold text-amber-800">
+                                  <span>Review Required</span>
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              Official Nissan NZ Programme &amp; AutoHub Logistics Documentation • v2.4 (2026.2)
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            setIsTermsModalOpen(true);
+                          }}
+                          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] shrink-0"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>{dealerData.acceptTerms ? "Re-open Terms of Trade" : "Review & Accept Terms"}</span>
+                        </button>
+                      </div>
+
+                      {/* Commercial Boundary Breakdown */}
                       <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white">
                         <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 to-slate-100/70 border-b border-slate-200/80 flex items-center justify-between text-xs font-bold text-slate-800">
                           <span className="flex items-center gap-2">
@@ -1108,7 +1153,7 @@ export default function DealerRegistrationWizard() {
                             <span>Dealer-Visible Commercial Boundary</span>
                           </span>
                           <span className="font-mono text-[10px] font-semibold bg-white px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 shadow-2xs">
-                            v2026.1 Official Policy
+                            v2026.2 Official Policy
                           </span>
                         </div>
 
@@ -1181,8 +1226,17 @@ export default function DealerRegistrationWizard() {
                         </div>
                       </div>
 
+                      {/* Interactive Agreement Checkbox Row */}
                       <div className="space-y-1.5 pt-1">
-                        <label
+                        <div
+                          onClick={() => {
+                            if (!dealerData.acceptTerms || !dealerData.acceptCostBoundary) {
+                              setIsTermsModalOpen(true);
+                            } else {
+                              updateDealerField("acceptTerms", false);
+                              updateDealerField("acceptCostBoundary", false);
+                            }
+                          }}
                           className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${dealerData.acceptTerms && dealerData.acceptCostBoundary
                             ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20"
                             : errors.acceptTerms
@@ -1194,15 +1248,33 @@ export default function DealerRegistrationWizard() {
                             type="checkbox"
                             checked={dealerData.acceptTerms && dealerData.acceptCostBoundary}
                             onChange={(e) => {
-                              updateDealerField("acceptTerms", e.target.checked);
-                              updateDealerField("acceptCostBoundary", e.target.checked);
+                              if (e.target.checked) {
+                                setIsTermsModalOpen(true);
+                              } else {
+                                updateDealerField("acceptTerms", false);
+                                updateDealerField("acceptCostBoundary", false);
+                              }
                             }}
-                            className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 border-slate-300 shrink-0 cursor-pointer"
+                            className="w-4 h-4 rounded text-[#C3002F] focus:ring-[#C3002F] border-slate-300 shrink-0 cursor-pointer"
                           />
-                          <span className="text-xs text-slate-700 leading-snug">
-                            I accept the <strong className="text-slate-900 font-bold">Nissan NZ Terms of Trade (v2026.1)</strong> and acknowledge the <strong className="text-slate-900 font-bold">Commercial Cost Boundary</strong>. *
-                          </span>
-                        </label>
+                          <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <span className="text-xs text-slate-700 leading-snug">
+                              I accept the <strong className="text-slate-900 font-bold">Nissan NZ Particular Terms of Trade (v2.4 / 2026.2)</strong> and acknowledge the <strong className="text-slate-900 font-bold">Commercial Cost Boundary</strong>. *
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                audio.playSubtleClick();
+                                setIsTermsModalOpen(true);
+                              }}
+                              className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer inline-flex items-center gap-1 shrink-0"
+                            >
+                              <span>View Full Terms</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
 
                         {errors.acceptTerms && (
                           <p className="text-[11px] text-rose-600 font-medium">{errors.acceptTerms}</p>
@@ -1505,6 +1577,47 @@ export default function DealerRegistrationWizard() {
                   {/* Step 2: Japan Export Terms & Protocol */}
                   {currentStep === 2 && (
                     <div className="space-y-6 animate-in fade-in duration-200">
+                      {/* Particular Terms & Export Protocol Action Banner */}
+                      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-rose-50/70 via-slate-50 to-white border border-rose-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start sm:items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-xl bg-white border border-rose-200/90 text-[#C3002F] flex items-center justify-center shrink-0 shadow-2xs">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-sm sm:text-base text-slate-900">
+                                Japan Export Protocol &amp; Particular Terms
+                              </h3>
+                              {japanData.acceptTerms && japanData.acceptCostBoundary ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/90 border border-emerald-300 text-[10px] font-bold text-emerald-800">
+                                  <Check className="w-3 h-3" />
+                                  <span>Accepted &amp; Aligned</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100/90 border border-amber-300 text-[10px] font-bold text-amber-800">
+                                  <span>Review Required</span>
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              Nissan Global Japan Export Protocol &amp; Marshalling Standards • v2026.2
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            setIsTermsModalOpen(true);
+                          }}
+                          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#C3002F] hover:bg-[#A10026] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] shrink-0"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>{japanData.acceptTerms ? "Re-open Terms" : "Review Terms & Protocol"}</span>
+                        </button>
+                      </div>
+
                       <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white">
                         <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 to-slate-100/70 border-b border-slate-200/80 flex items-center justify-between text-xs font-bold text-slate-800">
                           <span className="flex items-center gap-2">
@@ -1514,7 +1627,7 @@ export default function DealerRegistrationWizard() {
                             <span>Japan Export &amp; Pre-Shipment Boundary Protocol</span>
                           </span>
                           <span className="font-mono text-[10px] font-semibold bg-white px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 shadow-2xs">
-                            v2026.1-JP-EXPORT
+                            v2026.2-JP-EXPORT
                           </span>
                         </div>
 
@@ -1576,7 +1689,15 @@ export default function DealerRegistrationWizard() {
                       </div>
 
                       <div className="space-y-1.5 pt-1">
-                        <label
+                        <div
+                          onClick={() => {
+                            if (!japanData.acceptTerms || !japanData.acceptCostBoundary) {
+                              setIsTermsModalOpen(true);
+                            } else {
+                              updateJapanField("acceptTerms", false);
+                              updateJapanField("acceptCostBoundary", false);
+                            }
+                          }}
                           className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${japanData.acceptTerms && japanData.acceptCostBoundary
                             ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20"
                             : errors.acceptTerms
@@ -1588,15 +1709,33 @@ export default function DealerRegistrationWizard() {
                             type="checkbox"
                             checked={japanData.acceptTerms && japanData.acceptCostBoundary}
                             onChange={(e) => {
-                              updateJapanField("acceptTerms", e.target.checked);
-                              updateJapanField("acceptCostBoundary", e.target.checked);
+                              if (e.target.checked) {
+                                setIsTermsModalOpen(true);
+                              } else {
+                                updateJapanField("acceptTerms", false);
+                                updateJapanField("acceptCostBoundary", false);
+                              }
                             }}
-                            className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 border-slate-300 shrink-0 cursor-pointer"
+                            className="w-4 h-4 rounded text-[#C3002F] focus:ring-[#C3002F] border-slate-300 shrink-0 cursor-pointer"
                           />
-                          <span className="text-xs text-slate-700 leading-snug">
-                            I accept the <strong className="text-slate-900 font-bold">Nissan Global Japan Export Protocol (v2026.1-JP-EXPORT)</strong> and confirm marshalling facility alignment. *
-                          </span>
-                        </label>
+                          <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <span className="text-xs text-slate-700 leading-snug">
+                              I accept the <strong className="text-slate-900 font-bold">Nissan Global Japan Export Protocol (v2026.2-JP-EXPORT)</strong> and confirm marshalling facility alignment. *
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                audio.playSubtleClick();
+                                setIsTermsModalOpen(true);
+                              }}
+                              className="text-[11px] font-bold text-[#C3002F] hover:underline cursor-pointer inline-flex items-center gap-1 shrink-0"
+                            >
+                              <span>View Full Terms</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
 
                         {errors.acceptTerms && (
                           <p className="text-[11px] text-rose-600 font-medium">{errors.acceptTerms}</p>
@@ -2072,6 +2211,27 @@ export default function DealerRegistrationWizard() {
           )}
         </div>
       </main>
+
+      {/* Particular Terms of Trade & Privacy Policy Modal */}
+      <ParticularTermsModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+        onAccept={() => {
+          updateDealerField("acceptTerms", true);
+          updateDealerField("acceptCostBoundary", true);
+          updateJapanField("acceptTerms", true);
+          updateJapanField("acceptCostBoundary", true);
+          updateProgrammeField("acceptCompliance", true);
+          setErrors((prev) => ({ ...prev, acceptTerms: undefined, acceptCompliance: undefined }));
+        }}
+        isAlreadyAccepted={
+          category === "DEALER_NZ"
+            ? dealerData.acceptTerms && dealerData.acceptCostBoundary
+            : category === "JAPAN_HQ"
+              ? japanData.acceptTerms && japanData.acceptCostBoundary
+              : programmeData.acceptCompliance
+        }
+      />
     </div>
   );
 }
