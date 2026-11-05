@@ -9,6 +9,7 @@ import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { Vehicle, Order, ZoneId } from "@/lib/types";
 import StatusBadge from "@/components/common/StatusBadge";
+import { getVehiclePriorityScore } from "@/lib/vehicle-priority";
 import {
   Car,
   Building2,
@@ -40,7 +41,7 @@ export default function ProgrammeUserPortalView({
   initialSubTab = "stock",
 }: ProgrammeUserPortalViewProps) {
   const router = useRouter();
-  const { currentUser } = useAuth();
+  const { currentUser, currentDealer } = useAuth();
   const { vehicles, reservations, orders, updateVehicle, setVehicleStatus } = useProgramme();
 
   const [activeTab, setActiveTab] = useState<"stock" | "reservations" | "orders">(
@@ -79,18 +80,27 @@ export default function ProgrammeUserPortalView({
   // Filtered Vehicles
   const filteredVehicles = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return vehicles.filter((v) => {
-      const matchSearch =
-        !q ||
-        v.stockId.toLowerCase().includes(q) ||
-        v.model.toLowerCase().includes(q) ||
-        v.make.toLowerCase().includes(q) ||
-        v.vinChassis.toLowerCase().includes(q) ||
-        v.color.toLowerCase().includes(q);
-      const matchStatus = statusFilter === "ALL" || v.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [vehicles, searchQuery, statusFilter]);
+    return vehicles
+      .filter((v) => {
+        const matchSearch =
+          !q ||
+          v.stockId.toLowerCase().includes(q) ||
+          v.model.toLowerCase().includes(q) ||
+          v.make.toLowerCase().includes(q) ||
+          v.vinChassis.toLowerCase().includes(q) ||
+          v.color.toLowerCase().includes(q);
+        const matchStatus = statusFilter === "ALL" || v.status === statusFilter;
+        return matchSearch && matchStatus;
+      })
+      .sort((a, b) => {
+        const priorityA = getVehiclePriorityScore(a, currentDealer?.id, false);
+        const priorityB = getVehiclePriorityScore(b, currentDealer?.id, false);
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+        return a.fobPriceJPY - b.fobPriceJPY;
+      });
+  }, [vehicles, searchQuery, statusFilter, currentDealer?.id]);
 
   // Filtered Holds
   const filteredHolds = useMemo(() => {

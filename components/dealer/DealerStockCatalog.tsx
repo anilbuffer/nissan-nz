@@ -10,6 +10,7 @@ import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
 import CatalogueDetailsModal from "@/components/admin/CatalogueDetailsModal";
+import { getVehiclePriorityScore, getDealerReservationLabel } from "@/lib/vehicle-priority";
 import {
   Search,
   SlidersHorizontal,
@@ -34,6 +35,7 @@ import {
   Ship,
   FileCheck2,
   Eye,
+  Wrench,
   AlertTriangle,
 } from "lucide-react";
 
@@ -71,7 +73,6 @@ export default function DealerStockCatalog({
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "AVAILABLE" | "RESERVED" | "ALLOCATED" | "SOLD">("ALL");
   const [dossierVehicle, setDossierVehicle] = useState<Vehicle | null>(null);
 
   // Layout View Mode (Grid vs List) with Smooth Transition
@@ -94,16 +95,14 @@ export default function DealerStockCatalog({
     audio.playSubtleClick();
     setSearchQuery("");
     setSelectedModel("ALL");
-    setStatusFilter("ALL");
   };
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (searchQuery) count++;
     if (selectedModel !== "ALL") count++;
-    if (statusFilter !== "ALL") count++;
     return count;
-  }, [searchQuery, selectedModel, statusFilter]);
+  }, [searchQuery, selectedModel]);
 
   // Model Counts for Pills
   const modelStats = useMemo(() => {
@@ -145,10 +144,6 @@ export default function DealerStockCatalog({
       .filter((v) => {
         // Hide withdrawn and draft stock from dealer catalog; admin can see all
         if (!isAdminView && (v.status === "WITHDRAWN" || v.status === "DRAFT")) return false;
-        if (statusFilter === "AVAILABLE" && v.status !== "AVAILABLE") return false;
-        if (statusFilter === "RESERVED" && v.status !== "RESERVED") return false;
-        if (statusFilter === "ALLOCATED" && v.status !== "ALLOCATED") return false;
-        if (statusFilter === "SOLD" && v.status !== "SOLD" && v.status !== "BUYED") return false;
 
         if (effectiveSearch) {
           const q = effectiveSearch.toLowerCase();
@@ -168,11 +163,19 @@ export default function DealerStockCatalog({
         return true;
       })
       .sort((a, b) => {
+        // 1. Highest Priority First (Additional Cost, Reserved by Auckland Nissan, Buyed, Sold, Allocated, Reserved, Available)
+        const priorityA = getVehiclePriorityScore(a, currentDealer?.id, isAdminView);
+        const priorityB = getVehiclePriorityScore(b, currentDealer?.id, isAdminView);
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
+        // 2. Secondary sort: Landed buy price low to high
         const priceA = calculateLandedPrice(a.fobPriceJPY, dealerZone).totalBuyPriceNZD;
         const priceB = calculateLandedPrice(b.fobPriceJPY, dealerZone).totalBuyPriceNZD;
         return priceA - priceB;
       });
-  }, [vehicles, searchQuery, selectedModel, dealerZone, statusFilter, externalSearchQuery, isAdminView]);
+  }, [vehicles, searchQuery, selectedModel, dealerZone, externalSearchQuery, isAdminView, currentDealer?.id]);
 
   // Navigate directly to FULL PAGE Vehicle Details (INSIDE PORTAL)
   const handleOpenFullPageDetails = (vehicleId: string) => {
@@ -202,122 +205,33 @@ export default function DealerStockCatalog({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      {isAdminView ? (
-        <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-              Vehicle Catalogue
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Certified Japanese inventory, condition grades, and landed pricing for New Zealand franchise dealers.
-            </p>
-          </div>
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+            {isAdminView ? "Vehicle Catalogue" : "Vehicle Stock"}
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isAdminView
+              ? "Live Japanese auction sourcing and pre-cleared logistics pipeline for New Zealand operations."
+              : "Certified Japanese inventory, condition grades, and landed pricing for New Zealand franchise dealers."}
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto flex-wrap">
-            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-              <span><strong className="text-slate-900 font-mono font-bold">{vehicles.length}</strong> Total Fleet</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
-              <Lock className="w-3.5 h-3.5 text-amber-600" />
-              <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
-            </div>
+        <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto flex-wrap">
+          <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <span><strong className="text-slate-900 font-mono font-bold">{vehicles.filter(v => isAdminView || (v.status !== "WITHDRAWN" && v.status !== "DRAFT")).length}</strong> Total Fleet</span>
+          </div>
+          <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
+          </div>
+          <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
+            <Lock className="w-3.5 h-3.5 text-amber-600" />
+            <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
           </div>
         </div>
-      ) : (
-        <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-              Vehicle Stock
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Certified Japanese inventory, condition grades, and landed pricing for New Zealand franchise dealers.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setStatusFilter("ALL");
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "ALL"
-                ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
-            >
-              <Car className="w-3.5 h-3.5" />
-              <span>All Stock</span>
-              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "ALL" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
-                }`}>
-                {vehicles.filter((v) => v.status !== "WITHDRAWN").length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setStatusFilter("RESERVED");
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "RESERVED"
-                ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
-            >
-              <Lock className="w-3.5 h-3.5 text-amber-500" />
-              <span>Reserved</span>
-              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "RESERVED" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"
-                }`}>
-                {vehicles.filter((v) => v.status === "RESERVED").length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setStatusFilter("ALLOCATED");
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "ALLOCATED"
-                ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
-            >
-              <Ship className="w-3.5 h-3.5 text-sky-500" />
-              <span>Allocated</span>
-              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "ALLOCATED" ? "bg-white/20 text-white" : "bg-sky-100 text-sky-800"
-                }`}>
-                {vehicles.filter((v) => v.status === "ALLOCATED").length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setStatusFilter("SOLD");
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${statusFilter === "SOLD"
-                ? "bg-[#0A0A0A] text-white shadow-xs"
-                : "bg-white hover:bg-slate-50 text-slate-600 border border-slate-200"
-                }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
-              <span>Sold</span>
-              <span className={`ml-1 px-1.5 py-0.2 rounded-md font-mono text-[10px] ${statusFilter === "SOLD" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700"
-                }`}>
-                {vehicles.filter((v) => v.status === "SOLD" || v.status === "BUYED").length}
-              </span>
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Simplified Controls Bar (Search + [ All Models ] Selector) */}
@@ -450,9 +364,11 @@ export default function DealerStockCatalog({
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
             const vCosts = vehicle.additionalCosts || [];
+            const hasAdditionalCost = vCosts.length > 0;
             const approvedVCosts = vCosts.filter((c) => c.status === "APPROVED");
             const approvedVCostsTotal = approvedVCosts.reduce((s, c) => s + c.amountNZD, 0);
-            const displayPriceNZD = price.totalBuyPriceNZD + approvedVCostsTotal;
+            const allCostsTotal = vCosts.reduce((s, c) => s + c.amountNZD, 0);
+            const displayPriceNZD = price.totalBuyPriceNZD + (isAdminView ? allCostsTotal : approvedVCostsTotal);
 
             return (
               <div
@@ -491,29 +407,40 @@ export default function DealerStockCatalog({
                       className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_12px_16px_rgba(0,0,0,0.12)] group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 ease-out select-none"
                     />
 
-                    {!isAvailable && (
-                      <div className="absolute bottom-1 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md shadow-lg text-[11px] font-mono font-bold animate-in fade-in">
-                        {(vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span className="text-slate-300">Sold</span>
-                          </>
-                        ) : vehicle.status === "ALLOCATED" ? (
-                          <>
-                            <Ship className="w-3 h-3 text-sky-400 shrink-0" />
-                            <span className="text-sky-300">Allocated</span>
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="w-3 h-3 text-amber-400 shrink-0" />
-                            <span className="text-amber-300">
-                              {isAdminView
-                                ? (vehicle.reservedByDealerId === "DEALER_002" ? "Reserved by BOP Nissan" : "Reserved by Auckland Nissan")
-                                : vehicle.reservedByDealerId === currentDealer?.id
-                                  ? "Your Reservation"
-                                  : "Reserved · Network Lock"}
+                    {/* Priority & Status Badges */}
+                    {(hasAdditionalCost || !isAvailable) && (
+                      <div className="absolute bottom-1 z-20 flex items-center gap-1.5 flex-wrap justify-center px-2 animate-in fade-in max-w-full">
+                        {hasAdditionalCost && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50/95 text-rose-900 border border-rose-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                            <Wrench className="w-3 h-3 text-rose-600 shrink-0" />
+                            <span>Additional Cost {allCostsTotal > 0 ? `(+$${allCostsTotal.toLocaleString()} NZD)` : ""}</span>
+                          </span>
+                        )}
+                        {vehicle.status === "BUYED" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/95 text-emerald-900 border border-emerald-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>Buyed</span>
+                          </span>
+                        )}
+                        {vehicle.status === "SOLD" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100/95 text-slate-800 border border-slate-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                            <CheckCircle2 className="w-3 h-3 text-slate-500 shrink-0" />
+                            <span>Sold</span>
+                          </span>
+                        )}
+                        {vehicle.status === "ALLOCATED" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50/95 text-sky-900 border border-sky-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                            <Ship className="w-3 h-3 text-sky-600 shrink-0" />
+                            <span>Allocated</span>
+                          </span>
+                        )}
+                        {vehicle.status === "RESERVED" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50/95 text-amber-900 border border-amber-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                            <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+                            <span>
+                              {getDealerReservationLabel(vehicle.reservedByDealerId, isAdminView, currentDealer?.id)}
                             </span>
-                          </>
+                          </span>
                         )}
                       </div>
                     )}
@@ -558,20 +485,25 @@ export default function DealerStockCatalog({
                         <Lock className="w-3.5 h-3.5 text-amber-400" />
                         <span>Reserve</span>
                       </button>
-                    ) : (vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
-                      <span className="py-2 px-3 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium flex items-center gap-1.5 shadow-2xs">
+                    ) : vehicle.status === "BUYED" ? (
+                      <span className="py-2 px-3 rounded-xl bg-emerald-50/90 text-emerald-800 border border-emerald-200/90 text-xs font-semibold flex items-center gap-1.5 shadow-2xs font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Buyed</span>
+                      </span>
+                    ) : vehicle.status === "SOLD" ? (
+                      <span className="py-2 px-3 rounded-xl bg-slate-100/90 text-slate-700 border border-slate-200/90 text-xs font-semibold flex items-center gap-1.5 shadow-2xs font-mono">
                         <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
                         <span>Sold</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
-                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-700 border border-sky-200/80 text-xs font-medium flex items-center gap-1.5 shadow-2xs">
+                      <span className="py-2 px-3 rounded-xl bg-sky-50/90 text-sky-800 border border-sky-200/90 text-xs font-semibold flex items-center gap-1.5 shadow-2xs font-mono">
                         <Ship className="w-3.5 h-3.5 text-sky-600" />
                         <span>Allocated</span>
                       </span>
                     ) : (
-                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/80 text-xs font-medium flex items-center gap-1.5 shadow-2xs">
+                      <span className="py-2 px-3 rounded-xl bg-amber-50/90 text-amber-800 border border-amber-200/90 text-xs font-semibold flex items-center gap-1.5 shadow-2xs font-mono">
                         <Lock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Active Hold</span>
+                        <span>Reserved</span>
                       </span>
                     )}
                   </div>
@@ -588,14 +520,11 @@ export default function DealerStockCatalog({
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
             const vCosts = vehicle.additionalCosts || [];
+            const hasAdditionalCost = vCosts.length > 0;
             const approvedVCosts = vCosts.filter((c) => c.status === "APPROVED");
             const approvedVCostsTotal = approvedVCosts.reduce((s, c) => s + c.amountNZD, 0);
-            const pendingVCosts = vCosts.filter((c) => c.status === "PENDING_DEALER_APPROVAL");
-            const pendingForThisDealer = pendingVCosts.filter(
-              (c) => !c.dealerId || c.dealerId === currentDealer?.id || vehicle.reservedByDealerId === currentDealer?.id
-            );
-            const allVCostsTotal = vCosts.reduce((s, c) => s + c.amountNZD, 0);
-            const displayPriceNZD = price.totalBuyPriceNZD + (isAdminView ? allVCostsTotal : approvedVCostsTotal);
+            const allCostsTotal = vCosts.reduce((s, c) => s + c.amountNZD, 0);
+            const displayPriceNZD = price.totalBuyPriceNZD + (isAdminView ? allCostsTotal : approvedVCostsTotal);
 
             return (
               <div
@@ -612,23 +541,37 @@ export default function DealerStockCatalog({
                     className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.12)] group-hover:scale-105 transition-transform duration-300 ease-out select-none"
                   />
 
-                  {!isAvailable && (
-                    <div className="absolute bottom-1 z-20 px-2.5 py-0.5 rounded-full bg-slate-900/90 shadow-md font-bold text-[9px] font-mono flex items-center gap-1">
-                      {(vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
-                        <>
-                          <CheckCircle2 className="w-2.5 h-2.5 text-purple-400" />
-                          <span className="text-purple-300">Sold</span>
-                        </>
-                      ) : vehicle.status === "ALLOCATED" ? (
-                        <>
-                          <Ship className="w-2.5 h-2.5 text-sky-400" />
-                          <span className="text-sky-300">Allocated to Order</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-2.5 h-2.5 text-amber-400" />
-                          <span className="text-amber-300">{vehicle.reservedByDealerId === currentDealer?.id ? "Your Reservation" : "Reserved"}</span>
-                        </>
+                  {(hasAdditionalCost || !isAvailable) && (
+                    <div className="absolute bottom-1 z-20 px-2 py-0.5 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs font-semibold text-[9px] flex items-center gap-1.5 flex-wrap justify-center backdrop-blur-md">
+                      {hasAdditionalCost && (
+                        <span className="inline-flex items-center gap-0.5 text-rose-800">
+                          <Wrench className="w-2.5 h-2.5 text-rose-600" />
+                          <span>+Cost</span>
+                        </span>
+                      )}
+                      {vehicle.status === "BUYED" && (
+                        <span className="inline-flex items-center gap-0.5 text-emerald-800">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                          <span>Buyed</span>
+                        </span>
+                      )}
+                      {vehicle.status === "SOLD" && (
+                        <span className="inline-flex items-center gap-0.5 text-slate-700">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-slate-500" />
+                          <span>Sold</span>
+                        </span>
+                      )}
+                      {vehicle.status === "ALLOCATED" && (
+                        <span className="inline-flex items-center gap-0.5 text-sky-800">
+                          <Ship className="w-2.5 h-2.5 text-sky-600" />
+                          <span>Allocated</span>
+                        </span>
+                      )}
+                      {vehicle.status === "RESERVED" && (
+                        <span className="inline-flex items-center gap-0.5 text-amber-800">
+                          <Lock className="w-2.5 h-2.5 text-amber-600" />
+                          <span>{getDealerReservationLabel(vehicle.reservedByDealerId, isAdminView, currentDealer?.id)}</span>
+                        </span>
                       )}
                     </div>
                   )}
@@ -639,6 +582,36 @@ export default function DealerStockCatalog({
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium">{vehicle.year} · {vehicle.fuelType} · #{vehicle.stockId}</span>
+                      {hasAdditionalCost && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200/90">
+                          <Wrench className="w-2.5 h-2.5 text-rose-600" />
+                          <span>Additional Cost (+${allCostsTotal.toLocaleString()} NZD)</span>
+                        </span>
+                      )}
+                      {vehicle.status === "BUYED" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                          <span>Buyed</span>
+                        </span>
+                      )}
+                      {vehicle.status === "SOLD" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/90">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-slate-500" />
+                          <span>Sold</span>
+                        </span>
+                      )}
+                      {vehicle.status === "ALLOCATED" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200/90">
+                          <Ship className="w-2.5 h-2.5 text-sky-600" />
+                          <span>Allocated</span>
+                        </span>
+                      )}
+                      {vehicle.status === "RESERVED" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200/90">
+                          <Lock className="w-2.5 h-2.5 text-amber-600" />
+                          <span>{getDealerReservationLabel(vehicle.reservedByDealerId, isAdminView, currentDealer?.id)}</span>
+                        </span>
+                      )}
                     </div>
                     <span className="flex items-center gap-1 text-slate-400 text-xs">
                       <MapPin className="w-3 h-3 text-slate-400" />
@@ -733,18 +706,23 @@ export default function DealerStockCatalog({
                         <Lock className="w-3.5 h-3.5 text-amber-400" />
                         <span>Reserve</span>
                       </button>
-                    ) : (vehicle.status === "SOLD" || vehicle.status === "BUYED") ? (
-                      <span className="py-2 px-3 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600" />
+                    ) : vehicle.status === "BUYED" ? (
+                      <span className="py-2 px-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/90 text-xs font-semibold text-center flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Buyed</span>
+                      </span>
+                    ) : vehicle.status === "SOLD" ? (
+                      <span className="py-2 px-3 rounded-xl bg-slate-100 text-slate-700 border border-slate-200/90 text-xs font-semibold text-center flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" />
                         <span>Sold</span>
                       </span>
                     ) : vehicle.status === "ALLOCATED" ? (
-                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
+                      <span className="py-2 px-3 rounded-xl bg-sky-50 text-sky-800 border border-sky-200/90 text-xs font-semibold text-center flex items-center justify-center gap-1">
                         <Ship className="w-3.5 h-3.5 text-sky-600" />
                         <span>Allocated</span>
                       </span>
                     ) : (
-                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold font-mono text-center flex items-center justify-center gap-1">
+                      <span className="py-2 px-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200/90 text-xs font-semibold text-center flex items-center justify-center gap-1">
                         <Lock className="w-3.5 h-3.5 text-amber-600" />
                         <span>Reserved</span>
                       </span>

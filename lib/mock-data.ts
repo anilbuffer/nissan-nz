@@ -1098,7 +1098,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "Rear entertainment screen verified working"
     ],
     "fobPriceJPY": 2580000,
-    "status": "AVAILABLE"
+    "status": "BUYED",
+    "reservedByDealerId": "DEALER_001"
   },
   {
     "id": "VEH_011",

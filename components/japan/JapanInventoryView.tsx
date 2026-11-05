@@ -8,6 +8,7 @@ import { audio } from "@/lib/sound";
 import JapanInventoryDetailsView from "./JapanInventoryDetailsView";
 import AmendVehicleForm from "./AmendVehicleForm";
 import StatusBadge from "@/components/common/StatusBadge";
+import { getVehiclePriorityScore } from "@/lib/vehicle-priority";
 import {
   Search,
   Plus,
@@ -95,6 +96,14 @@ export default function JapanInventoryView({
     }
 
     return true;
+  })
+  .sort((a, b) => {
+    const priorityA = getVehiclePriorityScore(a, undefined, true);
+    const priorityB = getVehiclePriorityScore(b, undefined, true);
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    return a.stockId.localeCompare(b.stockId);
   });
 
   const availableCount = vehicles.filter((v) => v.status === "AVAILABLE").length;
