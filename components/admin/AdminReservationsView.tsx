@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useProgramme } from "@/lib/programme-context";
 import { ReservationRequest } from "@/lib/types";
 import { audio } from "@/lib/sound";
 import FullPageVehicleDetail from "@/components/dealer/FullPageVehicleDetail";
 import StatusBadge from "@/components/common/StatusBadge";
+import Pagination from "@/components/common/Pagination";
 import {
   Clock,
   CheckCircle2,
@@ -48,6 +49,21 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
       if (a.status !== "ACTIVE_HOLD" && b.status === "ACTIVE_HOLD") return 1;
       return new Date(b.requestedAt || 0).getTime() - new Date(a.requestedAt || 0).getTime();
     });
+
+  // Reservations Pagination (10 entries max per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(filteredReservations.length / ITEMS_PER_PAGE) || 1;
+  const paginatedReservations = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredReservations.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReservations, currentPage, totalPages]);
 
   // Calculate dynamic countdown & warning status
   const calcRemainingTime = (expiresAt: string) => {
@@ -161,7 +177,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredReservations.map((res) => {
+          {paginatedReservations.map((res) => {
             const vehicle = res.vehicle;
             const price = res.priceSnapshot;
             const isActiveHold = res.status === "ACTIVE_HOLD";
@@ -300,6 +316,19 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
           })}
         </div>
       )}
+
+      {/* Reservations Pagination Bar (10 max entries per page) */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredReservations.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onPageChange={(p) => {
+          setCurrentPage(p);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        itemName="reservations"
+      />
 
       {/* Confirmation Dialog for Grid Action */}
       {confirmDialogRes && (

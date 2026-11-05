@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { DealerAccount, ZoneId } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import StatusBadge from "@/components/common/StatusBadge";
+import Pagination from "@/components/common/Pagination";
 import {
   Users,
   CheckCircle2,
@@ -127,6 +128,21 @@ export default function DealerApprovalsView() {
       d.primaryContactName.toLowerCase().includes(q)
     );
   });
+
+  // Dealerships Pagination (10 max entries per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(filteredApproved.length / ITEMS_PER_PAGE) || 1;
+  const paginatedApproved = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredApproved.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredApproved, currentPage, totalPages]);
 
   const handleApprove = (dealerId: string, assignedZone?: ZoneId) => {
     audio.playSuccessChime();
@@ -685,7 +701,7 @@ export default function DealerApprovalsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredApproved.map((d) => {
+              {paginatedApproved.map((d) => {
                 const zone = OFFICIAL_PRICING_ZONES[d.pricingZoneId] || OFFICIAL_PRICING_ZONES.ZONE_1;
 
                 return (
@@ -740,6 +756,19 @@ export default function DealerApprovalsView() {
             </tbody>
           </table>
         </div>
+
+        {/* Dealerships Pagination Bar (10 max entries per page) */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredApproved.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={(p) => {
+            setCurrentPage(p);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          itemName="dealerships"
+        />
       </div>
     </div>
   );

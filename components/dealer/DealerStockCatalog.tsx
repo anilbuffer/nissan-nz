@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Vehicle } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
@@ -10,6 +10,7 @@ import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
 import CatalogueDetailsModal from "@/components/admin/CatalogueDetailsModal";
+import Pagination from "@/components/common/Pagination";
 import { getVehiclePriorityScore, getDealerReservationLabel } from "@/lib/vehicle-priority";
 import {
   Search,
@@ -90,11 +91,16 @@ export default function DealerStockCatalog({
   // Reservation Modal (for quick reserve from card)
   const [reserveVehicle, setReserveVehicle] = useState<Vehicle | null>(null);
 
+  // Pagination State (10 max entries per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Reset all filters
   const handleResetFilters = () => {
     audio.playSubtleClick();
     setSearchQuery("");
     setSelectedModel("ALL");
+    setCurrentPage(1);
   };
 
   const activeFiltersCount = useMemo(() => {
@@ -176,6 +182,19 @@ export default function DealerStockCatalog({
         return priceA - priceB;
       });
   }, [vehicles, searchQuery, selectedModel, dealerZone, externalSearchQuery, isAdminView, currentDealer?.id]);
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedModel, externalSearchQuery]);
+
+  // Calculate pagination boundaries
+  const totalPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE) || 1;
+  const paginatedVehicles = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredVehicles.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredVehicles, currentPage, totalPages]);
 
   // Navigate directly to FULL PAGE Vehicle Details (INSIDE PORTAL)
   const handleOpenFullPageDetails = (vehicleId: string) => {
@@ -347,7 +366,7 @@ export default function DealerStockCatalog({
         /* (Names Full-Width, Hero Studio Car, Price Left & Action Button Right) */
         /* ───────────────────────────────────────────────────────── */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4 min-[2200px]:grid-cols-5 gap-5 sm:gap-6 animate-in fade-in duration-300">
-          {filteredVehicles.map((vehicle, index) => {
+          {paginatedVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
             const vCosts = vehicle.additionalCosts || [];
@@ -503,7 +522,7 @@ export default function DealerStockCatalog({
         /* 4B. LIST LAYOUT: Clean Luxury Automotive Rows             */
         /* ───────────────────────────────────────────────────────── */
         <div className="space-y-4 animate-in fade-in duration-300">
-          {filteredVehicles.map((vehicle, index) => {
+          {paginatedVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
             const vCosts = vehicle.additionalCosts || [];
@@ -721,6 +740,19 @@ export default function DealerStockCatalog({
           })}
         </div>
       )}
+
+      {/* 5. Pagination Bar (10 entries max per page) */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredVehicles.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onPageChange={(p) => {
+          setCurrentPage(p);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        itemName="vehicles"
+      />
 
       {/* Catalogue Details Dossier Modal */}
       {dossierVehicle && (

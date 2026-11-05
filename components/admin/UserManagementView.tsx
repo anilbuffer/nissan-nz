@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { UserAccount, UserRole, ZoneId } from "@/lib/types";
@@ -8,6 +8,7 @@ import { audio } from "@/lib/sound";
 import UserDetailsView from "./UserDetailsView";
 import InviteUserModal from "./InviteUserModal";
 import StatusBadge from "@/components/common/StatusBadge";
+import Pagination from "@/components/common/Pagination";
 import {
   UserPlus,
   Shield,
@@ -73,6 +74,21 @@ export default function UserManagementView() {
 
     return matchesSearch && matchesRole && matchesZone && matchesStatus;
   });
+
+  // Users Pagination (10 entries max per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter, zoneFilter, statusFilter]);
+
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE) || 1;
+  const paginatedUsers = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredUsers.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredUsers, currentPage, totalPages]);
 
   // KPI calculations
 
@@ -249,7 +265,7 @@ export default function UserManagementView() {
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => {
+                paginatedUsers.map((user) => {
                   const roleBadge = getRoleBadge(user.role);
 
                   return (
@@ -402,6 +418,19 @@ export default function UserManagementView() {
           </table>
         </div>
       </div>
+
+      {/* Users Pagination Bar (10 max entries per page) */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredUsers.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onPageChange={(p) => {
+          setCurrentPage(p);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        itemName="users"
+      />
 
       {/* Invite User Modal */}
       <InviteUserModal

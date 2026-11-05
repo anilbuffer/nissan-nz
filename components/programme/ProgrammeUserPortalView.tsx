@@ -9,6 +9,7 @@ import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { Vehicle, Order, ZoneId } from "@/lib/types";
 import StatusBadge from "@/components/common/StatusBadge";
+import Pagination from "@/components/common/Pagination";
 import { getVehiclePriorityScore } from "@/lib/vehicle-priority";
 import {
   Car,
@@ -130,6 +131,42 @@ export default function ProgrammeUserPortalView({
       );
     });
   }, [orders, searchQuery]);
+
+  // Listings Pagination (10 entries max per page)
+  const ITEMS_PER_PAGE = 10;
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [holdsPage, setHoldsPage] = useState(1);
+  const [ordersPage, setOrdersPage] = useState(1);
+
+  useEffect(() => {
+    setCatalogPage(1);
+  }, [searchQuery, statusFilter]);
+
+  useEffect(() => {
+    setHoldsPage(1);
+    setOrdersPage(1);
+  }, [searchQuery]);
+
+  const totalCatalogPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE) || 1;
+  const paginatedVehicles = useMemo(() => {
+    const validPage = Math.min(Math.max(1, catalogPage), totalCatalogPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredVehicles.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredVehicles, catalogPage, totalCatalogPages]);
+
+  const totalHoldsPages = Math.ceil(filteredHolds.length / ITEMS_PER_PAGE) || 1;
+  const paginatedHolds = useMemo(() => {
+    const validPage = Math.min(Math.max(1, holdsPage), totalHoldsPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredHolds.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredHolds, holdsPage, totalHoldsPages]);
+
+  const totalOrdersPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1;
+  const paginatedOrders = useMemo(() => {
+    const validPage = Math.min(Math.max(1, ordersPage), totalOrdersPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredOrders.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredOrders, ordersPage, totalOrdersPages]);
 
   const handleCopyVin = (vin: string) => {
     navigator.clipboard.writeText(vin);
@@ -355,7 +392,7 @@ export default function ProgrammeUserPortalView({
                     </td>
                   </tr>
                 ) : (
-                  filteredVehicles.map((vehicle) => {
+                  paginatedVehicles.map((vehicle) => {
                     const price = calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
                     return (
                       <tr key={vehicle.id} className="hover:bg-slate-50/70 transition-colors">
@@ -461,6 +498,16 @@ export default function ProgrammeUserPortalView({
               </tbody>
             </table>
           </div>
+
+          {/* Catalog Pagination (10 max entries per page) */}
+          <Pagination
+            currentPage={catalogPage}
+            totalPages={totalCatalogPages}
+            totalItems={filteredVehicles.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={(p) => setCatalogPage(p)}
+            itemName="vehicles"
+          />
         </div>
       )}
 
@@ -523,7 +570,7 @@ export default function ProgrammeUserPortalView({
                     </td>
                   </tr>
                 ) : (
-                  filteredHolds.map((reservation) => {
+                  paginatedHolds.map((reservation) => {
                     const diffMs = new Date(reservation.expiresAt).getTime() - Date.now();
                     const hoursRemaining = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
                     const minutesRemaining = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)));
@@ -593,6 +640,16 @@ export default function ProgrammeUserPortalView({
               </tbody>
             </table>
           </div>
+
+          {/* Holds Pagination (10 max entries per page) */}
+          <Pagination
+            currentPage={holdsPage}
+            totalPages={totalHoldsPages}
+            totalItems={filteredHolds.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={(p) => setHoldsPage(p)}
+            itemName="holds"
+          />
         </div>
       )}
 
@@ -656,7 +713,7 @@ export default function ProgrammeUserPortalView({
                     </td>
                   </tr>
                 ) : (
-                  filteredOrders.map((order) => {
+                  paginatedOrders.map((order) => {
                     const currentIdx = MILESTONES_ORDER.indexOf(order.currentMilestone);
 
                     return (
@@ -725,6 +782,16 @@ export default function ProgrammeUserPortalView({
               </tbody>
             </table>
           </div>
+
+          {/* Orders Pagination (10 max entries per page) */}
+          <Pagination
+            currentPage={ordersPage}
+            totalPages={totalOrdersPages}
+            totalItems={filteredOrders.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={(p) => setOrdersPage(p)}
+            itemName="orders"
+          />
         </div>
       )}
 

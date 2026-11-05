@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Order, OrderMilestone, AdditionalCostItem, VehicleSupportingDoc } from "@/lib/types";
@@ -9,6 +9,7 @@ import { audio } from "@/lib/sound";
 import { getModelAngleImages } from "@/lib/vehicle-media";
 import AdditionalCostCreatorModal from "./AdditionalCostCreatorModal";
 import VehicleSpecificationsTabs from "@/components/dealer/VehicleSpecificationsTabs";
+import Pagination from "@/components/common/Pagination";
 import {
   Ship,
   Clock,
@@ -129,6 +130,21 @@ export default function AllocationMilestonesView({
 
     return true;
   });
+
+  // Orders Pagination (10 max entries per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, milestoneFilter]);
+
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1;
+  const paginatedOrders = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredOrders.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredOrders, currentPage, totalPages]);
 
   const handleViewDossier = (order: Order) => {
     audio.playSubtleClick();
@@ -1055,7 +1071,7 @@ export default function AllocationMilestonesView({
                 <p className="text-slate-400">Try adjusting your search criteria</p>
               </div>
             ) : (
-              filteredOrders.map((order) => {
+              paginatedOrders.map((order) => {
                 const isEditingThis = editingMilestoneOrderId === order.id;
 
                 return (
@@ -1301,6 +1317,19 @@ export default function AllocationMilestonesView({
               })
             )}
           </div>
+
+          {/* Orders Pagination Bar (10 max entries per page) */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredOrders.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={(p) => {
+              setCurrentPage(p);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            itemName="orders"
+          />
         </>
       )}
 

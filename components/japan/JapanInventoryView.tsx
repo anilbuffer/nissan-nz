@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Vehicle } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
@@ -8,6 +8,7 @@ import { audio } from "@/lib/sound";
 import JapanInventoryDetailsView from "./JapanInventoryDetailsView";
 import AmendVehicleForm from "./AmendVehicleForm";
 import StatusBadge from "@/components/common/StatusBadge";
+import Pagination from "@/components/common/Pagination";
 import { getVehiclePriorityScore } from "@/lib/vehicle-priority";
 import {
   Search,
@@ -97,14 +98,29 @@ export default function JapanInventoryView({
 
     return true;
   })
-  .sort((a, b) => {
-    const priorityA = getVehiclePriorityScore(a, undefined, true);
-    const priorityB = getVehiclePriorityScore(b, undefined, true);
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-    return a.stockId.localeCompare(b.stockId);
-  });
+    .sort((a, b) => {
+      const priorityA = getVehiclePriorityScore(a, undefined, true);
+      const priorityB = getVehiclePriorityScore(b, undefined, true);
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      return a.stockId.localeCompare(b.stockId);
+    });
+
+  // Pagination (10 entries max per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
+
+  const totalPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE) || 1;
+  const paginatedVehicles = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentPage), totalPages);
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return filteredVehicles.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredVehicles, currentPage, totalPages]);
 
   const availableCount = vehicles.filter((v) => v.status === "AVAILABLE").length;
   const draftCount = vehicles.filter((v) => v.status === "DRAFT").length;
@@ -262,13 +278,12 @@ export default function JapanInventoryView({
                 <th className="py-3.5 px-6">Vehicle / Model</th>
                 <th className="py-3.5 px-4">Stock ID &amp; VIN</th>
                 <th className="py-3.5 px-4">FOB Price</th>
-                <th className="py-3.5 px-4">Staging Yard</th>
                 <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-6 text-right">Action</th>
+                <th className="py-3.5 px-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredVehicles.map((vehicle) => {
+              {paginatedVehicles.map((vehicle) => {
                 const isAvailable = vehicle.status === "AVAILABLE";
                 const isDraft = vehicle.status === "DRAFT";
                 const isReserved = vehicle.status === "RESERVED";
@@ -320,35 +335,25 @@ export default function JapanInventoryView({
                       </div>
                     </td>
 
-                    {/* Staging Yard */}
-                    <td className="py-4 px-4">
-                      <div className="font-medium text-slate-800 truncate max-w-[150px]">
-                        {vehicle.location || "Yokohama Export Terminal"}
-                      </div>
-                      <div className="text-[10px] font-mono text-slate-400">
-                        {vehicle.auctionGrade ? `★ Grade ${vehicle.auctionGrade}` : "Certified Pass"}
-                      </div>
-                    </td>
-
                     {/* Status Pill Badge */}
                     <td className="py-4 px-4">
                       <StatusBadge status={vehicle.status} size="sm" />
                     </td>
 
-                    {/* Action Column - Strictly Right Aligned with Clean Details Button */}
+                    {/* Action Column - Aligned, Sleek, Compact Buttons */}
                     <td className="py-4 px-6 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2.5">
-                        {/* Toggle or Status Hint */}
+                      <div className="inline-flex items-center justify-end gap-2">
+                        {/* Status Toggle or Status Hint */}
                         {isReserved ? (
-                          <span className="text-[11px] font-mono text-amber-700 bg-amber-50/80 px-2.5 py-1 rounded-lg border border-amber-200/60 font-semibold">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50/80 border border-amber-200/60 text-amber-700 font-mono text-[11px] font-semibold h-7">
                             Held by Dealer
                           </span>
                         ) : isAllocated ? (
-                          <span className="text-[11px] font-mono text-sky-700 bg-sky-50/80 px-2.5 py-1 rounded-lg border border-sky-200/60 font-semibold">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-sky-50/80 border border-sky-200/60 text-sky-700 font-mono text-[11px] font-semibold h-7">
                             Allocated
                           </span>
                         ) : isSold ? (
-                          <span className="text-[11px] font-mono text-purple-700 bg-purple-50/80 px-2.5 py-1 rounded-lg border border-purple-200/60 font-semibold">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-purple-50/80 border border-purple-200/60 text-purple-700 font-mono text-[11px] font-semibold h-7">
                             Delivered
                           </span>
                         ) : (
@@ -358,9 +363,9 @@ export default function JapanInventoryView({
                               e.stopPropagation();
                               handleToggleStatus(vehicle.id);
                             }}
-                            className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${isAvailable
-                              ? "border-slate-200 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 text-slate-600"
-                              : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                            className={`inline-flex items-center justify-center text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer h-7 ${isAvailable
+                              ? "border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 text-slate-600 shadow-2xs"
+                              : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 shadow-2xs"
                               }`}
                           >
                             {isAvailable ? "Withdraw" : "Publish"}
@@ -375,14 +380,14 @@ export default function JapanInventoryView({
                             audio.playSubtleClick();
                             setSelectedVehicleForAmend(vehicle);
                           }}
-                          className="btn-outline text-xs py-1.5 px-3 cursor-pointer flex items-center gap-1.5 hover:text-[#C3002F] hover:border-[#C3002F] transition-colors"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 hover:border-[#C3002F]/40 text-slate-700 hover:text-[#C3002F] text-[11px] font-semibold transition-all shadow-2xs cursor-pointer h-7"
                           title="Amend vehicle specifications"
                         >
-                          <Edit3 className="w-2.5 w-2.5 text-slate-400" />
+                          <Edit3 className="w-3 h-3 text-slate-400 group-hover:text-[#C3002F]" />
                           <span>Amend Details</span>
                         </button>
 
-                        {/* Details Action Button - Rightmost */}
+                        {/* Details Action Button */}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -390,9 +395,10 @@ export default function JapanInventoryView({
                             audio.playSubtleClick();
                             setSelectedVehicleForDetails(vehicle);
                           }}
-                          className="btn-outline text-xs py-1.5 px-3 cursor-pointer flex items-center gap-1.5"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-[11px] font-semibold transition-all shadow-2xs cursor-pointer h-7"
+                          title="View vehicle details"
                         >
-                          <Eye className="w-2.5 w-2.5 text-slate-400" />
+                          <Eye className="w-3 h-3 text-slate-400" />
                           <span>Details</span>
                         </button>
                       </div>
@@ -404,6 +410,19 @@ export default function JapanInventoryView({
           </table>
         </div>
       </div>
+
+      {/* 5. Pagination Bar (10 entries max per page) */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredVehicles.length}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onPageChange={(p) => {
+          setCurrentPage(p);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        itemName="vehicles"
+      />
     </div>
   );
 }

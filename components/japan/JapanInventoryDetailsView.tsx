@@ -326,6 +326,7 @@ export default function JapanInventoryDetailsView({
           <div className="flex items-center shrink-0 self-start lg:self-center">
             <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs">
               <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
+              <span className="text-slate-400 font-normal">Staging Yard:</span>
               <span className="font-semibold text-slate-800">{vehicle.location || "Yokohama Export Terminal"}</span>
             </div>
           </div>
@@ -380,10 +381,10 @@ export default function JapanInventoryDetailsView({
           </div>
         </div>
 
-        {/* 4. YARD STAGING */}
+        {/* 4. STAGING YARD */}
         <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            YARD STAGING
+            STAGING YARD
           </span>
           <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
             {vehicle.location || "Yokohama Export Terminal"}
@@ -509,7 +510,7 @@ export default function JapanInventoryDetailsView({
 
               <div className="divide-y divide-slate-100 text-xs">
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-slate-500 font-medium">Export Terminal Yard:</span>
+                  <span className="text-slate-500 font-medium">Staging Yard:</span>
                   <span className="font-bold text-slate-900">{vehicle.location || "Yokohama Export Terminal (Bay 5)"}</span>
                 </div>
 

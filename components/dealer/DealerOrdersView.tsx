@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import OrderCorridorTimeline from "./OrderCorridorTimeline";
 import { Order, OrderMilestone, ReservationRequest, ZoneId, LandedPriceBreakdown } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mock-data";
 import { calculateLandedPrice, OFFICIAL_PRICING_ZONES } from "@/lib/pricing-calculator";
 import StatusBadge from "@/components/common/StatusBadge";
+import Pagination from "@/components/common/Pagination";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { audio } from "@/lib/sound";
@@ -170,6 +171,21 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
       (order.vesselName && order.vesselName.toLowerCase().includes(q))
     );
   });
+
+  // Orders Pagination (10 entries max per page)
+  const ORDERS_PER_PAGE = 10;
+  const [currentOrderPage, setCurrentOrderPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentOrderPage(1);
+  }, [searchQuery]);
+
+  const totalOrderPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE) || 1;
+  const paginatedOrders = useMemo(() => {
+    const validPage = Math.min(Math.max(1, currentOrderPage), totalOrderPages);
+    const start = (validPage - 1) * ORDERS_PER_PAGE;
+    return filteredOrders.slice(start, start + ORDERS_PER_PAGE);
+  }, [filteredOrders, currentOrderPage, totalOrderPages]);
 
   // KPI Calculations
   const totalFleetValueNZD = dealerOrders.reduce(
@@ -1174,9 +1190,10 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   </p>
                 </div>
               ) : (
-                /* Orders Grid Layout (2-3 Columns) */
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 animate-in fade-in">
-                  {filteredOrders.map((order) => {
+                <div className="space-y-6">
+                  {/* Orders Grid Layout (2-3 Columns) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 animate-in fade-in">
+                    {paginatedOrders.map((order) => {
                     const hasPendingCost = order.additionalCosts.some(
                       (c) => c.status === "PENDING_DEALER_APPROVAL"
                     );
@@ -1263,6 +1280,19 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                       </div>
                     );
                   })}
+                </div>
+
+                  {/* Orders Pagination Bar (10 max entries per page) */}
+                  <Pagination
+                    currentPage={currentOrderPage}
+                    totalPages={totalOrderPages}
+                    totalItems={filteredOrders.length}
+                    itemsPerPage={ORDERS_PER_PAGE}
+                    onPageChange={(p) => {
+                      setCurrentOrderPage(p);
+                    }}
+                    itemName="orders"
+                  />
                 </div>
               )}
             </div>
