@@ -38,6 +38,10 @@ import {
   Layers,
   Wrench,
   Download,
+  ShoppingBag,
+  ShieldCheck,
+  RotateCcw,
+  Truck,
 } from "lucide-react";
 
 const MILESTONE_SEQUENCE: { key: OrderMilestone; label: string }[] = [
@@ -77,6 +81,7 @@ export default function AllocationMilestonesView({
   const [editingVoyage, setEditingVoyage] = useState<string>("");
   const [notification, setNotification] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [milestoneFilter, setMilestoneFilter] = useState<string>("ALL");
   const [copiedVin, setCopiedVin] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [activeDocPreview, setActiveDocPreview] = useState<{
@@ -99,13 +104,30 @@ export default function AllocationMilestonesView({
 
   const filteredOrders = orders.filter((order) => {
     const q = searchQuery.toLowerCase().trim();
-    return (
+    const matchesSearch =
       !q ||
       order.orderNumber.toLowerCase().includes(q) ||
-      order.vehicle.vinChassis.toLowerCase().includes(q) ||
-      order.vehicle.model.toLowerCase().includes(q) ||
-      order.dealerName.toLowerCase().includes(q)
-    );
+      order.vehicle?.vinChassis?.toLowerCase().includes(q) ||
+      order.vehicle?.model?.toLowerCase().includes(q) ||
+      order.dealerName?.toLowerCase().includes(q);
+
+    if (!matchesSearch) return false;
+
+    if (milestoneFilter === "IN_TRANSIT") {
+      return order.currentMilestone === "IN_TRANSIT";
+    }
+    if (milestoneFilter === "COMPLIANCE") {
+      return (
+        order.currentMilestone === "NZ_BORDER_PROCESSING" ||
+        order.currentMilestone === "COMPLIANCE" ||
+        order.currentMilestone === "AWAITING_ADDITIONAL_COST"
+      );
+    }
+    if (milestoneFilter === "READY_FOR_DELIVERY") {
+      return order.currentMilestone === "READY_FOR_DELIVERY" || order.currentMilestone === "DELIVERED";
+    }
+
+    return true;
   });
 
   const handleViewDossier = (order: Order) => {
@@ -830,59 +852,189 @@ export default function AllocationMilestonesView({
             </div>
           </div>
 
-          {/* KPI Strip */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                CONFIRMED ORDERS
-              </span>
-              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* 2. Executive Orders 4-KPI Metric Strip                      */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+            {/* 1. Confirmed Orders */}
+            <div
+              onClick={() => {
+                audio.playSubtleClick();
+                setMilestoneFilter("ALL");
+              }}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
+                milestoneFilter === "ALL" ? "ring-2 ring-slate-900 border-slate-900" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  CONFIRMED ORDERS
+                </span>
+                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold font-mono text-slate-900 tracking-tight">
                 {orders.length}
               </div>
+              <div className="text-[11px] text-slate-500 truncate">
+                Total wholesale orders active
+              </div>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                VESSELS IN TRANSIT
-              </span>
-              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+            {/* 2. Vessels In Transit */}
+            <div
+              onClick={() => {
+                audio.playSubtleClick();
+                setMilestoneFilter((prev) => (prev === "IN_TRANSIT" ? "ALL" : "IN_TRANSIT"));
+              }}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
+                milestoneFilter === "IN_TRANSIT" ? "ring-2 ring-slate-900 border-slate-900" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  VESSELS IN TRANSIT
+                </span>
+                <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
+                  <Ship className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold font-mono text-slate-900 tracking-tight">
                 {orders.filter((o) => o.currentMilestone === "IN_TRANSIT").length}
               </div>
-            </div>
-
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                CUSTOMS / COMPLIANCE
-              </span>
-              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                {orders.filter((o) => o.currentMilestone === "NZ_BORDER_PROCESSING" || o.currentMilestone === "COMPLIANCE").length}
+              <div className="text-[11px] text-slate-500 truncate">
+                RoRo carrier sea transit
               </div>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                READY FOR DELIVERY
-              </span>
-              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-                {orders.filter((o) => o.currentMilestone === "READY_FOR_DELIVERY").length}
+            {/* 3. Customs / Compliance */}
+            <div
+              onClick={() => {
+                audio.playSubtleClick();
+                setMilestoneFilter((prev) => (prev === "COMPLIANCE" ? "ALL" : "COMPLIANCE"));
+              }}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
+                milestoneFilter === "COMPLIANCE" ? "ring-2 ring-slate-900 border-slate-900" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  CUSTOMS / COMPLIANCE
+                </span>
+                <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                {orders.filter((o) => o.currentMilestone === "NZ_BORDER_PROCESSING" || o.currentMilestone === "COMPLIANCE" || o.currentMilestone === "AWAITING_ADDITIONAL_COST").length}
+              </div>
+              <div className="text-[11px] text-slate-500 truncate">
+                Biosecurity &amp; MR2A entry
+              </div>
+            </div>
+
+            {/* 4. Ready For Delivery */}
+            <div
+              onClick={() => {
+                audio.playSubtleClick();
+                setMilestoneFilter((prev) => (prev === "READY_FOR_DELIVERY" ? "ALL" : "READY_FOR_DELIVERY"));
+              }}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
+                milestoneFilter === "READY_FOR_DELIVERY" ? "ring-2 ring-slate-900 border-slate-900" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  READY FOR DELIVERY
+                </span>
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                  <Truck className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold font-mono text-slate-900 tracking-tight">
+                {orders.filter((o) => o.currentMilestone === "READY_FOR_DELIVERY" || o.currentMilestone === "DELIVERED").length}
+              </div>
+              <div className="text-[11px] text-slate-500 truncate">
+                Cleared for dealer release
               </div>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search by order #, VIN, model, or dealer..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-slate-900 focus:ring-1 focus:ring-slate-900 shadow-2xs"
-              />
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* 3. Global Orders Search Toolbar & Filter Strip               */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search by order #, VIN, model, or dealer..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 font-normal transition-all shadow-2xs focus:outline-none focus:ring-1 focus:ring-slate-900"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setSearchQuery("");
+                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+                    title="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Status / Milestone Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                {[
+                  { id: "ALL", label: "All Orders" },
+                  { id: "IN_TRANSIT", label: "In Transit" },
+                  { id: "COMPLIANCE", label: "Customs/Entry" },
+                  { id: "READY_FOR_DELIVERY", label: "Ready" },
+                ].map((pill) => (
+                  <button
+                    key={pill.id}
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setMilestoneFilter(pill.id);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${
+                      milestoneFilter === pill.id
+                        ? "bg-slate-900 text-white"
+                        : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200"
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Reset filter button if any active */}
+              {(searchQuery || milestoneFilter !== "ALL") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    audio.playSubtleClick();
+                    setSearchQuery("");
+                    setMilestoneFilter("ALL");
+                  }}
+                  className="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
-            <div className="text-xs text-slate-500 font-mono self-end sm:self-center">
-              Showing {filteredOrders.length} of {orders.length} orders
+
+            <div className="text-xs text-slate-500 font-mono shrink-0 whitespace-nowrap self-end md:self-center pr-1">
+              Showing <strong className="text-slate-900 font-bold">{filteredOrders.length}</strong> of {orders.length} orders
             </div>
           </div>
 
