@@ -13,6 +13,7 @@ import { audio } from "@/lib/sound";
 import { getModelAngleImages } from "@/lib/vehicle-media";
 import VehicleSpecificationsTabs from "./VehicleSpecificationsTabs";
 import {
+  Car,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -581,56 +582,100 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                       calculateLandedPrice(selectedOrder.vehicle.fobPriceJPY, activeZoneId, pricingConfig);
 
                     return (
-                      <div className="space-y-5">
-                        {/* 1. Header Bar: Vehicle Title & Identity */}
-                        <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-mono text-xs font-bold text-slate-500">
-                                #{selectedOrder.vehicle.stockId}
-                              </span>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-[#C3002F] border border-rose-100">
-                                {selectedOrder.vehicle.fuelType}
-                              </span>
-                              <StatusBadge status="CONFIRMED_ALLOCATED" size="sm" />
-                            </div>
-
-                            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                              {selectedOrder.vehicle.year} {selectedOrder.vehicle.make} {selectedOrder.vehicle.model}
-                            </h2>
-
-                            <p className="text-xs text-slate-500 font-medium">
-                              {selectedOrder.vehicle.grade} · {selectedOrder.vehicle.transmission} · {selectedOrder.vehicle.engineCc}cc · Color: {selectedOrder.vehicle.color}
-                            </p>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500">
-                            <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-                              <span className="text-slate-400">VIN:</span>
-                              <strong className="text-slate-800">{selectedOrder.vehicle.vinChassis}</strong>
-                              <button
-                                type="button"
-                                onClick={() => handleCopy(selectedOrder.vehicle.vinChassis, "vin")}
-                                className="text-slate-400 hover:text-slate-700 cursor-pointer ml-1"
-                                title="Copy VIN"
-                              >
-                                {copiedField === "vin" ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                              </button>
-                            </div>
-
-                            {currentDealer && (
-                              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-sans font-medium text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
-                                <Building2 className="w-3 h-3 text-slate-400" />
-                                <span>{currentDealer.legalTradingName || selectedOrder.dealerName}</span>
-                                <span className="text-slate-300">·</span>
-                                <span className="text-slate-500 font-mono">{activeZoneId}</span>
+                      <div className="space-y-6">
+                        {/* ─────────────────────────────────────────────────────────── */}
+                        {/* 1. Main Order Header Card (Symmetric with Admin/Dealer)     */}
+                        {/* ─────────────────────────────────────────────────────────── */}
+                        <div className="bg-white text-slate-900 rounded-[16px] p-6 sm:p-7 border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden">
+                          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                            <div className="flex items-start gap-4">
+                              <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 shrink-0 shadow-2xs">
+                                <Car className="w-7 h-7" />
                               </div>
-                            )}
+
+                              <div className="space-y-1.5 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2.5">
+                                  <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
+                                    #{selectedOrder.vehicle.stockId}
+                                  </span>
+                                  <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
+                                    {selectedOrder.orderNumber}
+                                  </span>
+                                  <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs">
+                                    <Ship className="w-3 h-3 text-sky-600" />
+                                    <span>Allocated &amp; Shipping Secured</span>
+                                  </span>
+                                </div>
+
+                                <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+                                  {selectedOrder.vehicle.year} {selectedOrder.vehicle.make} {selectedOrder.vehicle.model}
+                                </h1>
+                              </div>
+                            </div>
+
+                            {/* Quick Header Actions / Dealer Identity */}
+                            <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start lg:self-center">
+                              {currentDealer && (
+                                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-2xs">
+                                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                                  <span className="font-semibold text-slate-800">{currentDealer.legalTradingName || selectedOrder.dealerName}</span>
+                                  <span className="text-slate-300">·</span>
+                                  <span className="text-slate-500 font-mono">{activeZoneId}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        {/* 2. Main Workspace Grid: Vehicle Studio Showcase & Wholesale Landed Matrix */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                        {/* ─────────────────────────────────────────────────────────── */}
+                        {/* 2. Top Two Cards Strip: 4 KPI Metrics Strip                  */}
+                        {/* ─────────────────────────────────────────────────────────── */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                          {/* 1. ODOMETER (JEVIC) */}
+                          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                              ODOMETER (JEVIC)
+                            </span>
+                            <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                              {selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}
+                            </div>
+                          </div>
+
+                          {/* 2. AUCTION & INSPECTION GRADE */}
+                          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                              AUCTION &amp; INSPECTION GRADE
+                            </span>
+                            <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+                              ★ {selectedOrder.vehicle.auctionGrade || "4.5"}
+                            </div>
+                          </div>
+
+                          {/* 3. TOTAL BUY PRICE (NZD) */}
+                          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                              TOTAL BUY PRICE (NZD)
+                            </span>
+                            <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                              ${landedPrice.totalBuyPriceNZD.toLocaleString()} NZD
+                            </div>
+                          </div>
+
+                          {/* 4. DELIVERY ETA / VESSEL */}
+                          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                              DELIVERY ETA / VESSEL
+                            </span>
+                            <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+                              {selectedOrder.etaDeliveryDate || "Pending Schedule"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ─────────────────────────────────────────────────────────── */}
+                        {/* 3. Main Workspace Grid: Vehicle Studio Showcase & Wholesale Landed Matrix */}
+                        {/* ─────────────────────────────────────────────────────────── */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                           {/* LEFT COLUMN: Vehicle Showcase + Studio Photography */}
                           <div className="lg:col-span-7 flex flex-col h-full">
                             <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] relative flex flex-col justify-between h-full">
@@ -848,11 +893,11 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                         return (
                           <div
                             key={cost.id}
-                            className={`p-6 rounded-3xl border shadow-sm space-y-4 ${isPending
+                            className={`p-6 rounded-[16px] border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4 ${isPending
                               ? "bg-amber-50/70 border-amber-300"
                               : isApproved
                                 ? "bg-emerald-50/60 border-emerald-300"
-                                : "bg-slate-50 border-slate-200"
+                                : "bg-white border-slate-200"
                               }`}
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-amber-200/80">
@@ -925,22 +970,19 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   )}
 
                   {/* Order Delivery Timeline (Official Brand Milestones Track) */}
-                  <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
                       <div className="flex items-center gap-2">
-                        <Ship className="w-4 h-4 text-slate-700 shrink-0" />
+                        <Ship className="w-4 h-4 text-[#C3002F] shrink-0" />
                         <div>
-                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                            Order Delivery Timeline
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Logistics Delivery Corridor Progression
                           </h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Official Nissan New Zealand supply chain progression from Japan export release to franchise yard delivery.
-                          </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 shrink-0">
                           <span>Current: {getBrandMilestoneLabel(selectedOrder.currentMilestone).displayBadge}</span>
                         </span>
                       </div>
@@ -950,7 +992,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   </div>
 
                   {/* Compliance & Shipping Documents Vault (Exact Add Vehicle Intake Documents) */}
-                  <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-4">
+                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
                     {(() => {
                       // Extract documents from Add Vehicle fields or fallback to authentic certified inspection set
                       const intakeDocs = (selectedOrder.vehicle.supportingDocuments && selectedOrder.vehicle.supportingDocuments.length > 0)
@@ -994,20 +1036,15 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
 
                       return (
                         <>
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
                             <div className="flex items-center gap-2">
                               <FileText className="w-4 h-4 text-slate-700 shrink-0" />
-                              <div>
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                                  Compliance &amp; Shipping Documents Vault
-                                </h3>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                  Official certified pre-export inspection reports and NZTA entry documentation attached during vehicle intake.
-                                </p>
-                              </div>
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                                Supporting Compliance &amp; Intake Documents
+                              </h3>
                             </div>
 
-                            <span className="text-[10px] font-mono text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200 shrink-0 self-start sm:self-auto">
+                            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold font-mono border border-slate-200 shrink-0 self-start sm:self-auto">
                               {intakeDocs.length} Verified Documents
                             </span>
                           </div>

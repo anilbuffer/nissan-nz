@@ -369,7 +369,7 @@ export default function JapanInventoryView({
                           className="btn-outline text-xs py-1.5 px-3 cursor-pointer flex items-center gap-1.5 hover:text-[#C3002F] hover:border-[#C3002F] transition-colors"
                           title="Amend vehicle specifications"
                         >
-                          <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                          <Edit3 className="w-2.5 w-2.5 text-slate-400" />
                           <span>Amend Details</span>
                         </button>
 
@@ -383,7 +383,7 @@ export default function JapanInventoryView({
                           }}
                           className="btn-outline text-xs py-1.5 px-3 cursor-pointer flex items-center gap-1.5"
                         >
-                          <Eye className="w-3.5 h-3.5 text-slate-400" />
+                          <Eye className="w-2.5 w-2.5 text-slate-400" />
                           <span>Details</span>
                         </button>
                       </div>

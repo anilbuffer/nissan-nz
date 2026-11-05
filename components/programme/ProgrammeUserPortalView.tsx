@@ -11,6 +11,7 @@ import { Vehicle, Order, ZoneId } from "@/lib/types";
 import StatusBadge from "@/components/common/StatusBadge";
 import {
   Car,
+  Building2,
   Lock,
   Ship,
   Eye,
@@ -965,59 +966,91 @@ export default function ProgrammeUserPortalView({
       {/* 8. ENRICHED MODAL: Wholesale Order Logistics Dossier        */}
       {/* ─────────────────────────────────────────────────────────── */}
       {selectedOrderForDossier && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-[16px] border border-slate-200 shadow-2xl max-w-2xl w-full p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                    {selectedOrderForDossier.orderNumber}
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                    Wholesale Order Record
-                  </span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-white rounded-[16px] border border-slate-200 shadow-2xl max-w-4xl w-full p-6 sm:p-7 space-y-6 animate-in zoom-in-95 duration-150 font-sans max-h-[92vh] overflow-y-auto navy-scrollbar">
+            {/* 1. Modal Header (Symmetric to /admin/vehicles/VEH_023) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 shrink-0 shadow-2xs">
+                  <Car className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
-                  {selectedOrderForDossier.vehicle?.year} {selectedOrderForDossier.vehicle?.model}
-                </h3>
+
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
+                      #{selectedOrderForDossier.vehicle?.stockId}
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/80">
+                      {selectedOrderForDossier.orderNumber}
+                    </span>
+                    <span className="text-[11px] font-bold px-3 py-0.5 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs">
+                      <Ship className="w-3 h-3 text-sky-600" />
+                      <span>Allocated &amp; Shipping Secured</span>
+                    </span>
+                  </div>
+
+                  <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+                    {selectedOrderForDossier.vehicle?.year} {selectedOrderForDossier.vehicle?.make} {selectedOrderForDossier.vehicle?.model}
+                  </h1>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedOrderForDossier(null)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+
+              <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+                <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
+                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="font-semibold text-slate-800">{selectedOrderForDossier.dealerName}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForDossier(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer border border-transparent hover:border-slate-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            {/* Shipment Overview Box */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Destination Dealer</span>
-                <strong className="text-slate-900 block mt-0.5">{selectedOrderForDossier.dealerName}</strong>
+            {/* 2. Top Two Cards Strip: 4 KPI Metrics Strip */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* 1. ODOMETER (JEVIC) */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  ODOMETER (JEVIC)
+                </span>
+                <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                  {(selectedOrderForDossier.vehicle?.odometerKm || 25600).toLocaleString()} km
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Ocean Carrier</span>
-                <strong className="text-slate-900 block mt-0.5">{selectedOrderForDossier.vesselName || "RoRo Carrier"}</strong>
+
+              {/* 2. AUCTION & INSPECTION GRADE */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  AUCTION &amp; INSPECTION GRADE
+                </span>
+                <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+                  ★ {selectedOrderForDossier.vehicle?.auctionGrade || "4.5"}
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Delivery ETA</span>
-                <strong className="font-mono text-slate-900 block mt-0.5">{selectedOrderForDossier.etaDeliveryDate || "Pending Schedule"}</strong>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Landed Price</span>
-                <strong className="font-mono text-[#C3002F] text-sm block mt-0.5">
+
+              {/* 3. TOTAL BUY PRICE (NZD) */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  TOTAL BUY PRICE (NZD)
+                </span>
+                <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
                   ${selectedOrderForDossier.priceBreakdown?.totalBuyPriceNZD?.toLocaleString()} NZD
-                </strong>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Vehicle Stock ID</span>
-                <span className="font-mono text-slate-800 block mt-0.5">#{selectedOrderForDossier.vehicle?.stockId}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Booking Reference</span>
-                <span className="font-mono text-slate-800 block mt-0.5">{selectedOrderForDossier.orderNumber}</span>
+
+              {/* 4. DELIVERY ETA / VESSEL */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                  DELIVERY ETA / VESSEL
+                </span>
+                <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+                  {selectedOrderForDossier.etaDeliveryDate || "Pending Schedule"}
+                </div>
               </div>
             </div>
 

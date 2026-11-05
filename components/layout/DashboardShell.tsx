@@ -31,12 +31,14 @@ import ProgrammeUserPortalView from "@/components/programme/ProgrammeUserPortalV
 
 interface DashboardShellProps {
   initialVehicleId?: string;
+  initialOrderId?: string;
   initialTab?: string;
   portal?: "dealer" | "admin" | "japan" | "programme" | "common";
 }
 
 export default function DashboardShell({
   initialVehicleId,
+  initialOrderId,
   initialTab,
   portal,
 }: DashboardShellProps = {}) {
@@ -48,6 +50,7 @@ export default function DashboardShell({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [viewingVehicleId, setViewingVehicleId] = useState<string | null>(initialVehicleId || null);
+  const [viewingOrderId, setViewingOrderId] = useState<string | null>(initialOrderId || null);
   const [globalSearch, setGlobalSearch] = useState("");
 
   // Automatically default to mini-sidebar on iPad / tablet screens (< 1280px) to maximize content space
@@ -79,6 +82,20 @@ export default function DashboardShell({
       setViewingVehicleId(null);
     }
   }, [initialVehicleId, pathname]);
+
+  // Sync viewing order ID when route changes
+  useEffect(() => {
+    if (initialOrderId) {
+      setViewingOrderId(initialOrderId);
+    } else if (pathname.includes("/admin/orders/")) {
+      const parts = pathname.split("/admin/orders/");
+      if (parts[1]) {
+        setViewingOrderId(parts[1]);
+      }
+    } else {
+      setViewingOrderId(null);
+    }
+  }, [initialOrderId, pathname]);
 
   // Role Access Route Guard: Redirect unauthorized cross-portal navigation
   useEffect(() => {
@@ -121,7 +138,7 @@ export default function DashboardShell({
         portal === "admin" ||
         (!pathname.startsWith("/dealer") && !pathname.startsWith("/japan") && !pathname.startsWith("/programme")))
     ) {
-      if (pathname === "/admin/orders" || initialTab === "orders" || initialTab === "admin-orders") return "admin-orders";
+      if (pathname === "/admin/orders" || pathname.startsWith("/admin/orders") || initialTab === "orders" || initialTab === "admin-orders") return "admin-orders";
       if (pathname === "/admin/dashboard" || initialTab === "dashboard" || initialTab === "admin-dashboard") return "admin-dashboard";
       if (pathname === "/admin/catalogue" || pathname === "/admin/catalog" || initialTab === "catalogue" || initialTab === "catalog" || initialTab === "admin-catalogue") return "admin-catalogue";
       if (pathname === "/admin/reservations" || pathname === "/admin/holds" || initialTab === "reservations" || initialTab === "admin-reservations") return "admin-reservations";
@@ -332,6 +349,7 @@ export default function DashboardShell({
 
   const handleTabChange = (tabId: string) => {
     setViewingVehicleId(null);
+    setViewingOrderId(null);
     const dest = tabToRoute(tabId);
     router.push(dest);
   };
@@ -452,7 +470,19 @@ export default function DashboardShell({
         case 'admin-orders':
         case 'dealer-orders':
         case 'orders':
-          return <AllocationMilestonesView />;
+          return (
+            <AllocationMilestonesView
+              initialOrderId={viewingOrderId || searchParams?.get("orderId") || undefined}
+              onSelectOrder={(orderId) => {
+                setViewingOrderId(orderId);
+                router.push(`/admin/orders/${orderId}`);
+              }}
+              onBackToOrders={() => {
+                setViewingOrderId(null);
+                router.push('/admin/orders');
+              }}
+            />
+          );
         case 'admin-reservations':
         case 'reservations':
         case 'holds':
