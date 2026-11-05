@@ -197,15 +197,13 @@ export default function DealerStockCatalog({
     );
   };
 
-  const availableCount = filteredVehicles.filter((v) => v.status === "AVAILABLE").length;
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
+      {/* 1. Header: Clean Title & Subtitle + Total Stocks Text       */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             {isAdminView ? "Vehicle Catalogue" : "Vehicle Stock"}
@@ -217,19 +215,8 @@ export default function DealerStockCatalog({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto flex-wrap">
-          <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-            <span><strong className="text-slate-900 font-mono font-bold">{vehicles.filter(v => isAdminView || (v.status !== "WITHDRAWN" && v.status !== "DRAFT")).length}</strong> Total Fleet</span>
-          </div>
-          <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
-          </div>
-          <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
-            <Lock className="w-3.5 h-3.5 text-amber-600" />
-            <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
-          </div>
+        <div className="text-xs sm:text-sm font-medium text-slate-500 self-start sm:self-auto shrink-0">
+          Total Stocks - ( <span className="font-semibold text-slate-900 font-mono">{filteredVehicles.length}</span> )
         </div>
       </div>
 
