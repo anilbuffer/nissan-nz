@@ -190,11 +190,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
+    <div className="min-h-screen w-full flex flex-col xl:flex-row bg-[#F8FAFC]">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* LEFT HALF: Minimal & Clean Dark Brand Canvas               */}
+      {/* BRAND BANNER: Left on Desktop, Bottom on Mobile & iPad     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="relative w-full lg:w-1/2 bg-[#000000] flex flex-col justify-between p-6 sm:p-10 lg:p-16 overflow-hidden text-white border-b lg:border-b-0 lg:border-r border-[#27272A]">
+      <div className="order-2 xl:order-1 relative w-full xl:w-1/2 bg-[#000000] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 overflow-hidden text-white border-t xl:border-t-0 xl:border-r border-[#27272A]">
         {/* Subtle background ambient glow */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
@@ -209,21 +209,21 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <h1 className="font-bold text-lg lg:text-2xl text-white">
+            <h1 className="font-bold text-lg xl:text-2xl text-white">
               Nissan
             </h1>
           </div>
         </div>
 
         {/* Center: Clean & Minimal Hero (Short, Ultra-Premium Style) */}
-        <div className="relative z-10 my-10 lg:my-0 space-y-4 max-w-md">
+        <div className="relative z-10 my-10 xl:my-0 space-y-4 max-w-md">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs text-slate-300">
             <ShieldCheck className="w-3.5 h-3.5 text-[#C3002F]" />
             <span className="font-medium">2FA · Bank-Grade Access Security</span>
           </div>
 
           {/* Main Headline */}
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight text-white leading-[1.12]">
+          <h2 className="text-3xl sm:text-4xl xl:text-[42px] font-bold tracking-tight text-white leading-[1.12]">
             Direct Japan Stock.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
               Landed &amp; Protected.
@@ -241,9 +241,9 @@ export default function LoginPage() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* RIGHT HALF: Light Canvas Modern Sign-In Card               */}
+      {/* SIGN-IN CARD: Right on Desktop, Top on Mobile & iPad       */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16">
+      <div className="order-1 xl:order-2 w-full xl:w-1/2 flex items-center justify-center p-6 sm:p-12 xl:p-16">
         <div className="w-full max-w-md space-y-6">
 
           {/* ═══════════════════════════════════════════════════════ */}

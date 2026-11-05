@@ -549,11 +549,11 @@ export default function DealerRegistrationWizard() {
   const progressPercent = Math.round(((currentStep - 1) / (activeSteps.length - 1)) * 100);
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
+    <div className="min-h-screen w-full flex flex-col xl:flex-row bg-[#F8FAFC]">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* LEFT SIDEBAR: Pinned Desktop Canvas                         */}
+      {/* LEFT SIDEBAR: Pinned on Desktop, Bottom on Mobile & iPad     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <aside className="relative overflow-hidden w-full lg:w-[350px] xl:w-[380px] lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto bg-[#000000] border-b lg:border-b-0 lg:border-r border-[#27272A] text-white flex flex-col justify-between p-6 sm:p-8 shrink-0">
+      <aside className="order-2 xl:order-1 relative overflow-hidden w-full xl:w-[380px] xl:sticky xl:top-0 xl:h-screen xl:overflow-y-auto bg-[#000000] border-t xl:border-t-0 xl:border-r border-[#27272A] text-white flex flex-col justify-between p-6 sm:p-8 shrink-0">
         <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl" />
 
@@ -670,8 +670,19 @@ export default function DealerRegistrationWizard() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* RIGHT SIDE: Category Switcher & Step Canvas                */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <main className="relative flex-1 flex flex-col justify-center p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto bg-gradient-to-br from-slate-50 via-[#F8FAFC] to-slate-100/60 min-h-screen">
+      <main className="order-1 xl:order-2 relative flex-1 flex flex-col justify-center p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto bg-gradient-to-br from-slate-50 via-[#F8FAFC] to-slate-100/60 min-h-screen">
         <div className="relative z-10 max-w-2xl w-full mx-auto my-auto space-y-5">
+
+          {/* Mobile & iPad Back Link */}
+          <div className="xl:hidden">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Sign In</span>
+            </Link>
+          </div>
 
           {/* Global Heading */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
