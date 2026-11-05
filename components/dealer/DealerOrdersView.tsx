@@ -11,6 +11,7 @@ import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { audio } from "@/lib/sound";
 import { getModelAngleImages } from "@/lib/vehicle-media";
+import VehicleSpecificationsTabs from "./VehicleSpecificationsTabs";
 import {
   CheckCircle2,
   Clock,
@@ -892,118 +893,8 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                       </div>
                     </div>
 
-                    {/* 4-Column Technical Grid (Clean, Simple, Professional) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                      {/* Card 1: Provenance & Identification */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 space-y-3">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Provenance &amp; Identification
-                        </span>
-                        <div className="space-y-2 text-xs">
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Chassis VIN:</span>
-                            <span className="font-mono font-bold text-slate-800">{selectedOrder.vehicle.vinChassis}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Model Year:</span>
-                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.year}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Grade / Trim:</span>
-                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.grade}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Drive Type:</span>
-                            <span className="font-mono font-medium text-slate-800">{selectedOrder.vehicle.driveType || "2WD"}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Card 2: Powertrain & Mechanical */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 space-y-3">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Powertrain &amp; Mechanical
-                        </span>
-                        <div className="space-y-2 text-xs">
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Powertrain:</span>
-                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.fuelType}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Displacement:</span>
-                            <span className="font-mono font-medium text-slate-800">
-                              {selectedOrder.vehicle.engineCc && selectedOrder.vehicle.engineCc > 0
-                                ? `${selectedOrder.vehicle.engineCc.toLocaleString()} cc`
-                                : "Electric Motor"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Transmission:</span>
-                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.transmission}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Exterior Colour:</span>
-                            <span className="font-medium text-slate-800">{selectedOrder.vehicle.color || "Factory Original"}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Card 3: Compliance & Odometer */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 space-y-3">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Compliance &amp; Odometer
-                        </span>
-                        <div className="space-y-2 text-xs">
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Odometer Check:</span>
-                            <span className="font-mono font-medium text-emerald-700">JEVIC Certified</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Entry Standard:</span>
-                            <span className="font-medium text-slate-800">NZTA MR2A Pass</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Biosecurity:</span>
-                            <span className="font-medium text-slate-800">MPI Wharf Cleared</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Inspection Date:</span>
-                            <span className="font-mono text-slate-800">
-                              {selectedOrder.vehicle.inspectionDate || (selectedOrder.orderedAt ? new Date(selectedOrder.orderedAt).toISOString().slice(0, 10) : "2026-10-24")}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Card 4: Condition & Inspection Log */}
-                      <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/90 space-y-3">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                          Condition &amp; Inspection Log
-                        </span>
-                        <div className="space-y-2 text-xs">
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Overall Grade:</span>
-                            <span className="font-mono font-bold text-slate-900">
-                              ★ {selectedOrder.vehicle.auctionGrade || "4.5"} / {selectedOrder.vehicle.interiorGrade || "A"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Interior / Exterior:</span>
-                            <span className="font-medium text-slate-800">
-                              Grade {selectedOrder.vehicle.interiorGrade || "A"} / {selectedOrder.vehicle.exteriorGrade || "A"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Inspection Standard:</span>
-                            <span className="font-medium text-slate-800">USS Japan Certified</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-slate-500">Defect Summary:</span>
-                            <span className="font-medium text-emerald-700">Nil Significant Defects</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {/* Vehicle Specifications Tabs (Symmetric with Product Details) */}
+                    <VehicleSpecificationsTabs vehicle={selectedOrder.vehicle} />
                   </div>
 
                   {/* Defect Remediation & Additional Cost Action */}

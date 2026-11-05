@@ -7,6 +7,7 @@ import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import AmendVehicleForm from "./AmendVehicleForm";
+import VehicleSpecificationsTabs from "@/components/dealer/VehicleSpecificationsTabs";
 import {
   ArrowLeft,
   Camera,
@@ -695,7 +696,12 @@ export default function JapanInventoryDetailsView({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. Full Layout Card 2: Supporting Documents                 */}
+      {/* 5. Full Layout Card 2: Vehicle Specifications & Listing Tabs */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <VehicleSpecificationsTabs vehicle={vehicle} isAdmin={true} />
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 6. Full Layout Card 3: Supporting Documents                 */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
