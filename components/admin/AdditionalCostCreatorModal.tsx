@@ -127,11 +127,11 @@ export default function AdditionalCostCreatorModal({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200 font-sans"
     >
-      <div className="relative w-full max-w-xl bg-white rounded-[24px] border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-2xl bg-white rounded-[24px] border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col animate-in zoom-in-95 duration-200">
         {/* Sleek Header */}
         <div className="px-6 py-5 bg-white flex items-center justify-between border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#C3002F] border border-rose-100 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#C3002F] border border-rose-100 flex items-center justify-center shrink-0">
               <Wrench className="w-5 h-5" />
             </div>
             <div>
@@ -172,7 +172,7 @@ export default function AdditionalCostCreatorModal({
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g. Non-Standard Compliance Repair, LVVTA Certification, Biosecurity Decontamination"
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all shadow-xs"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all"
             />
           </div>
 
@@ -186,7 +186,7 @@ export default function AdditionalCostCreatorModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Front brake pad replacement, headlamp alignment & rotor skimming"
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all shadow-xs"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all"
             />
           </div>
 
@@ -206,7 +206,7 @@ export default function AdditionalCostCreatorModal({
                 value={amountNZD}
                 onChange={(e) => setAmountNZD(e.target.value)}
                 placeholder="350"
-                className="w-full pl-12 pr-3.5 py-2.5 text-sm font-mono font-normal bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 transition-all shadow-xs"
+                className="w-full pl-12 pr-3.5 py-2.5 text-sm font-mono font-normal bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 transition-all"
               />
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function AdditionalCostCreatorModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. VINZ Entry Inspection Dossier #MR2A-0924"
-              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all shadow-xs"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all"
             />
           </div>
 
@@ -245,7 +245,7 @@ export default function AdditionalCostCreatorModal({
             />
 
             {attachedFile && attachedFile.name ? (
-              <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/90 flex items-center justify-between gap-3 shadow-2xs">
+              <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/90 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
                     <FileCheck2 className="w-4 h-4" />
@@ -300,7 +300,7 @@ export default function AdditionalCostCreatorModal({
                   : "border-slate-300 bg-slate-50/70 hover:bg-slate-100/70 hover:border-slate-400"
                   }`}
               >
-                <div className="w-8 h-8 rounded-full bg-white shadow-2xs border border-slate-200 flex items-center justify-center text-slate-500">
+                <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500">
                   <Paperclip className="w-4 h-4 text-slate-600" />
                 </div>
                 <div className="text-center">
@@ -320,7 +320,7 @@ export default function AdditionalCostCreatorModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all cursor-pointer"
             >
               Cancel
             </button>

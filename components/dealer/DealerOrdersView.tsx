@@ -832,67 +832,11 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   {/* ───────────────────────────────────────────────────────── */}
                   {/* SPECIFICATIONS CARD (Symmetric with dealer/vehicles/VEH_023) */}
                   {/* ───────────────────────────────────────────────────────── */}
-                  <div className="bg-white rounded-[24px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
-                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-                        <ShieldCheck className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                          Specifications
-                        </h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          Certified Japanese export verification and mechanical specification dossier.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* 4 Inner Stats Cards Strip */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                      {/* 1. ODOMETER (JEVIC) */}
-                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                          ODOMETER (JEVIC)
-                        </span>
-                        <div className="text-sm sm:text-base font-bold font-mono text-slate-900 tracking-tight">
-                          {selectedOrder.vehicle.odometerKm.toLocaleString()} {selectedOrder.vehicle.odometerUnit || "km"}
-                        </div>
-                      </div>
-
-                      {/* 2. AUCTION GRADE */}
-                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                          AUCTION GRADE
-                        </span>
-                        <div className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                          ★ {selectedOrder.vehicle.auctionGrade || "4.5"} / {selectedOrder.vehicle.interiorGrade || "A"}
-                        </div>
-                      </div>
-
-                      {/* 3. DELIVERY DESTINATION */}
-                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                          DELIVERY DESTINATION
-                        </span>
-                        <div className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
-                          {selectedOrder.pricingZoneId || selectedOrder.priceBreakdown?.zoneId || currentDealer?.pricingZoneId || "ZONE_1"}
-                        </div>
-                      </div>
-
-                      {/* 4. CORRIDOR / VESSEL */}
-                      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                          CORRIDOR STAGING
-                        </span>
-                        <div className="text-sm sm:text-base font-bold text-slate-900 truncate tracking-tight">
-                          {selectedOrder.vesselName || selectedOrder.vehicle.location || "Yokohama Export Yard"}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Vehicle Specifications Tabs (Symmetric with Product Details) */}
-                    <VehicleSpecificationsTabs vehicle={selectedOrder.vehicle} />
-                  </div>
+                  <VehicleSpecificationsTabs
+                    vehicle={selectedOrder.vehicle}
+                    copiedVin={copiedField === "vin"}
+                    onCopyVin={() => handleCopy(selectedOrder.vehicle.vinChassis, "vin")}
+                  />
 
                   {/* Defect Remediation & Additional Cost Action */}
                   {selectedOrder.additionalCosts.length > 0 && (
@@ -981,22 +925,22 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   )}
 
                   {/* Order Delivery Timeline (Official Brand Milestones Track) */}
-                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                      <div className="flex items-center gap-2">
+                        <Ship className="w-4 h-4 text-slate-700 shrink-0" />
+                        <div>
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                             Order Delivery Timeline
                           </h3>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            Official Nissan New Zealand supply chain progression from Japan export release to franchise yard delivery.
+                          </p>
                         </div>
-                        <p className="text-xs text-slate-500 font-medium mt-0.5">
-                          Official Nissan New Zealand supply chain progression from Japan export release to franchise yard delivery.
-                        </p>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-1.5">
-                          <Ship className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1.5 shrink-0">
                           <span>Current: {getBrandMilestoneLabel(selectedOrder.currentMilestone).displayBadge}</span>
                         </span>
                       </div>
@@ -1006,7 +950,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   </div>
 
                   {/* Compliance & Shipping Documents Vault (Exact Add Vehicle Intake Documents) */}
-                  <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5">
+                  <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-4">
                     {(() => {
                       // Extract documents from Add Vehicle fields or fallback to authentic certified inspection set
                       const intakeDocs = (selectedOrder.vehicle.supportingDocuments && selectedOrder.vehicle.supportingDocuments.length > 0)
@@ -1050,11 +994,11 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
 
                       return (
                         <>
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-3 border-b border-slate-100 gap-3">
-                            <div className="flex items-start gap-2.5">
-                              <FileCheck2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-slate-700 shrink-0" />
                               <div>
-                                <h3 className="font-bold text-base text-slate-900">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                                   Compliance &amp; Shipping Documents Vault
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-0.5">
@@ -1063,62 +1007,63 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                               </div>
                             </div>
 
-                            <span className="text-[10px] font-mono text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 shrink-0">
+                            <span className="text-[10px] font-mono text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-200 shrink-0 self-start sm:self-auto">
                               {intakeDocs.length} Verified Documents
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                             {intakeDocs.map((doc) => (
                               <div
                                 key={doc.id}
-                                className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 transition-all flex flex-col justify-between space-y-3 shadow-2xs group"
+                                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 transition-all shadow-2xs flex items-center justify-between gap-3 group"
                               >
-                                <div className="space-y-1">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                                      {doc.type.replace(/_/g, " ")}
-                                    </span>
-                                    <span className="text-[10px] text-slate-400 font-mono">
-                                      {new Date(doc.uploadedAt).toLocaleDateString()}
-                                    </span>
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-slate-600 transition-colors">
+                                    <FileText className="w-3.5 h-3.5" />
                                   </div>
-                                  <h4 className="font-bold text-xs text-slate-900 leading-snug line-clamp-2 pt-1" title={doc.name}>
-                                    {doc.name}
-                                  </h4>
+                                  <div className="min-w-0 space-y-0.5">
+                                    <h4
+                                      className="font-semibold text-xs text-slate-900 group-hover:text-slate-700 truncate block"
+                                      title={doc.name}
+                                    >
+                                      {doc.name}
+                                    </h4>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                                      <span className="text-slate-600 font-medium">
+                                        {doc.type.replace(/_/g, " ")}
+                                      </span>
+                                      <span>·</span>
+                                      <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
+                                    </div>
+                                  </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-2 border-t border-slate-200/70">
-                                  <span className="text-[10px] text-slate-400 font-mono">
-                                    Official Digital Seal
-                                  </span>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      audio.playSubtleClick();
+                                      setViewingDocument({
+                                        name: doc.name,
+                                        type: doc.type,
+                                        date: new Date(doc.uploadedAt).toLocaleDateString(),
+                                      });
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                                  >
+                                    <Eye className="w-3 h-3 text-slate-400" />
+                                    <span>View</span>
+                                  </button>
 
-                                  <div className="flex items-center gap-1.5">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        audio.playSubtleClick();
-                                        setViewingDocument({
-                                          name: doc.name,
-                                          type: doc.type,
-                                          date: new Date(doc.uploadedAt).toLocaleDateString(),
-                                        });
-                                      }}
-                                      className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
-                                    >
-                                      <Eye className="w-3.5 h-3.5 text-slate-500" />
-                                      <span>View</span>
-                                    </button>
-
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDownloadDoc(doc.name)}
-                                      className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
-                                    >
-                                      <Download className="w-3 h-3" />
-                                      <span>PDF</span>
-                                    </button>
-                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDownloadDoc(doc.name)}
+                                    className="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                                  >
+                                    <Download className="w-3 h-3 text-slate-400" />
+                                    <span>PDF</span>
+                                  </button>
                                 </div>
                               </div>
                             ))}
@@ -1129,7 +1074,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   </div>
 
                   {/* Destination Yard Delivery Protocol */}
-                  <div className="bg-slate-50 rounded-2xl border border-slate-200/90 p-5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-slate-600">
+                  <div className="bg-white rounded-2xl border border-slate-200/90 p-4 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-slate-600">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <Truck className="w-4 h-4 text-[#C3002F] shrink-0" />

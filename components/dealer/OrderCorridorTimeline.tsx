@@ -211,21 +211,21 @@ export default function OrderCorridorTimeline({
         const isLast = idx === stages.length - 1;
 
         return (
-          <div key={stage.key} className="flex gap-3 sm:gap-4.5">
+          <div key={stage.key} className="flex gap-2.5 sm:gap-3.5">
             {/* Left: Circle + Connector Line */}
-            <div className="flex flex-col items-center shrink-0 w-7 sm:w-8">
+            <div className="flex flex-col items-center shrink-0 w-6">
               {/* Circle Badge */}
               <div
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10 transition-colors ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 z-10 transition-colors ${
                   stage.isCompleted
-                    ? "border-2 border-emerald-500 bg-white text-emerald-600 shadow-2xs"
+                    ? "border border-emerald-500 bg-emerald-50 text-emerald-700 shadow-2xs"
                     : stage.isCurrent
-                    ? "border-2 border-blue-500 bg-blue-50 text-blue-600 ring-4 ring-blue-500/10 shadow-2xs"
-                    : "border-2 border-slate-200 bg-white text-slate-400 font-semibold"
+                    ? "border border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500/15 shadow-2xs font-bold"
+                    : "border border-slate-200 bg-white text-slate-400 font-semibold"
                 }`}
               >
                 {stage.isCompleted ? (
-                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.75] text-emerald-600" />
+                  <Check className="w-3 h-3 stroke-[2.75] text-emerald-600" />
                 ) : (
                   <span>{stage.number}</span>
                 )}
@@ -241,55 +241,65 @@ export default function OrderCorridorTimeline({
               )}
             </div>
 
-            {/* Right: Milestone White Card */}
-            <div
-              className={`flex-1 min-w-0 ${
-                !isLast ? "pb-3.5 sm:pb-4.5" : ""
-              }`}
-            >
+            {/* Right: Milestone Sleek Compact Card */}
+            <div className={`flex-1 min-w-0 ${!isLast ? "pb-1.5 sm:pb-2" : ""}`}>
               <div
-                className={`bg-white rounded-2xl border p-4 sm:p-5 transition-all shadow-2xs ${
+                className={`rounded-xl border py-2 px-3 sm:px-3.5 transition-all text-xs ${
                   stage.isCurrent
-                    ? "border-blue-300 ring-2 ring-blue-500/10 shadow-xs"
-                    : "border-slate-200"
+                    ? "bg-blue-50/50 border-blue-200 shadow-2xs"
+                    : stage.isCompleted
+                    ? "bg-white border-slate-200 shadow-2xs"
+                    : "bg-slate-50/40 border-slate-200/60"
                 }`}
               >
                 {/* Top Row: Title + Current Pill (Left) & Date / Pending (Right) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
-                  <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                    <h4 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    <span
+                      className={`font-bold text-xs tracking-tight truncate ${
+                        stage.isCurrent
+                          ? "text-blue-950 font-bold"
+                          : stage.isCompleted
+                          ? "text-slate-900 font-bold"
+                          : "text-slate-600 font-semibold"
+                      }`}
+                    >
                       {stage.number}. {stage.title}
-                    </h4>
+                    </span>
                     {stage.isCurrent && (
-                      <span className="text-[10px] sm:text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full font-mono">
+                      <span className="text-[9px] font-semibold text-blue-700 bg-blue-100/70 border border-blue-200 px-2 py-0.2 rounded-full font-mono shrink-0">
                         Current Milestone
                       </span>
                     )}
                   </div>
 
-                  <div
-                    className={`text-xs font-mono sm:text-right shrink-0 ${
+                  <span
+                    className={`text-[10px] font-mono shrink-0 ${
                       stage.timestamp === "Pending"
                         ? "text-slate-400"
-                        : "text-slate-600 font-medium"
+                        : "text-slate-600 font-semibold"
                     }`}
                   >
                     {stage.timestamp}
-                  </div>
+                  </span>
                 </div>
 
                 {/* Middle Row: Description */}
-                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 sm:mt-1.5">
+                <p className={`text-[11px] leading-snug mt-0.5 ${
+                  stage.isCurrent ? "text-slate-600 font-medium" : stage.isCompleted ? "text-slate-500" : "text-slate-400"
+                }`}>
                   {stage.description}
                 </p>
 
-                {/* Bottom Row: Location with MapPin Icon */}
-                <div className="flex items-center justify-between gap-2 text-xs text-slate-500 font-medium mt-3 sm:mt-3.5 pt-1 sm:pt-0 border-t border-slate-100 sm:border-0">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                {/* Bottom Row: Location with MapPin Icon & Actor */}
+                <div className={`flex items-center justify-between gap-2 text-[10px] font-mono mt-1.5 pt-1.5 border-t ${
+                  stage.isCurrent ? "border-blue-100/80 text-blue-900/60" : "border-slate-100 text-slate-400"
+                }`}>
+                  <div className="flex items-center gap-1 truncate">
+                    <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                     <span className="truncate">{stage.location}</span>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-mono shrink-0 hidden sm:inline">
+                  <span className="shrink-0 hidden sm:inline text-slate-400">
                     {stage.actor}
                   </span>
                 </div>

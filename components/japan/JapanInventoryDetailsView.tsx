@@ -666,14 +666,14 @@ export default function JapanInventoryDetailsView({
 
         {vehicle.knownDefects && vehicle.knownDefects.length > 0 && (
           <div className="space-y-2 pt-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-900 block mb-3">
               Inspector Recorded Markings &amp; Defect Items:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {vehicle.knownDefects.map((defect, i) => (
                 <div
                   key={i}
-                  className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center gap-2.5 text-xs text-amber-950 font-medium"
+                  className="flex items-center gap-2.5 text-xs text-amber-950 font-normal"
                 >
                   <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
                   <span className="break-words leading-snug">{defect}</span>
