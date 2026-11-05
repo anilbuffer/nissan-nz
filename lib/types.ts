@@ -235,6 +235,8 @@ export interface AdditionalCostItem {
   proposedAt: string;
   decidedAt?: string;
   notes?: string;
+  dealerId?: string;
+  dealerName?: string;
 }
 
 export interface OrderDocument {

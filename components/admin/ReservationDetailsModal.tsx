@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Copy,
   Check,
+  Wrench,
 } from "lucide-react";
 
 interface ReservationDetailsModalProps {
@@ -376,6 +377,34 @@ export default function ReservationDetailsModal({
               </div>
             </div>
           </div>
+
+          {/* Attached Additional Costs (if any) */}
+          {vehicle?.additionalCosts && vehicle.additionalCosts.length > 0 && (
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <Wrench className="w-3.5 h-3.5 text-[#C3002F]" />
+                  <span>Attached Additional Costs ({vehicle.additionalCosts.length})</span>
+                </h3>
+              </div>
+              <div className="divide-y divide-slate-100 text-xs">
+                {vehicle.additionalCosts.map((c) => (
+                  <div key={c.id} className="py-2.5 flex items-center justify-between gap-3">
+                    <div>
+                      <span className="font-bold text-slate-900 block">{c.description}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Category: {c.type} · Target: {c.dealerName || reservation.dealerName}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono font-bold text-slate-900 block">+${c.amountNZD.toLocaleString()} NZD</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${c.status === "APPROVED" ? "bg-emerald-100 text-emerald-800" : c.status === "DECLINED" ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-800"}`}>
+                        {c.status.replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
 
           {/* Confirm Dialog Input */}

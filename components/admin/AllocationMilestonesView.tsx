@@ -710,14 +710,22 @@ export default function AllocationMilestonesView({
                 {viewingOrder.additionalCosts.map((cost) => (
                   <div key={cost.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white hover:bg-slate-50/70 transition-colors">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-slate-900">{cost.description}</span>
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
                           {cost.type}
                         </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-50 text-slate-500 border border-slate-200">
+                          Target: {cost.dealerName || viewingOrder.dealerName}
+                        </span>
                       </div>
                       {cost.notes && (
                         <p className="text-[11px] text-slate-500">{cost.notes}</p>
+                      )}
+                      {cost.evidenceDocumentUrl && (
+                        <div className="inline-flex items-center gap-1.5 mt-0.5 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200">
+                          <span>Evidence: {cost.evidenceDocumentUrl}</span>
+                        </div>
                       )}
                     </div>
 
@@ -1074,6 +1082,26 @@ export default function AllocationMilestonesView({
                           <div className="text-[11px] text-slate-500 font-mono mt-0.5">
                             VIN: {order.vehicle?.vinChassis} · Dealer: <strong className="text-slate-700">{order.dealerName}</strong> ({order.pricingZoneId})
                           </div>
+                          {order.additionalCosts && order.additionalCosts.length > 0 && (
+                            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                              {order.additionalCosts.some((c) => c.status === "PENDING_DEALER_APPROVAL") && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                  <Clock className="w-2.5 h-2.5 text-amber-600" />
+                                  <span>
+                                    {order.additionalCosts.filter((c) => c.status === "PENDING_DEALER_APPROVAL").length} Additional Cost Pending Dealer Approval (+${order.additionalCosts.filter((c) => c.status === "PENDING_DEALER_APPROVAL").reduce((s, c) => s + c.amountNZD, 0).toLocaleString()} NZD)
+                                  </span>
+                                </span>
+                              )}
+                              {order.additionalCosts.some((c) => c.status === "APPROVED") && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                                  <span>
+                                    +${order.additionalCosts.filter((c) => c.status === "APPROVED").reduce((s, c) => s + c.amountNZD, 0).toLocaleString()} NZD Cost Approved
+                                  </span>
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
 

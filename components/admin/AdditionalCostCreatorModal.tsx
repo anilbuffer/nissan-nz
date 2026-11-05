@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { Order, AdditionalCostItem } from "@/lib/types";
+import { MOCK_DEALERS } from "@/lib/mock-data";
 import { audio } from "@/lib/sound";
 import {
   X,
@@ -23,6 +24,7 @@ export default function AdditionalCostCreatorModal({
   onClose,
   onSubmit,
 }: AdditionalCostCreatorModalProps) {
+  const [targetDealerId, setTargetDealerId] = useState(order?.dealerId || "DEALER_001");
   // 1. Text field for Category entered manually
   const [category, setCategory] = useState("Non-Standard Compliance Repair");
   const [description, setDescription] = useState(
@@ -101,6 +103,8 @@ export default function AdditionalCostCreatorModal({
     setIsSubmitting(true);
     audio.playSubtleClick();
 
+    const targetDealer = MOCK_DEALERS.find((d) => d.id === targetDealerId);
+
     // Submits with status "PENDING_DEALER_APPROVAL" so the relevant dealer can review and approve or reject it
     const newCostItem: AdditionalCostItem = {
       id: `COST_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -111,6 +115,8 @@ export default function AdditionalCostCreatorModal({
       status: "PENDING_DEALER_APPROVAL",
       proposedAt: new Date().toISOString(),
       notes: notes.trim() || undefined,
+      dealerId: targetDealerId,
+      dealerName: targetDealer?.legalTradingName || order.dealerName,
     };
 
     setTimeout(() => {
@@ -160,6 +166,25 @@ export default function AdditionalCostCreatorModal({
               <span className="font-medium">{error}</span>
             </div>
           )}
+
+          {/* Target Dealership Selector */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <span>Target Dealership *</span>
+              <span className="text-[10px] text-slate-400 font-normal">Dealership reviewing &amp; signing off cost</span>
+            </label>
+            <select
+              value={targetDealerId}
+              onChange={(e) => setTargetDealerId(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all cursor-pointer font-medium"
+            >
+              {MOCK_DEALERS.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.legalTradingName} ({d.id}) — {d.pricingZoneId.replace(/_/g, " ")}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* 1. Category Manual Text Field */}
           <div className="space-y-1.5">

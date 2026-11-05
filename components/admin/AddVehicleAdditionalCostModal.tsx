@@ -31,6 +31,20 @@ export default function AddVehicleAdditionalCostModal({
 }: AddVehicleAdditionalCostModalProps) {
   const { dealers } = useProgramme();
 
+  // Target dealer selection (defaults to vehicle reserved dealer or first approved dealer)
+  const [selectedDealerId, setSelectedDealerId] = useState<string>(
+    vehicle?.reservedByDealerId || dealers?.[0]?.id || "DEALER_001"
+  );
+
+  // Sync selectedDealerId when vehicle changes
+  React.useEffect(() => {
+    if (vehicle?.reservedByDealerId) {
+      setSelectedDealerId(vehicle.reservedByDealerId);
+    } else if (dealers && dealers.length > 0) {
+      setSelectedDealerId(dealers[0].id);
+    }
+  }, [vehicle?.id, vehicle?.reservedByDealerId, dealers]);
+
   // 1. Text field for Category entered manually
   const [category, setCategory] = useState("Non-Standard Compliance Repair");
   const [description, setDescription] = useState("Brake pad replacement, headlamp alignment & rotor skimming");
@@ -116,6 +130,8 @@ export default function AddVehicleAdditionalCostModal({
       return;
     }
 
+    const selectedDealer = dealers?.find((d) => d.id === selectedDealerId);
+
     // Submits with status "PENDING_DEALER_APPROVAL" so the relevant dealer can review and approve or reject it
     const newItem: AdditionalCostItem = {
       id: `COST_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -126,6 +142,8 @@ export default function AddVehicleAdditionalCostModal({
       proposedAt: new Date().toISOString(),
       notes: notes.trim() || undefined,
       evidenceDocumentUrl: attachedFile?.name || undefined,
+      dealerId: selectedDealerId,
+      dealerName: selectedDealer?.legalTradingName || "Franchise Dealership",
     };
 
     audio.playSuccessChime();
@@ -172,6 +190,39 @@ export default function AddVehicleAdditionalCostModal({
               <span className="font-medium">{error}</span>
             </div>
           )}
+
+          {/* 0. Target Franchise Dealership Selection */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-[#C3002F]" />
+                <span>Target Franchise Dealership *</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-normal">Dealer who will review &amp; approve</span>
+            </label>
+            <select
+              value={selectedDealerId}
+              onChange={(e) => setSelectedDealerId(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#C3002F] transition-all cursor-pointer font-medium"
+            >
+              {dealers && dealers.length > 0 ? (
+                dealers.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.legalTradingName} ({d.dealerCode}) — {d.pricingZoneId} {vehicle.reservedByDealerId === d.id ? " ★ (Current Hold)" : ""}
+                  </option>
+                ))
+              ) : (
+                <option value="DEALER_001">Auckland Nissan City (NZ-NIS-AKL01)</option>
+              )}
+            </select>
+            {vehicle.reservedByDealerId && (
+              <p className="text-[11px] text-slate-500 font-mono">
+                {vehicle.reservedByDealerId === selectedDealerId
+                  ? "✓ Pre-selected: Unit is currently held by this dealership."
+                  : "ℹ Note: Unit is currently held by another dealership, but this cost request will be sent to the selected dealer."}
+              </p>
+            )}
+          </div>
 
           {/* 1. Category Manual Text Field */}
           <div className="space-y-1.5">

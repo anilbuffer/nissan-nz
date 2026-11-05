@@ -84,6 +84,9 @@ interface ProgrammeContextType {
   ) => void;
   attachAdditionalCost: (orderId: string, costItem: AdditionalCostItem) => void;
   respondToAdditionalCost: (orderId: string, costId: string, decision: "APPROVED" | "DECLINED") => void;
+  attachVehicleAdditionalCost: (vehicleId: string, costItem: AdditionalCostItem, targetDealerId?: string) => void;
+  respondToVehicleAdditionalCost: (vehicleId: string, costId: string, decision: "APPROVED" | "DECLINED", dealerId?: string) => void;
+  removeVehicleAdditionalCost: (vehicleId: string, costId: string) => void;
 
   // Dealer Authorization & Onboarding actions
   approveDealer: (
@@ -461,6 +464,16 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       )
     );
 
+    const vehicleCosts = targetVehicle.additionalCosts || [];
+    const approvedAdditionalTotal = vehicleCosts
+      .filter((c) => c.status === "APPROVED")
+      .reduce((sum, c) => sum + c.amountNZD, 0);
+
+    const adjustedPriceBreakdown = {
+      ...priceBreakdown,
+      totalBuyPriceNZD: priceBreakdown.totalBuyPriceNZD + approvedAdditionalTotal,
+    };
+
     const newOrder: Order = {
       id: `ORD_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       orderNumber: orderNum,
@@ -472,8 +485,10 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       orderedByUserId: "USR_DEALER_01",
       orderedByUserName: dealer.primaryContactName,
       orderedAt: now,
-      priceBreakdown,
-      currentMilestone: "ORDER_CONFIRMED",
+      priceBreakdown: adjustedPriceBreakdown,
+      currentMilestone: vehicleCosts.some((c) => c.status === "PENDING_DEALER_APPROVAL")
+        ? "AWAITING_ADDITIONAL_COST"
+        : "ORDER_CONFIRMED",
       vesselName: "Trans-Pacific RoRo V.49",
       voyageNumber: "TP-2649",
       etaDeliveryDate: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -538,7 +553,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           uploadedAt: now,
         },
       ],
-      additionalCosts: [],
+      additionalCosts: vehicleCosts,
     };
 
     setOrders((prev) => [newOrder, ...prev]);
@@ -1091,6 +1106,19 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     );
 
     const targetOrder = orders.find((o) => o.id === orderId);
+    if (targetOrder?.vehicleId) {
+      setVehicles((prev) =>
+        prev.map((v) =>
+          v.id === targetOrder.vehicleId
+            ? {
+              ...v,
+              additionalCosts: [...(v.additionalCosts || []), costItem],
+            }
+            : v
+        )
+      );
+    }
+
     logAudit({
       actorName: "Sarah Jenkins",
       actorEmail: "ops@autohub.co.nz",
@@ -1150,6 +1178,27 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     );
 
     const targetOrder = orders.find((o) => o.id === orderId);
+    if (targetOrder?.vehicleId) {
+      setVehicles((prev) =>
+        prev.map((v) =>
+          v.id === targetOrder.vehicleId
+            ? {
+              ...v,
+              additionalCosts: (v.additionalCosts || []).map((c) =>
+                c.id === costId
+                  ? {
+                    ...c,
+                    status: decision === "APPROVED" ? ("APPROVED" as const) : ("DECLINED" as const),
+                    decidedAt: new Date().toISOString(),
+                  }
+                  : c
+              ),
+            }
+            : v
+        )
+      );
+    }
+
     logAudit({
       actorName: "David Miller",
       actorEmail: "dealer@aucklandnissan.co.nz",
@@ -1169,6 +1218,177 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
       dealerId: targetOrder?.dealerId,
       linkUrl: "/admin/orders",
     });
+  };
+
+  // 9b. Attach Vehicle Additional Cost Item (Autohub Admin)
+  const attachVehicleAdditionalCost = (
+    vehicleId: string,
+    costItem: AdditionalCostItem,
+    targetDealerId?: string
+  ) => {
+    const targetVehicle = vehicles.find((v) => v.id === vehicleId);
+    const assignedDealerId = targetDealerId || costItem.dealerId || targetVehicle?.reservedByDealerId || "DEALER_001";
+    const targetDealer = dealers.find((d) => d.id === assignedDealerId);
+
+    const enrichedCostItem: AdditionalCostItem = {
+      ...costItem,
+      dealerId: assignedDealerId,
+      dealerName: targetDealer?.legalTradingName || costItem.dealerName || "Allocated Dealership",
+    };
+
+    setVehicles((prev) =>
+      prev.map((v) =>
+        v.id === vehicleId
+          ? {
+            ...v,
+            additionalCosts: [...(v.additionalCosts || []), enrichedCostItem],
+          }
+          : v
+      )
+    );
+
+    // Also update any matching active order for this vehicle
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.vehicleId === vehicleId
+          ? {
+            ...o,
+            currentMilestone: "AWAITING_ADDITIONAL_COST",
+            additionalCosts: [...(o.additionalCosts || []), enrichedCostItem],
+          }
+          : o
+      )
+    );
+
+    logAudit({
+      actorName: "Sarah Jenkins",
+      actorEmail: "ops@autohub.co.nz",
+      actorRole: "AUTOHUB_ADMIN",
+      action: "ADDITIONAL_COST_FLAGGED",
+      category: "INVENTORY",
+      objectType: "Vehicle",
+      objectId: targetVehicle?.stockId || vehicleId,
+      details: `Attached additional cost ($${costItem.amountNZD} NZD: ${costItem.description}) for dealer ${enrichedCostItem.dealerName}.`,
+    });
+
+    addNotification({
+      type: "COST_PROPOSAL",
+      title: "Action Required: Additional Cost Proposal",
+      desc: `Operations flagged: ${costItem.description} ($${costItem.amountNZD.toLocaleString()} NZD) for Unit #${targetVehicle?.stockId || vehicleId}.`,
+      targetRole: "DEALER_ADMIN",
+      dealerId: assignedDealerId,
+      linkUrl: `/dealer/vehicles/${vehicleId}`,
+    });
+  };
+
+  // 9c. Dealer Responds to Vehicle Additional Cost (Approve / Decline)
+  const respondToVehicleAdditionalCost = (
+    vehicleId: string,
+    costId: string,
+    decision: "APPROVED" | "DECLINED",
+    dealerId?: string
+  ) => {
+    let affectedCost: AdditionalCostItem | undefined;
+
+    setVehicles((prev) =>
+      prev.map((v) => {
+        if (v.id === vehicleId) {
+          const currentCosts = v.additionalCosts || [];
+          affectedCost = currentCosts.find((c) => c.id === costId);
+          const updated = currentCosts.map((c) =>
+            c.id === costId
+              ? {
+                ...c,
+                status: decision === "APPROVED" ? ("APPROVED" as const) : ("DECLINED" as const),
+                decidedAt: new Date().toISOString(),
+              }
+              : c
+          );
+          return {
+            ...v,
+            additionalCosts: updated,
+          };
+        }
+        return v;
+      })
+    );
+
+    // Also update matching order if exists
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o.vehicleId === vehicleId) {
+          const updatedCosts = (o.additionalCosts || []).map((c) =>
+            c.id === costId
+              ? {
+                ...c,
+                status: decision === "APPROVED" ? ("APPROVED" as const) : ("DECLINED" as const),
+                decidedAt: new Date().toISOString(),
+              }
+              : c
+          );
+          const addAmount = decision === "APPROVED" && affectedCost ? affectedCost.amountNZD : 0;
+          return {
+            ...o,
+            currentMilestone: "COMPLIANCE",
+            additionalCosts: updatedCosts,
+            priceBreakdown: {
+              ...o.priceBreakdown,
+              totalBuyPriceNZD: o.priceBreakdown.totalBuyPriceNZD + addAmount,
+            },
+          };
+        }
+        return o;
+      })
+    );
+
+    const targetVehicle = vehicles.find((v) => v.id === vehicleId);
+    const targetDealer = dealers.find((d) => d.id === (dealerId || affectedCost?.dealerId || targetVehicle?.reservedByDealerId));
+
+    logAudit({
+      actorName: targetDealer?.primaryContactName || "Dealer Representative",
+      actorEmail: targetDealer?.primaryContactEmail || "dealer@nissan-network.co.nz",
+      actorRole: "DEALER_USER",
+      action: decision === "APPROVED" ? "COST_VARIATION_APPROVED" : "COST_VARIATION_DECLINED",
+      category: "INVENTORY",
+      objectType: "Vehicle",
+      objectId: targetVehicle?.stockId || vehicleId,
+      details: `${targetDealer?.legalTradingName || "Dealership"} ${decision.toLowerCase()} additional cost of $${affectedCost?.amountNZD || 0} NZD for Unit #${targetVehicle?.stockId || vehicleId}.`,
+    });
+
+    addNotification({
+      type: "COST_DECISION",
+      title: `Additional Cost ${decision === "APPROVED" ? "Approved" : "Declined"}`,
+      desc: `${targetDealer?.legalTradingName || "Dealership"} ${decision.toLowerCase()} additional cost of $${affectedCost?.amountNZD || 0} NZD for Unit #${targetVehicle?.stockId || vehicleId}.`,
+      targetRole: "AUTOHUB_ADMIN",
+      dealerId: targetDealer?.id,
+      linkUrl: `/admin/vehicles/${vehicleId}`,
+    });
+  };
+
+  // 9d. Remove Vehicle Additional Cost
+  const removeVehicleAdditionalCost = (vehicleId: string, costId: string) => {
+    setVehicles((prev) =>
+      prev.map((v) =>
+        v.id === vehicleId
+          ? {
+            ...v,
+            additionalCosts: (v.additionalCosts || []).filter((c) => c.id !== costId),
+          }
+          : v
+      )
+    );
+
+    // Also remove from any matching order
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.vehicleId === vehicleId
+          ? {
+            ...o,
+            additionalCosts: (o.additionalCosts || []).filter((c) => c.id !== costId),
+          }
+          : o
+      )
+    );
   };
 
   // 10. Approve Dealer (Autohub Admin)
@@ -1505,6 +1725,9 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         advanceOrderMilestone,
         attachAdditionalCost,
         respondToAdditionalCost,
+        attachVehicleAdditionalCost,
+        respondToVehicleAdditionalCost,
+        removeVehicleAdditionalCost,
         approveDealer,
         rejectDealer,
         returnDealerApplication,

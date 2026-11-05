@@ -9,7 +9,6 @@ import { MOCK_VEHICLES } from "@/lib/mock-data";
 import { calculateLandedPrice, OFFICIAL_PRICING_ZONES, JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import AtomicReservationModal from "./AtomicReservationModal";
-import AddVehicleAdditionalCostModal from "@/components/admin/AddVehicleAdditionalCostModal";
 import VehicleSpecificationsTabs from "./VehicleSpecificationsTabs";
 import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import {
@@ -89,6 +88,8 @@ export default function FullPageVehicleDetail({
     rejectReservation,
     cancelReservation,
     dealers,
+    respondToVehicleAdditionalCost,
+    removeVehicleAdditionalCost,
   } = useProgramme();
   const { currentDealer, currentUser } = useAuth();
 
@@ -144,7 +145,6 @@ export default function FullPageVehicleDetail({
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [selectedZone, setSelectedZone] = useState<ZoneId>(dealerZone);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
-  const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
   const [copiedVin, setCopiedVin] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
@@ -405,17 +405,8 @@ export default function FullPageVehicleDetail({
     setTimeout(() => setActionNotice(null), 3500);
   };
 
-  const handleAddAdditionalCost = (item: AdditionalCostItem) => {
-    const updated = [...additionalCosts, item];
-    updateVehicle(vehicle.id, { additionalCosts: updated });
-    setIsAddCostModalOpen(false);
-    setActionNotice(`Additional cost proposal "+$${item.amountNZD.toLocaleString()} NZD" submitted for dealer approval.`);
-    setTimeout(() => setActionNotice(null), 3500);
-  };
-
   const handleRemoveAdditionalCost = (costId: string) => {
-    const updated = additionalCosts.filter((c) => c.id !== costId);
-    updateVehicle(vehicle.id, { additionalCosts: updated });
+    removeVehicleAdditionalCost(vehicle.id, costId);
     audio.playSubtleClick();
     setActionNotice("Additional cost item removed.");
     setTimeout(() => setActionNotice(null), 3500);
@@ -423,20 +414,14 @@ export default function FullPageVehicleDetail({
 
   const handleDealerApproveCost = (costId: string) => {
     audio.playSuccessChime();
-    const updated = additionalCosts.map((c) =>
-      c.id === costId ? { ...c, status: "APPROVED" as const, decidedAt: new Date().toISOString() } : c
-    );
-    updateVehicle(vehicle.id, { additionalCosts: updated });
+    respondToVehicleAdditionalCost(vehicle.id, costId, "APPROVED", currentDealer?.id);
     setActionNotice("Additional cost approved and added to your landed buy price.");
     setTimeout(() => setActionNotice(null), 3500);
   };
 
   const handleDealerRejectCost = (costId: string) => {
     audio.playSubtleClick();
-    const updated = additionalCosts.map((c) =>
-      c.id === costId ? { ...c, status: "DECLINED" as const, decidedAt: new Date().toISOString() } : c
-    );
-    updateVehicle(vehicle.id, { additionalCosts: updated });
+    respondToVehicleAdditionalCost(vehicle.id, costId, "DECLINED", currentDealer?.id);
     setActionNotice("Additional cost proposal declined.");
     setTimeout(() => setActionNotice(null), 3500);
   };
@@ -1375,21 +1360,6 @@ export default function FullPageVehicleDetail({
               <span>Additional Costs</span>
             </h3>
           </div>
-
-          {/* Admin Action: Add Additional Cost */}
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setIsAddCostModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#444444] text-white text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 self-start sm:self-auto active:scale-[0.98]"
-            >
-              <PlusCircle className="w-3.5 h-3.5 text-white/90" />
-              <span>Add Additional Cost</span>
-            </button>
-          )}
         </div>
 
         {/* Dealer Pending Costs Alert Banner */}
@@ -1427,6 +1397,7 @@ export default function FullPageVehicleDetail({
                 <tr>
                   <th className="py-3 px-4 font-bold">Category</th>
                   <th className="py-3 px-4 font-bold">Description</th>
+                  <th className="py-3 px-4 font-bold">Target Dealer</th>
                   <th className="py-3 px-4 font-bold">Notes / Evidence</th>
                   <th className="py-3 px-4 font-bold">Status</th>
                   <th className="py-3 px-4 font-bold text-right">Amount (NZD)</th>
@@ -1440,6 +1411,12 @@ export default function FullPageVehicleDetail({
                       {cost.type.replace(/_/g, " ")}
                     </td>
                     <td className="py-3 px-4 text-slate-700">{cost.description}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 text-slate-800 font-medium">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate max-w-[140px]">{cost.dealerName || "Allocated Dealer"}</span>
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-[11px]">
                       <div className="font-mono text-slate-600 truncate max-w-xs">
                         {cost.notes || "Official Inspection Item"}
@@ -1514,7 +1491,7 @@ export default function FullPageVehicleDetail({
               </tbody>
               <tfoot className="bg-slate-50 border-t border-slate-200 font-bold">
                 <tr>
-                  <td colSpan={4} className="py-3 px-4 text-slate-900">
+                  <td colSpan={5} className="py-3 px-4 text-slate-900">
                     {isAdmin ? "Total Proposed Additional Costs:" : "Approved Additional Costs (Applied):"}
                   </td>
                   <td className="py-3 px-4 text-right font-mono text-sm text-slate-900">
@@ -1552,16 +1529,6 @@ export default function FullPageVehicleDetail({
           vehicle={vehicle}
           onClose={() => setIsReserveModalOpen(false)}
           onSuccess={handleReservationSuccess}
-        />
-      )}
-
-      {/* B. Add Vehicle Additional Cost Modal (Admin Only) */}
-      {isAddCostModalOpen && (
-        <AddVehicleAdditionalCostModal
-          vehicle={vehicle}
-          isOpen={isAddCostModalOpen}
-          onClose={() => setIsAddCostModalOpen(false)}
-          onAddCost={handleAddAdditionalCost}
         />
       )}
 

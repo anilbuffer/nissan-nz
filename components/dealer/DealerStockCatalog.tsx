@@ -34,6 +34,7 @@ import {
   Ship,
   FileCheck2,
   Eye,
+  AlertTriangle,
 } from "lucide-react";
 
 interface DealerStockCatalogProps {
@@ -49,7 +50,10 @@ export default function DealerStockCatalog({
   const pathname = usePathname();
   const isAdminView = pathname?.startsWith("/admin");
   const { currentDealer, currentUser } = useAuth();
-  const { vehicles: rawVehicles, reserveVehicle: atomicReserve } = useProgramme();
+  const {
+    vehicles: rawVehicles,
+    reserveVehicle: atomicReserve,
+  } = useProgramme();
 
   // Guarantee transparent studio PNG cutouts from MOCK_VEHICLES always take precedence
   const vehicles = useMemo(() => {
@@ -194,6 +198,7 @@ export default function DealerStockCatalog({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
+
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -444,6 +449,10 @@ export default function DealerStockCatalog({
           {filteredVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
+            const vCosts = vehicle.additionalCosts || [];
+            const approvedVCosts = vCosts.filter((c) => c.status === "APPROVED");
+            const approvedVCostsTotal = approvedVCosts.reduce((s, c) => s + c.amountNZD, 0);
+            const displayPriceNZD = price.totalBuyPriceNZD + approvedVCostsTotal;
 
             return (
               <div
@@ -515,10 +524,10 @@ export default function DealerStockCatalog({
                 <div className="pt-3.5 mt-2 border-t border-slate-100 flex items-center justify-between gap-3">
                   <div>
                     <span className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight block leading-tight">
-                      ${price.totalBuyPriceNZD.toLocaleString()}
+                      ${displayPriceNZD.toLocaleString()}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
-                      {isAdminView ? `FOB ¥${vehicle.fobPriceJPY.toLocaleString()}` : "NZD Landed"}
+                      {isAdminView ? `FOB ¥${vehicle.fobPriceJPY.toLocaleString()}` : "NZD Landed Total"}
                     </span>
                   </div>
 
@@ -533,7 +542,7 @@ export default function DealerStockCatalog({
                         className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>Inspect Vehicle</span>
+                        <span>Inspect</span>
                       </button>
                     ) : isAvailable ? (
                       <button
@@ -578,6 +587,15 @@ export default function DealerStockCatalog({
           {filteredVehicles.map((vehicle, index) => {
             const price = calculateLandedPrice(vehicle.fobPriceJPY, dealerZone);
             const isAvailable = vehicle.status === "AVAILABLE";
+            const vCosts = vehicle.additionalCosts || [];
+            const approvedVCosts = vCosts.filter((c) => c.status === "APPROVED");
+            const approvedVCostsTotal = approvedVCosts.reduce((s, c) => s + c.amountNZD, 0);
+            const pendingVCosts = vCosts.filter((c) => c.status === "PENDING_DEALER_APPROVAL");
+            const pendingForThisDealer = pendingVCosts.filter(
+              (c) => !c.dealerId || c.dealerId === currentDealer?.id || vehicle.reservedByDealerId === currentDealer?.id
+            );
+            const allVCostsTotal = vCosts.reduce((s, c) => s + c.amountNZD, 0);
+            const displayPriceNZD = price.totalBuyPriceNZD + (isAdminView ? allVCostsTotal : approvedVCostsTotal);
 
             return (
               <div
@@ -621,7 +639,6 @@ export default function DealerStockCatalog({
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium">{vehicle.year} · {vehicle.fuelType} · #{vehicle.stockId}</span>
-
                     </div>
                     <span className="flex items-center gap-1 text-slate-400 text-xs">
                       <MapPin className="w-3 h-3 text-slate-400" />
@@ -669,7 +686,7 @@ export default function DealerStockCatalog({
                       Landed Buy ({dealerZone})
                     </span>
                     <div className="text-xl font-bold text-slate-900 font-mono tracking-tight mt-0.5">
-                      ${price.totalBuyPriceNZD.toLocaleString()}
+                      ${displayPriceNZD.toLocaleString()}
                       <span className="text-xs text-slate-500 font-normal ml-1">NZD</span>
                     </div>
                   </div>

@@ -610,7 +610,21 @@ export const MOCK_VEHICLES: Vehicle[] = [
     "status": "RESERVED",
     "reservedByDealerId": "DEALER_001",
     "reservedAt": "2026-11-02T09:00:00Z",
-    "reservationExpiresAt": "2026-11-03T09:00:00Z"
+    "reservationExpiresAt": "2026-11-03T09:00:00Z",
+    "additionalCosts": [
+      {
+        "id": "COST_VEH_002",
+        "type": "Non-Standard Compliance Repair",
+        "description": "Front brake pad replacement, headlamp alignment & rotor skimming",
+        "amountNZD": 350,
+        "evidenceDocumentUrl": "MR2A_Compliance_Defect_Remediation.pdf",
+        "status": "PENDING_DEALER_APPROVAL",
+        "proposedAt": "2026-11-04T10:30:00Z",
+        "notes": "VINZ Entry Inspection Dossier #MR2A-0924",
+        "dealerId": "DEALER_001",
+        "dealerName": "Auckland Nissan City Ltd"
+      }
+    ]
   },
   {
     "id": "VEH_003",
@@ -723,7 +737,21 @@ export const MOCK_VEHICLES: Vehicle[] = [
       "State of Health (SOH) battery check: 94.8% (12/12 bars)"
     ],
     "fobPriceJPY": 2280000,
-    "status": "AVAILABLE"
+    "status": "AVAILABLE",
+    "additionalCosts": [
+      {
+        "id": "COST_VEH_004",
+        "type": "Biosecurity Decontamination",
+        "description": "MPI Quarantine Heat Treatment & Steam Decontamination",
+        "amountNZD": 280,
+        "evidenceDocumentUrl": "MPI_Biosecurity_Remediation_Notice.pdf",
+        "status": "PENDING_DEALER_APPROVAL",
+        "proposedAt": "2026-11-04T14:15:00Z",
+        "notes": "MPI Biosecurity Border Directive #BOP-4819",
+        "dealerId": "DEALER_002",
+        "dealerName": "Bay of Plenty Nissan Tauranga"
+      }
+    ]
   },
   {
     "id": "VEH_005",
@@ -2085,7 +2113,20 @@ export const MOCK_ORDERS: Order[] = [
         uploadedAt: "2026-11-01T14:45:00Z",
       },
     ],
-    additionalCosts: [],
+    additionalCosts: [
+      {
+        id: "COST_ORD_001",
+        type: "LVVTA Compliance Certification",
+        description: "Towbar mounting bracket re-certification & safety tow chain test",
+        amountNZD: 420,
+        evidenceDocumentUrl: "LVVTA_Compliance_Quotation.pdf",
+        status: "PENDING_DEALER_APPROVAL",
+        proposedAt: "2026-11-04T16:00:00Z",
+        notes: "LVVTA Authority Dossier #LV-2940 - required for NZTA compliance sign-off.",
+        dealerId: "DEALER_002",
+        dealerName: "Bay of Plenty Nissan Tauranga",
+      },
+    ],
   },
   {
     id: "ORD_2026_002",
@@ -2193,6 +2234,8 @@ export const MOCK_ORDERS: Order[] = [
         status: "PENDING_DEALER_APPROVAL",
         proposedAt: "2026-11-01T16:00:00Z",
         notes: "Nissan OEM replacement part in stock at Auckland compliance center.",
+        dealerId: "DEALER_001",
+        dealerName: "Auckland Nissan City",
       },
     ],
   },
