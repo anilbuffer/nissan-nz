@@ -103,7 +103,7 @@ export default function AdditionalCostCreatorModal({
 
     // Submits with status "PENDING_DEALER_APPROVAL" so the relevant dealer can review and approve or reject it
     const newCostItem: AdditionalCostItem = {
-      id: `COST_${Date.now()}`,
+      id: `COST_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       type: category.trim(),
       description: description.trim(),
       amountNZD: numAmount,

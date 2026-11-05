@@ -121,9 +121,9 @@ export default function UserManagementView() {
   return (
     <div className="space-y-6 pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header Banner & Actions                                 */}
+      {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             User Management ({users.length})

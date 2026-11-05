@@ -135,19 +135,19 @@ export default function AdminMenuPortalView({ onNavigateTab }: AdminMenuPortalVi
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Banner & Status                                  */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-1.5 max-w-2xl">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-0.5 max-w-2xl">
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
               Platform Operations Menu
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            <p className="text-xs text-slate-500 mt-0.5">
               Autohub New Zealand Operations &amp; Nissan Japan Export Hub. Direct access to all operational departments, inventory controllers, and dealer allocations.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <div className="px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-left">
+            <div className="px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-left">
               <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                 Active Scope
               </span>

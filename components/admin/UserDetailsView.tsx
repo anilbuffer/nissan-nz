@@ -452,21 +452,23 @@ export default function UserDetailsView({ userId, onBack }: UserDetailsViewProps
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {userEvents.slice(0, 8).map((evt) => (
-              <div key={evt.id} className="py-3 flex items-start justify-between gap-4 text-xs">
+            {userEvents.slice(0, 8).map((evt, idx) => (
+              <div key={evt.id ? `${evt.id}-${idx}` : `evt-${idx}`} className="py-3 flex items-start justify-between gap-4 text-xs">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-[#C3002F] mt-1.5 shrink-0"></div>
                   <div>
-                    <div className="font-semibold text-slate-900">{evt.action.replace(/_/g, " ")}</div>
-                    <p className="text-slate-500 mt-0.5">{evt.details}</p>
+                    <div className="font-semibold text-slate-900">{(evt.action || "EVENT").replace(/_/g, " ")}</div>
+                    <p className="text-slate-500 mt-0.5">{evt.details || "—"}</p>
                     <div className="text-[10px] text-slate-400 font-mono mt-1">
-                      Target: {evt.objectType} · ID: {evt.objectId}
+                      Target: {evt.objectType || "Record"} · ID: {evt.objectId || "—"}
                     </div>
                   </div>
                 </div>
 
                 <div className="text-right text-[11px] text-slate-400 shrink-0 font-mono">
-                  {new Date(evt.timestamp).toLocaleString()}
+                  {evt.timestamp && !isNaN(new Date(evt.timestamp).getTime())
+                    ? new Date(evt.timestamp).toLocaleString()
+                    : "—"}
                 </div>
               </div>
             ))}

@@ -182,7 +182,20 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
             MOCK_DEALERS.forEach((md) => { if (!merged.some((d) => d.id === md.id)) merged.push(md); });
             setDealers(merged);
           }
-          if (parsed.auditLogs) setAuditLogs(parsed.auditLogs);
+          if (parsed.auditLogs && Array.isArray(parsed.auditLogs)) {
+            const seenIds = new Set<string>();
+            const sanitizedLogs = parsed.auditLogs
+              .filter((l: any): l is AuditEvent => Boolean(l && typeof l === "object"))
+              .map((log: AuditEvent, index: number) => {
+                let uniqueId = log.id;
+                if (!uniqueId || seenIds.has(uniqueId)) {
+                  uniqueId = `${uniqueId || "AUD"}_${index}_${Math.random().toString(36).substring(2, 7)}`;
+                }
+                seenIds.add(uniqueId);
+                return { ...log, id: uniqueId };
+              });
+            setAuditLogs(sanitizedLogs);
+          }
           if (parsed.reservationConfig) setReservationConfig({ ...DEFAULT_RESERVATION_CONFIG, ...parsed.reservationConfig });
           if (parsed.notifications && Array.isArray(parsed.notifications)) setNotifications(parsed.notifications);
           if (parsed.users && Array.isArray(parsed.users) && parsed.users.length > 0) {
@@ -242,7 +255,20 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           if (parsed.vehicles && Array.isArray(parsed.vehicles)) setVehicles(parsed.vehicles);
           if (parsed.orders && Array.isArray(parsed.orders)) setOrders(parsed.orders);
           if (parsed.dealers && Array.isArray(parsed.dealers)) setDealers(parsed.dealers);
-          if (parsed.auditLogs && Array.isArray(parsed.auditLogs)) setAuditLogs(parsed.auditLogs);
+          if (parsed.auditLogs && Array.isArray(parsed.auditLogs)) {
+            const seenIds = new Set<string>();
+            const sanitizedLogs = parsed.auditLogs
+              .filter((l: any): l is AuditEvent => Boolean(l && typeof l === "object"))
+              .map((log: AuditEvent, index: number) => {
+                let uniqueId = log.id;
+                if (!uniqueId || seenIds.has(uniqueId)) {
+                  uniqueId = `${uniqueId || "AUD"}_${index}_${Math.random().toString(36).substring(2, 7)}`;
+                }
+                seenIds.add(uniqueId);
+                return { ...log, id: uniqueId };
+              });
+            setAuditLogs(sanitizedLogs);
+          }
           if (parsed.users && Array.isArray(parsed.users)) setUsers(parsed.users);
           if (parsed.reservations && Array.isArray(parsed.reservations)) setReservations(parsed.reservations);
           if (parsed.pricingConfig) setPricingConfig(parsed.pricingConfig);
@@ -259,12 +285,13 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
 
   // Helper to log audit event
   const logAudit = (event: Omit<AuditEvent, "id" | "timestamp">) => {
+    const randomSuffix = Math.random().toString(36).substring(2, 9);
     const newEvent: AuditEvent = {
       ...event,
-      id: `AUD-${Date.now()}`,
+      id: `AUD-${Date.now()}-${randomSuffix}`,
       timestamp: new Date().toISOString(),
     };
-    setAuditLogs((prev) => [newEvent, ...prev]);
+    setAuditLogs((prev) => [newEvent, ...(Array.isArray(prev) ? prev : [])]);
   };
 
   // Helper to add dynamic system notifications
@@ -347,7 +374,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     const priceSnapshot = calculateLandedPrice(target.fobPriceJPY, dealer.pricingZoneId, pricingConfig);
 
     const newReservation: ReservationRequest = {
-      id: `RES_${Date.now()}`,
+      id: `RES_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       requestId: `REQ-HOLD-${target.stockId}`,
       vehicleId: target.id,
       vehicle: target,
@@ -435,7 +462,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     );
 
     const newOrder: Order = {
-      id: `ORD_${Date.now()}`,
+      id: `ORD_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       orderNumber: orderNum,
       vehicleId: targetVehicle.id,
       vehicle: targetVehicle,
@@ -819,7 +846,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
 
   // 4. Add Single Vehicle (Nissan Japan)
   const addVehicle = (vehicleData: Omit<Vehicle, "id">): Vehicle => {
-    const newId = `VEH_${Date.now()}`;
+    const newId = `VEH_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newVehicle: Vehicle = {
       ...vehicleData,
       id: newId,
@@ -1258,7 +1285,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
     const regCategory = dealerData.category || (isJapanHQ ? "JAPAN_HQ" : "DEALER_NZ");
 
     const newDealer: DealerAccount = {
-      id: `DEALER_${Date.now()}`,
+      id: `DEALER_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       dealerCode: dealerData.dealerCode,
       legalTradingName: dealerData.legalTradingName,
       nzbn: dealerData.nzbn || "9429000000000",
@@ -1337,7 +1364,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
 
     const newUser: UserAccount = {
       ...userData,
-      id: `USR_${Date.now()}`,
+      id: `USR_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       createdAt: new Date().toISOString(),
       active: userData.active ?? true,
       mfaEnabled: userData.mfaEnabled ?? true,

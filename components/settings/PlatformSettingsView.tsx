@@ -133,7 +133,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Navigation Bar                                    */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -141,7 +141,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
               audio.playSubtleClick();
               onBack();
             }}
-            className="btn-outline"
+            className="btn-outline shrink-0"
             title="Go back"
             aria-label="Go back"
           >
@@ -150,15 +150,18 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
           </button>
           <div>
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-              Account Details
+              Account Details &amp; Settings
             </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Manage authenticated operator credentials, contact information, and session security.
+            </p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={handleLogout}
-          className="btn-outline hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 text-slate-700 self-start sm:self-auto"
+          className="btn-outline hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 text-slate-700 self-start sm:self-auto shrink-0"
         >
           <LogOut className="w-3.5 h-3.5 text-rose-600" />
           <span>Sign Out</span>

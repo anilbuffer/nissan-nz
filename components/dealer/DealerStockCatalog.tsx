@@ -195,22 +195,45 @@ export default function DealerStockCatalog({
   return (
     <div className="space-y-6 max-w-7xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header with Vehicle Stock Title & Right-Aligned Tabs     */}
+      {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
-        <div>
-          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-            {isAdminView ? "Vehicle Catalogue" : "Vehicle Stock"} ({filteredVehicles.length})
-          </h1>
-          {isAdminView && (
+      {isAdminView ? (
+        <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+              Vehicle Catalogue
+            </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Certified Japanese inventory, condition grades, and landed pricing for New Zealand franchise dealers.
             </p>
-          )}
-        </div>
+          </div>
 
-        {/* Right-Aligned Status Tabs in Dealer View (or Admin Fleet Badges) */}
-        {!isAdminView ? (
+          <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto flex-wrap">
+            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span><strong className="text-slate-900 font-mono font-bold">{vehicles.length}</strong> Total Fleet</span>
+            </div>
+            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
+            </div>
+            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+              Vehicle Stock
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Certified Japanese inventory, condition grades, and landed pricing for New Zealand franchise dealers.
+            </p>
+          </div>
+
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             <button
               type="button"
@@ -288,23 +311,8 @@ export default function DealerStockCatalog({
               </span>
             </button>
           </div>
-        ) : (
-          <div className="flex items-center gap-2.5 text-xs self-start sm:self-auto">
-            <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-              <span><strong className="text-slate-900 font-mono font-bold">{vehicles.length}</strong> Total Fleet</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-2 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span><strong className="text-slate-900 font-mono font-bold">{availableCount}</strong> Available in Japan</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium flex items-center gap-1.5 shadow-2xs font-mono">
-              <Lock className="w-3.5 h-3.5 text-amber-600" />
-              <span><strong className="text-amber-800 font-bold">{vehicles.filter(v => v.status === "RESERVED").length}</strong> Active Holds</span>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Simplified Controls Bar (Search + [ All Models ] Selector) */}

@@ -201,12 +201,12 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Top Header Bar                                     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between gap-4">
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
             Pricing Configuration
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Configure wholesale landed pricing components, delivery rates, and programme fees.
           </p>
         </div>

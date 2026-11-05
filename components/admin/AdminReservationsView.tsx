@@ -97,15 +97,17 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 1. Header Banner                                            */}
+      {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="pb-4 border-b border-slate-200/80">
-        <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
-          Reservations &amp; Exclusivity Queue
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Monitor dealer exclusivity holds, countdown timers, warning thresholds, and sign off on wholesale allocation confirmations.
-        </p>
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+            Reservations &amp; Exclusivity Queue
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Monitor dealer exclusivity holds, countdown timers, warning thresholds, and sign off on wholesale allocation confirmations.
+          </p>
+        </div>
       </div>
 
       {notification && (

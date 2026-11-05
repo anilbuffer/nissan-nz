@@ -113,17 +113,19 @@ export default function AuditExportView() {
   // Filtered audit events
   const filteredLogs = useMemo(() => {
     return auditLogs.filter((log) => {
+      if (!log) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
-        const mActor = log.actorName.toLowerCase().includes(q);
-        const mAction = log.action.toLowerCase().includes(q);
-        const mObj = log.objectId.toLowerCase().includes(q);
-        const mDetails = log.details.toLowerCase().includes(q);
+        const mActor = (log.actorName || "").toLowerCase().includes(q);
+        const mAction = (log.action || "").toLowerCase().includes(q);
+        const mObj = (log.objectId || "").toLowerCase().includes(q);
+        const mDetails = (log.details || "").toLowerCase().includes(q);
         if (!mActor && !mAction && !mObj && !mDetails) return false;
       }
 
       if (dateRangeFilter !== "ALL") {
-        const eventTime = new Date(log.timestamp).getTime();
+        const eventTime = log.timestamp ? new Date(log.timestamp).getTime() : 0;
+        if (isNaN(eventTime) || eventTime === 0) return false;
         const now = Date.now();
         if (dateRangeFilter === "24H" && now - eventTime > 24 * 60 * 60 * 1000) return false;
         if (dateRangeFilter === "7D" && now - eventTime > 7 * 24 * 60 * 60 * 1000) return false;
@@ -368,6 +370,7 @@ export default function AuditExportView() {
   const eventsByCategory = useMemo(() => {
     const counts: Record<string, number> = {};
     auditLogs.forEach((l) => {
+      if (!l || !l.category) return;
       counts[l.category] = (counts[l.category] || 0) + 1;
     });
     return counts;
@@ -376,8 +379,9 @@ export default function AuditExportView() {
   const topActors = useMemo(() => {
     const counts: Record<string, { count: number; role: string }> = {};
     auditLogs.forEach((l) => {
+      if (!l || !l.actorName) return;
       if (!counts[l.actorName]) {
-        counts[l.actorName] = { count: 1, role: l.actorRole };
+        counts[l.actorName] = { count: 1, role: l.actorRole || "USER" };
       } else {
         counts[l.actorName].count += 1;
       }
@@ -547,43 +551,45 @@ export default function AuditExportView() {
                       </td>
                     </tr>
                   ) : (
-                    filteredLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                    filteredLogs.map((log, index) => (
+                      <tr key={log.id ? `${log.id}-${index}` : `log-${index}`} className="hover:bg-slate-50/60 transition-colors">
                         <td className="py-3 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
-                          {new Date(log.timestamp).toLocaleString("en-NZ", {
-                            timeZone: "Pacific/Auckland",
-                            year: "numeric",
-                            month: "short",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
+                          {log.timestamp && !isNaN(new Date(log.timestamp).getTime())
+                            ? new Date(log.timestamp).toLocaleString("en-NZ", {
+                                timeZone: "Pacific/Auckland",
+                                year: "numeric",
+                                month: "short",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              })
+                            : "—"}
                         </td>
 
                         <td className="py-3 px-4">
-                          <div className="font-bold text-slate-900">{log.actorName}</div>
+                          <div className="font-bold text-slate-900">{log.actorName || "System"}</div>
                           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-semibold">
-                            {log.actorRole}
+                            {log.actorRole || "USER"}
                           </span>
                         </td>
 
                         <td className="py-3 px-4 font-mono font-bold text-slate-900 text-[11px]">
-                          {log.action}
+                          {log.action || "EVENT"}
                         </td>
 
                         <td className="py-3 px-3">
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-mono font-semibold text-slate-700">
-                            {log.category}
+                            {log.category || "GENERAL"}
                           </span>
                         </td>
 
                         <td className="py-3 px-3 font-mono font-bold text-slate-700 text-[11px]">
-                          {log.objectId}
+                          {log.objectId || "—"}
                         </td>
 
                         <td className="py-3 px-4 text-slate-600 max-w-sm text-[11px] leading-relaxed">
-                          {log.details}
+                          {log.details || "—"}
                         </td>
                       </tr>
                     ))
@@ -837,10 +843,10 @@ export default function AuditExportView() {
               </h3>
 
               <div className="space-y-4 lg:space-y-6">
-                {Object.entries(eventsByCategory).map(([cat, count]) => {
-                  const percentage = Math.round((count / auditLogs.length) * 100);
+                {Object.entries(eventsByCategory).map(([cat, count], idx) => {
+                  const percentage = auditLogs.length > 0 ? Math.round((count / auditLogs.length) * 100) : 0;
                   return (
-                    <div key={cat} className="space-y-1.5 lg:space-y-2.5">
+                    <div key={`${cat}-${idx}`} className="space-y-1.5 lg:space-y-2.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-mono font-semibold text-slate-700">{cat}</span>
                         <span className="font-mono text-slate-500">
@@ -867,8 +873,8 @@ export default function AuditExportView() {
               </h3>
 
               <div className="divide-y divide-slate-100">
-                {topActors.map((actor) => (
-                  <div key={actor.name} className="py-4 flex items-center justify-between text-xs">
+                {topActors.map((actor, idx) => (
+                  <div key={`${actor.name}-${idx}`} className="py-4 flex items-center justify-between text-xs">
                     <div>
                       <span className="font-bold text-slate-900">{actor.name}</span>
                       <span className="text-[10px] font-mono text-slate-400 ml-2">
