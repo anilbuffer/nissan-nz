@@ -56,7 +56,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, currentDealer, logout } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -212,47 +212,6 @@ export default function Sidebar({
 
   const navItems = getNavItems();
 
-  const getPanelInfo = () => {
-    if (currentUser?.role === "READONLY_PROGRAMME_USER") {
-      return {
-        section: "PROGRAMME PORTAL",
-        badge: "PROGRAMME USER",
-        badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-        roleDesc: "National Sales Company (Read-Only)",
-      };
-    }
-    if (currentUser?.role === "AUTOHUB_ADMIN") {
-      return {
-        section: "ADMIN PORTAL",
-        badge: "CENTRAL OPERATIONS",
-        badgeColor: "bg-white/10 text-white border-white/20",
-        roleDesc: "Autohub Central Controller",
-      };
-    }
-    if (currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") {
-      const rawName = currentDealer?.legalTradingName || currentUser?.dealershipName || "Auckland Nissan";
-      const shortName = rawName
-        .replace(/\s+(Ltd|Limited|Co\.|Corp)\.?$/i, "")
-        .replace(/\s+City$/i, "")
-        .toUpperCase();
-
-      return {
-        section: "DEALER PORTAL",
-        badge: shortName,
-        badgeColor: "bg-white/10 text-white border-white/20",
-        roleDesc: `${currentDealer?.legalTradingName || "Auckland Nissan City"} (${currentUser?.role === "DEALER_ADMIN" ? "Principal" : "Buyer"})`,
-      };
-    }
-    return {
-      section: "JAPAN PORTAL",
-      badge: "NISSAN JAPAN HQ",
-      badgeColor: "bg-white/10 text-white border-white/20",
-      roleDesc: "Yokohama Export Control",
-    };
-  };
-
-  const panelInfo = getPanelInfo();
-
   const handleItemClick = (item: NavItem) => {
     audio.playSubtleClick();
     if (onTabChange) {
@@ -262,6 +221,24 @@ export default function Sidebar({
       onCloseMobile();
     }
     router.push(item.href);
+  };
+
+  const handleLogoClick = () => {
+    audio.playSubtleClick();
+    if (onCloseMobile) onCloseMobile();
+    if (currentUser?.role === "AUTOHUB_ADMIN") {
+      if (onTabChange) onTabChange("admin-dashboard");
+      router.push("/admin/dashboard");
+    } else if (currentUser?.role === "READONLY_PROGRAMME_USER") {
+      if (onTabChange) onTabChange("programme-stock");
+      router.push("/programme/stock");
+    } else if (currentUser?.role === "NISSAN_JAPAN") {
+      if (onTabChange) onTabChange("japan-inventory");
+      router.push("/japan/inventory");
+    } else {
+      if (onTabChange) onTabChange("dealer-stock");
+      router.push("/dealer/stocks");
+    }
   };
 
   const isItemActive = (item: NavItem) => {
@@ -281,19 +258,34 @@ export default function Sidebar({
 
         {/* Top Branding Section */}
         <div className="relative z-10">
-          <div className="h-[64px] flex items-center justify-between px-4 border-b border-white/10 bg-black/40">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center shrink-0">
+          <div className={`h-[64px] flex items-center border-b border-white/10 bg-black/40 ${collapsed ? "justify-center px-2" : "justify-between px-3.5"}`}>
+            <div
+              onClick={handleLogoClick}
+              className={`flex items-center gap-3 overflow-hidden cursor-pointer group select-none text-left ${collapsed ? "justify-center" : ""}`}
+              title="Nissan New Zealand - Dealer Order Platform"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleLogoClick();
+                }
+              }}
+            >
+              <div className="w-10 h-10 flex items-center justify-center shrink-0">
                 <img
                   src="/nissan-logo-white.png"
                   alt="Nissan Logo"
-                  className="w-10 h-10 lg:w-12 lg:h-12 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+                  className="w-10 h-10 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)] group-hover:scale-105 transition-transform"
                 />
               </div>
               {!collapsed && (
-                <div className="min-w-0 transition-opacity duration-200">
-                  <h1 className="font-bold text-sm lg:text-base tracking-tight text-white truncate leading-tight">
+                <div className="min-w-0 flex flex-col justify-center transition-opacity duration-200">
+                  <span className="block text-[11px] font-normal tracking-tight text-slate-200 leading-tight truncate">
                     Nissan New Zealand
+                  </span>
+                  <h1 className="font-bold text-[14px] lg:text-[15px] tracking-tight text-white truncate leading-tight mt-0.5">
+                    Dealer Order Platform
                   </h1>
                 </div>
               )}
@@ -305,30 +297,15 @@ export default function Sidebar({
                 type="button"
                 onClick={onCloseMobile}
                 aria-label="Close navigation menu"
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer shrink-0 ml-1"
               >
                 <X className="w-5 h-5" />
               </button>
             )}
           </div>
 
-          {/* Static Portal Section Header */}
-          {!collapsed && (
-            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                {panelInfo.section}
-              </span>
-              <span
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap truncate max-w-[130px] inline-block ${panelInfo.badgeColor}`}
-                title={panelInfo.badge}
-              >
-                {panelInfo.badge}
-              </span>
-            </div>
-          )}
-
           {/* Navigation Items List */}
-          <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-210px)] navy-scrollbar" aria-label="Main Navigation">
+          <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-160px)] navy-scrollbar" aria-label="Main Navigation">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isItemActive(item);
@@ -558,7 +535,7 @@ export default function Sidebar({
     <>
       {/* 1. Desktop & iPad/Tablet Persistent Sidebar (Hidden on <768px) */}
       <aside
-        className={`hidden md:flex relative h-full bg-[#000000] border-r border-slate-800/80 flex-col justify-between transition-sidebar z-30 select-none overflow-hidden shrink-0 ${isCollapsed ? "w-[76px]" : "w-[248px]"
+        className={`hidden md:flex relative h-full bg-[#000000] border-r border-slate-800/80 flex-col justify-between transition-sidebar z-30 select-none overflow-hidden shrink-0 ${isCollapsed ? "w-[76px]" : "w-[256px]"
           }`}
         aria-label="Platform Sidebar Navigation"
       >

@@ -161,9 +161,14 @@ export default function Header({
             alt="Nissan"
             className="w-7 h-7 object-contain drop-shadow-xs"
           />
-          <span className="font-bold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
-            Nissan
-          </span>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-medium text-slate-500 leading-tight">
+              Nissan New Zealand
+            </span>
+            <span className="font-bold text-xs sm:text-sm tracking-tight text-slate-900 leading-none">
+              Dealer Order Platform
+            </span>
+          </div>
         </div>
 
         {/* Desktop / Tablet Search Trigger Bar -> Opens Global Search Modal Listing */}
