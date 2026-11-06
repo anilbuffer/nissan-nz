@@ -668,6 +668,7 @@ export default function DashboardShell({
         case 'japan-inventory':
           return (
             <JapanInventoryView
+              onSelectVehicle={handleSelectVehicle}
               onNavigateAdd={() => router.push('/japan/add-vehicle')}
               onNavigateBatch={() => router.push('/japan/upload')}
             />
@@ -694,6 +695,7 @@ export default function DashboardShell({
         default:
           return (
             <JapanInventoryView
+              onSelectVehicle={handleSelectVehicle}
               onNavigateAdd={() => router.push('/japan/add-vehicle')}
               onNavigateBatch={() => router.push('/japan/upload')}
             />

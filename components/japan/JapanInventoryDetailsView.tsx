@@ -1,46 +1,35 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Vehicle, VehicleStatus, VehicleSupportingDoc } from "@/lib/types";
+import { Vehicle, VehicleSupportingDoc, Order } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
+import { useAuth } from "@/lib/auth-context";
+import { MOCK_VEHICLES } from "@/lib/mock-data";
 import { JPY_TO_NZD_EXCHANGE_RATE } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
-import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import AmendVehicleForm from "./AmendVehicleForm";
 import VehicleSpecificationsTabs from "@/components/dealer/VehicleSpecificationsTabs";
 import VehicleStatsCards from "@/components/common/VehicleStatsCards";
 import VehicleShowcaseCard from "@/components/common/VehicleShowcaseCard";
 import CommercialLandedPricingCard from "@/components/dealer/CommercialLandedPricingCard";
+import OrderCorridorTimeline from "@/components/dealer/OrderCorridorTimeline";
+import { getRoRoMilestoneLabel } from "@/components/dealer/DealerOrdersView";
 import {
   ArrowLeft,
-  Camera,
   ShieldCheck,
   CheckCircle2,
   Lock,
   MapPin,
-  Calendar,
-  Gauge,
   FileCheck2,
-  Copy,
-  Check,
-  ExternalLink,
-  Fuel,
-  Compass,
-  AlertTriangle,
-  ChevronRight,
   Eye,
-  Building2,
   Sparkles,
   Ship,
-  Share2,
   Edit3,
   X,
   FileText,
   Download,
   AlertCircle,
-  Clock,
-  Layers,
-  Star,
+  AlertTriangle,
 } from "lucide-react";
 
 interface JapanInventoryDetailsViewProps {
@@ -55,7 +44,14 @@ export default function JapanInventoryDetailsView({
   onBack,
   onAmend,
 }: JapanInventoryDetailsViewProps) {
-  const { vehicles, dealers, updateVehicle, setVehicleStatus } = useProgramme();
+  const { vehicles, dealers, orders, updateVehicle, setVehicleStatus } = useProgramme();
+  const { currentUser } = useAuth();
+
+  // Role permissions
+  const isJapan = currentUser?.role === "NISSAN_JAPAN";
+  const isAdmin = currentUser?.role === "AUTOHUB_ADMIN";
+  const canManageInventory = isJapan || isAdmin;
+
   const [copiedVin, setCopiedVin] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
@@ -72,11 +68,32 @@ export default function JapanInventoryDetailsView({
     details: string;
   } | null>(null);
 
-  const vehicle = vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId);
+  // Vehicle resolution with studio image priority
+  const rawVehicle = vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId);
+  const mockMatch = MOCK_VEHICLES.find((m) => m.id === rawVehicle?.id);
+
+  const vehicle: Vehicle | null = useMemo(() => {
+    if (!rawVehicle) return null;
+    return {
+      ...rawVehicle,
+      images: mockMatch?.images || rawVehicle.images,
+    };
+  }, [rawVehicle, mockMatch]);
+
+  // Associated Order (if vehicle is allocated or booked for shipping)
+  const targetOrder: Order | undefined = useMemo(() => {
+    if (!orders || !vehicle) return undefined;
+    return orders.find(
+      (o) =>
+        o.vehicleId === vehicle.id ||
+        o.vehicle?.id === vehicle.id ||
+        o.vehicle?.stockId === vehicle.stockId
+    );
+  }, [orders, vehicle]);
 
   const vehicleDocs = useMemo(() => {
     const docs = [...(vehicle?.supportingDocuments || [])];
-    if (vehicle?.conditionReportName && !docs.some(d => d.name === vehicle.conditionReportName)) {
+    if (vehicle?.conditionReportName && !docs.some((d) => d.name === vehicle.conditionReportName)) {
       docs.unshift({
         name: vehicle.conditionReportName,
         type: "AUCTION_SHEET",
@@ -88,7 +105,7 @@ export default function JapanInventoryDetailsView({
     return docs;
   }, [vehicle]);
 
-  // If user opened Amend Details, display full-page AmendVehicleForm (not a modal)
+  // If user opened Amend Details, display full-page AmendVehicleForm
   if (isAmending && vehicle) {
     return (
       <AmendVehicleForm
@@ -101,11 +118,11 @@ export default function JapanInventoryDetailsView({
 
   if (!vehicle) {
     return (
-      <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-soft">
+      <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-soft max-w-xl mx-auto my-12">
         <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
         <h3 className="text-base font-bold text-slate-800">Vehicle Not Found</h3>
         <p className="text-xs text-slate-500 mt-1 mb-4">
-          The requested export vehicle unit may have been removed or does not exist.
+          The requested export vehicle unit #{vehicleId} does not exist or has been withdrawn.
         </p>
         <button
           type="button"
@@ -121,27 +138,16 @@ export default function JapanInventoryDetailsView({
     );
   }
 
-  const images = (vehicle.images && vehicle.images.length > 1)
-    ? vehicle.images
-    : getModelAngleImages(vehicle.model, vehicle.images?.[0] || "/images/cars/kicks.png");
-
   const isAvailable = vehicle.status === "AVAILABLE";
   const isReserved = vehicle.status === "RESERVED";
   const isWithdrawn = vehicle.status === "WITHDRAWN";
   const isDraft = vehicle.status === "DRAFT";
-  const isAllocated = vehicle.status === "ALLOCATED";
+  const isAllocated = Boolean(targetOrder) || vehicle.status === "ALLOCATED";
   const isSold = vehicle.status === "SOLD";
 
   const reservedDealer = vehicle.reservedByDealerId
     ? dealers.find((d) => d.id === vehicle.reservedByDealerId)
     : null;
-
-  const handleCopyVin = () => {
-    navigator.clipboard.writeText(vehicle.vinChassis);
-    audio.playSubtleClick();
-    setCopiedVin(true);
-    setTimeout(() => setCopiedVin(false), 2000);
-  };
 
   const handlePublish = () => {
     audio.playSuccessChime();
@@ -157,6 +163,7 @@ export default function JapanInventoryDetailsView({
     setActionNotice(`Unit #${vehicle.stockId} withdrawn from catalogue.`);
     setTimeout(() => setActionNotice(null), 3500);
   };
+
   const handleMarkSold = () => {
     audio.playSuccessChime();
     setVehicleStatus(vehicle.id, "SOLD", "Delivered and handed over to dealer inventory");
@@ -164,151 +171,158 @@ export default function JapanInventoryDetailsView({
     setTimeout(() => setActionNotice(null), 3500);
   };
 
-  const estimatedNZD = Math.round((vehicle.fobPriceJPY || 0) * JPY_TO_NZD_EXCHANGE_RATE);
-
   return (
     <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-7xl mx-auto">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Bar: Back Action, Status & Management Actions     */}
+      {/* (Consistent layout and styles matching /dealer/stocks)      */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-        {/* Left Side: Back Navigation & Status Indicator */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+        {/* Left Side: Back Navigation & Action Notice */}
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             type="button"
             onClick={() => {
               audio.playSubtleClick();
               onBack();
             }}
-            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs shadow-2xs hover:border-slate-300 group cursor-pointer transition-all active:scale-95"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs shadow-2xs hover:border-slate-300 group cursor-pointer transition-all active:scale-95"
             title="Go back to inventory"
           >
             <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="hidden sm:inline">Back to Inventory</span>
-            <span className="sm:hidden">Back</span>
+            <span>Back to Inventory</span>
           </button>
-
-          <div className="h-5 w-[1px] bg-slate-200 hidden sm:block" />
-
-          {/* Status Badges for MVP states */}
-          {isAvailable && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Available to NZ Franchise</span>
-            </span>
-          )}
-          {isDraft && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300 shadow-2xs">
-              <Edit3 className="w-3 h-3 text-slate-500" />
-              <span>Draft Intake (Yard Staging)</span>
-            </span>
-          )}
-          {isReserved && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-amber-50 text-amber-800 border-amber-300 shadow-2xs">
-              <Lock className="w-3 h-3 text-amber-600" />
-              <span>Dealer 24h Exclusivity Hold</span>
-            </span>
-          )}
-          {isAllocated && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs">
-              <Ship className="w-3 h-3 text-sky-600" />
-              <span>Allocated &amp; Shipping Secured</span>
-            </span>
-          )}
-          {isWithdrawn && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-rose-50 text-rose-700 border-rose-200 shadow-2xs">
-              <AlertCircle className="w-3 h-3 text-rose-600" />
-              <span>Withdrawn from Catalogue</span>
-            </span>
-          )}
-          {isSold && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-purple-50 text-purple-700 border-purple-200 shadow-2xs">
-              <CheckCircle2 className="w-3 h-3 text-purple-600" />
-              <span>Sold &amp; Handed Over</span>
-            </span>
-          )}
 
           {/* Action Notice Toast */}
           {actionNotice && (
             <div className="px-3.5 py-1 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-soft animate-in fade-in flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span>{actionNotice}</span>
             </div>
           )}
         </div>
 
-        {/* Right Side: Terminal Yard Staging & Operational Actions */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
+        {/* Right Side: Status Badges & Operational Actions */}
+        <div className="flex items-center gap-2 flex-wrap max-w-full sm:shrink-0 justify-start sm:justify-end">
+          {/* Staging Yard Tag */}
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
             <MapPin className="w-3.5 h-3.5 text-[#C3002F]" />
             <span className="text-slate-400 font-normal">Staging Yard:</span>
             <span className="font-semibold text-slate-800">{vehicle.location || "Yokohama Export Terminal"}</span>
           </div>
 
-          {/* Amend Details Button */}
-          <button
-            type="button"
-            onClick={() => {
-              audio.playSubtleClick();
-              if (onAmend) {
-                onAmend(vehicle.id);
-              } else {
-                setIsAmending(true);
-              }
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 text-xs"
-            title="Amend vehicle specifications"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-slate-500" />
-            <span>Amend Details</span>
-          </button>
-
-          {/* Publication & Withdrawal Status Action Buttons */}
-          {isDraft && (
-            <button
-              type="button"
-              onClick={handlePublish}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Publish to Catalogue</span>
-            </button>
-          )}
-
+          {/* Status Badges */}
           {isAvailable && (
-            <button
-              type="button"
-              onClick={() => {
-                audio.playSubtleClick();
-                setIsWithdrawModalOpen(true);
-              }}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 hover:border-rose-200 transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-            >
-              <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-              <span>Withdraw from Catalogue</span>
-            </button>
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>Available to NZ Franchise</span>
+            </span>
           )}
-
-          {isWithdrawn && (
-            <button
-              type="button"
-              onClick={handlePublish}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Re-publish to Catalogue</span>
-            </button>
+          {isDraft && (
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300 shadow-2xs">
+              <Edit3 className="w-3 h-3 text-slate-500 shrink-0" />
+              <span>Draft Intake (Yard Staging)</span>
+            </span>
           )}
-
+          {isReserved && (
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-amber-50 text-amber-800 border-amber-300 shadow-2xs">
+              <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+              <span>Dealer 24h Exclusivity Hold</span>
+            </span>
+          )}
           {isAllocated && (
-            <button
-              type="button"
-              onClick={handleMarkSold}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Mark Handover Completed</span>
-            </button>
+            <div className="flex items-center gap-2 flex-wrap max-w-full">
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs">
+                <Ship className="w-3 h-3 text-sky-600 shrink-0" />
+                <span>Allocated &amp; Shipping Secured</span>
+              </span>
+              {targetOrder && (
+                <span className="hidden sm:inline-flex text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs shrink-0">
+                  {getRoRoMilestoneLabel(targetOrder.currentMilestone).displayBadge}
+                </span>
+              )}
+            </div>
+          )}
+          {isWithdrawn && (
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-rose-50 text-rose-700 border-rose-200 shadow-2xs">
+              <AlertCircle className="w-3 h-3 text-rose-600 shrink-0" />
+              <span>Withdrawn from Catalogue</span>
+            </span>
+          )}
+          {isSold && (
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-purple-50 text-purple-700 border-purple-200 shadow-2xs">
+              <CheckCircle2 className="w-3 h-3 text-purple-600 shrink-0" />
+              <span>Sold &amp; Wholesale Settled</span>
+            </span>
+          )}
+
+          {/* Operational Actions (Nissan Japan & Admin) */}
+          {canManageInventory && (
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <button
+                type="button"
+                onClick={() => {
+                  audio.playSubtleClick();
+                  if (onAmend) {
+                    onAmend(vehicle.id);
+                  } else {
+                    setIsAmending(true);
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition-all cursor-pointer shadow-2xs hover:border-slate-300 text-xs"
+                title="Amend vehicle specifications"
+              >
+                <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                <span>Amend Details</span>
+              </button>
+
+              {isDraft && (
+                <button
+                  type="button"
+                  onClick={handlePublish}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Publish</span>
+                </button>
+              )}
+
+              {isAvailable && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    audio.playSubtleClick();
+                    setIsWithdrawModalOpen(true);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 hover:border-rose-200 transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+                >
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Withdraw</span>
+                </button>
+              )}
+
+              {isWithdrawn && (
+                <button
+                  type="button"
+                  onClick={handlePublish}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Re-publish</span>
+                </button>
+              )}
+
+              {isAllocated && (
+                <button
+                  type="button"
+                  onClick={handleMarkSold}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A0A0A] hover:bg-[#333333] text-white transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-[0.98]"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Handover Complete</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -324,11 +338,10 @@ export default function JapanInventoryDetailsView({
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. ROW 1: Studio Showcase (Left 7) vs Technical Specs (Right 5) */}
-      {/* Balanced with items-stretch and full height alignment       */}
+      {/* 2. ROW 1: Studio Showcase (Left 7) vs Commercial Baseline (Right 5) */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Left Column (7 cols): Studio Image Showcase Card (matching design reference) */}
+        {/* Left Column (7 cols): Studio Image Showcase Card */}
         <div className="lg:col-span-7 h-full flex flex-col">
           <VehicleShowcaseCard vehicle={vehicle} />
         </div>
@@ -337,7 +350,7 @@ export default function JapanInventoryDetailsView({
         <div className="lg:col-span-5 h-full flex flex-col">
           <CommercialLandedPricingCard
             vehicle={vehicle}
-            roleOverride="NISSAN_JAPAN"
+            roleOverride={isAdmin ? "AUTOHUB_ADMIN" : "NISSAN_JAPAN"}
             onJapanPublish={handlePublish}
             onJapanWithdraw={() => setIsWithdrawModalOpen(true)}
             onJapanAmend={() => (onAmend ? onAmend(vehicle.id) : setIsAmending(true))}
@@ -346,7 +359,15 @@ export default function JapanInventoryDetailsView({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3.5 VEHICLE STATS CARDS BAR (VIN, Engine, Transmission, Fuel, ODO, Year, Colour) */}
+      {/* 2.5 Order Corridor Timeline (if Allocated / Ordered)        */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {targetOrder && (
+        <OrderCorridorTimeline order={targetOrder} />
+      )}
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3. VEHICLE STATS CARDS BAR                                  */}
+      {/* (VIN, Engine, Transmission, Fuel, ODO, Year, Colour)        */}
       {/* ─────────────────────────────────────────────────────────── */}
       <VehicleStatsCards vehicle={vehicle} />
 
@@ -373,7 +394,7 @@ export default function JapanInventoryDetailsView({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-slate-800">
             <span>Overall Vehicle Condition:</span>
             <span className="text-emerald-700 font-bold text-xs">
-              {vehicle.overallCondition || `★ ${vehicle.auctionGrade} - Clean Japanese Pre-Export Condition`}
+              {vehicle.overallCondition || `★ ${vehicle.auctionGrade || "4.5"} - Clean Japanese Pre-Export Condition`}
             </span>
           </div>
           <p className="text-slate-600 leading-relaxed text-xs">
@@ -391,7 +412,7 @@ export default function JapanInventoryDetailsView({
               {vehicle.knownDefects.map((defect, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2.5 text-xs text-slate-400 font-normal"
+                  className="flex items-center gap-2.5 text-xs text-slate-500 font-normal"
                 >
                   <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
                   <span className="break-words leading-snug">{defect}</span>
@@ -416,7 +437,7 @@ export default function JapanInventoryDetailsView({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 5. Full Layout Card 2: Vehicle Specifications & Listing Tabs */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <VehicleSpecificationsTabs vehicle={vehicle} isAdmin={true} />
+      <VehicleSpecificationsTabs vehicle={vehicle} isAdmin={isAdmin} />
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 6. Full Layout Card 3: Supporting Documents                 */}
@@ -486,7 +507,7 @@ export default function JapanInventoryDetailsView({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 5. Bottom Return Navigation                                 */}
+      {/* 7. Bottom Return Navigation                                 */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="pt-2 flex items-center justify-center">
         <button
@@ -502,10 +523,8 @@ export default function JapanInventoryDetailsView({
         </button>
       </div>
 
-
-
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* MODAL 2: Withdrawal Reason Modal (US-08)                    */}
+      {/* MODAL 1: Withdrawal Reason Modal                            */}
       {/* ─────────────────────────────────────────────────────────── */}
       {isWithdrawModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
@@ -538,10 +557,11 @@ export default function JapanInventoryDetailsView({
                 <label
                   key={idx}
                   onClick={() => setWithdrawReason(reason)}
-                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${withdrawReason === reason
-                    ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
-                    : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                    }`}
+                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${
+                    withdrawReason === reason
+                      ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
+                      : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                  }`}
                 >
                   <input
                     type="radio"
@@ -576,7 +596,7 @@ export default function JapanInventoryDetailsView({
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* MODAL 3: Document Viewer Modal (US-07)                      */}
+      {/* MODAL 2: Document Viewer Modal                              */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeDocPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
