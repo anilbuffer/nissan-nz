@@ -258,7 +258,8 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
       {/* 2. Core Pricing Component Table                              */}
       {/* ─────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-[16px] border border-slate-200 overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-        <table className="w-full text-left border-collapse text-xs sm:text-sm">
+        <div className="overflow-x-auto touch-scroll navy-scrollbar">
+          <table className="w-full text-left border-collapse text-xs sm:text-sm min-w-[560px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-700">
               <th className="py-3 px-4 sm:px-6">Pricing Component</th>
@@ -507,6 +508,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
 
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
@@ -532,7 +534,7 @@ export default function AdminPricingConfigView({ }: AdminPricingConfigViewProps 
         </button>
 
         {showAllZones && (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2 border-t border-slate-100 animate-in fade-in">
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-2 border-t border-slate-100 animate-in fade-in">
             {zoneKeys.map((zid) => {
               const z = OFFICIAL_PRICING_ZONES[zid];
               const cost = draftConfig.zoneDeliveryMatrix?.[zid] ?? z.deliveryCostNZD;

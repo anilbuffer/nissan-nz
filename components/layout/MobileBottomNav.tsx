@@ -31,9 +31,26 @@ export default function MobileBottomNav({
 }: MobileBottomNavProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser } = useAuth();
+  const { currentUser, currentDealer } = useAuth();
 
   const getTabs = () => {
+    // 0. Dealer Applicant or unapproved dealer (Pending / Suspended)
+    if (
+      currentUser?.role === "DEALER_APPLICANT" ||
+      ((currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") &&
+        currentDealer &&
+        currentDealer.status !== "APPROVED")
+    ) {
+      return [
+        {
+          id: "dealer-profile",
+          label: "Profile",
+          icon: MapPin,
+          href: "/dealer/profile",
+        },
+      ];
+    }
+
     if (currentUser?.role === "AUTOHUB_ADMIN") {
       return [
         {
@@ -103,7 +120,7 @@ export default function MobileBottomNav({
       ];
     }
 
-    // Default: Dealer Portal (DEALER_USER, DEALER_ADMIN)
+    // Default: Approved NZ Dealer Portal (DEALER_USER, DEALER_ADMIN)
     return [
       {
         id: "dealer-stock",
@@ -140,7 +157,10 @@ export default function MobileBottomNav({
       aria-label="Mobile Bottom Navigation"
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 mobile-bottom-nav pb-safe border-t border-slate-800/80"
     >
-      <div className="grid grid-cols-4 items-center h-16 max-w-lg mx-auto px-2">
+      <div
+        className="grid items-center h-16 max-w-lg mx-auto px-2"
+        style={{ gridTemplateColumns: `repeat(${tabs.length + 1}, minmax(0, 1fr))` }}
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isTabActive(tab);

@@ -17,6 +17,8 @@ export default function Home() {
         router.replace("/japan/inventory");
       } else if (currentUser.role === "READONLY_PROGRAMME_USER") {
         router.replace("/programme/stock");
+      } else if (currentUser.role === "DEALER_APPLICANT") {
+        router.replace("/dealer/profile");
       } else {
         router.replace("/dealer/stocks");
       }

@@ -124,6 +124,7 @@ export default function AmendVehicleForm({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Sync state if vehicle changes
   useEffect(() => {
@@ -165,9 +166,11 @@ export default function AmendVehicleForm({
   const processImageFiles = (files: FileList | File[]) => {
     Array.from(files).forEach((file) => {
       if (!file.type.startsWith("image/")) {
-        alert(`File ${file.name} is not an image.`);
+        setFormError(`File "${file.name}" is not an image.`);
+        audio.playWarningChime();
         return;
       }
+      setFormError(null);
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -217,9 +220,11 @@ export default function AmendVehicleForm({
       const ext = file.name.split(".").pop()?.toLowerCase();
       const isDoc = ext === "pdf" || ext === "doc" || ext === "docx" || file.type.includes("pdf") || file.type.includes("document");
       if (!isDoc) {
-        alert(`File "${file.name}" is not a recognized document format (PDF, DOC, DOCX).`);
+        setFormError(`File "${file.name}" is not a recognized document format (PDF, DOC, DOCX).`);
+        audio.playWarningChime();
         return;
       }
+      setFormError(null);
       const lower = file.name.toLowerCase();
       const docType = lower.includes("jevic")
         ? "JEVIC_CERTIFICATE"
@@ -293,13 +298,16 @@ export default function AmendVehicleForm({
     if (!vehicle) return;
 
     if (!vinChassis.trim()) {
-      alert("Please specify a valid Japanese Chassis / VIN.");
+      setFormError("Please specify a valid Japanese Chassis / VIN.");
+      audio.playWarningChime();
       return;
     }
     if (!model.trim()) {
-      alert("Please specify a vehicle Model designation.");
+      setFormError("Please specify a vehicle Model designation.");
+      audio.playWarningChime();
       return;
     }
+    setFormError(null);
 
     setIsSubmitting(true);
     audio.playSubtleClick();
@@ -425,6 +433,23 @@ export default function AmendVehicleForm({
           </span>
         </div>
       </div>
+
+      {/* Validation Error Banner */}
+      {formError && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center justify-between gap-3 animate-in fade-in shadow-2xs">
+          <div className="flex items-center gap-2">
+            <X className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{formError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFormError(null)}
+            className="text-rose-500 hover:text-rose-800 cursor-pointer p-0.5"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* Success Feedback Screen                                     */}

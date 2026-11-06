@@ -1417,7 +1417,9 @@ export default function AllocationMilestonesView({
                 type="button"
                 onClick={() => {
                   audio.playSuccessChime();
-                  alert(`Downloading secure copy of ${activeDocPreview.name}`);
+                  setNotification(`Downloading verified official document: ${activeDocPreview.name}...`);
+                  setTimeout(() => setNotification(null), 4000);
+                  setActiveDocPreview(null);
                 }}
                 className="px-4 py-2 rounded-xl bg-[#0A0A0A] hover:bg-[#333333] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
               >

@@ -264,6 +264,7 @@ export default function DealerRegistrationWizard() {
   const [category, setCategory] = useState<RegistrationCategory>("DEALER_NZ");
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Category 1: NZ Dealer Form Data
@@ -861,7 +862,8 @@ export default function DealerRegistrationWizard() {
                   type="button"
                   onClick={() => {
                     audio.playSuccessChime();
-                    alert("Application PDF receipt generated with UTC timestamp and terms hash.");
+                    setDownloadNotice("Official Application Receipt PDF generated with cryptographic UTC timestamp.");
+                    setTimeout(() => setDownloadNotice(null), 4000);
                   }}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
                 >
@@ -869,6 +871,13 @@ export default function DealerRegistrationWizard() {
                   <span>Download Application Copy</span>
                 </button>
               </div>
+
+              {downloadNotice && (
+                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs animate-in fade-in max-w-md mx-auto">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{downloadNotice}</span>
+                </div>
+              )}
             </div>
           ) : (
             /* ───────────────────────────────────────────────────────── */

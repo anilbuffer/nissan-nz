@@ -657,8 +657,10 @@ export default function JapanInventoryDetailsView({
               <button
                 type="button"
                 onClick={() => {
-                  audio.playSubtleClick();
-                  alert(`Downloading cryptographic digital document PDF for ${activeDocPreview.refNumber}`);
+                  audio.playSuccessChime();
+                  setActionNotice(`Downloading verified digital document PDF for ${activeDocPreview.refNumber}...`);
+                  setTimeout(() => setActionNotice(null), 4000);
+                  setActiveDocPreview(null);
                 }}
                 className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer"
               >

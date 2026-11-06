@@ -29,6 +29,7 @@ export default function DealerRegistrationModal({
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCostBoundary, setAcceptCostBoundary] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [submitted, setSubmitted] = useState(false);
 
@@ -37,9 +38,10 @@ export default function DealerRegistrationModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptTerms || !acceptCostBoundary) {
-      alert("Both Terms of Trade and Commercial Cost Boundary must be accepted.");
+      setErrorMsg("Both Terms of Trade and Commercial Cost Boundary must be accepted to submit an onboarding application.");
       return;
     }
+    setErrorMsg(null);
     setSubmitted(true);
   };
 
@@ -103,6 +105,21 @@ export default function DealerRegistrationModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+            {errorMsg && (
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center justify-between gap-2 animate-in fade-in">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setErrorMsg(null)}
+                  className="text-rose-500 hover:text-rose-800 p-0.5 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
             {/* Dealership Details */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">

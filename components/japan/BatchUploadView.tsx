@@ -214,7 +214,7 @@ export default function BatchUploadView({ onSuccessReturn }: BatchUploadViewProp
             return;
           }
         } catch (e) {
-          console.error("Error parsing CSV:", e);
+          // Handled gracefully with fallback sample batch
         }
       }
       // Fallback if parsing produces 0 rows

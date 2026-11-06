@@ -171,6 +171,8 @@ export default function LoginPage({
           router.push("/japan/inventory");
         } else if (foundUser?.role === "AUTOHUB_ADMIN" || activeTab === "ADMIN") {
           router.push("/admin/dashboard");
+        } else if (foundUser?.role === "DEALER_APPLICANT") {
+          router.push("/dealer/profile");
         } else {
           router.push("/dealer/stocks");
         }
@@ -193,6 +195,8 @@ export default function LoginPage({
         router.push("/japan/inventory");
       } else if (foundUser?.role === "AUTOHUB_ADMIN" || activeTab === "ADMIN") {
         router.push("/admin/dashboard");
+      } else if (foundUser?.role === "DEALER_APPLICANT") {
+        router.push("/dealer/profile");
       } else {
         router.push("/dealer/stocks");
       }
