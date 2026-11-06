@@ -491,6 +491,8 @@ export default function DashboardShell({
               router.push("/admin/dashboard");
             } else if (currentUser?.role === "NISSAN_JAPAN") {
               router.push("/japan/inventory");
+            } else if (currentUser?.role === "READONLY_PROGRAMME_USER") {
+              router.push("/programme/stock");
             } else {
               router.push("/dealer/stocks");
             }

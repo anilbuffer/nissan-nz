@@ -85,6 +85,11 @@ export interface UserAccount {
   createdAt?: string;
   category?: "DEALER_NZ" | "JAPAN_HQ" | "PROGRAMME_USER";
   registrationRole?: "NZ Dealer" | "Nissan Japan" | "Programme";
+  address?: string;
+  orgCode?: string;
+  jurisdiction?: string;
+  region?: string;
+  passwordLastChanged?: string;
 }
 
 export type PlatformPermission =

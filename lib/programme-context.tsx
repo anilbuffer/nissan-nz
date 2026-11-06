@@ -106,6 +106,7 @@ interface ProgrammeContextType {
   ) => DealerAccount;
   updateDealerZone: (dealerId: string, pricingZoneId: ZoneId) => void;
   updateDealerProfile: (dealerId: string, updates: Partial<DealerAccount>) => void;
+  logAudit: (event: Omit<AuditEvent, "id" | "timestamp">) => void;
 
   // Helper
   resetToDefaultData: () => void;
@@ -1734,6 +1735,7 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         registerDealerApplication,
         updateDealerProfile,
         updateDealerZone,
+        logAudit,
         pricingConfig,
         updatePricingConfig,
         resetPricingConfig,
