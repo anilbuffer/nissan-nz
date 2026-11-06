@@ -344,7 +344,7 @@ export default function ProgrammeUserPortalView({
   }
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto font-sans text-slate-800 pb-16 animate-in fade-in duration-300">
+    <div className="space-y-5 max-w-8xl mx-auto font-sans text-slate-800 pb-16 animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Title & Subtitle + Total Stocks Text       */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -355,8 +355,8 @@ export default function ProgrammeUserPortalView({
               {activeTab === "stock"
                 ? "Authorised Programme Stock"
                 : activeTab === "reservations"
-                ? "Exclusivity Reservations Queue"
-                : "Wholesale Logistics & Orders"}
+                  ? "Exclusivity Reservations Queue"
+                  : "Wholesale Logistics & Orders"}
             </h1>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
               <ShieldCheck className="w-3 h-3 text-slate-500" />
@@ -367,8 +367,8 @@ export default function ProgrammeUserPortalView({
             {activeTab === "stock"
               ? "Centralised Japanese export allocation pipeline, condition grades, FOB acquisition baselines, and landed pricing across New Zealand delivery zones."
               : activeTab === "reservations"
-              ? "Live 24-hour exclusivity reservations placed across New Zealand authorized franchise dealerships."
-              : "Live ocean shipment tracking, RoRo transit, customs inspection, and inland compliance milestones."}
+                ? "Live 24-hour exclusivity reservations placed across New Zealand authorized franchise dealerships."
+                : "Live ocean shipment tracking, RoRo transit, customs inspection, and inland compliance milestones."}
           </p>
         </div>
 
@@ -484,11 +484,10 @@ export default function ProgrammeUserPortalView({
                     }}
                     title="Grid View"
                     aria-label="Grid View"
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                      viewMode === "GRID"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${viewMode === "GRID"
                         ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                         : "text-slate-500 hover:text-slate-900"
-                    }`}
+                      }`}
                   >
                     <LayoutGrid className="w-3.5 h-3.5" />
                     <span>Grid</span>
@@ -502,11 +501,10 @@ export default function ProgrammeUserPortalView({
                     }}
                     title="List View"
                     aria-label="List View"
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                      viewMode === "LIST"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${viewMode === "LIST"
                         ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                         : "text-slate-500 hover:text-slate-900"
-                    }`}
+                      }`}
                   >
                     <List className="w-3.5 h-3.5" />
                     <span>List</span>
