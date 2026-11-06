@@ -302,7 +302,7 @@ export default function CommercialLandedPricingCard({
         {/* Top Header: Brand Wordmark + Title + Info Icon in Unified Aligned Row */}
         <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
           <div className="flex items-center gap-2 min-w-0 flex-wrap">
-            <span className="text-slate-500 font-bold text-xs tracking-widest uppercase shrink-0">
+            <span className="text-slate-800 font-bold text-base uppercase shrink-0">
               NISSAN
             </span>
           </div>

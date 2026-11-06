@@ -40,7 +40,7 @@ export default function PricingComponentModal({
       aria-labelledby="pricing-breakdown-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/40 backdrop-blur-xs overflow-hidden animate-in fade-in duration-150"
     >
-      <div className="relative w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden my-auto max-h-[92vh] sm:max-h-[85vh] flex flex-col font-sans">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden my-auto max-h-[92vh] sm:max-h-[85vh] flex flex-col font-sans">
         {/* ─────────────────────────────────────────────────────────── */}
         {/* 1. Header (Clean & Minimalist, Ultra-Responsive)            */}
         {/* ─────────────────────────────────────────────────────────── */}
@@ -101,20 +101,20 @@ export default function PricingComponentModal({
                 </div>
 
                 <div className="divide-y divide-slate-100 text-xs">
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       Vehicle Purchase (Official Auction Settlement)
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap">
                       ¥{Math.round(fobJPY * 0.92).toLocaleString()} JPY
                     </span>
                   </div>
 
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       Pre-Export JEVIC Digital Odometer &amp; Customs
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap">
                       ¥{Math.round(fobJPY * 0.08).toLocaleString()} JPY
                     </span>
                   </div>
@@ -163,17 +163,17 @@ export default function PricingComponentModal({
 
                 {/* Table Cell Rows with Dividers (Clean Single-Line Premium Layout) */}
                 <div className="divide-y divide-slate-100 text-xs">
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       FOB Purchase Price <span className="font-mono text-slate-500 font-normal text-xs">(¥{fobJPY.toLocaleString()} JPY)</span>
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap text-right">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap text-right">
                       ${componentA.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       JEVIC Odometer &amp; Export Clearance
                     </span>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 font-bold text-[10px] uppercase tracking-wider shrink-0 whitespace-nowrap">
@@ -202,38 +202,38 @@ export default function PricingComponentModal({
 
                 {/* Table Cell Rows with Dividers (Clean Single-Line Premium Layout) */}
                 <div className="divide-y divide-slate-100 text-xs">
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       Ocean RoRo Freight (Japan → NZ)
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap text-right">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap text-right">
                       ${COMPONENT_B_BREAKDOWN.oceanFreightNZD.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       Marine Cargo Insurance &amp; Port Fees
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap text-right">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap text-right">
                       ${COMPONENT_B_BREAKDOWN.marineInsuranceAndPortNZD.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       MPI Biosecurity Border Treatment
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap text-right">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap text-right">
                       ${COMPONENT_B_BREAKDOWN.mpiBiosecurityNZD.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
-                    <span className="font-semibold text-slate-900 text-xs sm:text-sm">
+                  <div className="px-3 sm:px-4 py-2.5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                    <span className="font-normal text-slate-600 text-xs">
                       NZTA MR2A Entry Compliance
                     </span>
-                    <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap text-right">
+                    <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap text-right">
                       ${COMPONENT_B_BREAKDOWN.mr2aComplianceNZD.toLocaleString()}
                     </span>
                   </div>
@@ -242,7 +242,7 @@ export default function PricingComponentModal({
                 {/* Subtotal Footer */}
                 <div className="bg-slate-50/60 px-3 sm:px-4 py-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
                   <span className="text-[11px] sm:text-xs text-slate-500 font-medium">Contractually Fixed Base</span>
-                  <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm shrink-0 whitespace-nowrap">${componentB.toLocaleString()} NZD</span>
+                  <span className="font-mono font-bold text-slate-900 text-xs shrink-0 whitespace-nowrap">${componentB.toLocaleString()} NZD</span>
                 </div>
               </div>
 
@@ -256,7 +256,7 @@ export default function PricingComponentModal({
                     Delivered to Auckland port baseline
                   </div>
                 </div>
-                <div className="font-mono text-base sm:text-xl md:text-2xl font-extrabold text-slate-950 shrink-0 whitespace-nowrap text-right flex items-baseline gap-1">
+                <div className="text-sm sm:text-base md:text-xl font-bold text-slate-950 shrink-0 whitespace-nowrap text-right flex items-baseline gap-1">
                   <span>${totalAB.toLocaleString()}</span>
                   <span className="text-[10px] sm:text-xs font-sans text-slate-500 font-bold">NZD</span>
                 </div>
