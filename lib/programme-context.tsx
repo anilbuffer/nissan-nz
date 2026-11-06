@@ -180,7 +180,17 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
           } else {
             setVehicles(MOCK_VEHICLES.map(enrichVehicleWithAngleImages));
           }
-          if (parsed.orders) setOrders(parsed.orders);
+          if (parsed.orders && Array.isArray(parsed.orders)) {
+            const mergedOrders = [...parsed.orders];
+            MOCK_ORDERS.forEach((mo) => {
+              if (!mergedOrders.some((o: Order) => o.id === mo.id)) {
+                mergedOrders.push(mo);
+              }
+            });
+            setOrders(mergedOrders);
+          } else {
+            setOrders(MOCK_ORDERS);
+          }
           if (parsed.dealers) {
             const merged = [...parsed.dealers.map((d: DealerAccount) => d.id === "DEALER_006" && d.status === "PENDING_APPROVAL" ? { ...d, status: "APPROVED" as const } : d)];
             MOCK_DEALERS.forEach((md) => { if (!merged.some((d) => d.id === md.id)) merged.push(md); });
@@ -257,7 +267,15 @@ export function ProgrammeProvider({ children }: { children: React.ReactNode }) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (parsed.vehicles && Array.isArray(parsed.vehicles)) setVehicles(parsed.vehicles);
-          if (parsed.orders && Array.isArray(parsed.orders)) setOrders(parsed.orders);
+          if (parsed.orders && Array.isArray(parsed.orders)) {
+            const mergedOrders = [...parsed.orders];
+            MOCK_ORDERS.forEach((mo) => {
+              if (!mergedOrders.some((o: Order) => o.id === mo.id)) {
+                mergedOrders.push(mo);
+              }
+            });
+            setOrders(mergedOrders);
+          }
           if (parsed.dealers && Array.isArray(parsed.dealers)) setDealers(parsed.dealers);
           if (parsed.auditLogs && Array.isArray(parsed.auditLogs)) {
             const seenIds = new Set<string>();

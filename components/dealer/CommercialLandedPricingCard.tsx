@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Vehicle, UserRole } from "@/lib/types";
+import { Vehicle, UserRole, Order } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
 import { useProgramme } from "@/lib/programme-context";
 import {
@@ -24,6 +24,7 @@ import {
 
 interface CommercialLandedPricingCardProps {
   vehicle: Vehicle;
+  order?: Order;
   className?: string;
   roleOverride?: UserRole;
   onHoldSuccess?: () => void;
@@ -40,6 +41,7 @@ interface CommercialLandedPricingCardProps {
 
 export default function CommercialLandedPricingCard({
   vehicle,
+  order,
   className = "",
   roleOverride,
   onHoldSuccess,
@@ -90,12 +92,15 @@ export default function CommercialLandedPricingCard({
   );
 
   // Active vehicle status helpers
-  const isAvailable = vehicle.status === "AVAILABLE";
-  const isReserved = vehicle.status === "RESERVED";
-  const isAllocated = vehicle.status === "ALLOCATED";
-  const isSold = vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED";
-  const isDraft = vehicle.status === "DRAFT";
-  const isWithdrawn = vehicle.status === "WITHDRAWN";
+  const isAvailable = !order && vehicle.status === "AVAILABLE";
+  const isReserved = !order && vehicle.status === "RESERVED";
+  const isAllocated = Boolean(order) || vehicle.status === "ALLOCATED";
+  const isSold =
+    (!order && (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED")) ||
+    order?.currentMilestone === "DELIVERED" ||
+    vehicle.status === "SOLD";
+  const isDraft = !order && vehicle.status === "DRAFT";
+  const isWithdrawn = !order && vehicle.status === "WITHDRAWN";
 
   const isHeldByCurrentDealer =
     isReserved &&

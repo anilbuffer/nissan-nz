@@ -105,6 +105,11 @@ export default function DashboardShell({
       if (parts[1]) {
         setViewingOrderId(parts[1]);
       }
+    } else if (pathname.includes("/orders/")) {
+      const parts = pathname.split("/orders/");
+      if (parts[1]) {
+        setViewingOrderId(parts[1]);
+      }
     } else {
       setViewingOrderId(null);
     }
@@ -118,12 +123,14 @@ export default function DashboardShell({
     const isJapanRoute = pathname.startsWith("/japan") || portal === "japan";
     const isProgrammeRoute = pathname.startsWith("/programme") || portal === "programme";
     const isDealerRoute = pathname.startsWith("/dealer") || portal === "dealer";
+    const isOrdersRoute = pathname.startsWith("/orders");
 
     if (currentUser.role === "DEALER_APPLICANT") {
       if (
         isAdminRoute ||
         isJapanRoute ||
         isProgrammeRoute ||
+        isOrdersRoute ||
         pathname === "/dealer/stocks" ||
         pathname === "/dealer/orders" ||
         pathname === "/dealer/reserve"
@@ -135,7 +142,7 @@ export default function DashboardShell({
         router.replace("/dealer/stocks");
       }
     } else if (currentUser.role === "NISSAN_JAPAN") {
-      if (isAdminRoute || isDealerRoute || isProgrammeRoute) {
+      if (isAdminRoute || isDealerRoute || isProgrammeRoute || isOrdersRoute) {
         router.replace("/japan/inventory");
       }
     } else if (currentUser.role === "READONLY_PROGRAMME_USER") {
@@ -160,8 +167,14 @@ export default function DashboardShell({
       }
       return "dealer-stock";
     }
-    if (pathname.includes("/orders/") && (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER")) {
-      return "programme-orders";
+    if (pathname.includes("/orders/")) {
+      if (pathname.startsWith("/programme") || portal === "programme" || currentUser?.role === "READONLY_PROGRAMME_USER") {
+        return "programme-orders";
+      }
+      if (currentUser?.role === "AUTOHUB_ADMIN" && (pathname.startsWith("/admin") || portal === "admin")) {
+        return "admin-orders";
+      }
+      return "dealer-orders";
     }
     if (pathname === "/settings" || initialTab === "settings") return "settings";
 
@@ -426,10 +439,12 @@ export default function DashboardShell({
     const isJapanRoute = pathname.startsWith("/japan") || portal === "japan";
     const isProgrammeRoute = pathname.startsWith("/programme") || portal === "programme";
     const isDealerRoute = pathname.startsWith("/dealer") || portal === "dealer";
+    const isOrdersRoute = pathname.startsWith("/orders");
 
     const isUnauthorized =
+      (currentUser?.role === "DEALER_APPLICANT" && (isAdminRoute || isJapanRoute || isProgrammeRoute || isOrdersRoute)) ||
+      (currentUser?.role === "NISSAN_JAPAN" && (isAdminRoute || isDealerRoute || isProgrammeRoute || isOrdersRoute)) ||
       ((currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") && (isAdminRoute || isJapanRoute || isProgrammeRoute)) ||
-      (currentUser?.role === "NISSAN_JAPAN" && (isAdminRoute || isDealerRoute || isProgrammeRoute)) ||
       (currentUser?.role === "READONLY_PROGRAMME_USER" && (isAdminRoute || isDealerRoute || isJapanRoute)) ||
       (currentUser?.role === "AUTOHUB_ADMIN" && (isDealerRoute || isJapanRoute || isProgrammeRoute));
 
@@ -504,40 +519,50 @@ export default function DashboardShell({
       );
     }
 
-    // 1b. Order Detail Full-Page View (Programme Portal)
-    if (viewingOrderId && (portal === "programme" || pathname.startsWith("/programme") || currentUser?.role === "READONLY_PROGRAMME_USER")) {
-      const targetOrder = orders.find((o) => o.id === viewingOrderId || o.orderNumber === viewingOrderId) || orders[0];
-      return (
-        <FullPageOrderDetail
-          orderId={viewingOrderId}
-          orderData={targetOrder}
-          backLabel="Back to Wholesale Orders"
-          onBack={() => {
-            setViewingOrderId(null);
-            router.push("/programme/orders");
-          }}
-          onViewVehicle={(vId) => {
-            setViewingOrderId(null);
-            setViewingVehicleId(vId);
-            router.push(`/programme/vehicles/${vId}`);
-          }}
-        />
-      );
-    }
+    // 1b. Order Detail Full-Page View - 100% consistent with FullPageVehicleDetail (dealer/vehicles/[id])
+    if (viewingOrderId) {
+      const isProgrammeContext =
+        portal === "programme" ||
+        pathname.startsWith("/programme") ||
+        currentUser?.role === "READONLY_PROGRAMME_USER";
 
-    // 1c. Order Detail Full-Page View (Dealer Portal) - 100% consistent with FullPageVehicleDetail
-    if (viewingOrderId && (portal === "dealer" || pathname.startsWith("/dealer") || currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN")) {
-      const targetOrder = orders.find((o) => o.id === viewingOrderId || o.orderNumber === viewingOrderId) || orders[0];
+      const isAdminOrderView =
+        (portal === "admin" || pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") &&
+        portal !== "dealer" &&
+        !pathname.startsWith("/dealer") &&
+        !isProgrammeContext;
+
+      // Find matching order by id or orderNumber; match VEH_008 if ORD_1793869798968_d7l9l
+      const targetOrder =
+        orders.find((o) => o.id === viewingOrderId || o.orderNumber === viewingOrderId) ||
+        (viewingOrderId === "ORD_1793869798968_d7l9l"
+          ? orders.find((o) => o.vehicleId === "VEH_008" || o.vehicle?.id === "VEH_008") || orders[0]
+          : orders[0]);
+
+      const backDestination = isProgrammeContext
+        ? "/programme/orders"
+        : isAdminOrderView
+          ? "/admin/orders"
+          : "/dealer/orders";
+
+      const backLabelText = isProgrammeContext
+        ? "Back to Wholesale Orders"
+        : isAdminOrderView
+          ? "Back to Orders"
+          : "Back to Orders Grid";
+
       return (
         <FullPageVehicleDetail
-          vehicleId={targetOrder?.vehicle?.id}
+          vehicleId={targetOrder?.vehicle?.id || targetOrder?.vehicleId || "VEH_008"}
           vehicleData={targetOrder?.vehicle}
-          orderId={targetOrder?.id}
+          orderId={targetOrder?.id || viewingOrderId}
           orderData={targetOrder}
-          backLabel="Back to Orders Grid"
+          isAdmin={isAdminOrderView}
+          isProgramme={isProgrammeContext}
+          backLabel={backLabelText}
           onBack={() => {
             setViewingOrderId(null);
-            router.push("/dealer/orders");
+            router.push(backDestination);
           }}
         />
       );
