@@ -28,25 +28,35 @@ import { useAuth } from "@/lib/auth-context";
 import { MOCK_USERS } from "@/lib/mock-data";
 import { audio } from "@/lib/sound";
 import DealerRegistrationModal from "@/components/onboarding/DealerRegistrationModal";
+import ForgotPasswordFlow from "@/components/login/ForgotPasswordFlow";
 
 type ActiveTab = "DEALER" | "ADMIN" | "JAPAN" | "PROGRAMME";
-type AuthStep = "CREDENTIALS" | "MFA";
+type AuthStep = "CREDENTIALS" | "MFA" | "FORGOT_PASSWORD";
 
-export default function LoginPage() {
+interface LoginPageProps {
+  initialStep?: AuthStep;
+  initialEmail?: string;
+}
+
+export default function LoginPage({
+  initialStep = "CREDENTIALS",
+  initialEmail,
+}: LoginPageProps) {
   const router = useRouter();
   const { loginAs } = useAuth();
 
   // Primary credential states
   const [activeTab, setActiveTab] = useState<ActiveTab>("DEALER");
-  const [email, setEmail] = useState("dealer@aucklandnissan.co.nz");
+  const [email, setEmail] = useState(initialEmail || "dealer@aucklandnissan.co.nz");
   const [password, setPassword] = useState("••••••••••••");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successBanner, setSuccessBanner] = useState<string | null>(null);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   // 2FA / MFA States (Matching Reference Authenticator UI)
-  const [authStep, setAuthStep] = useState<AuthStep>("CREDENTIALS");
+  const [authStep, setAuthStep] = useState<AuthStep>(initialStep);
   const [authenticatorCode, setAuthenticatorCode] = useState("");
   const [expectedOtp, setExpectedOtp] = useState("849201");
   const [otpError, setOtpError] = useState("");
@@ -68,6 +78,7 @@ export default function LoginPage() {
     audio.playSubtleClick();
     setActiveTab(tab);
     setErrorMsg("");
+    setSuccessBanner(null);
     setAuthStep("CREDENTIALS");
     setAuthenticatorCode("");
     setOtpError("");
@@ -172,11 +183,29 @@ export default function LoginPage() {
     }, 450);
   };
 
+  const handleDirectLogin = (userEmail: string) => {
+    const success = loginAs(userEmail);
+    if (success) {
+      const foundUser = MOCK_USERS.find(
+        (u) => u.email.toLowerCase() === userEmail.toLowerCase().trim()
+      );
+      if (foundUser?.role === "READONLY_PROGRAMME_USER" || activeTab === "PROGRAMME") {
+        router.push("/programme/stock");
+      } else if (foundUser?.role === "NISSAN_JAPAN" || activeTab === "JAPAN") {
+        router.push("/japan/inventory");
+      } else if (foundUser?.role === "AUTOHUB_ADMIN" || activeTab === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dealer/stocks");
+      }
+    }
+  };
+
   const getPortalButtonText = () => {
-    if (activeTab === "DEALER") return "Continue to Dealer Portal";
-    if (activeTab === "ADMIN") return "Continue to Admin Console";
-    if (activeTab === "JAPAN") return "Continue to Japan Inventory";
-    return "Continue to Programme View";
+    if (activeTab === "DEALER") return "Sign In to Dealer Portal";
+    if (activeTab === "ADMIN") return "Sign In to Admin Console";
+    if (activeTab === "JAPAN") return "Sign In to Nissan Japan";
+    return "Sign In to Programme";
   };
 
   // Mask email for realistic privacy display (e.g. d***r@aucklandnissan.co.nz)
@@ -218,16 +247,36 @@ export default function LoginPage() {
         {/* Center: Clean & Minimal Hero (Short, Ultra-Premium Style) */}
         <div className="relative z-10 my-10 xl:my-0 space-y-4 max-w-md">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs text-slate-300">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#C3002F]" />
-            <span className="font-medium">2FA · Bank-Grade Access Security</span>
+            {authStep === "FORGOT_PASSWORD" ? (
+              <>
+                <KeyRound className="w-3.5 h-3.5 text-[#C3002F]" />
+                <span className="font-medium">Self-Service Credential Recovery</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C3002F]" />
+                <span className="font-medium">2FA · Bank-Grade Access Security</span>
+              </>
+            )}
           </div>
 
           {/* Main Headline */}
           <h2 className="text-3xl sm:text-4xl xl:text-[42px] font-bold tracking-tight text-white leading-[1.12]">
-            Direct Japan Stock.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
-              Landed &amp; Protected.
-            </span>
+            {authStep === "FORGOT_PASSWORD" ? (
+              <>
+                Account Recovery.<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
+                  Fast, Encrypted &amp; Verified.
+                </span>
+              </>
+            ) : (
+              <>
+                Direct Japan Stock.<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
+                  Landed &amp; Protected.
+                </span>
+              </>
+            )}
           </h2>
         </div>
 
@@ -254,10 +303,10 @@ export default function LoginPage() {
               {/* Card Header */}
               <div className="space-y-1.5">
                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-                  Sign in to Platform
+                  Dealer Sign In
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500">
-                  Select your workspace and enter your registered credentials.
+                  Nissan New Zealand Dealer Order Platform
                 </p>
               </div>
 
@@ -314,6 +363,22 @@ export default function LoginPage() {
 
               {/* Form */}
               <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+                {successBanner && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between gap-2 animate-in fade-in duration-200">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{successBanner}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSuccessBanner(null)}
+                      className="text-slate-400 hover:text-slate-600 text-xs cursor-pointer font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
                 {errorMsg && (
                   <div className="p-3 rounded-xl bg-crimson-50 border border-crimson-200 text-crimson-700 text-xs">
                     {errorMsg}
@@ -332,19 +397,6 @@ export default function LoginPage() {
                             ? "Nissan Japan Email"
                             : "Programme Representative Email"}
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        audio.playSubtleClick();
-                        if (activeTab === "DEALER") setEmail("dealer@aucklandnissan.co.nz");
-                        if (activeTab === "ADMIN") setEmail("ops@autohub.co.nz");
-                        if (activeTab === "JAPAN") setEmail("kenji.sato@nissan.co.jp");
-                        if (activeTab === "PROGRAMME") setEmail("cameron.scott@nissan.co.nz");
-                      }}
-                      className="text-[11px] font-semibold text-[#C3002F] hover:text-[#A10026] hover:underline cursor-pointer"
-                    >
-                      Fill Credentials
-                    </button>
                   </div>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -354,7 +406,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@dealership.co.nz"
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all shadow-soft"
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all"
                     />
                   </div>
                 </div>
@@ -365,8 +417,13 @@ export default function LoginPage() {
                     <label className="text-xs font-medium text-slate-700">Password</label>
                     <button
                       type="button"
-                      onClick={() => alert("Password reset link will be sent to the registered email.")}
-                      className="text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:underline cursor-pointer"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setErrorMsg("");
+                        setSuccessBanner(null);
+                        setAuthStep("FORGOT_PASSWORD");
+                      }}
+                      className="text-[11px] font-semibold text-slate-600 hover:text-slate-800 hover:underline cursor-pointer"
                     >
                       Forgot password?
                     </button>
@@ -379,7 +436,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full pl-10 pr-10 py-2.5 text-sm bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all shadow-soft"
+                      className="w-full pl-10 pr-10 py-2.5 text-sm bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#C3002F]/20 focus:border-[#C3002F] transition-all"
                     />
                     <button
                       type="button"
@@ -422,7 +479,7 @@ export default function LoginPage() {
                 </Link>
               </div>
             </>
-          ) : (
+          ) : authStep === "MFA" ? (
             /* ═══════════════════════════════════════════════════════ */
             /* STAGE 2: 2FA MFA / AUTHENTICATOR APP (Matching Ref)     */
             /* ═══════════════════════════════════════════════════════ */
@@ -684,6 +741,33 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+          ) : (
+            /* ═══════════════════════════════════════════════════════ */
+            /* STAGE 3: FORGOT PASSWORD RECOVERY WORKFLOW               */
+            /* ═══════════════════════════════════════════════════════ */
+            <ForgotPasswordFlow
+              initialEmail={email}
+              onBackToLogin={(newPwd, updatedEmail) => {
+                setAuthStep("CREDENTIALS");
+                if (updatedEmail) {
+                  setEmail(updatedEmail);
+                  const foundUser = MOCK_USERS.find(
+                    (u) => u.email.toLowerCase() === updatedEmail.toLowerCase().trim()
+                  );
+                  if (foundUser) {
+                    if (foundUser.role === "AUTOHUB_ADMIN") setActiveTab("ADMIN");
+                    else if (foundUser.role === "NISSAN_JAPAN") setActiveTab("JAPAN");
+                    else if (foundUser.role === "READONLY_PROGRAMME_USER") setActiveTab("PROGRAMME");
+                    else setActiveTab("DEALER");
+                  }
+                }
+                if (newPwd) {
+                  setPassword(newPwd);
+                  setSuccessBanner("Password updated successfully! Sign in using your new credentials.");
+                }
+              }}
+              onDirectLogin={handleDirectLogin}
+            />
           )}
 
           {/* Footer badge */}
