@@ -172,7 +172,7 @@ export default function JapanInventoryDetailsView({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-7xl mx-auto">
+    <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-8xl mx-auto">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Bar: Back Action, Status & Management Actions     */}
       {/* (Consistent layout and styles matching /dealer/stocks)      */}
@@ -557,11 +557,10 @@ export default function JapanInventoryDetailsView({
                 <label
                   key={idx}
                   onClick={() => setWithdrawReason(reason)}
-                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${
-                    withdrawReason === reason
+                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${withdrawReason === reason
                       ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
                       : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"

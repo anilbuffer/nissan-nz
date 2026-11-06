@@ -451,7 +451,7 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300 max-w-7xl mx-auto pb-12">
+    <div className="space-y-6 animate-in fade-in duration-300 max-w-8xl mx-auto pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Navigation Bar                                    */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -710,11 +710,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                     if (profileErrors.name) setProfileErrors({ ...profileErrors, name: "" });
                   }}
                   placeholder="e.g. David Miller"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.name
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.name
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 {profileErrors.name && (
                   <p className="text-[11px] text-rose-600">{profileErrors.name}</p>
@@ -737,11 +736,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                     if (profileErrors.email) setProfileErrors({ ...profileErrors, email: "" });
                   }}
                   placeholder="e.g. dealer@aucklandnissan.co.nz"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.email
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.email
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all font-mono`}
+                    } text-slate-900 outline-none transition-all font-mono`}
                 />
                 {profileErrors.email && (
                   <p className="text-[11px] text-rose-600">{profileErrors.email}</p>
@@ -764,11 +762,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                     if (profileErrors.phone) setProfileErrors({ ...profileErrors, phone: "" });
                   }}
                   placeholder="e.g. +64 9 520 8899"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.phone
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.phone
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all font-mono`}
+                    } text-slate-900 outline-none transition-all font-mono`}
                 />
                 {profileErrors.phone && (
                   <p className="text-[11px] text-rose-600">{profileErrors.phone}</p>
@@ -791,11 +788,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                     if (profileErrors.title) setProfileErrors({ ...profileErrors, title: "" });
                   }}
                   placeholder="e.g. Senior Buyer & Fleet Specialist"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.title
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.title
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 {profileErrors.title && (
                   <p className="text-[11px] text-rose-600">{profileErrors.title}</p>
@@ -819,11 +815,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                       setProfileErrors({ ...profileErrors, department: "" });
                   }}
                   placeholder="e.g. Vehicle Sales & Pre-Owned"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.department
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.department
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 {profileErrors.department && (
                   <p className="text-[11px] text-rose-600">{profileErrors.department}</p>
@@ -847,11 +842,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                       setProfileErrors({ ...profileErrors, entityName: "" });
                   }}
                   placeholder="e.g. Auckland Nissan City Ltd"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.entityName
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.entityName
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 {profileErrors.entityName && (
                   <p className="text-[11px] text-rose-600">{profileErrors.entityName}</p>
@@ -875,11 +869,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                       setProfileErrors({ ...profileErrors, stationAddress: "" });
                   }}
                   placeholder="e.g. 360 Great South Road, Greenlane, Auckland 1051"
-                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${
-                    profileErrors.stationAddress
+                  className={`w-full px-3.5 py-2.5 text-xs bg-white rounded-xl border ${profileErrors.stationAddress
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 {profileErrors.stationAddress && (
                   <p className="text-[11px] text-rose-600">{profileErrors.stationAddress}</p>
@@ -1060,11 +1053,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                       setPasswordErrors({ ...passwordErrors, current: undefined });
                   }}
                   placeholder="Enter current password"
-                  className={`w-full pl-3.5 pr-10 py-2.5 text-xs bg-white rounded-xl border ${
-                    passwordErrors.current
+                  className={`w-full pl-3.5 pr-10 py-2.5 text-xs bg-white rounded-xl border ${passwordErrors.current
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 <button
                   type="button"
@@ -1111,11 +1103,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                     if (passwordErrors.new) setPasswordErrors({ ...passwordErrors, new: undefined });
                   }}
                   placeholder="Enter new password (min. 8 chars)"
-                  className={`w-full pl-3.5 pr-10 py-2.5 text-xs bg-white rounded-xl border ${
-                    passwordErrors.new
+                  className={`w-full pl-3.5 pr-10 py-2.5 text-xs bg-white rounded-xl border ${passwordErrors.new
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 <button
                   type="button"
@@ -1136,24 +1127,20 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                 <div className="space-y-1 pt-1">
                   <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        strengthScore >= 1 ? strengthLabel.barColor : "bg-slate-200"
-                      }`}
+                      className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 1 ? strengthLabel.barColor : "bg-slate-200"
+                        }`}
                     />
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        strengthScore >= 2 ? strengthLabel.barColor : "bg-slate-200"
-                      }`}
+                      className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 2 ? strengthLabel.barColor : "bg-slate-200"
+                        }`}
                     />
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        strengthScore >= 3 ? strengthLabel.barColor : "bg-slate-200"
-                      }`}
+                      className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 3 ? strengthLabel.barColor : "bg-slate-200"
+                        }`}
                     />
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        strengthScore >= 4 ? strengthLabel.barColor : "bg-slate-200"
-                      }`}
+                      className={`h-full rounded-full transition-all duration-300 ${strengthScore >= 4 ? strengthLabel.barColor : "bg-slate-200"
+                        }`}
                     />
                   </div>
                   {passwordErrors.new && (
@@ -1175,9 +1162,8 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                 </span>
                 {confirmPassword && newPassword && (
                   <span
-                    className={`text-[11px] font-semibold flex items-center gap-1 ${
-                      newPassword === confirmPassword ? "text-emerald-600" : "text-rose-600"
-                    }`}
+                    className={`text-[11px] font-semibold flex items-center gap-1 ${newPassword === confirmPassword ? "text-emerald-600" : "text-rose-600"
+                      }`}
                   >
                     {newPassword === confirmPassword ? (
                       <>
@@ -1199,11 +1185,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
                       setPasswordErrors({ ...passwordErrors, confirm: undefined });
                   }}
                   placeholder="Re-enter new password"
-                  className={`w-full pl-3.5 pr-10 py-2.5 text-xs bg-white rounded-xl border ${
-                    passwordErrors.confirm
+                  className={`w-full pl-3.5 pr-10 py-2.5 text-xs bg-white rounded-xl border ${passwordErrors.confirm
                       ? "border-rose-400 ring-2 ring-rose-100"
                       : "border-slate-200 focus:border-[#C3002F] focus:ring-2 focus:ring-[#C3002F]/10"
-                  } text-slate-900 outline-none transition-all`}
+                    } text-slate-900 outline-none transition-all`}
                 />
                 <button
                   type="button"
@@ -1233,9 +1218,8 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[11px]">
               <div
-                className={`flex items-center gap-1.5 transition-colors ${
-                  passwordCriteria.minLength ? "text-emerald-700 font-semibold" : "text-slate-500"
-                }`}
+                className={`flex items-center gap-1.5 transition-colors ${passwordCriteria.minLength ? "text-emerald-700 font-semibold" : "text-slate-500"
+                  }`}
               >
                 {passwordCriteria.minLength ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -1246,11 +1230,10 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
               </div>
 
               <div
-                className={`flex items-center gap-1.5 transition-colors ${
-                  passwordCriteria.hasUpper && passwordCriteria.hasLower
+                className={`flex items-center gap-1.5 transition-colors ${passwordCriteria.hasUpper && passwordCriteria.hasLower
                     ? "text-emerald-700 font-semibold"
                     : "text-slate-500"
-                }`}
+                  }`}
               >
                 {passwordCriteria.hasUpper && passwordCriteria.hasLower ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -1261,9 +1244,8 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
               </div>
 
               <div
-                className={`flex items-center gap-1.5 transition-colors ${
-                  passwordCriteria.hasNumber ? "text-emerald-700 font-semibold" : "text-slate-500"
-                }`}
+                className={`flex items-center gap-1.5 transition-colors ${passwordCriteria.hasNumber ? "text-emerald-700 font-semibold" : "text-slate-500"
+                  }`}
               >
                 {passwordCriteria.hasNumber ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -1274,9 +1256,8 @@ export default function PlatformSettingsView({ onBack }: PlatformSettingsViewPro
               </div>
 
               <div
-                className={`flex items-center gap-1.5 transition-colors ${
-                  passwordCriteria.hasSpecial ? "text-emerald-700 font-semibold" : "text-slate-500"
-                }`}
+                className={`flex items-center gap-1.5 transition-colors ${passwordCriteria.hasSpecial ? "text-emerald-700 font-semibold" : "text-slate-500"
+                  }`}
               >
                 {passwordCriteria.hasSpecial ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />

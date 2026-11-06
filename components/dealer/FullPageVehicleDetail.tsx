@@ -110,7 +110,7 @@ export default function FullPageVehicleDetail({
     isProgrammeProp !== undefined
       ? isProgrammeProp
       : (typeof pathname === "string" && pathname.startsWith("/programme")) ||
-        currentUser?.role === "READONLY_PROGRAMME_USER";
+      currentUser?.role === "READONLY_PROGRAMME_USER";
 
   const isAdmin =
     isAdminProp !== undefined
@@ -467,7 +467,7 @@ export default function FullPageVehicleDetail({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-7xl mx-auto">
+    <div className="space-y-6 animate-in fade-in duration-200 pb-12 font-sans text-slate-800 max-w-8xl mx-auto">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Bar: Back Action (Left) vs Status Badge (Right)   */}
@@ -838,13 +838,12 @@ export default function FullPageVehicleDetail({
               return (
                 <div
                   key={cost.id}
-                  className={`rounded-2xl border p-5 sm:p-6 transition-all duration-200 ${
-                    isPending
+                  className={`rounded-2xl border p-5 sm:p-6 transition-all duration-200 ${isPending
                       ? "bg-amber-50/30 border-amber-200/90 shadow-2xs"
                       : isApproved
                         ? "bg-white border-emerald-200 shadow-2xs"
                         : "bg-slate-50/60 border-slate-200"
-                  }`}
+                    }`}
                 >
                   {/* Card Header: Category & Status on Left, Amount on Right */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3.5 border-b border-slate-200/70">
