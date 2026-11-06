@@ -11,7 +11,9 @@ export default function DealerIndexPage() {
 
   useEffect(() => {
     if (!isLoading && currentUser) {
-      if (currentUser.role === "DEALER_USER" || currentUser.role === "DEALER_ADMIN") {
+      if (currentUser.role === "DEALER_APPLICANT") {
+        router.replace("/dealer/profile");
+      } else if (currentUser.role === "DEALER_USER" || currentUser.role === "DEALER_ADMIN") {
         router.replace("/dealer/stocks");
       } else if (currentUser.role === "AUTOHUB_ADMIN") {
         router.replace("/admin/dashboard");

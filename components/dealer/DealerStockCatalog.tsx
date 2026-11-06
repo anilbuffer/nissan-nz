@@ -378,9 +378,36 @@ export default function DealerStockCatalog({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. Empty State                                              */}
+      {/* 3. Empty & Access Control Guard State                        */}
       {/* ─────────────────────────────────────────────────────────── */}
-      {filteredVehicles.length === 0 ? (
+      {!isAdminView && (currentUser?.role === "DEALER_APPLICANT" || (currentDealer && currentDealer.status !== "APPROVED")) ? (
+        <div className="bg-white rounded-[16px] border border-slate-200 p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-4 shadow-soft animate-in fade-in">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto shadow-2xs">
+            <Lock className="w-7 h-7" />
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="text-lg font-bold text-slate-900">
+              {currentDealer?.status === "SUSPENDED"
+                ? "Dealership Account Suspended"
+                : "Dealership Verification in Progress"}
+            </h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              {currentDealer?.status === "SUSPENDED"
+                ? "Stock viewing and vehicle reservation privileges for this franchise have been administratively suspended. Please contact the Autohub Operations Centre."
+                : "Your dealership registration application has been submitted and is currently undergoing commercial verification by the Autohub operations team. Stock catalog access, landed price calculations, and vehicle reservations will activate upon administrative approval."}
+            </p>
+          </div>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/dealer/profile")}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold cursor-pointer transition-all shadow-xs"
+            >
+              Review Application Details
+            </button>
+          </div>
+        </div>
+      ) : filteredVehicles.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
           <Car className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="font-bold text-base text-slate-900">No vehicles match your search filters</h3>

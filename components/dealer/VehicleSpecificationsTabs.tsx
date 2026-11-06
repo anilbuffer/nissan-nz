@@ -93,7 +93,7 @@ export default function VehicleSpecificationsTabs({
 
   return (
     <div
-      className={`bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5 ${className}`}
+      className={`bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 md:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-5 ${className}`}
     >
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Bar: Vehicle Specifications & Listing Record     */}

@@ -1,6 +1,89 @@
 import { ZoneId, LandedPriceBreakdown, GeographicPricingZone } from "./types";
 
 export const JPY_TO_NZD_EXCHANGE_RATE = 0.01085; // 1 NZD = ~92.16 JPY
+export const FIXED_COMPONENT_B_NZD = 3049; // Contractually fixed NZ import & compliance fee
+
+export interface ComponentBBreakdown {
+  oceanFreightNZD: number; // 1950
+  marineInsuranceAndPortNZD: number; // 380
+  mpiBiosecurityNZD: number; // 350
+  mr2aComplianceNZD: number; // 369
+  totalNZD: number; // 3049
+}
+
+export const COMPONENT_B_BREAKDOWN: ComponentBBreakdown = {
+  oceanFreightNZD: 1950,
+  marineInsuranceAndPortNZD: 380,
+  mpiBiosecurityNZD: 350,
+  mr2aComplianceNZD: 369,
+  totalNZD: 3049,
+};
+
+/**
+ * Calculates Component A (Vehicle & Export Cost in NZD) from JPY FOB baseline
+ */
+export function calculateComponentA(
+  fobJPY: number,
+  exchangeRate: number = JPY_TO_NZD_EXCHANGE_RATE
+): number {
+  return Math.round(fobJPY * exchangeRate);
+}
+
+/**
+ * Calculates Estimated Landed Price (A + B) strictly and logically
+ */
+export function calculateEstimatedLandedAB(
+  fobJPY: number,
+  exchangeRate: number = JPY_TO_NZD_EXCHANGE_RATE
+): {
+  componentA: number;
+  componentB: number;
+  totalAB: number;
+  exchangeRate: number;
+} {
+  const componentA = calculateComponentA(fobJPY, exchangeRate);
+  const componentB = FIXED_COMPONENT_B_NZD;
+  return {
+    componentA,
+    componentB,
+    totalAB: componentA + componentB,
+    exchangeRate,
+  };
+}
+
+/**
+ * Calculates Component C (Excluded local items: Regional Delivery linehaul, GST, ORC)
+ */
+export function calculateComponentC(
+  fobJPY: number,
+  zoneId: ZoneId = "ZONE_1",
+  exchangeRate: number = JPY_TO_NZD_EXCHANGE_RATE,
+  gstRate: number = 0.15
+): {
+  zoneId: ZoneId;
+  zoneName: string;
+  regionalDeliveryNZD: number;
+  cifImportBaseNZD: number;
+  gstNZD: number;
+  totalDeliveredLandedBuyPriceNZD: number;
+} {
+  const componentA = calculateComponentA(fobJPY, exchangeRate);
+  const zone = OFFICIAL_PRICING_ZONES[zoneId] || OFFICIAL_PRICING_ZONES.ZONE_1;
+  const regionalDeliveryNZD = zone.deliveryCostNZD;
+  // CIF customs base = FOB NZD + RoRo freight (1950) + port/marine insurance (380)
+  const cifImportBaseNZD = componentA + COMPONENT_B_BREAKDOWN.oceanFreightNZD + COMPONENT_B_BREAKDOWN.marineInsuranceAndPortNZD;
+  const gstNZD = Math.round(cifImportBaseNZD * gstRate);
+  const totalDeliveredLandedBuyPriceNZD = componentA + FIXED_COMPONENT_B_NZD + regionalDeliveryNZD + gstNZD;
+
+  return {
+    zoneId: zone.zoneId,
+    zoneName: zone.zoneName,
+    regionalDeliveryNZD,
+    cifImportBaseNZD,
+    gstNZD,
+    totalDeliveredLandedBuyPriceNZD,
+  };
+}
 
 export interface PricingConfig {
   exchangeRateJPYtoNZD: number;

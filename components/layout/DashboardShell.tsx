@@ -114,7 +114,18 @@ export default function DashboardShell({
     const isProgrammeRoute = pathname.startsWith("/programme") || portal === "programme";
     const isDealerRoute = pathname.startsWith("/dealer") || portal === "dealer";
 
-    if (currentUser.role === "DEALER_USER" || currentUser.role === "DEALER_ADMIN") {
+    if (currentUser.role === "DEALER_APPLICANT") {
+      if (
+        isAdminRoute ||
+        isJapanRoute ||
+        isProgrammeRoute ||
+        pathname === "/dealer/stocks" ||
+        pathname === "/dealer/orders" ||
+        pathname === "/dealer/reserve"
+      ) {
+        router.replace("/dealer/profile");
+      }
+    } else if (currentUser.role === "DEALER_USER" || currentUser.role === "DEALER_ADMIN") {
       if (isAdminRoute || isJapanRoute || isProgrammeRoute) {
         router.replace("/dealer/stocks");
       }
@@ -210,6 +221,7 @@ export default function DashboardShell({
     if (pathname === "/dealer/terms" || pathname === "/dealer/commercial-boundary" || initialTab === "terms" || initialTab === "dealer-terms") return "dealer-stock";
 
     // Default by user role if on root or ambiguous
+    if (currentUser?.role === "DEALER_APPLICANT") return "dealer-profile";
     if (currentUser?.role === "AUTOHUB_ADMIN") return "admin-dashboard";
     if (currentUser?.role === "NISSAN_JAPAN") return "japan-inventory";
     if (currentUser?.role === "READONLY_PROGRAMME_USER") return "programme-stock";

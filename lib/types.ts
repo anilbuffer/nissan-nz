@@ -3,7 +3,8 @@ export type UserRole =
   | "DEALER_ADMIN"
   | "AUTOHUB_ADMIN"
   | "NISSAN_JAPAN"
-  | "READONLY_PROGRAMME_USER";
+  | "READONLY_PROGRAMME_USER"
+  | "DEALER_APPLICANT";
 
 export type DealerStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "RETURNED_FOR_INFO" | "SUSPENDED";
 
@@ -144,6 +145,7 @@ export interface Vehicle {
   fuelType: "Petrol" | "Hybrid" | "e-Power" | "100% Electric";
   driveType: "2WD" | "4WD" | "e-4ORCE AWD";
   engineCc: number;
+  fuelEconomy?: string;
   auctionGrade: string; // e.g. "4.5", "4.0", "RA"
   interiorGrade: string; // "A", "B", "C"
   exteriorGrade: string; // "A", "B", "C"

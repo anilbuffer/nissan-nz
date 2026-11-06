@@ -10,11 +10,12 @@ export function getModelAngleImages(modelName?: string, baseImage?: string): str
   // If specific model angles are registered, return the full studio gallery
   if (m.includes("note") || m.includes("aura")) {
     return [
-      baseImage || "/images/cars/note.png",
-      "/images/cars/angles/note-front.jpg",
       "/images/cars/angles/note-side.jpg",
+      "/images/cars/angles/note-front.jpg",
       "/images/cars/angles/note-rear-quarter.jpg",
       "/images/cars/angles/note-interior.jpg",
+      "/images/cars/note-angles/note-thumb-seats.jpg",
+      "/images/cars/note-angles/note-thumb-boot.jpg",
     ];
   }
 

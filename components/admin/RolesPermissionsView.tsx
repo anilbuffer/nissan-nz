@@ -203,6 +203,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "admin.view_audit_log",
     "admin.export_financials",
   ],
+  DEALER_APPLICANT: [],
 };
 
 const ROLES_META: {
@@ -264,6 +265,16 @@ const ROLES_META: {
       tier: "Tier 5 · Programme Read-Only",
       tierLabel: "Tier 5",
       description: "Dedicated read-only interface to view authorised stock, reservation queues, door-to-door milestones, and operational reporting.",
+    },
+    {
+      role: "DEALER_APPLICANT",
+      title: "Dealer Applicant (Pending)",
+      subtitle: "Unverified Dealership Account",
+      badgeBg: "bg-amber-50 border-amber-200",
+      badgeText: "text-amber-700",
+      tier: "Tier 6 · Pending Validation",
+      tierLabel: "Tier 6",
+      description: "Applicant awaiting Autohub identity validation and commercial terms execution. Zero stock or pricing access.",
     },
   ];
 

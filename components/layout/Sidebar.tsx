@@ -56,7 +56,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, currentDealer, logout } = useAuth();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -85,6 +85,23 @@ export default function Sidebar({
 
   // Navigation configurations based strictly on MVP user role
   const getNavItems = (): NavItem[] => {
+    // 0. Dealer Applicant or Unapproved Dealer (Pending / Suspended)
+    if (
+      currentUser?.role === "DEALER_APPLICANT" ||
+      ((currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") &&
+        currentDealer &&
+        currentDealer.status !== "APPROVED")
+    ) {
+      return [
+        {
+          id: "dealer-profile",
+          label: "Dealership Profile",
+          icon: MapPin,
+          href: "/dealer/profile",
+        },
+      ];
+    }
+
     // 1. NZ Dealers (DEALER_USER, DEALER_ADMIN)
     if (currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") {
       return [
