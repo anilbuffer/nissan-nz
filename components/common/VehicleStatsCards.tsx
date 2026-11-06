@@ -295,46 +295,77 @@ export default function VehicleStatsCards({
 
   return (
     <div
-      className={`relative bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden ${className}`}
+      className={`bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden ${className}`}
     >
-      {/* Mobile/Tablet Edge Fade Gradient to indicate swipe affordance */}
-      <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 lg:hidden" />
+      {/* 1. Mobile & Tablet Responsive Grid (< lg): All 7 stats clearly visible without any horizontal scroll */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:hidden p-3 sm:p-4 gap-2 sm:gap-2.5">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          const isVin = stat.key === "vin";
+          return (
+            <div
+              key={stat.key}
+              className={`flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-slate-200 transition-colors ${
+                stat.clickable ? "cursor-pointer group select-none hover:bg-slate-100/80 active:scale-[0.99]" : ""
+              } ${isVin ? "col-span-2 sm:col-span-1" : ""}`}
+              onClick={stat.onClick}
+              title={stat.title}
+            >
+              <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                <Icon className="w-4 h-4 text-slate-500 shrink-0 group-hover:text-slate-800 transition-colors" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[12px] sm:text-[12.5px] font-bold text-slate-900 tracking-tight leading-tight truncate group-hover:text-slate-700 transition-colors flex items-center gap-1.5 font-mono">
+                  <span>{stat.value}</span>
+                  {stat.copied && (
+                    <span className="text-[10px] text-emerald-600 font-bold font-sans animate-in fade-in">
+                      Copied!
+                    </span>
+                  )}
+                </div>
+                <div className="text-[10px] sm:text-[10.5px] font-normal text-slate-400 leading-tight mt-0.5 truncate">
+                  {stat.label}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-      <div className="overflow-x-auto no-scrollbar touch-pan-x scroll-smooth snap-x snap-mandatory">
-        <div className="flex items-center min-w-[680px] lg:min-w-0 w-full py-2.5 sm:py-3 px-3 sm:px-4">
-          {stats.map((stat, idx) => {
-            const Icon = stat.icon;
-            return (
-              <React.Fragment key={stat.key}>
-                {idx > 0 && (
-                  <div className="h-6 sm:h-7 w-[1px] bg-slate-200/80 shrink-0 mx-1 sm:mx-1.5" />
-                )}
-                <div
-                  className={`flex items-center gap-2 sm:gap-2.5 flex-1 min-w-[90px] lg:min-w-0 justify-center px-1 sm:px-1.5 first:pl-0 last:pr-0 snap-start ${
-                    stat.clickable ? "cursor-pointer group select-none" : ""
-                  }`}
-                  onClick={stat.onClick}
-                  title={stat.title}
-                >
-                  <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-500 shrink-0 group-hover:text-slate-800 transition-colors" />
-                  <div className="min-w-0">
-                    <div className="text-[11.5px] sm:text-[12.5px] lg:text-[13px] font-bold text-slate-900 tracking-tight leading-tight whitespace-nowrap group-hover:text-slate-700 transition-colors flex items-center gap-1 font-mono">
-                      <span>{stat.value}</span>
-                      {stat.copied && (
-                        <span className="text-[10px] text-emerald-600 font-bold font-sans animate-in fade-in">
-                          Copied!
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[9.5px] sm:text-[10px] lg:text-[10.5px] font-normal text-slate-400 leading-tight mt-0.5 whitespace-nowrap">
-                      {stat.label}
-                    </div>
+      {/* 2. Desktop Single-Row Flex Strip (>= lg): Sleek inline presentation with precision dividers */}
+      <div className="hidden lg:flex items-center w-full py-2.5 sm:py-3 px-3 sm:px-4">
+        {stats.map((stat, idx) => {
+          const Icon = stat.icon;
+          return (
+            <React.Fragment key={stat.key}>
+              {idx > 0 && (
+                <div className="h-6 sm:h-7 w-[1px] bg-slate-200/80 shrink-0 mx-1 sm:mx-1.5" />
+              )}
+              <div
+                className={`flex items-center gap-2 sm:gap-2.5 flex-1 min-w-0 justify-center px-1 sm:px-1.5 first:pl-0 last:pr-0 ${
+                  stat.clickable ? "cursor-pointer group select-none" : ""
+                }`}
+                onClick={stat.onClick}
+                title={stat.title}
+              >
+                <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-slate-500 shrink-0 group-hover:text-slate-800 transition-colors" />
+                <div className="min-w-0">
+                  <div className="text-[11.5px] sm:text-[12.5px] lg:text-[13px] font-bold text-slate-900 tracking-tight leading-tight whitespace-nowrap group-hover:text-slate-700 transition-colors flex items-center gap-1 font-mono">
+                    <span>{stat.value}</span>
+                    {stat.copied && (
+                      <span className="text-[10px] text-emerald-600 font-bold font-sans animate-in fade-in">
+                        Copied!
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[9.5px] sm:text-[10px] lg:text-[10.5px] font-normal text-slate-400 leading-tight mt-0.5 whitespace-nowrap">
+                    {stat.label}
                   </div>
                 </div>
-              </React.Fragment>
-            );
-          })}
-        </div>
+              </div>
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );

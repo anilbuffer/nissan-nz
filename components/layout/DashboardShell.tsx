@@ -100,6 +100,11 @@ export default function DashboardShell({
       if (parts[1]) {
         setViewingOrderId(parts[1]);
       }
+    } else if (pathname.includes("/dealer/orders/")) {
+      const parts = pathname.split("/dealer/orders/");
+      if (parts[1]) {
+        setViewingOrderId(parts[1]);
+      }
     } else {
       setViewingOrderId(null);
     }
@@ -515,6 +520,24 @@ export default function DashboardShell({
             setViewingOrderId(null);
             setViewingVehicleId(vId);
             router.push(`/programme/vehicles/${vId}`);
+          }}
+        />
+      );
+    }
+
+    // 1c. Order Detail Full-Page View (Dealer Portal) - 100% consistent with FullPageVehicleDetail
+    if (viewingOrderId && (portal === "dealer" || pathname.startsWith("/dealer") || currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN")) {
+      const targetOrder = orders.find((o) => o.id === viewingOrderId || o.orderNumber === viewingOrderId) || orders[0];
+      return (
+        <FullPageVehicleDetail
+          vehicleId={targetOrder?.vehicle?.id}
+          vehicleData={targetOrder?.vehicle}
+          orderId={targetOrder?.id}
+          orderData={targetOrder}
+          backLabel="Back to Orders Grid"
+          onBack={() => {
+            setViewingOrderId(null);
+            router.push("/dealer/orders");
           }}
         />
       );

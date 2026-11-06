@@ -119,8 +119,8 @@ export default function VehicleSpecificationsTabs({
               Specification Categories
             </span>
 
-            {/* Mobile / Tablet: Horizontal on small screens */}
-            <div className="flex lg:hidden overflow-x-auto no-scrollbar gap-1.5 pb-1">
+            {/* Responsive Tab Grid: Fully visible on Mobile, Tablet & Desktop (No overflow-x clipping) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-2">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -129,30 +129,7 @@ export default function VehicleSpecificationsTabs({
                     key={tab.id}
                     type="button"
                     onClick={() => handleTabClick(tab.id)}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
-                      isActive
-                        ? "bg-[#0A0A0A] text-white shadow-xs"
-                        : "bg-white hover:bg-slate-100 text-slate-700 border border-slate-200"
-                    }`}
-                  >
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-slate-400"}`} />
-                    <span className="whitespace-nowrap">{tab.title}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Desktop: Clean Single-tile Vertical Stack */}
-            <div className="hidden lg:flex flex-col gap-2">
-              {TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                       isActive
                         ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-xs"
                         : "bg-white hover:bg-slate-100/90 text-slate-700 border-slate-200 hover:border-slate-300"
@@ -174,7 +151,7 @@ export default function VehicleSpecificationsTabs({
           </div>
 
           {/* Minimalist Unit Indicator on Left Side */}
-          <div className="pt-2 border-t border-slate-200/70 hidden lg:flex items-center justify-between text-[11px] text-slate-500 font-mono">
+          <div className="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-slate-500 font-mono">
             <span>Unit #{vehicle.stockId}</span>
             <span className="font-sans font-semibold text-slate-700">{vehicle.make || "Nissan"} {vehicle.model}</span>
           </div>

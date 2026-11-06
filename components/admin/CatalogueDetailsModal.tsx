@@ -507,14 +507,14 @@ export default function CatalogueDetailsModal({
                         </div>
 
                         {cost.evidenceDocumentUrl && (
-                          <div className="md:col-span-2 pt-1">
+                          <div className="md:col-span-2 pt-1 min-w-0 max-w-full">
                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
                               Attached Evidence Document
                             </span>
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono transition-colors shadow-2xs">
+                            <div className="inline-flex max-w-full items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono transition-colors shadow-2xs min-w-0">
                               <Paperclip className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                              <span className="truncate max-w-[280px] sm:max-w-md">{cost.evidenceDocumentUrl}</span>
-                              <span className="text-[10px] text-slate-400 px-1.5 py-0.5 rounded bg-white border border-slate-200">PDF</span>
+                              <span className="truncate min-w-0 flex-1">{cost.evidenceDocumentUrl}</span>
+                              <span className="text-[10px] text-slate-400 px-1.5 py-0.5 rounded bg-white border border-slate-200 shrink-0">PDF</span>
                             </div>
                           </div>
                         )}

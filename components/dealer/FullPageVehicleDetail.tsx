@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Vehicle, LandedPriceBreakdown, ZoneId, VehicleSupportingDoc, AdditionalCostItem } from "@/lib/types";
+import { Vehicle, LandedPriceBreakdown, ZoneId, VehicleSupportingDoc, AdditionalCostItem, Order } from "@/lib/types";
 import { useProgramme } from "@/lib/programme-context";
 import { useAuth } from "@/lib/auth-context";
 import { MOCK_VEHICLES } from "@/lib/mock-data";
@@ -13,6 +13,8 @@ import VehicleSpecificationsTabs from "./VehicleSpecificationsTabs";
 import VehicleStatsCards from "@/components/common/VehicleStatsCards";
 import VehicleShowcaseCard from "@/components/common/VehicleShowcaseCard";
 import CommercialLandedPricingCard from "./CommercialLandedPricingCard";
+import OrderCorridorTimeline from "./OrderCorridorTimeline";
+import { getRoRoMilestoneLabel } from "./DealerOrdersView";
 import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import {
   ArrowLeft,
@@ -48,6 +50,8 @@ import {
 interface FullPageVehicleDetailProps {
   vehicleId?: string;
   vehicleData?: Vehicle;
+  orderId?: string;
+  orderData?: Order;
   onBack?: () => void;
   isAdmin?: boolean;
   isProgramme?: boolean;
@@ -72,6 +76,8 @@ function ZeroEmissionBadge() {
 export default function FullPageVehicleDetail({
   vehicleId,
   vehicleData,
+  orderId,
+  orderData,
   onBack,
   isAdmin: isAdminProp,
   isProgramme: isProgrammeProp,
@@ -81,6 +87,7 @@ export default function FullPageVehicleDetail({
   const pathname = usePathname();
   const {
     vehicles,
+    orders,
     reserveVehicle: atomicReserve,
     confirmAllocation,
     releaseHold,
@@ -113,8 +120,26 @@ export default function FullPageVehicleDetail({
   const isDealer = !isProgrammeContext && (currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN");
   const dealerZone: ZoneId = (currentDealer?.pricingZoneId as ZoneId) || "ZONE_1";
 
-  // Find vehicle from live programme context or fallback to mock data
+  // Associated order (if orderId, orderData or vehicle is in active orders)
+  const targetOrder: Order | undefined = useMemo(() => {
+    if (orderData) return orderData;
+    if (orderId && orders) {
+      const match = orders.find((o) => o.id === orderId || o.orderNumber === orderId);
+      if (match) return match;
+    }
+    if (orders && (vehicleId || vehicleData?.id || vehicleData?.stockId)) {
+      const match = orders.find((o) =>
+        (vehicleId && (o.vehicleId === vehicleId || o.vehicle?.id === vehicleId || o.vehicle?.stockId === vehicleId)) ||
+        (vehicleData && (o.vehicleId === vehicleData.id || o.vehicle?.id === vehicleData.id || o.vehicle?.stockId === vehicleData.stockId))
+      );
+      if (match) return match;
+    }
+    return undefined;
+  }, [orderData, orderId, orders, vehicleId, vehicleData]);
+
+  // Find vehicle from order, live programme context or fallback to mock data
   const rawVehicle =
+    targetOrder?.vehicle ||
     vehicles.find((v) => v.id === vehicleId || v.stockId === vehicleId || (vehicleData && (v.id === vehicleData.id || v.stockId === vehicleData.stockId))) ||
     vehicleData ||
     MOCK_VEHICLES.find((m) => m.id === vehicleId || m.stockId === vehicleId) ||
@@ -291,19 +316,21 @@ export default function FullPageVehicleDetail({
   const exchangeRate = pricingConfig?.exchangeRateJPYtoNZD || JPY_TO_NZD_EXCHANGE_RATE;
   const { totalAB } = calculateEstimatedLandedAB(effectiveFobJPY, exchangeRate);
 
-  const additionalCosts: AdditionalCostItem[] = vehicle.additionalCosts || [];
+  const additionalCosts: AdditionalCostItem[] = targetOrder?.additionalCosts?.length
+    ? targetOrder.additionalCosts
+    : vehicle.additionalCosts || [];
   const approvedAdditionalCosts = additionalCosts.filter((c) => c.status === "APPROVED");
   const approvedCostsTotal = approvedAdditionalCosts.reduce((sum, item) => sum + item.amountNZD, 0);
   const pendingAdditionalCosts = additionalCosts.filter((c) => c.status === "PENDING_DEALER_APPROVAL");
   const additionalCostsTotal = additionalCosts.reduce((sum, item) => sum + item.amountNZD, 0);
   const totalLandedPriceAB = totalAB + ((isAdmin || isProgrammeContext) ? additionalCostsTotal : approvedCostsTotal);
 
-  const isAvailable = vehicle.status === "AVAILABLE";
-  const isReserved = vehicle.status === "RESERVED";
-  const isAllocated = vehicle.status === "ALLOCATED";
-  const isWithdrawn = vehicle.status === "WITHDRAWN";
-  const isSold = vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED";
-  const isDraft = vehicle.status === "DRAFT";
+  const isAvailable = !targetOrder && vehicle.status === "AVAILABLE";
+  const isReserved = !targetOrder && vehicle.status === "RESERVED";
+  const isAllocated = Boolean(targetOrder) || vehicle.status === "ALLOCATED";
+  const isWithdrawn = !targetOrder && vehicle.status === "WITHDRAWN";
+  const isSold = !targetOrder && (vehicle.status === "SOLD" || (vehicle.status as any) === "BUYED");
+  const isDraft = !targetOrder && vehicle.status === "DRAFT";
 
   // Check if held by currently signed in dealer
   const isHeldByCurrentDealer =
@@ -311,12 +338,13 @@ export default function FullPageVehicleDetail({
 
   const reservingDealer = dealers?.find((d) => d.id === vehicle.reservedByDealerId);
   const reservingDealerName =
+    targetOrder?.dealerName ||
     reservingDealer?.legalTradingName ||
     (vehicle.reservedByDealerId === "DEALER_002"
       ? "Bay of Plenty Nissan"
       : vehicle.reservedByDealerId === "DEALER_001"
         ? "Auckland Nissan"
-        : "Franchise Dealer Partner");
+        : currentDealer?.legalTradingName || "Franchise Dealer Partner");
 
   const isElectricOrHybrid =
     vehicle.fuelType === "100% Electric" ||
@@ -331,6 +359,10 @@ export default function FullPageVehicleDetail({
     audio.playSubtleClick();
     if (onBack) {
       onBack();
+    } else if (targetOrder) {
+      router.push(isDealerContext ? "/dealer/orders" : isAdmin ? "/admin/orders" : "/programme/orders");
+    } else if (isProgrammeContext) {
+      router.push("/programme/stock");
     } else if (isAdmin) {
       router.push("/admin/catalogue");
     } else {
@@ -450,7 +482,7 @@ export default function FullPageVehicleDetail({
             title="Go back"
           >
             <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:-translate-x-0.5 transition-transform" />
-            <span>{backLabel || (isProgrammeContext ? "Back to Stock Catalogue" : isAdmin ? "Back to Catalogue" : "Back to Stock")}</span>
+            <span>{backLabel || (targetOrder ? "Back to Orders" : isProgrammeContext ? "Back to Stock Catalogue" : isAdmin ? "Back to Catalogue" : "Back to Stock")}</span>
           </button>
 
           {/* Action Notice Toast */}
@@ -462,24 +494,24 @@ export default function FullPageVehicleDetail({
           )}
         </div>
 
-        {/* Right Side: Status Badges (Right Aligned per user request) */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        {/* Right Side: Status Badges (Right Aligned, Responsive Wrap to prevent overflow) */}
+        <div className="flex items-center gap-2 flex-wrap max-w-full sm:shrink-0 justify-start sm:justify-end">
           {isAvailable && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{isProgrammeContext ? "Available Central Stock" : isAdmin ? "Available to NZ Franchise" : "Available for Reservation"}</span>
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 shadow-2xs max-w-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="truncate">{isProgrammeContext ? "Available Central Stock" : isAdmin ? "Available to NZ Franchise" : "Available for Reservation"}</span>
             </span>
           )}
           {isDraft && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300 shadow-2xs">
-              <Edit3 className="w-3 h-3 text-slate-500" />
-              <span>Draft Intake (Yard Staging)</span>
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-slate-100 text-slate-700 border-slate-300 shadow-2xs max-w-full">
+              <Edit3 className="w-3 h-3 text-slate-500 shrink-0" />
+              <span className="truncate">Draft Intake (Yard Staging)</span>
             </span>
           )}
           {isReserved && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-amber-50 text-amber-800 border-amber-300 shadow-2xs">
-              <Lock className="w-3 h-3 text-amber-600" />
-              <span>
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-amber-50 text-amber-800 border-amber-300 shadow-2xs max-w-full">
+              <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+              <span className="truncate">
                 {isProgrammeContext
                   ? (reservingDealerName ? `Reserved by ${reservingDealerName}` : "Active 24h Exclusivity Hold")
                   : isAdmin
@@ -491,10 +523,17 @@ export default function FullPageVehicleDetail({
             </span>
           )}
           {isAllocated && (
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs">
-              <Ship className="w-3 h-3 text-sky-600" />
-              <span>Allocated &amp; Shipping Secured</span>
-            </span>
+            <div className="flex items-center gap-2 flex-wrap max-w-full">
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-sky-50 text-sky-700 border-sky-200 shadow-2xs max-w-full">
+                <Ship className="w-3 h-3 text-sky-600 shrink-0" />
+                <span className="truncate">Allocated &amp; Shipping Secured</span>
+              </span>
+              {targetOrder && (
+                <span className="hidden sm:inline-flex text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs shrink-0">
+                  {getRoRoMilestoneLabel(targetOrder.currentMilestone).displayBadge}
+                </span>
+              )}
+            </div>
           )}
           {isWithdrawn && (
             <span className="text-[11px] font-bold px-3 py-1 rounded-full border flex items-center gap-1.5 bg-rose-50 text-rose-700 border-rose-200 shadow-2xs">
@@ -571,6 +610,38 @@ export default function FullPageVehicleDetail({
       {/* 3.5 VEHICLE STATS CARDS BAR (VIN, Engine, Transmission, Fuel, ODO, Year, Colour) */}
       {/* ─────────────────────────────────────────────────────────── */}
       <VehicleStatsCards vehicle={vehicle} />
+
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* 3.6 ORDER CORRIDOR & LOGISTICS TRACKING (When viewing an active order) */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {targetOrder && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 md:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Ship className="w-4 h-4 text-[#C3002F]" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Trans-Pacific Shipping Corridor &amp; Live Tracking
+              </h3>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap text-xs">
+              <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                Order #{targetOrder.orderNumber}
+              </span>
+              {targetOrder.vesselName && (
+                <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                  Vessel: {targetOrder.vesselName}
+                </span>
+              )}
+              {targetOrder.etaDeliveryDate && (
+                <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                  ETA: {targetOrder.etaDeliveryDate}
+                </span>
+              )}
+            </div>
+          </div>
+          <OrderCorridorTimeline order={targetOrder} />
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 4. Full Layout Card 1: Inspection Condition Dossier         */}
@@ -850,14 +921,14 @@ export default function FullPageVehicleDetail({
                     </div>
 
                     {cost.evidenceDocumentUrl && (
-                      <div className="md:col-span-2 pt-1">
+                      <div className="md:col-span-2 pt-1 min-w-0 max-w-full">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
                           Attached Evidence Document
                         </span>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono transition-colors shadow-2xs">
+                        <div className="inline-flex max-w-full items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono transition-colors shadow-2xs min-w-0">
                           <Paperclip className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                          <span className="truncate max-w-[280px] sm:max-w-md">{cost.evidenceDocumentUrl}</span>
-                          <span className="text-[10px] text-slate-400 px-1.5 py-0.5 rounded bg-white border border-slate-200">PDF</span>
+                          <span className="truncate min-w-0 flex-1">{cost.evidenceDocumentUrl}</span>
+                          <span className="text-[10px] text-slate-400 px-1.5 py-0.5 rounded bg-white border border-slate-200 shrink-0">PDF</span>
                         </div>
                       </div>
                     )}

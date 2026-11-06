@@ -394,7 +394,7 @@ export default function CommercialLandedPricingCard({
         {/* Highlight Banner: Estimated Landed Price (A + B) (Neutral Elevated Card) */}
         <div className="bg-slate-50 border border-slate-200/90 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 my-2 flex items-center justify-between shadow-2xs">
           <div>
-            <span className="font-bold text-sm sm:text-base text-slate-900 block leading-tight">
+            <span className="font-bold text-xs sm:text-base text-slate-900 block leading-tight">
               Estimated Landed Price (A + B)
             </span>
             <span className="text-[11px] text-slate-500 font-normal">
