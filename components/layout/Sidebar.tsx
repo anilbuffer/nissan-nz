@@ -283,17 +283,17 @@ export default function Sidebar({
         <div className="relative z-10">
           <div className="h-[64px] flex items-center justify-between px-4 border-b border-white/10 bg-black/40">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-12 h-12 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center shrink-0">
                 <img
                   src="/nissan-logo-white.png"
                   alt="Nissan Logo"
-                  className="w-12 h-12 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
+                  className="w-10 h-10 lg:w-12 lg:h-12 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
                 />
               </div>
               {!collapsed && (
                 <div className="min-w-0 transition-opacity duration-200">
-                  <h1 className="font-bold text-xl tracking-tight text-white truncate leading-tight">
-                    Nissan
+                  <h1 className="font-bold text-sm lg:text-base tracking-tight text-white truncate leading-tight">
+                    Nissan New Zealand
                   </h1>
                 </div>
               )}

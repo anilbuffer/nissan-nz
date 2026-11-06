@@ -217,7 +217,7 @@ export default function LoginPage({
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#ffffff]">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* BRAND BANNER: Left on Desktop, Top on Mobile (Matching Ref) */}
       {/* ─────────────────────────────────────────────────────────── */}
