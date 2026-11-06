@@ -14,8 +14,8 @@ export function getModelAngleImages(modelName?: string, baseImage?: string): str
       "/images/cars/angles/note-front.jpg",
       "/images/cars/angles/note-rear-quarter.jpg",
       "/images/cars/angles/note-interior.jpg",
-      "/images/cars/note-angles/note-thumb-seats.jpg",
-      "/images/cars/note-angles/note-thumb-boot.jpg",
+      "/images/cars/angles/note-seats.jpg",
+      "/images/cars/angles/note-boot.jpg",
     ];
   }
 
@@ -92,6 +92,8 @@ export function getAngleLabel(imagePath: string, index: number): string {
   if (p.includes("rear") || p.includes("quarter")) return "Rear 3/4 Quarter";
   if (p.includes("side") || p.includes("profile")) return "Side Profile";
   if (p.includes("front") || p.includes("grille")) return "Front Angle";
+  if (p.includes("seats")) return "Rear Passenger Seats";
+  if (p.includes("boot")) return "Luggage Cargo Space";
   if (index === 0) return "Exterior";
   return `Angle ${index + 1}`;
 }

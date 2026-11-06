@@ -68,7 +68,6 @@ const EXPECTED_MODALS = [
   "components/admin/ReservationDetailsModal.tsx",
   "components/admin/AdditionalCostCreatorModal.tsx",
   "components/admin/AddVehicleAdditionalCostModal.tsx",
-  "components/admin/InviteUserModal.tsx",
   "components/japan/CsvTemplateModal.tsx",
   "components/common/PricingComponentModal.tsx",
   "components/layout/GlobalSearchModal.tsx",
@@ -202,6 +201,101 @@ assert(globalsCss.includes("--width-8xl: 90rem"), "Tailwind v4 8xl width token c
 const shellCss = readFileSync("components/layout/DashboardShell.tsx", "utf8");
 assert(shellCss.includes("xs:p-3.5 sm:p-5 md:p-6 lg:p-7 xl:p-8 3xl:p-10"), "DashboardShell responsive fluid padding configured across all breakpoints");
 assert(shellCss.includes("2xl:max-w-[1960px] 3xl:max-w-[2400px]"), "DashboardShell ultra-wide max container scaling configured");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. ZERO TEMPORARY, DUPLICATE, OR UNUSED FILES VERIFICATION
+// ─────────────────────────────────────────────────────────────────────────────
+console.log("\n8. VERIFYING ZERO TEMPORARY, DUPLICATE, OR UNUSED FILES:");
+
+// 8a. Verify purged legacy / dead files do not exist
+const PURGED_FILES = [
+  "public/login-hero-ref.jpg",
+  "public/login-bg-hd.png",
+  "public/nissan-nz-lockup.png",
+  "components/admin/UserManagementView.tsx",
+  "components/admin/RolesPermissionsView.tsx",
+  "components/admin/UserDetailsView.tsx",
+  "components/admin/InviteUserModal.tsx",
+  "public/images/cars/note-angles"
+];
+
+PURGED_FILES.forEach((f) => {
+  assert(!existsSync(f), `Dead/duplicate file purged successfully: ${f}`);
+});
+
+// 8b. Verify zero backup/temporary patterns across project
+function scanForSuspiciousFiles(dir) {
+  let found = [];
+  readdirSync(dir).forEach((file) => {
+    if (file === "node_modules" || file === ".next" || file === ".git") return;
+    const fullPath = join(dir, file);
+    const stat = statSync(fullPath);
+    if (stat.isDirectory()) {
+      found = found.concat(scanForSuspiciousFiles(fullPath));
+    } else {
+      if (
+        file.endsWith(".bak") ||
+        file.endsWith(".tmp") ||
+        file.endsWith(".temp") ||
+        file.endsWith(".orig") ||
+        file.endsWith("~") ||
+        file.toLowerCase().includes("copy")
+      ) {
+        found.push(fullPath);
+      }
+    }
+  });
+  return found;
+}
+
+const suspicious = scanForSuspiciousFiles(".");
+assert(suspicious.length === 0, `Zero backup, temp or duplicate-copy files found (count: ${suspicious.length})`);
+
+// 8c. Verify 100% of components are actively referenced
+const componentsList = getAllFiles("components", [".tsx"]);
+const allCodeForUsage = [
+  ...getAllFiles("components", [".tsx", ".ts"]),
+  ...getAllFiles("app", [".tsx", ".ts"]),
+  ...getAllFiles("lib", [".ts"])
+].map((f) => ({ path: f, code: readFileSync(f, "utf8") }));
+
+let unreferencedComponents = 0;
+componentsList.forEach((compPath) => {
+  const baseName = compPath.split(/[\/\\]/).pop().replace(".tsx", "");
+  const hasRef = allCodeForUsage.some(
+    ({ path: p, code }) => p !== compPath && code.includes(baseName)
+  );
+  if (!hasRef) {
+    unreferencedComponents++;
+    console.error(`  Unreferenced component found: ${compPath}`);
+  }
+});
+assert(unreferencedComponents === 0, `All ${componentsList.length} components actively referenced (unreferenced: ${unreferencedComponents})`);
+
+// 8d. Verify 100% of public assets are actively referenced
+function getAllPublic(dir) {
+  let list = [];
+  readdirSync(dir).forEach((file) => {
+    const full = join(dir, file);
+    if (statSync(full).isDirectory()) list = list.concat(getAllPublic(full));
+    else list.push(full);
+  });
+  return list;
+}
+const publicAssets = getAllPublic("public");
+let unreferencedAssets = 0;
+publicAssets.forEach((pub) => {
+  const baseName = pub.split(/[\/\\]/).pop();
+  const relPath = "/" + pub.replace(/\\/g, "/").replace(/^public\//, "");
+  const hasRef = allCodeForUsage.some(
+    ({ code }) => code.includes(baseName) || code.includes(relPath)
+  );
+  if (!hasRef) {
+    unreferencedAssets++;
+    console.error(`  Unreferenced asset found: ${pub}`);
+  }
+});
+assert(unreferencedAssets === 0, `All ${publicAssets.length} public assets actively referenced (unreferenced: ${unreferencedAssets})`);
 
 console.log("\n===============================================================================");
 console.log(`  E2E VERIFICATION COMPLETED: ${passedTests}/${totalTests} TESTS PASSED (100%)`);

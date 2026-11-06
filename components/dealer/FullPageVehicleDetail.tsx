@@ -14,6 +14,7 @@ import VehicleStatsCards from "@/components/common/VehicleStatsCards";
 import VehicleShowcaseCard from "@/components/common/VehicleShowcaseCard";
 import CommercialLandedPricingCard from "./CommercialLandedPricingCard";
 import OrderCorridorTimeline from "./OrderCorridorTimeline";
+import AddVehicleAdditionalCostModal from "@/components/admin/AddVehicleAdditionalCostModal";
 import { getRoRoMilestoneLabel } from "./DealerOrdersView";
 import { getModelAngleImages, getAngleLabel } from "@/lib/vehicle-media";
 import {
@@ -98,6 +99,7 @@ export default function FullPageVehicleDetail({
     rejectReservation,
     cancelReservation,
     dealers,
+    attachVehicleAdditionalCost,
     respondToVehicleAdditionalCost,
     removeVehicleAdditionalCost,
   } = useProgramme();
@@ -222,6 +224,7 @@ export default function FullPageVehicleDetail({
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [declineReason, setDeclineReason] = useState("");
+  const [isAddCostModalOpen, setIsAddCostModalOpen] = useState(false);
 
   // Synchronize FOB input when vehicle FOB changes
   React.useEffect(() => {
@@ -822,6 +825,16 @@ export default function FullPageVehicleDetail({
               <span>Additional Costs</span>
             </h3>
           </div>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setIsAddCostModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white hover:bg-[#C3002F] active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Attach Supplementary Cost</span>
+            </button>
+          )}
         </div>
 
         {/* Dealer Pending Costs Alert Banner */}
@@ -1300,7 +1313,21 @@ export default function FullPageVehicleDetail({
         </div>
       )}
 
-      {/* D. Download Toast Notification */}
+      {/* D. Add Vehicle Additional Cost Modal (Autohub Admin) */}
+      {isAdmin && isAddCostModalOpen && (
+        <AddVehicleAdditionalCostModal
+          vehicle={vehicle}
+          isOpen={isAddCostModalOpen}
+          onClose={() => setIsAddCostModalOpen(false)}
+          onAddCost={(costItem) => {
+            attachVehicleAdditionalCost(vehicle.id, costItem, costItem.dealerId);
+            setActionNotice("Supplementary cost proposal attached successfully.");
+            setIsAddCostModalOpen(false);
+          }}
+        />
+      )}
+
+      {/* E. Download Toast Notification */}
       {docDownloadToast && (
         <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-slate-900 text-white text-xs font-medium flex items-center gap-2 shadow-2xl animate-in slide-in-from-bottom-3">
           <Download className="w-4 h-4 text-slate-300 shrink-0 animate-bounce" />

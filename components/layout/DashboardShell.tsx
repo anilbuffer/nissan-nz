@@ -23,8 +23,6 @@ import AdminReservationsView from "@/components/admin/AdminReservationsView";
 import DealerApprovalsView from "@/components/admin/DealerApprovalsView";
 import AllocationMilestonesView from "@/components/admin/AllocationMilestonesView";
 import AuditExportView from "@/components/admin/AuditExportView";
-import UserManagementView from "@/components/admin/UserManagementView";
-import RolesPermissionsView from "@/components/admin/RolesPermissionsView";
 import AdminPricingConfigView from "@/components/admin/AdminPricingConfigView";
 import PlatformSettingsView from "@/components/settings/PlatformSettingsView";
 import ProgrammeUserPortalView from "@/components/programme/ProgrammeUserPortalView";
