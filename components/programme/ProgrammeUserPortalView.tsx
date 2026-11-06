@@ -8,9 +8,10 @@ import { useAuth } from "@/lib/auth-context";
 import { calculateLandedPrice } from "@/lib/pricing-calculator";
 import { audio } from "@/lib/sound";
 import { Vehicle, Order, ZoneId } from "@/lib/types";
+import { MOCK_VEHICLES } from "@/lib/mock-data";
 import StatusBadge from "@/components/common/StatusBadge";
 import Pagination from "@/components/common/Pagination";
-import { getVehiclePriorityScore } from "@/lib/vehicle-priority";
+import { getVehiclePriorityScore, getDealerReservationLabel } from "@/lib/vehicle-priority";
 import FullPageVehicleDetail from "@/components/dealer/FullPageVehicleDetail";
 import FullPageOrderDetail from "@/components/programme/FullPageOrderDetail";
 import {
@@ -27,7 +28,14 @@ import {
   Check,
   Copy,
   ChevronRight,
+  ChevronDown,
   ExternalLink,
+  LayoutGrid,
+  List,
+  RotateCcw,
+  ArrowUpRight,
+  Wrench,
+  MapPin,
 } from "lucide-react";
 
 interface ProgrammeUserPortalViewProps {
@@ -49,7 +57,18 @@ export default function ProgrammeUserPortalView({
 }: ProgrammeUserPortalViewProps) {
   const router = useRouter();
   const { currentUser, currentDealer } = useAuth();
-  const { vehicles, reservations, orders, updateVehicle, setVehicleStatus } = useProgramme();
+  const { vehicles: rawVehicles, reservations, orders, updateVehicle, setVehicleStatus } = useProgramme();
+
+  // Guarantee transparent studio PNG cutouts from MOCK_VEHICLES always take precedence
+  const vehicles = useMemo(() => {
+    return rawVehicles.map((v) => {
+      const mock = MOCK_VEHICLES.find((m) => m.id === v.id);
+      return {
+        ...v,
+        images: mock?.images || v.images,
+      };
+    });
+  }, [rawVehicles]);
 
   const [activeTab, setActiveTab] = useState<"stock" | "reservations" | "orders">(
     initialSubTab
@@ -57,11 +76,59 @@ export default function ProgrammeUserPortalView({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedZone, setSelectedZone] = useState<ZoneId>("ZONE_1");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [selectedModel, setSelectedModel] = useState<string>("ALL");
+
+  // Layout View Mode (Grid vs List) with Smooth Transition (same as /dealer/stocks)
+  const [viewMode, setViewMode] = useState<"GRID" | "LIST">("GRID");
+
   const [viewingVehicle, setViewingVehicle] = useState<Vehicle | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [viewingFromTab, setViewingFromTab] = useState<"stock" | "reservations" | "orders">(initialSubTab);
   const [copiedVin, setCopiedVin] = useState(false);
   const [now] = useState(() => Date.now());
+
+  // Model Counts for Selector
+  const modelStats = useMemo(() => {
+    const list = [
+      { key: "ALL", name: "All Models", count: 0 },
+      { key: "Note", name: "Note e-Power", count: 0 },
+      { key: "Leaf", name: "Leaf (EV)", count: 0 },
+      { key: "X-Trail", name: "X-Trail", count: 0 },
+      { key: "Serena", name: "Serena e-Power", count: 0 },
+      { key: "Kicks", name: "Kicks e-Power", count: 0 },
+      { key: "Dayz", name: "Dayz Kei", count: 0 },
+      { key: "Elgrand", name: "Elgrand VIP", count: 0 },
+      { key: "Navara", name: "Navara 4WD Ute", count: 0 },
+      { key: "Ariya", name: "Ariya (EV)", count: 0 },
+    ];
+
+    vehicles.forEach((v) => {
+      list[0].count++;
+      list.slice(1).forEach((item) => {
+        if (v.model.toLowerCase().includes(item.key.toLowerCase())) {
+          item.count++;
+        }
+      });
+    });
+
+    return list;
+  }, [vehicles]);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (searchQuery) count++;
+    if (statusFilter !== "ALL") count++;
+    if (selectedModel !== "ALL") count++;
+    return count;
+  }, [searchQuery, statusFilter, selectedModel]);
+
+  const handleResetFilters = () => {
+    audio.playSubtleClick();
+    setSearchQuery("");
+    setStatusFilter("ALL");
+    setSelectedModel("ALL");
+    setCatalogPage(1);
+  };
 
   // Initialize viewing vehicle or order if passed as props
   useEffect(() => {
@@ -91,6 +158,13 @@ export default function ProgrammeUserPortalView({
     router.push(`/programme/${tabId}`);
   };
 
+  const handleOpenVehicleDetails = (vehicle: Vehicle) => {
+    audio.playSubtleClick();
+    setViewingFromTab("stock");
+    setViewingVehicle(vehicle);
+    router.push(`/programme/vehicles/${vehicle.id}`);
+  };
+
   // Executive Metric Counts
   const availableVehicles = useMemo(() => vehicles.filter((v) => v.status === "AVAILABLE"), [vehicles]);
   const activeHolds = useMemo(() => reservations.filter((r) => r.status === "ACTIVE_HOLD"), [reservations]);
@@ -101,7 +175,7 @@ export default function ProgrammeUserPortalView({
     [activeHolds]
   );
 
-  // Filtered Vehicles
+  // Filtered Vehicles (Programme Oversight: search, status, model & priority sorted)
   const filteredVehicles = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return vehicles
@@ -112,19 +186,28 @@ export default function ProgrammeUserPortalView({
           v.model.toLowerCase().includes(q) ||
           v.make.toLowerCase().includes(q) ||
           v.vinChassis.toLowerCase().includes(q) ||
-          v.color.toLowerCase().includes(q);
+          v.color.toLowerCase().includes(q) ||
+          String(v.year).includes(q) ||
+          (v.grade && v.grade.toLowerCase().includes(q)) ||
+          (v.auctionGrade && v.auctionGrade.toLowerCase().includes(q));
+
         const matchStatus = statusFilter === "ALL" || v.status === statusFilter;
-        return matchSearch && matchStatus;
+        const matchModel =
+          selectedModel === "ALL" ||
+          v.model.toLowerCase().includes(selectedModel.toLowerCase());
+
+        return matchSearch && matchStatus && matchModel;
       })
       .sort((a, b) => {
-        const priorityA = getVehiclePriorityScore(a, currentDealer?.id, false);
-        const priorityB = getVehiclePriorityScore(b, currentDealer?.id, false);
+        // Programme role prioritizes remediation costs, reserved, allocated, available
+        const priorityA = getVehiclePriorityScore(a, undefined, true);
+        const priorityB = getVehiclePriorityScore(b, undefined, true);
         if (priorityA !== priorityB) {
           return priorityA - priorityB;
         }
         return a.fobPriceJPY - b.fobPriceJPY;
       });
-  }, [vehicles, searchQuery, statusFilter, currentDealer?.id]);
+  }, [vehicles, searchQuery, statusFilter, selectedModel]);
 
   // Filtered Holds
   const filteredHolds = useMemo(() => {
@@ -163,7 +246,7 @@ export default function ProgrammeUserPortalView({
 
   useEffect(() => {
     setCatalogPage(1);
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery, statusFilter, selectedModel, selectedZone]);
 
   useEffect(() => {
     setHoldsPage(1);
@@ -256,8 +339,47 @@ export default function ProgrammeUserPortalView({
   }
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto font-sans text-slate-800 pb-16">
+    <div className="space-y-5 max-w-7xl mx-auto font-sans text-slate-800 pb-16 animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
+      {/* 1. Header: Clean Title & Subtitle + Total Stocks Text       */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-[16px] border border-slate-200 p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
+              {activeTab === "stock"
+                ? "Authorised Programme Stock"
+                : activeTab === "reservations"
+                ? "Exclusivity Reservations Queue"
+                : "Wholesale Logistics & Orders"}
+            </h1>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+              <ShieldCheck className="w-3 h-3 text-slate-500" />
+              <span>NSC Programme Governance</span>
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            {activeTab === "stock"
+              ? "Centralised Japanese export allocation pipeline, condition grades, FOB acquisition baselines, and landed pricing across New Zealand delivery zones."
+              : activeTab === "reservations"
+              ? "Live 24-hour exclusivity reservations placed across New Zealand authorized franchise dealerships."
+              : "Live ocean shipment tracking, RoRo transit, customs inspection, and inland compliance milestones."}
+          </p>
+        </div>
+
+        <div className="text-xs sm:text-sm font-medium text-slate-500 self-start sm:self-auto shrink-0">
+          {activeTab === "stock" && (
+            <span>Total Units - ( <strong className="font-semibold text-slate-900 font-mono">{filteredVehicles.length}</strong> )</span>
+          )}
+          {activeTab === "reservations" && (
+            <span>Active Holds - ( <strong className="font-semibold text-slate-900 font-mono">{filteredHolds.length}</strong> )</span>
+          )}
+          {activeTab === "orders" && (
+            <span>Corridor Orders - ( <strong className="font-semibold text-slate-900 font-mono">{filteredOrders.length}</strong> )</span>
+          )}
+        </div>
+      </div>
+
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2. Executive 4-KPI Metric Strip: Total Vehicles, Available Stock, Reserved, Active Orders */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -366,184 +488,521 @@ export default function ProgrammeUserPortalView({
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* 3. TAB 1: Stock Catalogue (Clean, Spacious 5 Columns)       */}
+      {/* 3. TAB 1: Stock Catalogue (Grid & List Layouts - Programme Role POV) */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === "stock" && (
-        <div className="bg-white rounded-[16px] border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-          {/* Subheader Toolbar */}
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight">
-                Authorised Central Vehicle Stock
-              </span>
-              <span className="text-[11px] font-mono text-slate-400">
-                · {filteredVehicles.length} of {vehicles.length} Units Listed
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* Status Filter Dropdown */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Status:</span>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => {
-                    audio.playSubtleClick();
-                    setStatusFilter(e.target.value);
-                  }}
-                  className="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] cursor-pointer shadow-2xs"
-                >
-                  <option value="ALL">ALL</option>
-                  <option value="AVAILABLE">AVAILABLE</option>
-                  <option value="RESERVED">RESERVED</option>
-                  <option value="ALLOCATED">ALLOCATED</option>
-                </select>
-              </div>
-
-              {/* Pricing Zone Selector */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-[11px] font-medium text-slate-400 hidden sm:inline">Pricing:</span>
-                <select
-                  value={selectedZone}
-                  onChange={(e) => setSelectedZone(e.target.value as ZoneId)}
-                  className="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] cursor-pointer shadow-2xs"
-                >
-                  <option value="ZONE_1">Zone 1 (Auckland Metro)</option>
-                  <option value="ZONE_2">Zone 2 (Upper North Island)</option>
-                  <option value="ZONE_3">Zone 3 (Central North Island)</option>
-                  <option value="ZONE_4">Zone 4 (Wellington &amp; South)</option>
-                  <option value="ZONE_5">Zone 5 (South Island)</option>
-                </select>
-              </div>
-
+        <div className="space-y-5">
+          {/* Controls Bar: Search + Model + Status + Pricing Zone + Reset + Layout Toggle */}
+          <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               {/* Search Box */}
-              <div className="relative min-w-[200px] flex-1 sm:flex-none">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search make, model, stock ID..."
-                  className="w-full pl-9 pr-8 py-1.5 text-xs bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#0A0A0A] focus:border-[#0A0A0A] font-sans shadow-2xs transition-colors"
+                  placeholder="Search Note, Leaf, X-Trail, Serena, VIN, Stock ID..."
+                  className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 font-normal transition-all shadow-2xs"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+                    title="Clear search"
                   >
-                    ✕
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
+              </div>
+
+              {/* Controls: Model + Status + Zone + Reset + Layout Toggle */}
+              <div className="flex items-center flex-wrap gap-2.5">
+                {/* Models Dropdown Selector */}
+                <div className="relative">
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => {
+                      audio.playSubtleClick();
+                      setSelectedModel(e.target.value);
+                    }}
+                    aria-label="Filter by Model"
+                    className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                  >
+                    <option value="ALL">All Models ({modelStats[0]?.count || 0})</option>
+                    {modelStats.slice(1).map((item) => (
+                      <option key={item.key} value={item.key}>
+                        {item.name} ({item.count})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                </div>
+
+                {/* Status Dropdown Selector */}
+                <div className="relative">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => {
+                      audio.playSubtleClick();
+                      setStatusFilter(e.target.value);
+                    }}
+                    aria-label="Filter by Status"
+                    className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                  >
+                    <option value="ALL">All Statuses</option>
+                    <option value="AVAILABLE">Available</option>
+                    <option value="RESERVED">Reserved</option>
+                    <option value="ALLOCATED">Allocated</option>
+                    <option value="BUYED">Buyed</option>
+                    <option value="SOLD">Sold</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                </div>
+
+                {/* Pricing Zone Selector (Programme Role View) */}
+                <div className="relative">
+                  <select
+                    value={selectedZone}
+                    onChange={(e) => {
+                      audio.playSubtleClick();
+                      setSelectedZone(e.target.value as ZoneId);
+                    }}
+                    aria-label="Delivery Pricing Zone"
+                    className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                  >
+                    <option value="ZONE_1">Zone 1 · Auckland Metro</option>
+                    <option value="ZONE_2">Zone 2 · Upper North Island</option>
+                    <option value="ZONE_3">Zone 3 · Central North Island</option>
+                    <option value="ZONE_4">Zone 4 · Wellington &amp; South</option>
+                    <option value="ZONE_5">Zone 5 · South Island</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                </div>
+
+                {/* Reset Button */}
+                {activeFiltersCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1.5"
+                    title="Reset filters"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reset</span>
+                  </button>
+                )}
+
+                {/* Grid vs List Layout Toggle (same as /dealer/stocks) */}
+                <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setViewMode("GRID");
+                    }}
+                    title="Grid View"
+                    aria-label="Grid View"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      viewMode === "GRID"
+                        ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
+                        : "text-slate-500 hover:text-slate-900"
+                    }`}
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span>Grid</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      audio.playSubtleClick();
+                      setViewMode("LIST");
+                    }}
+                    title="List View"
+                    aria-label="List View"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
+                      viewMode === "LIST"
+                        ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
+                        : "text-slate-500 hover:text-slate-900"
+                    }`}
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span>List</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="overflow-x-auto touch-scroll navy-scrollbar">
-            <table className="w-full text-left text-xs text-slate-700 min-w-[760px]">
-              <thead className="bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
-                <tr>
-                  <th className="py-3 px-5 font-bold text-slate-700">Vehicle</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Stock ID</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Grade</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Mileage</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Landed Price</th>
-                  <th className="py-3 px-5 font-bold text-slate-700">Status</th>
-                  <th className="py-3 px-5 font-bold text-slate-700 text-right">Dossier</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-sans">
-                {filteredVehicles.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400">
-                      No vehicles found matching current criteria.
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedVehicles.map((vehicle) => {
-                    const price = calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
-                    return (
-                      <tr
-                        key={vehicle.id}
-                        onClick={() => {
-                          audio.playSubtleClick();
-                          setViewingFromTab("stock");
-                          setViewingVehicle(vehicle);
-                          router.push(`/programme/vehicles/${vehicle.id}`);
-                        }}
-                        className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
-                      >
-                        {/* 1. Vehicle */}
-                        <td className="py-3.5 px-5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
-                              <img
-                                src={vehicle.images?.[0] || "/images/cars/note.png"}
-                                alt={vehicle.model}
-                                className="w-full h-full object-contain group-hover:scale-105 transition-transform"
-                              />
-                            </div>
-                            <span className="font-bold text-slate-900 group-hover:text-[#C3002F] transition-colors text-xs sm:text-sm whitespace-nowrap">
-                              {vehicle.year} {vehicle.make} {vehicle.model}
-                            </span>
-                          </div>
-                        </td>
+          {/* Empty State */}
+          {filteredVehicles.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+              <Car className="w-12 h-12 text-slate-300 mx-auto" />
+              <h3 className="font-bold text-base text-slate-900">No vehicles match your search filters</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try adjusting your model selector, status filter, or clearing the search query.
+              </p>
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="mt-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          ) : viewMode === "GRID" ? (
+            /* ───────────────────────────────────────────────────────── */
+            /* 3A. GRID LAYOUT: Luxury Automotive Showcase (Programme POV) */
+            /* ───────────────────────────────────────────────────────── */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-4 min-[2200px]:grid-cols-5 gap-5 sm:gap-6 animate-in fade-in duration-300">
+              {paginatedVehicles.map((vehicle) => {
+                const price = calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
+                const isAvailable = vehicle.status === "AVAILABLE";
+                const vCosts = vehicle.additionalCosts || [];
+                const hasAdditionalCost = vCosts.length > 0;
+                const allCostsTotal = vCosts.reduce((s, c) => s + c.amountNZD, 0);
+                const displayPriceNZD = price.totalBuyPriceNZD + allCostsTotal;
 
-                        {/* 2. Stock ID */}
-                        <td className="py-3.5 px-5 whitespace-nowrap">
-                          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                            #{vehicle.stockId}
-                          </span>
-                        </td>
-
-                        {/* 3. Grade */}
-                        <td className="py-3.5 px-5 whitespace-nowrap">
-                          <span className="font-mono text-xs font-bold text-slate-800">
-                            Grade {vehicle.grade || vehicle.auctionGrade || "4.5"}
-                          </span>
-                        </td>
-
-                        {/* 4. Mileage */}
-                        <td className="py-3.5 px-5 font-mono text-xs font-medium text-slate-600 whitespace-nowrap">
-                          {vehicle.odometerKm.toLocaleString()} km
-                        </td>
-
-                        {/* 5. Landed Price */}
-                        <td className="py-3.5 px-5 whitespace-nowrap">
-                          <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm">
-                            ${price.totalBuyPriceNZD.toLocaleString()} NZD
-                          </span>
-                        </td>
-
-                        {/* 6. Catalogue Status */}
-                        <td className="py-3.5 px-5 whitespace-nowrap">
-                          <StatusBadge status={vehicle.status} size="sm" />
-                        </td>
-
-                        {/* 7. Dossier Action */}
-                        <td className="py-3.5 px-5 text-right whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              audio.playSubtleClick();
-                              setViewingFromTab("stock");
-                              setViewingVehicle(vehicle);
-                              router.push(`/programme/vehicles/${vehicle.id}`);
-                            }}
-                            className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                return (
+                  <div
+                    key={vehicle.id}
+                    onClick={() => handleOpenVehicleDetails(vehicle)}
+                    className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer p-6 sm:p-7 relative overflow-hidden"
+                  >
+                    <div>
+                      {/* Card Top Row: Vehicle Make & Model + Details, Arrow on Right */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base font-bold text-slate-900 group-hover:text-black transition-colors leading-snug truncate">
+                            {vehicle.make} - {vehicle.model}
+                          </h3>
+                          <p className="text-[12px] text-slate-400 mt-1">
+                            {vehicle.year} · {vehicle.fuelType} · Grade {vehicle.auctionGrade || vehicle.grade || "4.5"}
+                          </p>
+                        </div>
+                        <div className="flex items-center shrink-0">
+                          <div
+                            className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#0A0A0A] text-slate-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0"
+                            title="Inspect Vehicle Dossier"
                           >
-                            <Eye className="w-3.5 h-3.5 text-slate-500" />
-                            <span>View Spec</span>
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card Center: Floating Studio Car with Floor Shadow */}
+                      <div className="relative w-full h-44 sm:h-52 my-3 flex items-center justify-center">
+                        <div className="absolute bottom-2.5 w-4/5 h-3.5 bg-black/15 rounded-[50%] blur-md pointer-events-none transform scale-y-50" />
+
+                        <img
+                          src={vehicle.images?.[0] || "/images/cars/kicks.png"}
+                          alt={`${vehicle.make} ${vehicle.model}`}
+                          className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_12px_16px_rgba(0,0,0,0.12)] group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 ease-out select-none"
+                        />
+
+                        {/* Priority & Status Badges */}
+                        <div className="absolute bottom-1 z-20 flex items-center gap-1.5 flex-wrap justify-center px-2 animate-in fade-in max-w-full">
+                          {hasAdditionalCost && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50/95 text-rose-900 border border-rose-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                              <Wrench className="w-3 h-3 text-rose-600 shrink-0" />
+                              <span>Additional Cost (+${allCostsTotal.toLocaleString()} NZD)</span>
+                            </span>
+                          )}
+                          {vehicle.status === "BUYED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/95 text-emerald-900 border border-emerald-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span>Buyed</span>
+                            </span>
+                          )}
+                          {vehicle.status === "SOLD" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100/95 text-slate-800 border border-slate-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                              <CheckCircle2 className="w-3 h-3 text-slate-500 shrink-0" />
+                              <span>Sold</span>
+                            </span>
+                          )}
+                          {vehicle.status === "ALLOCATED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50/95 text-sky-900 border border-sky-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                              <Ship className="w-3 h-3 text-sky-600 shrink-0" />
+                              <span>Allocated</span>
+                            </span>
+                          )}
+                          {vehicle.status === "RESERVED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50/95 text-amber-900 border border-amber-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                              <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+                              <span>{getDealerReservationLabel(vehicle.reservedByDealerId, true)}</span>
+                            </span>
+                          )}
+                          {isAvailable && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/95 text-emerald-900 border border-emerald-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span>Available for Allocation</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Programme Technical & Identification Grid */}
+                      <div className="grid grid-cols-2 gap-2 pt-2.5 pb-1 border-t border-slate-100 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-slate-600 font-mono truncate">
+                          <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">VIN:</span>
+                          <span className="font-semibold text-slate-800 truncate">{vehicle.vinChassis}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-600 font-mono justify-end truncate">
+                          <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">Stock:</span>
+                          <span className="font-semibold text-slate-800">#{vehicle.stockId}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-600 font-mono truncate">
+                          <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">Odo:</span>
+                          <span className="font-semibold text-slate-800">{vehicle.odometerKm.toLocaleString()} km</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-600 justify-end truncate">
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="text-slate-500 text-[10px] truncate">{vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Bottom: Landed Price + Baseline FOB + Action Button */}
+                    <div className="pt-3.5 mt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <div>
+                        <span className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight block leading-tight font-mono">
+                          ${displayPriceNZD.toLocaleString()}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
+                          NZD Landed ({selectedZone.replace("_", " ")}) · FOB ¥{vehicle.fobPriceJPY.toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenVehicleDetails(vehicle);
+                          }}
+                          className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                          title="Inspect Vehicle Dossier & Condition Report"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-300" />
+                          <span>Inspect</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* ───────────────────────────────────────────────────────── */
+            /* 3B. LIST LAYOUT: Luxury Automotive Rows (Programme POV)   */
+            /* ───────────────────────────────────────────────────────── */
+            <div className="space-y-4 animate-in fade-in duration-300">
+              {paginatedVehicles.map((vehicle) => {
+                const price = calculateLandedPrice(vehicle.fobPriceJPY, selectedZone);
+                const isAvailable = vehicle.status === "AVAILABLE";
+                const vCosts = vehicle.additionalCosts || [];
+                const hasAdditionalCost = vCosts.length > 0;
+                const allCostsTotal = vCosts.reduce((s, c) => s + c.amountNZD, 0);
+                const displayPriceNZD = price.totalBuyPriceNZD + allCostsTotal;
+
+                return (
+                  <div
+                    key={vehicle.id}
+                    onClick={() => handleOpenVehicleDetails(vehicle)}
+                    className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] transition-all duration-300 p-5 sm:p-6 flex flex-col md:flex-row items-stretch md:items-center gap-6 group cursor-pointer"
+                  >
+                    {/* Left: Floating Cutout Thumbnail */}
+                    <div className="relative w-full md:w-56 h-36 flex items-center justify-center shrink-0">
+                      <div className="absolute bottom-2 w-4/5 h-3 bg-black/15 rounded-[50%] blur-sm pointer-events-none transform scale-y-50" />
+                      <img
+                        src={vehicle.images?.[0] || "/images/cars/kicks.png"}
+                        alt={`${vehicle.make} ${vehicle.model}`}
+                        className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.12)] group-hover:scale-105 transition-transform duration-300 ease-out select-none"
+                      />
+
+                      {/* Overlaid Badges */}
+                      <div className="absolute bottom-1 z-20 px-2 py-0.5 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs font-semibold text-[9px] flex items-center gap-1.5 flex-wrap justify-center backdrop-blur-md">
+                        {hasAdditionalCost && (
+                          <span className="inline-flex items-center gap-0.5 text-rose-800">
+                            <Wrench className="w-2.5 h-2.5 text-rose-600" />
+                            <span>+Cost</span>
+                          </span>
+                        )}
+                        {vehicle.status === "BUYED" && (
+                          <span className="inline-flex items-center gap-0.5 text-emerald-800">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                            <span>Buyed</span>
+                          </span>
+                        )}
+                        {vehicle.status === "SOLD" && (
+                          <span className="inline-flex items-center gap-0.5 text-slate-700">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-slate-500" />
+                            <span>Sold</span>
+                          </span>
+                        )}
+                        {vehicle.status === "ALLOCATED" && (
+                          <span className="inline-flex items-center gap-0.5 text-sky-800">
+                            <Ship className="w-2.5 h-2.5 text-sky-600" />
+                            <span>Allocated</span>
+                          </span>
+                        )}
+                        {vehicle.status === "RESERVED" && (
+                          <span className="inline-flex items-center gap-0.5 text-amber-800">
+                            <Lock className="w-2.5 h-2.5 text-amber-600" />
+                            <span>{getDealerReservationLabel(vehicle.reservedByDealerId, true)}</span>
+                          </span>
+                        )}
+                        {isAvailable && (
+                          <span className="inline-flex items-center gap-0.5 text-emerald-800">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                            <span>Available</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Middle: Clean Info Block & 4 Columns */}
+                    <div className="flex-1 min-w-0 space-y-3">
+                      <div className="flex items-center justify-between text-xs text-slate-400">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-slate-600">
+                            {vehicle.year} · {vehicle.fuelType} · #{vehicle.stockId}
+                          </span>
+                          <span className="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200/80 font-semibold">
+                            VIN: {vehicle.vinChassis}
+                          </span>
+                          {hasAdditionalCost && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200/90">
+                              <Wrench className="w-2.5 h-2.5 text-rose-600" />
+                              <span>Additional Cost (+${allCostsTotal.toLocaleString()} NZD)</span>
+                            </span>
+                          )}
+                          {vehicle.status === "BUYED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90">
+                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>Buyed</span>
+                            </span>
+                          )}
+                          {vehicle.status === "SOLD" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/90">
+                              <CheckCircle2 className="w-2.5 h-2.5 text-slate-500" />
+                              <span>Sold</span>
+                            </span>
+                          )}
+                          {vehicle.status === "ALLOCATED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-sky-50 text-sky-800 border border-sky-200/90">
+                              <Ship className="w-2.5 h-2.5 text-sky-600" />
+                              <span>Allocated</span>
+                            </span>
+                          )}
+                          {vehicle.status === "RESERVED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-900 border border-amber-200/90">
+                              <Lock className="w-2.5 h-2.5 text-amber-600" />
+                              <span>{getDealerReservationLabel(vehicle.reservedByDealerId, true)}</span>
+                            </span>
+                          )}
+                          {isAvailable && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90">
+                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>Available</span>
+                            </span>
+                          )}
+                        </div>
+                        <span className="flex items-center gap-1 text-slate-400 text-xs shrink-0">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          <span>{vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}</span>
+                        </span>
+                      </div>
+
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-black transition-colors truncate">
+                        {vehicle.make} {vehicle.model}
+                      </h3>
+
+                      {/* 4-Column Specifications in List View */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 border-t border-slate-100 max-w-xl">
+                        <div>
+                          <span className="text-sm font-mono font-bold text-slate-900 block leading-tight">
+                            {vehicle.odometerKm.toLocaleString()} km
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
+                            Odometer
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm font-mono font-bold text-slate-900 block leading-tight">
+                            ★ {vehicle.auctionGrade || vehicle.grade || "4.5"} / {vehicle.interiorGrade || "A"}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
+                            Auction Grade
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm font-mono font-bold text-slate-800 block leading-tight truncate">
+                            {vehicle.transmission || "Automatic"}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
+                            Transmission
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm font-mono font-bold text-slate-800 block leading-tight truncate">
+                            {vehicle.fuelType || "Hybrid"}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mt-0.5">
+                            Powertrain
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Landed Price & Quick Actions */}
+                    <div className="w-full md:w-56 shrink-0 md:border-l md:border-slate-100 md:pl-6 flex flex-col justify-between space-y-3">
+                      <div>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+                          Wholesale Landed ({selectedZone.replace("_", " ")})
+                        </span>
+                        <div className="text-xl font-bold text-slate-900 font-mono tracking-tight mt-0.5">
+                          ${displayPriceNZD.toLocaleString()}
+                          <span className="text-xs text-slate-500 font-normal ml-1">NZD</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                          FOB ¥{vehicle.fobPriceJPY.toLocaleString()} JPY
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenVehicleDetails(vehicle);
+                          }}
+                          className="py-2 px-2.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <span>Specs</span>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenVehicleDetails(vehicle);
+                          }}
+                          className="py-2 px-3.5 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs bg-[#0A0A0A] hover:bg-[#27272A] text-white"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-300" />
+                          <span>Inspect Dossier</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Catalog Pagination (10 max entries per page) */}
           <Pagination

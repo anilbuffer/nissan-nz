@@ -19,6 +19,7 @@ export type SpecTabId = "provenance" | "powertrain" | "compliance" | "listing";
 export interface VehicleSpecificationsTabsProps {
   vehicle: Vehicle;
   isAdmin?: boolean;
+  isProgramme?: boolean;
   copiedVin?: boolean;
   onCopyVin?: (e?: any) => void;
   className?: string;
@@ -56,6 +57,7 @@ const TABS: TabConfig[] = [
 export default function VehicleSpecificationsTabs({
   vehicle,
   isAdmin = false,
+  isProgramme = false,
   copiedVin: externalCopiedVin,
   onCopyVin: externalOnCopyVin,
   className = "",
@@ -389,7 +391,7 @@ export default function VehicleSpecificationsTabs({
                 <div className="flex items-center justify-between py-2">
                   <span className="text-slate-500">Pricing Basis:</span>
                   <span className="font-mono text-slate-800 font-bold text-[11px]">
-                    {isAdmin
+                    {isAdmin || isProgramme
                       ? `${vehicle.purchasePriceBasis || "FOB"} (${vehicle.currency || "JPY"})`
                       : "Wholesale Landed (NZD)"}
                   </span>
