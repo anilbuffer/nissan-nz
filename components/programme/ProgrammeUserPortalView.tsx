@@ -212,6 +212,9 @@ export default function ProgrammeUserPortalView({
   const filteredHolds = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return reservations.filter((r) => {
+      if (statusFilter !== "ALL" && r.vehicle?.status !== statusFilter && r.status !== statusFilter) {
+        return false;
+      }
       if (!q) return true;
       return (
         r.dealerName?.toLowerCase().includes(q) ||
@@ -220,12 +223,15 @@ export default function ProgrammeUserPortalView({
         r.vehicleId.toLowerCase().includes(q)
       );
     });
-  }, [reservations, searchQuery]);
+  }, [reservations, searchQuery, statusFilter]);
 
   // Filtered Orders
   const filteredOrders = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return orders.filter((o) => {
+      if (statusFilter !== "ALL" && o.vehicle?.status !== statusFilter) {
+        return false;
+      }
       if (!q) return true;
       return (
         o.orderNumber.toLowerCase().includes(q) ||
@@ -235,7 +241,7 @@ export default function ProgrammeUserPortalView({
         o.currentMilestone.toLowerCase().includes(q)
       );
     });
-  }, [orders, searchQuery]);
+  }, [orders, searchQuery, statusFilter]);
 
   // Listings Pagination (10 entries max per page)
   const ITEMS_PER_PAGE = 10;
@@ -250,7 +256,7 @@ export default function ProgrammeUserPortalView({
   useEffect(() => {
     setHoldsPage(1);
     setOrdersPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, statusFilter]);
 
   const totalCatalogPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE) || 1;
   const paginatedVehicles = useMemo(() => {
@@ -877,9 +883,29 @@ export default function ProgrammeUserPortalView({
                 · {filteredHolds.length} Active Records
               </span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center flex-wrap gap-2.5">
+              <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs hidden lg:block">
                 Total Hold Value: <strong>${totalHoldValue.toLocaleString()} NZD</strong>
+              </div>
+              {/* Status Dropdown Selector */}
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    audio.playSubtleClick();
+                    setStatusFilter(e.target.value);
+                  }}
+                  aria-label="Filter by Status"
+                  className="appearance-none pl-3.5 pr-8 py-1.5 text-xs bg-white hover:bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="RESERVED">Reserved</option>
+                  <option value="ALLOCATED">Allocated</option>
+                  <option value="BUYED">Buyed</option>
+                  <option value="SOLD">Sold</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2 pointer-events-none" />
               </div>
               <div className="relative min-w-[200px]">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -900,6 +926,21 @@ export default function ProgrammeUserPortalView({
                   </button>
                 )}
               </div>
+              {(searchQuery || statusFilter !== "ALL") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    audio.playSubtleClick();
+                    setSearchQuery("");
+                    setStatusFilter("ALL");
+                  }}
+                  className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1"
+                  title="Reset filters"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1036,9 +1077,29 @@ export default function ProgrammeUserPortalView({
                 · {filteredOrders.length} Shipments Recorded
               </span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center flex-wrap gap-2.5">
+              <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs hidden lg:block">
                 Active In-Transit: <strong>{activeOrders.length}</strong>
+              </div>
+              {/* Status Dropdown Selector */}
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    audio.playSubtleClick();
+                    setStatusFilter(e.target.value);
+                  }}
+                  aria-label="Filter by Status"
+                  className="appearance-none pl-3.5 pr-8 py-1.5 text-xs bg-white hover:bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="RESERVED">Reserved</option>
+                  <option value="ALLOCATED">Allocated</option>
+                  <option value="BUYED">Buyed</option>
+                  <option value="SOLD">Sold</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2 pointer-events-none" />
               </div>
               <div className="relative min-w-[200px]">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1059,6 +1120,21 @@ export default function ProgrammeUserPortalView({
                   </button>
                 )}
               </div>
+              {(searchQuery || statusFilter !== "ALL") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    audio.playSubtleClick();
+                    setSearchQuery("");
+                    setStatusFilter("ALL");
+                  }}
+                  className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1"
+                  title="Reset filters"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
           </div>
 

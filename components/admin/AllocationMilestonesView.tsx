@@ -43,6 +43,7 @@ import {
   ShieldCheck,
   RotateCcw,
   Truck,
+  ChevronDown,
 } from "lucide-react";
 
 const MILESTONE_SEQUENCE: { key: OrderMilestone; label: string }[] = [
@@ -89,6 +90,7 @@ export default function AllocationMilestonesView({
   const [notification, setNotification] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [milestoneFilter, setMilestoneFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [copiedVin, setCopiedVin] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [activeDocPreview, setActiveDocPreview] = useState<{
@@ -134,6 +136,10 @@ export default function AllocationMilestonesView({
       return order.currentMilestone === "READY_FOR_DELIVERY" || order.currentMilestone === "DELIVERED";
     }
 
+    if (statusFilter !== "ALL" && order.vehicle?.status !== statusFilter) {
+      return false;
+    }
+
     return true;
   });
 
@@ -143,7 +149,7 @@ export default function AllocationMilestonesView({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, milestoneFilter]);
+  }, [searchQuery, milestoneFilter, statusFilter]);
 
   const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1;
   const paginatedOrders = useMemo(() => {
@@ -1020,6 +1026,27 @@ export default function AllocationMilestonesView({
                 )}
               </div>
 
+              {/* Status Dropdown Selector */}
+              <div className="relative shrink-0">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    audio.playSubtleClick();
+                    setStatusFilter(e.target.value);
+                  }}
+                  aria-label="Filter by Status"
+                  className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="RESERVED">Reserved</option>
+                  <option value="ALLOCATED">Allocated</option>
+                  <option value="BUYED">Buyed</option>
+                  <option value="SOLD">Sold</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+              </div>
+
               {/* Status / Milestone Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                 {[
@@ -1047,13 +1074,14 @@ export default function AllocationMilestonesView({
               </div>
 
               {/* Reset filter button if any active */}
-              {(searchQuery || milestoneFilter !== "ALL") && (
+              {(searchQuery || milestoneFilter !== "ALL" || statusFilter !== "ALL") && (
                 <button
                   type="button"
                   onClick={() => {
                     audio.playSubtleClick();
                     setSearchQuery("");
                     setMilestoneFilter("ALL");
+                    setStatusFilter("ALL");
                   }}
                   className="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
                 >

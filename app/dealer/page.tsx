@@ -11,7 +11,15 @@ export default function DealerIndexPage() {
 
   useEffect(() => {
     if (!isLoading && currentUser) {
-      router.replace("/dealer/stocks");
+      if (currentUser.role === "DEALER_USER" || currentUser.role === "DEALER_ADMIN") {
+        router.replace("/dealer/stocks");
+      } else if (currentUser.role === "AUTOHUB_ADMIN") {
+        router.replace("/admin/dashboard");
+      } else if (currentUser.role === "NISSAN_JAPAN") {
+        router.replace("/japan/inventory");
+      } else if (currentUser.role === "READONLY_PROGRAMME_USER") {
+        router.replace("/programme/stock");
+      }
     }
   }, [currentUser, isLoading, router]);
 

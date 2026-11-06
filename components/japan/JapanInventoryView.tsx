@@ -17,6 +17,9 @@ import {
   Clock,
   Upload,
   Edit3,
+  ChevronDown,
+  RotateCcw,
+  X,
 } from "lucide-react";
 
 interface JapanInventoryViewProps {
@@ -233,36 +236,60 @@ export default function JapanInventoryView({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stock ID, chassis VIN, or model..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500 transition-all font-medium"
+            className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-500 transition-all font-medium"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80 w-full sm:w-auto overflow-x-auto text-xs">
-          {[
-            { id: "ALL", label: "All Units", count: vehicles.length },
-            { id: "AVAILABLE", label: "Available", count: availableCount },
-            { id: "DRAFT", label: "Draft Intake", count: draftCount },
-            { id: "RESERVED", label: "Reserved", count: reservedCount },
-            { id: "WITHDRAWN", label: "Withdrawn", count: withdrawnCount },
-          ].map((st) => (
+        <div className="flex items-center flex-wrap gap-2.5 w-full sm:w-auto justify-end">
+          {/* Status Dropdown Selector */}
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                audio.playSubtleClick();
+                setStatusFilter(e.target.value);
+              }}
+              aria-label="Filter by Status"
+              className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+            >
+              <option value="ALL">All Statuses ({vehicles.length})</option>
+              <option value="AVAILABLE">Available ({availableCount})</option>
+              <option value="RESERVED">Reserved ({reservedCount})</option>
+              <option value="ALLOCATED">Allocated ({vehicles.filter((v) => v.status === "ALLOCATED").length})</option>
+              <option value="BUYED">Buyed ({vehicles.filter((v) => v.status === "BUYED").length})</option>
+              <option value="SOLD">Sold ({vehicles.filter((v) => v.status === "SOLD").length})</option>
+              <option value="DRAFT">Draft Intake ({draftCount})</option>
+              <option value="WITHDRAWN">Withdrawn ({withdrawnCount})</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+          </div>
+
+          {/* Reset Button */}
+          {(searchQuery || statusFilter !== "ALL") && (
             <button
-              key={st.id}
               type="button"
               onClick={() => {
                 audio.playSubtleClick();
-                setStatusFilter(st.id);
+                setSearchQuery("");
+                setStatusFilter("ALL");
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${statusFilter === st.id
-                ? "bg-white text-slate-900 shadow-2xs font-bold"
-                : "text-slate-500 hover:text-slate-800 font-medium"
-                }`}
+              className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1.5"
+              title="Reset filters"
             >
-              <span>{st.label}</span>
-              <span className="text-[10px] font-mono text-slate-400 font-normal">
-                ({st.count})
-              </span>
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
             </button>
-          ))}
+          )}
         </div>
       </div>
 

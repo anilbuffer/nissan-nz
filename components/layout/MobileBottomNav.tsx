@@ -34,7 +34,7 @@ export default function MobileBottomNav({
   const { currentUser } = useAuth();
 
   const getTabs = () => {
-    if (pathname.startsWith("/admin") || currentUser?.role === "AUTOHUB_ADMIN") {
+    if (currentUser?.role === "AUTOHUB_ADMIN") {
       return [
         {
           id: "admin-dashboard",
@@ -57,7 +57,7 @@ export default function MobileBottomNav({
       ];
     }
 
-    if (pathname.startsWith("/japan") || currentUser?.role === "NISSAN_JAPAN") {
+    if (currentUser?.role === "NISSAN_JAPAN") {
       return [
         {
           id: "japan-inventory",
@@ -80,7 +80,7 @@ export default function MobileBottomNav({
       ];
     }
 
-    if (pathname.startsWith("/programme") || currentUser?.role === "READONLY_PROGRAMME_USER") {
+    if (currentUser?.role === "READONLY_PROGRAMME_USER") {
       return [
         {
           id: "programme-stock",

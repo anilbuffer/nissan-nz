@@ -11,7 +11,15 @@ export default function JapanIndexPage() {
 
   useEffect(() => {
     if (!isLoading && currentUser) {
-      router.replace("/japan/inventory");
+      if (currentUser.role === "NISSAN_JAPAN") {
+        router.replace("/japan/inventory");
+      } else if (currentUser.role === "AUTOHUB_ADMIN") {
+        router.replace("/admin/dashboard");
+      } else if (currentUser.role === "READONLY_PROGRAMME_USER") {
+        router.replace("/programme/stock");
+      } else {
+        router.replace("/dealer/stocks");
+      }
     }
   }, [currentUser, isLoading, router]);
 

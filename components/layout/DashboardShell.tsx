@@ -404,6 +404,32 @@ export default function DashboardShell({
 
   // Determine what view to render based on active tab
   const renderViewContent = () => {
+    // Role Authorization Guard: Verify user has permission to access this portal/module
+    const isAdminRoute = pathname.startsWith("/admin") || portal === "admin";
+    const isJapanRoute = pathname.startsWith("/japan") || portal === "japan";
+    const isProgrammeRoute = pathname.startsWith("/programme") || portal === "programme";
+    const isDealerRoute = pathname.startsWith("/dealer") || portal === "dealer";
+
+    const isUnauthorized =
+      ((currentUser?.role === "DEALER_USER" || currentUser?.role === "DEALER_ADMIN") && (isAdminRoute || isJapanRoute || isProgrammeRoute)) ||
+      (currentUser?.role === "NISSAN_JAPAN" && (isAdminRoute || isDealerRoute || isProgrammeRoute)) ||
+      (currentUser?.role === "READONLY_PROGRAMME_USER" && (isAdminRoute || isDealerRoute || isJapanRoute)) ||
+      (currentUser?.role === "AUTOHUB_ADMIN" && (isDealerRoute || isJapanRoute || isProgrammeRoute));
+
+    if (isUnauthorized) {
+      return (
+        <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-6 space-y-4 animate-in fade-in">
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-[#C3002F] animate-pulse">
+            <ShieldAlert className="w-6 h-6" />
+          </div>
+          <h2 className="text-base sm:text-lg font-bold text-slate-900">Access Restricted</h2>
+          <p className="text-xs text-slate-500 max-w-md">
+            Your current role does not have authorization to access this module. Redirecting you to your authorized portal...
+          </p>
+        </div>
+      );
+    }
+
     // 0. Amend Vehicle Full-Page View (Japan Portal)
     if (activeTab === "japan-amend-vehicle") {
       const targetVehicleId = viewingVehicleId || searchParams?.get("id") || searchParams?.get("vehicleId") || initialVehicleId || "VEH_001";
@@ -706,8 +732,14 @@ export default function DashboardShell({
           searchValue={globalSearch}
           onSearchChange={setGlobalSearch}
           onSearchSubmit={(val) => {
-            if (!pathname.startsWith("/dealer/stocks") && !pathname.startsWith("/admin/catalogue")) {
-              router.push("/dealer/stocks");
+            if (currentUser?.role === "AUTOHUB_ADMIN") {
+              if (!pathname.startsWith("/admin/catalogue")) router.push("/admin/catalogue");
+            } else if (currentUser?.role === "NISSAN_JAPAN") {
+              if (!pathname.startsWith("/japan/inventory")) router.push("/japan/inventory");
+            } else if (currentUser?.role === "READONLY_PROGRAMME_USER") {
+              if (!pathname.startsWith("/programme/stock")) router.push("/programme/stock");
+            } else {
+              if (!pathname.startsWith("/dealer/stocks")) router.push("/dealer/stocks");
             }
           }}
         />

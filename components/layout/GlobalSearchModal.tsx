@@ -102,15 +102,12 @@ export default function GlobalSearchModal({
     audio.playSubtleClick();
     onClose();
 
-    if (pathname.startsWith("/japan") || currentUser?.role === "NISSAN_JAPAN") {
+    if (currentUser?.role === "NISSAN_JAPAN") {
       router.push(`/japan/inventory/${vehicleId}`);
-    } else if (
-      pathname.startsWith("/admin") ||
-      currentUser?.role === "AUTOHUB_ADMIN"
-    ) {
+    } else if (currentUser?.role === "AUTOHUB_ADMIN") {
       router.push(`/admin/vehicles/${vehicleId}`);
-    } else if (currentUser?.role === "READONLY_PROGRAMME_USER" || pathname.startsWith("/programme")) {
-      router.push(`/vehicles/${vehicleId}`);
+    } else if (currentUser?.role === "READONLY_PROGRAMME_USER") {
+      router.push(`/programme/vehicles/${vehicleId}`);
     } else {
       router.push(`/dealer/vehicles/${vehicleId}`);
     }

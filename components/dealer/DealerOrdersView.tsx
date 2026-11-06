@@ -48,6 +48,7 @@ import {
   DollarSign,
   AlertTriangle,
   BadgeCheck,
+  RotateCcw,
 } from "lucide-react";
 
 
@@ -122,6 +123,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   }, [mode]);
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("ALL");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [viewingDocument, setViewingDocument] = useState<{ name: string; type: string; date: string } | null>(null);
   const [viewingDefectPhoto, setViewingDefectPhoto] = useState<boolean>(false);
@@ -161,10 +163,13 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   const selectedOrder =
     dealerOrders.find((o) => o.id === selectedOrderId) || dealerOrders[0];
 
-  // Filtered orders list by search query and milestone
+  // Filtered orders list by search query and status
   const filteredOrders = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return dealerOrders.filter((order) => {
+      if (orderStatusFilter !== "ALL" && order.vehicle.status !== orderStatusFilter) {
+        return false;
+      }
       return (
         !q ||
         order.orderNumber.toLowerCase().includes(q) ||
@@ -174,7 +179,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
         (order.vesselName && order.vesselName.toLowerCase().includes(q))
       );
     });
-  }, [dealerOrders, searchQuery]);
+  }, [dealerOrders, searchQuery, orderStatusFilter]);
 
   // Orders Pagination (10 entries max per page)
   const ORDERS_PER_PAGE = 10;
@@ -182,7 +187,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
 
   useEffect(() => {
     setCurrentOrderPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, orderStatusFilter]);
 
   const totalOrderPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE) || 1;
   const paginatedOrders = useMemo(() => {
@@ -1154,7 +1159,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
             <div className="space-y-6 animate-in fade-in">
               {/* Search & Filter Strip */}
               <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex flex-1 items-center gap-3">
+                <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
@@ -1168,14 +1173,50 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                       <button
                         type="button"
                         onClick={() => setSearchQuery("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
                       >
                         ✕
                       </button>
                     )}
                   </div>
 
+                  {/* Status Dropdown Selector */}
+                  <div className="relative shrink-0">
+                    <select
+                      value={orderStatusFilter}
+                      onChange={(e) => {
+                        audio.playSubtleClick();
+                        setOrderStatusFilter(e.target.value);
+                      }}
+                      aria-label="Filter by Status"
+                      className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+                    >
+                      <option value="ALL">All Statuses</option>
+                      <option value="AVAILABLE">Available</option>
+                      <option value="RESERVED">Reserved</option>
+                      <option value="ALLOCATED">Allocated</option>
+                      <option value="BUYED">Buyed</option>
+                      <option value="SOLD">Sold</option>
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                  </div>
 
+                  {/* Reset Button */}
+                  {(searchQuery || orderStatusFilter !== "ALL") && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audio.playSubtleClick();
+                        setSearchQuery("");
+                        setOrderStatusFilter("ALL");
+                      }}
+                      className="text-xs text-[#C3002F] hover:text-[#A10026] font-bold flex items-center gap-1 cursor-pointer transition-colors px-2 py-1.5 shrink-0"
+                      title="Reset filters"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>Reset</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="text-xs text-slate-500 font-mono shrink-0">

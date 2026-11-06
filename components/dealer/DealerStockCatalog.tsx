@@ -75,6 +75,7 @@ export default function DealerStockCatalog({
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedModel, setSelectedModel] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [dossierVehicle, setDossierVehicle] = useState<Vehicle | null>(null);
 
   // Layout View Mode (Grid vs List) with Smooth Transition
@@ -101,6 +102,7 @@ export default function DealerStockCatalog({
     audio.playSubtleClick();
     setSearchQuery("");
     setSelectedModel("ALL");
+    setStatusFilter("ALL");
     setCurrentPage(1);
   };
 
@@ -108,8 +110,9 @@ export default function DealerStockCatalog({
     let count = 0;
     if (searchQuery) count++;
     if (selectedModel !== "ALL") count++;
+    if (statusFilter !== "ALL") count++;
     return count;
-  }, [searchQuery, selectedModel]);
+  }, [searchQuery, selectedModel, statusFilter]);
 
   // Model Counts for Pills
   const modelStats = useMemo(() => {
@@ -167,6 +170,10 @@ export default function DealerStockCatalog({
           return false;
         }
 
+        if (statusFilter !== "ALL" && v.status !== statusFilter) {
+          return false;
+        }
+
         return true;
       })
       .sort((a, b) => {
@@ -182,12 +189,12 @@ export default function DealerStockCatalog({
         const priceB = calculateLandedPrice(b.fobPriceJPY, dealerZone).totalBuyPriceNZD;
         return priceA - priceB;
       });
-  }, [vehicles, searchQuery, selectedModel, dealerZone, externalSearchQuery, isAdminView, currentDealer?.id]);
+  }, [vehicles, searchQuery, selectedModel, statusFilter, dealerZone, externalSearchQuery, isAdminView, currentDealer?.id]);
 
   // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedModel, externalSearchQuery]);
+  }, [searchQuery, selectedModel, statusFilter, externalSearchQuery]);
 
   // Calculate pagination boundaries
   const totalPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE) || 1;
@@ -286,6 +293,33 @@ export default function DealerStockCatalog({
                     {item.name} ({item.count})
                   </option>
                 ))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+            </div>
+
+            {/* Status Dropdown Selector */}
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  audio.playSubtleClick();
+                  setStatusFilter(e.target.value);
+                }}
+                aria-label="Filter by Status"
+                className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="RESERVED">Reserved</option>
+                <option value="ALLOCATED">Allocated</option>
+                <option value="BUYED">Buyed</option>
+                <option value="SOLD">Sold</option>
+                {isAdminView && (
+                  <>
+                    <option value="DRAFT">Draft Intake</option>
+                    <option value="WITHDRAWN">Withdrawn</option>
+                  </>
+                )}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
             </div>
