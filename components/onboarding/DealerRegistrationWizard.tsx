@@ -555,9 +555,12 @@ export default function DealerRegistrationWizard() {
       {/* ─────────────────────────────────────────────────────────── */}
       {/* LEFT SIDEBAR: Pinned on Desktop, Bottom on Mobile & iPad     */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <aside className="order-2 xl:order-1 relative overflow-hidden w-full xl:w-[380px] xl:sticky xl:top-0 xl:h-screen xl:overflow-y-auto bg-[#000000] border-t xl:border-t-0 xl:border-r border-[#27272A] text-white flex flex-col justify-between p-6 sm:p-8 shrink-0">
-        <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full blur-3xl" />
+      <aside className="order-2 xl:order-1 relative overflow-hidden w-full xl:w-[380px] xl:sticky xl:top-0 xl:h-screen xl:overflow-y-auto bg-[#070B14] border-t xl:border-t-0 xl:border-r border-[#1E293B]/60 text-white flex flex-col justify-between p-6 sm:p-8 shrink-0 select-none">
+        {/* Authentic Background with Subtle Luminous Diagonal Beam (Matching Login) */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+          style={{ backgroundImage: "url('/login-bg.png')" }}
+        />
 
         <div className="relative z-10 space-y-6">
           {/* Brand Header */}
