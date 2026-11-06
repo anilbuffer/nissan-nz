@@ -564,14 +564,14 @@ export default function DealerRegistrationWizard() {
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 flex items-center justify-center shrink-0">
               <img
-                src="/nissan-logo.png"
+                src="/nissan-logo-white.png"
                 alt="Nissan Logo"
                 className="w-10 h-10 object-contain drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
               />
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block leading-tight">
-                Nissan
+                Nissan New Zealand
               </span>
               <h2 className="font-bold text-base text-white tracking-tight leading-tight">
                 {category === "DEALER_NZ"
@@ -663,9 +663,6 @@ export default function DealerRegistrationWizard() {
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Sign In</span>
           </Link>
-          <div className="text-center text-[10px] text-slate-500 font-mono">
-            256-bit Encrypted · Nissan NZ v2026.2
-          </div>
         </div>
       </aside>
 

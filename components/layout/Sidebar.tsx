@@ -285,7 +285,7 @@ export default function Sidebar({
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="w-12 h-12 flex items-center justify-center shrink-0">
                 <img
-                  src="/nissan-logo.png"
+                  src="/nissan-logo-white.png"
                   alt="Nissan Logo"
                   className="w-12 h-12 object-contain filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]"
                 />

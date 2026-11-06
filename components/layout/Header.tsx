@@ -157,7 +157,7 @@ export default function Header({
         {/* Top-Left Nissan Branding (Mobile & Collapsed Desktop/Tablet) */}
         <div className={`flex items-center gap-2.5 shrink-0 ${isSidebarCollapsed ? "md:flex" : "md:hidden"}`}>
           <img
-            src="/nissan-logo.png"
+            src="/nissan-logo-black.png"
             alt="Nissan"
             className="w-7 h-7 object-contain drop-shadow-xs"
           />

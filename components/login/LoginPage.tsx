@@ -12,8 +12,6 @@ import {
   Eye,
   EyeOff,
   Globe2,
-  KeyRound,
-  ShieldCheck,
   CheckCircle2,
   RotateCcw,
   Smartphone,
@@ -219,80 +217,47 @@ export default function LoginPage({
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col xl:flex-row bg-[#F8FAFC]">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* BRAND BANNER: Left on Desktop, Bottom on Mobile & iPad     */}
+      {/* BRAND BANNER: Left on Desktop, Top on Mobile (Matching Ref) */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="order-2 xl:order-1 relative w-full xl:w-1/2 bg-[#000000] flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 overflow-hidden text-white border-t xl:border-t-0 xl:border-r border-[#27272A]">
-        {/* Subtle background ambient glow */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="order-1 lg:order-1 relative w-full lg:w-1/2 min-h-[260px] sm:min-h-[320px] lg:min-h-screen bg-[#070B14] flex items-center justify-center p-8 sm:p-12 lg:p-14 xl:p-20 overflow-hidden text-white border-b lg:border-b-0 lg:border-r border-[#1E293B]/60 select-none">
+        {/* Authentic Background with Subtle Luminous Diagonal Beam */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+          style={{ backgroundImage: "url('/login-bg.png')" }}
+        />
 
-        {/* Top: Project Name & Programme Badge */}
-        <div className="relative z-10 flex items-center gap-3.5">
-          <div className="w-24 h-24 flex items-center justify-center shrink-0">
+        {/* Brand Lockup: [Nissan Logo] | Nissan New Zealand / Dealer Order Platform */}
+        <div className="relative z-10 flex items-center gap-5 sm:gap-6 xl:gap-7 w-full max-w-xl justify-center lg:justify-start lg:pl-6 xl:pl-10">
+          {/* New Nissan White Logo */}
+          <div className="shrink-0 flex items-center justify-center">
             <img
-              src="/nissan-logo.png"
+              src="/nissan-logo-white.png"
               alt="Nissan Logo"
-              className="w-20 h-20 object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.25)]"
+              className="w-20 sm:w-24 lg:w-24 xl:w-28 h-auto object-contain drop-shadow-[0_2px_14px_rgba(255,255,255,0.12)]"
             />
           </div>
-          <div>
-            <h1 className="font-bold text-lg xl:text-2xl text-white">
-              Nissan
-            </h1>
+
+          {/* Vertical Divider Line */}
+          <div className="w-[1.5px] h-12 sm:h-14 lg:h-14 xl:h-16 bg-white/40 shrink-0" />
+
+          {/* Hierarchy: Nissan New Zealand / Dealer Order Platform */}
+          <div className="flex flex-col justify-center">
+            <span className="text-white/95 text-base sm:text-lg lg:text-lg xl:text-[20px] font-normal tracking-wide leading-snug">
+              Nissan New Zealand
+            </span>
+            <span className="text-white text-xl sm:text-2xl lg:text-2xl xl:text-[28px] font-bold tracking-tight leading-tight">
+              Dealer Order Platform
+            </span>
           </div>
-        </div>
-
-        {/* Center: Clean & Minimal Hero (Short, Ultra-Premium Style) */}
-        <div className="relative z-10 my-10 xl:my-0 space-y-4 max-w-md">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs text-slate-300">
-            {authStep === "FORGOT_PASSWORD" ? (
-              <>
-                <KeyRound className="w-3.5 h-3.5 text-[#C3002F]" />
-                <span className="font-medium">Self-Service Credential Recovery</span>
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C3002F]" />
-                <span className="font-medium">2FA · Bank-Grade Access Security</span>
-              </>
-            )}
-          </div>
-
-          {/* Main Headline */}
-          <h2 className="text-3xl sm:text-4xl xl:text-[42px] font-bold tracking-tight text-white leading-[1.12]">
-            {authStep === "FORGOT_PASSWORD" ? (
-              <>
-                Account Recovery.<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
-                  Fast, Encrypted &amp; Verified.
-                </span>
-              </>
-            ) : (
-              <>
-                Direct Japan Stock.<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C3002F] via-[#FB7185] to-[#FDA4AF]">
-                  Landed &amp; Protected.
-                </span>
-              </>
-            )}
-          </h2>
-        </div>
-
-        {/* Minimal Footer */}
-        <div className="relative z-10 flex items-center justify-between text-sm text-slate-400 pt-4 border-t border-white/10 font-sans">
-          <span className="flex items-center gap-1.5 text-slate-400">
-            <span>Powered by</span>
-            <strong className="text-slate-200 font-semibold tracking-wide">AutoHub</strong>
-          </span>
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
-      {/* SIGN-IN CARD: Right on Desktop, Top on Mobile & iPad       */}
+      {/* SIGN-IN CARD: Right on Desktop, Bottom on Mobile & iPad    */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="order-1 xl:order-2 w-full xl:w-1/2 flex items-center justify-center p-6 sm:p-12 xl:p-16">
+      <div className="order-2 lg:order-2 w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 xl:p-16">
         <div className="w-full max-w-md space-y-6">
 
           {/* ═══════════════════════════════════════════════════════ */}

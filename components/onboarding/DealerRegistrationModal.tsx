@@ -51,7 +51,7 @@ export default function DealerRegistrationModal({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 flex items-center justify-center shrink-0">
               <img
-                src="/nissan-logo.png"
+                src="/nissan-logo-black.png"
                 alt="Nissan Logo"
                 className="w-9 h-9 object-contain drop-shadow-xs"
               />
