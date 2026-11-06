@@ -545,6 +545,16 @@ export default function FullPageVehicleDetail({
               <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
                 {vehicle.year} {vehicle.make} {vehicle.model}
               </h1>
+              <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs text-slate-500 font-mono">
+                <span>VIN: <strong className="text-slate-800 font-semibold">{vehicle.vinChassis}</strong></span>
+                <span className="text-slate-300">·</span>
+                <span>ODO: <strong className="text-slate-800 font-semibold">{vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}</strong></span>
+                <span className="text-slate-300">·</span>
+                <span className="font-sans flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-slate-400 inline shrink-0" />
+                  <span className="text-slate-600">{vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Export Terminal"}</span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -604,58 +614,60 @@ export default function FullPageVehicleDetail({
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 2.5 INNER STATS CARDS STRIP (Matching Japan Inventory Style)   */}
       {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* 1. ODOMETER (JEVIC) */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            ODOMETER (JEVIC)
-          </span>
-          <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-            {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
-          </div>
-        </div>
-
-        {/* 2. AUCTION & INSPECTION GRADE */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            AUCTION &amp; INSPECTION GRADE
-          </span>
-          <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-            ★ {vehicle.auctionGrade || "4.5"}
-          </div>
-        </div>
-
-        {/* 3. Role-relevant Commercial Stat: Admin/Programme sees FOB Baseline (JPY); Dealer sees Total Buy Price (NZD) */}
-        {isAdmin || isProgrammeContext ? (
+      {!isProgrammeContext && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* 1. ODOMETER (JEVIC) */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-              ACQUISITION BASELINE ({vehicle.currency || "JPY"})
+              ODOMETER (JEVIC)
             </span>
             <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-              ¥{vehicle.fobPriceJPY.toLocaleString()}
+              {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
             </div>
           </div>
-        ) : (
+
+          {/* 2. AUCTION & INSPECTION GRADE */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-              TOTAL BUY PRICE (NZD)
+              AUCTION &amp; INSPECTION GRADE
             </span>
-            <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-              ${totalBuyPriceNZD.toLocaleString()} NZD
+            <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+              ★ {vehicle.auctionGrade || "4.5"}
             </div>
           </div>
-        )}
 
-        {/* 4. YARD STAGING */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            YARD STAGING
-          </span>
-          <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
-            {vehicle.location || "Yokohama Export Terminal"}
+          {/* 3. Role-relevant Commercial Stat: Admin/Programme sees FOB Baseline (JPY); Dealer sees Total Buy Price (NZD) */}
+          {isAdmin ? (
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                ACQUISITION BASELINE ({vehicle.currency || "JPY"})
+              </span>
+              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                ¥{vehicle.fobPriceJPY.toLocaleString()}
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+                TOTAL BUY PRICE (NZD)
+              </span>
+              <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
+                ${totalBuyPriceNZD.toLocaleString()} NZD
+              </div>
+            </div>
+          )}
+
+          {/* 4. YARD STAGING */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
+              YARD STAGING
+            </span>
+            <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
+              {vehicle.location || "Yokohama Export Terminal"}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. ROW 1: Studio Showcase (Left 7) vs Commercial Panel (Right 5) */}

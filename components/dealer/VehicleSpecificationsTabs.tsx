@@ -257,6 +257,13 @@ export default function VehicleSpecificationsTabs({
                   <span className="text-slate-500">Model Year:</span>
                   <span className="font-mono font-bold text-slate-900">{vehicle.year}</span>
                 </div>
+
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-slate-500">Certified Odometer:</span>
+                  <span className="font-mono font-bold text-slate-900">
+                    {vehicle.odometerKm.toLocaleString()} {vehicle.odometerUnit || "km"}
+                  </span>
+                </div>
               </div>
             )}
 

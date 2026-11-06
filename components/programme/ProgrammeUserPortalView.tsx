@@ -166,7 +166,6 @@ export default function ProgrammeUserPortalView({
   };
 
   // Executive Metric Counts
-  const availableVehicles = useMemo(() => vehicles.filter((v) => v.status === "AVAILABLE"), [vehicles]);
   const activeHolds = useMemo(() => reservations.filter((r) => r.status === "ACTIVE_HOLD"), [reservations]);
   const activeOrders = useMemo(() => orders.filter((o) => o.currentMilestone !== "DELIVERED"), [orders]);
 
@@ -380,112 +379,6 @@ export default function ProgrammeUserPortalView({
         </div>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Executive 4-KPI Metric Strip: Total Vehicles, Available Stock, Reserved, Active Orders */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* 1. Total Vehicles */}
-        <div
-          onClick={() => {
-            audio.playSubtleClick();
-            handleTabChange("stock");
-            setStatusFilter("ALL");
-          }}
-          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "stock" && statusFilter === "ALL" ? "ring-1 ring-[#0A0A0A]" : ""
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Total Vehicles
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700">
-              <Car className="w-4 h-4 text-[#0A0A0A]" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-slate-900 font-mono">
-            {vehicles.length}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Catalogue stock inventory
-          </span>
-        </div>
-
-        {/* 2. Available Stock */}
-        <div
-          onClick={() => {
-            audio.playSubtleClick();
-            handleTabChange("stock");
-            setStatusFilter("AVAILABLE");
-          }}
-          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "stock" && statusFilter === "AVAILABLE" ? "ring-1 ring-emerald-500" : ""
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Available Stock
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-emerald-600 font-mono">
-            {availableVehicles.length}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Ready for dealer allocation
-          </span>
-        </div>
-
-        {/* 3. Reserved */}
-        <div
-          onClick={() => {
-            audio.playSubtleClick();
-            handleTabChange("reservations");
-          }}
-          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "reservations" ? "ring-1 ring-amber-500" : ""
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Reserved
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
-              <Lock className="w-4 h-4 text-amber-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-amber-600 font-mono">
-            {activeHolds.length}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            Active 24h exclusivity holds
-          </span>
-        </div>
-
-        {/* 4. Active Orders */}
-        <div
-          onClick={() => {
-            audio.playSubtleClick();
-            handleTabChange("orders");
-          }}
-          className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1 transition-all cursor-pointer hover:border-slate-300 ${activeTab === "orders" ? "ring-1 ring-blue-500" : ""
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Active Orders
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
-              <Ship className="w-4 h-4 text-blue-600" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-blue-600 font-mono">
-            {activeOrders.length}
-          </div>
-          <span className="text-xs text-slate-500 font-medium block truncate">
-            In RoRo transit to NZ
-          </span>
-        </div>
-      </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. TAB 1: Stock Catalogue (Grid & List Layouts - Programme Role POV) */}
@@ -561,25 +454,6 @@ export default function ProgrammeUserPortalView({
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
                 </div>
 
-                {/* Pricing Zone Selector (Programme Role View) */}
-                <div className="relative">
-                  <select
-                    value={selectedZone}
-                    onChange={(e) => {
-                      audio.playSubtleClick();
-                      setSelectedZone(e.target.value as ZoneId);
-                    }}
-                    aria-label="Delivery Pricing Zone"
-                    className="appearance-none pl-3.5 pr-8 py-2 text-xs bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 text-slate-800 font-normal cursor-pointer shadow-2xs"
-                  >
-                    <option value="ZONE_1">Zone 1 · Auckland Metro</option>
-                    <option value="ZONE_2">Zone 2 · Upper North Island</option>
-                    <option value="ZONE_3">Zone 3 · Central North Island</option>
-                    <option value="ZONE_4">Zone 4 · Wellington &amp; South</option>
-                    <option value="ZONE_5">Zone 5 · South Island</option>
-                  </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
-                </div>
 
                 {/* Reset Button */}
                 {activeFiltersCount > 0 && (
@@ -703,75 +577,51 @@ export default function ProgrammeUserPortalView({
                         />
 
                         {/* Priority & Status Badges */}
-                        <div className="absolute bottom-1 z-20 flex items-center gap-1.5 flex-wrap justify-center px-2 animate-in fade-in max-w-full">
-                          {hasAdditionalCost && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50/95 text-rose-900 border border-rose-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
-                              <Wrench className="w-3 h-3 text-rose-600 shrink-0" />
-                              <span>Additional Cost (+${allCostsTotal.toLocaleString()} NZD)</span>
-                            </span>
-                          )}
-                          {vehicle.status === "BUYED" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/95 text-emerald-900 border border-emerald-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                              <span>Buyed</span>
-                            </span>
-                          )}
-                          {vehicle.status === "SOLD" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100/95 text-slate-800 border border-slate-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
-                              <CheckCircle2 className="w-3 h-3 text-slate-500 shrink-0" />
-                              <span>Sold</span>
-                            </span>
-                          )}
-                          {vehicle.status === "ALLOCATED" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50/95 text-sky-900 border border-sky-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
-                              <Ship className="w-3 h-3 text-sky-600 shrink-0" />
-                              <span>Allocated</span>
-                            </span>
-                          )}
-                          {vehicle.status === "RESERVED" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50/95 text-amber-900 border border-amber-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
-                              <Lock className="w-3 h-3 text-amber-600 shrink-0" />
-                              <span>{getDealerReservationLabel(vehicle.reservedByDealerId, true)}</span>
-                            </span>
-                          )}
-                          {isAvailable && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/95 text-emerald-900 border border-emerald-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                              <span>Available for Allocation</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Programme Technical & Identification Grid */}
-                      <div className="grid grid-cols-2 gap-2 pt-2.5 pb-1 border-t border-slate-100 text-[11px]">
-                        <div className="flex items-center gap-1.5 text-slate-600 font-mono truncate">
-                          <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">VIN:</span>
-                          <span className="font-semibold text-slate-800 truncate">{vehicle.vinChassis}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-600 font-mono justify-end truncate">
-                          <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">Stock:</span>
-                          <span className="font-semibold text-slate-800">#{vehicle.stockId}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-600 font-mono truncate">
-                          <span className="text-slate-400 font-sans text-[10px] uppercase font-bold tracking-wider">Odo:</span>
-                          <span className="font-semibold text-slate-800">{vehicle.odometerKm.toLocaleString()} km</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-600 justify-end truncate">
-                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span className="text-slate-500 text-[10px] truncate">{vehicle.location ? vehicle.location.split("(")[0]?.trim() : "Yokohama Yard"}</span>
-                        </div>
+                        {(hasAdditionalCost || !isAvailable) && (
+                          <div className="absolute bottom-1 z-20 flex items-center gap-1.5 flex-wrap justify-center px-2 animate-in fade-in max-w-full">
+                            {hasAdditionalCost && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50/95 text-rose-900 border border-rose-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                                <Wrench className="w-3 h-3 text-rose-600 shrink-0" />
+                                <span>Additional Cost (+${allCostsTotal.toLocaleString()} NZD)</span>
+                              </span>
+                            )}
+                            {vehicle.status === "BUYED" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50/95 text-emerald-900 border border-emerald-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                                <span>Buyed</span>
+                              </span>
+                            )}
+                            {vehicle.status === "SOLD" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100/95 text-slate-800 border border-slate-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                                <CheckCircle2 className="w-3 h-3 text-slate-500 shrink-0" />
+                                <span>Sold</span>
+                              </span>
+                            )}
+                            {vehicle.status === "ALLOCATED" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50/95 text-sky-900 border border-sky-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                                <Ship className="w-3 h-3 text-sky-600 shrink-0" />
+                                <span>Allocated</span>
+                              </span>
+                            )}
+                            {vehicle.status === "RESERVED" && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50/95 text-amber-900 border border-amber-200/90 backdrop-blur-md shadow-2xs text-[10px] font-semibold tracking-tight">
+                                <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+                                <span>{getDealerReservationLabel(vehicle.reservedByDealerId, true)}</span>
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {/* Card Bottom: Landed Price + Baseline FOB + Action Button */}
+                    {/* Card Bottom: Landed Price + Inspect Action Button (Clean Image 2 style for Programme POV) */}
                     <div className="pt-3.5 mt-2 border-t border-slate-100 flex items-center justify-between gap-3">
                       <div>
                         <span className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight block leading-tight font-mono">
                           ${displayPriceNZD.toLocaleString()}
                         </span>
                         <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
-                          NZD Landed ({selectedZone.replace("_", " ")}) · FOB ¥{vehicle.fobPriceJPY.toLocaleString()}
+                          NZD Landed Total
                         </span>
                       </div>
 
@@ -782,7 +632,7 @@ export default function ProgrammeUserPortalView({
                             e.stopPropagation();
                             handleOpenVehicleDetails(vehicle);
                           }}
-                          className="py-2 px-3 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+                          className="py-2 px-3.5 sm:px-4 rounded-xl bg-[#0A0A0A] hover:bg-[#27272A] text-white text-xs font-semibold transition-all shadow-xs hover:shadow-soft flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                           title="Inspect Vehicle Dossier & Condition Report"
                         >
                           <Eye className="w-3.5 h-3.5 text-slate-300" />
@@ -961,15 +811,12 @@ export default function ProgrammeUserPortalView({
                     <div className="w-full md:w-56 shrink-0 md:border-l md:border-slate-100 md:pl-6 flex flex-col justify-between space-y-3">
                       <div>
                         <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
-                          Wholesale Landed ({selectedZone.replace("_", " ")})
+                          NZD Landed Total
                         </span>
                         <div className="text-xl font-bold text-slate-900 font-mono tracking-tight mt-0.5">
                           ${displayPriceNZD.toLocaleString()}
                           <span className="text-xs text-slate-500 font-normal ml-1">NZD</span>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                          FOB ¥{vehicle.fobPriceJPY.toLocaleString()} JPY
-                        </span>
                       </div>
 
                       <div className="flex items-center gap-1.5 flex-wrap">

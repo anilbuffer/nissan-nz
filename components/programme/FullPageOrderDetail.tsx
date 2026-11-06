@@ -162,50 +162,6 @@ export default function FullPageOrderDetail({
         </div>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────── */}
-      {/* 2. Top Metric Strip (4 KPIs)                                */}
-      {/* ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* 1. ODOMETER */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            ODOMETER (JEVIC)
-          </span>
-          <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight">
-            {order.vehicle?.odometerKm?.toLocaleString() || "25,600"} {order.vehicle?.odometerUnit || "km"}
-          </div>
-        </div>
-
-        {/* 2. AUCTION GRADE */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            AUCTION &amp; INSPECTION GRADE
-          </span>
-          <div className="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-            ★ {order.vehicle?.auctionGrade || order.vehicle?.grade || "4.5"}
-          </div>
-        </div>
-
-        {/* 3. TOTAL BUY PRICE */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            TOTAL BUY PRICE (NZD)
-          </span>
-          <div className="text-base sm:text-xl font-bold font-mono text-slate-900 tracking-tight flex items-baseline gap-2">
-            <span>${order.priceBreakdown?.totalBuyPriceNZD?.toLocaleString()} NZD</span>
-          </div>
-        </div>
-
-        {/* 4. DELIVERY ETA / VESSEL */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-            DELIVERY ETA / VESSEL
-          </span>
-          <div className="text-base sm:text-xl font-bold text-slate-900 truncate tracking-tight">
-            {order.etaDeliveryDate || "Pending Schedule"}
-          </div>
-        </div>
-      </div>
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 3. ROW 1: Studio Showcase (Left 7) vs Commercial Panel (Right 5) */}
