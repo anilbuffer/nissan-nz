@@ -437,7 +437,7 @@ export default function LoginPage({
                 </span>
                 <Link
                   href="/register"
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-200/90 hover:border-slate-300 bg-white hover:bg-slate-50/80 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-2xs hover:shadow-xs active:scale-[0.99] group cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-200/90 hover:border-slate-300 bg-slate-50 hover:bg-slate-50/80 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-[0.99] group cursor-pointer"
                 >
                   <span>Register Dealership Application</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#C3002F] transition-transform duration-200 group-hover:translate-x-1" />
