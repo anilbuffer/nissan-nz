@@ -225,7 +225,7 @@ export default function DealerStockCatalog({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Title & Subtitle + Total Stocks Text       */}

@@ -273,7 +273,7 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Clean Simple Top Header & View Tabs (Hidden when inspecting an order) */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -663,93 +663,93 @@ export default function DealerOrdersView({ mode }: DealerOrdersViewProps = {}) {
                   {/* Orders Grid Layout (2-3 Columns) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 animate-in fade-in">
                     {paginatedOrders.map((order) => {
-                    const hasPendingCost = order.additionalCosts.some(
-                      (c) => c.status === "PENDING_DEALER_APPROVAL"
-                    );
+                      const hasPendingCost = order.additionalCosts.some(
+                        (c) => c.status === "PENDING_DEALER_APPROVAL"
+                      );
 
-                    return (
-                      <div
-                        key={order.id}
-                        onClick={() => {
-                          audio.playSubtleClick();
-                          setSelectedOrderId(order.id);
-                          setViewingOrderId(order.id);
-                        }}
-                        className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group"
-                      >
-                        <div>
-                          {/* Card Top Row: Order # + Status Pill */}
-                          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                      return (
+                        <div
+                          key={order.id}
+                          onClick={() => {
+                            audio.playSubtleClick();
+                            setSelectedOrderId(order.id);
+                            setViewingOrderId(order.id);
+                          }}
+                          className="bg-white rounded-[16px] border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer group"
+                        >
+                          <div>
+                            {/* Card Top Row: Order # + Status Pill */}
+                            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                              <div>
+                                <span className="font-mono font-bold text-sm text-slate-900 group-hover:text-[#C3002F] transition-colors">
+                                  {order.orderNumber}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono block">
+                                  ETA {order.etaDeliveryDate ? new Date(order.etaDeliveryDate).toLocaleDateString([], { month: "short", day: "numeric" }) : "TBD"}
+                                </span>
+                              </div>
+
+                              {hasPendingCost ? (
+                                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1 animate-pulse">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                  <span>Approval Needed</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                  <span>Confirmed Order</span>
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Center Floating Studio Vehicle Image */}
+                            <div className="relative w-full h-40 my-3 flex items-center justify-center">
+                              <div className="absolute bottom-2 w-3/4 h-3 bg-black/15 rounded-[50%] blur-sm pointer-events-none transform scale-y-50" />
+                              <img
+                                src={order.vehicle?.images?.[0] || "/images/cars/kicks.png"}
+                                alt={order.vehicle?.model || "Vehicle"}
+                                className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_10px_14px_rgba(0,0,0,0.12)] group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 select-none"
+                              />
+                            </div>
+
+                            {/* Vehicle Title & Specs */}
+                            <div className="space-y-1">
+                              <h3 className="font-bold text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
+                                {order.vehicle.year} {order.vehicle.make} {order.vehicle.model}
+                              </h3>
+                              <p className="text-xs text-slate-400 font-medium truncate">
+                                VIN: {order.vehicle.vinChassis} · {order.vehicle.odometerKm.toLocaleString()} km · Grade {order.vehicle.auctionGrade || "4.5"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Card Footer: Price & View Dossier Action */}
+                          <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between gap-3">
                             <div>
-                              <span className="font-mono font-bold text-sm text-slate-900 group-hover:text-[#C3002F] transition-colors">
-                                {order.orderNumber}
-                              </span>
-                              <span className="text-[10px] text-slate-400 font-mono block">
-                                ETA {order.etaDeliveryDate ? new Date(order.etaDeliveryDate).toLocaleDateString([], { month: "short", day: "numeric" }) : "TBD"}
+                              <span className="text-[10px] text-slate-400 uppercase font-semibold block">Landed Total</span>
+                              <span className="font-mono font-bold text-base text-slate-900">
+                                ${order.priceBreakdown.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-normal text-slate-400">NZD</span>
                               </span>
                             </div>
 
-                            {hasPendingCost ? (
-                              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1 animate-pulse">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                <span>Approval Needed</span>
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono flex items-center gap-1">
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                <span>Confirmed Order</span>
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Center Floating Studio Vehicle Image */}
-                          <div className="relative w-full h-40 my-3 flex items-center justify-center">
-                            <div className="absolute bottom-2 w-3/4 h-3 bg-black/15 rounded-[50%] blur-sm pointer-events-none transform scale-y-50" />
-                            <img
-                              src={order.vehicle?.images?.[0] || "/images/cars/kicks.png"}
-                              alt={order.vehicle?.model || "Vehicle"}
-                              className="relative z-10 w-full h-full object-contain filter drop-shadow-[0_10px_14px_rgba(0,0,0,0.12)] group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 select-none"
-                            />
-                          </div>
-
-                          {/* Vehicle Title & Specs */}
-                          <div className="space-y-1">
-                            <h3 className="font-bold text-base text-slate-900 group-hover:text-[#C3002F] transition-colors truncate">
-                              {order.vehicle.year} {order.vehicle.make} {order.vehicle.model}
-                            </h3>
-                            <p className="text-xs text-slate-400 font-medium truncate">
-                              VIN: {order.vehicle.vinChassis} · {order.vehicle.odometerKm.toLocaleString()} km · Grade {order.vehicle.auctionGrade || "4.5"}
-                            </p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                audio.playSubtleClick();
+                                setSelectedOrderId(order.id);
+                                setViewingOrderId(order.id);
+                              }}
+                              className="btn-outline py-2 px-3.5 rounded-xl text-xs font-bold text-slate-800 hover:text-[#C3002F] hover:border-[#C3002F]/40 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
+                            >
+                              <span>View</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </div>
-
-                        {/* Card Footer: Price & View Dossier Action */}
-                        <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                          <div>
-                            <span className="text-[10px] text-slate-400 uppercase font-semibold block">Landed Total</span>
-                            <span className="font-mono font-bold text-base text-slate-900">
-                              ${order.priceBreakdown.totalBuyPriceNZD.toLocaleString()} <span className="text-xs font-normal text-slate-400">NZD</span>
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              audio.playSubtleClick();
-                              setSelectedOrderId(order.id);
-                              setViewingOrderId(order.id);
-                            }}
-                            className="btn-outline py-2 px-3.5 rounded-xl text-xs font-bold text-slate-800 hover:text-[#C3002F] hover:border-[#C3002F]/40 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
-                          >
-                            <span>View</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
 
                   {/* Orders Pagination Bar (10 max entries per page) */}
                   <Pagination

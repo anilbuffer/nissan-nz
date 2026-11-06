@@ -191,7 +191,7 @@ export default function DealerApprovalsView() {
     const dealerUsers = users.filter((u) => u.dealerId === dealer.id);
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+      <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300">
         {/* Navigation Top Bar */}
         <div className="bg-white rounded-[16px] border border-slate-200 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <button
@@ -587,7 +587,7 @@ export default function DealerApprovalsView() {
   // B. MAIN DEALERS OVERVIEW (Everything Open Without Tabs)
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}

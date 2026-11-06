@@ -227,7 +227,7 @@ export default function AllocationMilestonesView({
   const activeImage = images[activeImageIdx] || images[0];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300">
       {notification && (
         <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">
           <div className="flex items-center gap-2">
@@ -420,11 +420,10 @@ export default function AllocationMilestonesView({
                           audio.playSubtleClick();
                           setActiveImageIdx(idx);
                         }}
-                        className={`relative rounded-xl border p-1 bg-slate-50 overflow-hidden cursor-pointer transition-all aspect-4/3 flex items-center justify-center ${
-                          activeImageIdx === idx
+                        className={`relative rounded-xl border p-1 bg-slate-50 overflow-hidden cursor-pointer transition-all aspect-4/3 flex items-center justify-center ${activeImageIdx === idx
                             ? "border-[#0A0A0A] ring-2 ring-slate-900/10 shadow-xs scale-[1.02]"
                             : "border-slate-200/80 hover:border-slate-300 opacity-80 hover:opacity-100"
-                        }`}
+                          }`}
                       >
                         <img
                           src={imgUrl}
@@ -579,13 +578,12 @@ export default function AllocationMilestonesView({
                 return (
                   <div
                     key={stage.key}
-                    className={`p-3 rounded-xl text-center text-xs border transition-all ${
-                      isDone
+                    className={`p-3 rounded-xl text-center text-xs border transition-all ${isDone
                         ? "bg-slate-50 border-slate-200 text-slate-700"
                         : isCurrent
                           ? "bg-slate-900 text-white border-slate-900 font-bold shadow-xs ring-2 ring-slate-900/10"
                           : "bg-white border-slate-200/70 text-slate-400"
-                    }`}
+                      }`}
                   >
                     <div className="text-[11px] font-semibold truncate leading-tight">
                       {stage.label}
@@ -764,13 +762,12 @@ export default function AllocationMilestonesView({
                       </div>
 
                       <span
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                          cost.status === "APPROVED"
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${cost.status === "APPROVED"
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                             : cost.status === "DECLINED"
                               ? "bg-rose-50 text-rose-700 border-rose-200"
                               : "bg-amber-50 text-amber-700 border-amber-200"
-                        }`}
+                          }`}
                       >
                         {cost.status.replace(/_/g, " ")}
                       </span>
@@ -898,9 +895,8 @@ export default function AllocationMilestonesView({
                 audio.playSubtleClick();
                 setMilestoneFilter("ALL");
               }}
-              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
-                milestoneFilter === "ALL" ? "ring-2 ring-slate-900 border-slate-900" : ""
-              }`}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${milestoneFilter === "ALL" ? "ring-2 ring-slate-900 border-slate-900" : ""
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
@@ -924,9 +920,8 @@ export default function AllocationMilestonesView({
                 audio.playSubtleClick();
                 setMilestoneFilter((prev) => (prev === "IN_TRANSIT" ? "ALL" : "IN_TRANSIT"));
               }}
-              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
-                milestoneFilter === "IN_TRANSIT" ? "ring-2 ring-slate-900 border-slate-900" : ""
-              }`}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${milestoneFilter === "IN_TRANSIT" ? "ring-2 ring-slate-900 border-slate-900" : ""
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
@@ -950,9 +945,8 @@ export default function AllocationMilestonesView({
                 audio.playSubtleClick();
                 setMilestoneFilter((prev) => (prev === "COMPLIANCE" ? "ALL" : "COMPLIANCE"));
               }}
-              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
-                milestoneFilter === "COMPLIANCE" ? "ring-2 ring-slate-900 border-slate-900" : ""
-              }`}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${milestoneFilter === "COMPLIANCE" ? "ring-2 ring-slate-900 border-slate-900" : ""
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
@@ -976,9 +970,8 @@ export default function AllocationMilestonesView({
                 audio.playSubtleClick();
                 setMilestoneFilter((prev) => (prev === "READY_FOR_DELIVERY" ? "ALL" : "READY_FOR_DELIVERY"));
               }}
-              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${
-                milestoneFilter === "READY_FOR_DELIVERY" ? "ring-2 ring-slate-900 border-slate-900" : ""
-              }`}
+              className={`p-4 sm:p-5 rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-1.5 transition-all cursor-pointer hover:border-slate-300 hover:shadow-md ${milestoneFilter === "READY_FOR_DELIVERY" ? "ring-2 ring-slate-900 border-slate-900" : ""
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
@@ -1062,11 +1055,10 @@ export default function AllocationMilestonesView({
                       audio.playSubtleClick();
                       setMilestoneFilter(pill.id);
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${
-                      milestoneFilter === pill.id
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shrink-0 ${milestoneFilter === pill.id
                         ? "bg-slate-900 text-white"
                         : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200"
-                    }`}
+                      }`}
                   >
                     {pill.label}
                   </button>
@@ -1177,13 +1169,12 @@ export default function AllocationMilestonesView({
                         return (
                           <div
                             key={stage.key}
-                            className={`p-2.5 rounded-xl text-center text-xs border transition-all ${
-                              isDone
+                            className={`p-2.5 rounded-xl text-center text-xs border transition-all ${isDone
                                 ? "bg-slate-50 border-slate-200 text-slate-700"
                                 : isCurrent
                                   ? "bg-slate-900 text-white border-slate-900 font-bold shadow-xs"
                                   : "bg-white border-slate-200/60 text-slate-400"
-                            }`}
+                              }`}
                           >
                             <div className="text-[11px] font-semibold truncate leading-tight">
                               {stage.label}

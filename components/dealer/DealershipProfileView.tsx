@@ -123,7 +123,7 @@ export default function DealershipProfileView() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300">
       {/* Toast Notice Banners */}
       {staffSuccessNotice && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center justify-between gap-3 shadow-2xs animate-in fade-in">

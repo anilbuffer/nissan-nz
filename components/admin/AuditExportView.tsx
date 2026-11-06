@@ -392,7 +392,7 @@ export default function AuditExportView() {
   }, [auditLogs]);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-200 font-sans text-slate-800 pb-16">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-200 font-sans text-slate-800 pb-16">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header Banner & Global Actions                           */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -556,14 +556,14 @@ export default function AuditExportView() {
                         <td className="py-3 px-4 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                           {log.timestamp && !isNaN(new Date(log.timestamp).getTime())
                             ? new Date(log.timestamp).toLocaleString("en-NZ", {
-                                timeZone: "Pacific/Auckland",
-                                year: "numeric",
-                                month: "short",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit",
-                              })
+                              timeZone: "Pacific/Auckland",
+                              year: "numeric",
+                              month: "short",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })
                             : "—"}
                         </td>
 

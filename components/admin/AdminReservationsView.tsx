@@ -121,7 +121,7 @@ export default function AdminReservationsView({ onNavigateTab }: AdminReservatio
   // B. MAIN GRID LAYOUT VIEW (Executive Grid Cards)
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Nissan Corporate Operations Bar            */}
       {/* ─────────────────────────────────────────────────────────── */}

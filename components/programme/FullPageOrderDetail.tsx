@@ -81,7 +81,7 @@ export default function FullPageOrderDetail({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300 font-sans pb-16">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300 font-sans pb-16">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* Top Navigation & Action Bar                                 */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -203,11 +203,10 @@ export default function FullPageOrderDetail({
                       audio.playSubtleClick();
                       setActiveImageIdx(idx);
                     }}
-                    className={`relative rounded-xl border p-1 bg-slate-50 overflow-hidden cursor-pointer transition-all aspect-4/3 flex items-center justify-center ${
-                      activeImageIdx === idx
+                    className={`relative rounded-xl border p-1 bg-slate-50 overflow-hidden cursor-pointer transition-all aspect-4/3 flex items-center justify-center ${activeImageIdx === idx
                         ? "border-[#0A0A0A] ring-2 ring-slate-900/10 shadow-xs scale-[1.02]"
                         : "border-slate-200/80 hover:border-slate-300 opacity-80 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     <img
                       src={imgUrl}
@@ -396,13 +395,12 @@ export default function FullPageOrderDetail({
                   </div>
 
                   <span
-                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                      cost.status === "APPROVED"
+                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${cost.status === "APPROVED"
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                         : cost.status === "DECLINED"
                           ? "bg-rose-50 text-rose-700 border-rose-200"
                           : "bg-amber-50 text-amber-700 border-amber-200"
-                    }`}
+                      }`}
                   >
                     {cost.status.replace(/_/g, " ")}
                   </span>

@@ -325,7 +325,7 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
 
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300 font-sans pb-12">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300 font-sans pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* Top Header & Breadcrumb Bar                                */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -832,8 +832,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onDrop={handleImageDrop}
                     onClick={() => imageInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${isDraggingImage
-                        ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
-                        : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
+                      : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                       }`}
                   >
                     <input
@@ -919,8 +919,8 @@ export default function AddVehicleForm({ onSuccessReturn }: AddVehicleFormProps)
                     onDrop={handleDocDrop}
                     onClick={() => docInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${isDraggingDoc
-                        ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
-                        : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
+                      : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                       }`}
                   >
                     <input

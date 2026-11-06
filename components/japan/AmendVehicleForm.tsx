@@ -372,7 +372,7 @@ export default function AmendVehicleForm({
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300 font-sans pb-12">
+    <div className="space-y-6 max-w-8xl mx-auto animate-in fade-in duration-300 font-sans pb-12">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* Top Header & Breadcrumb Bar                                */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -929,8 +929,8 @@ export default function AmendVehicleForm({
                     onDrop={handleImageDrop}
                     onClick={() => imageInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${isDraggingImage
-                        ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
-                        : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
+                      : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                       }`}
                   >
                     <input
@@ -963,8 +963,8 @@ export default function AmendVehicleForm({
                           <div
                             key={idx}
                             className={`group relative aspect-[4/3] rounded-xl overflow-hidden border transition-all ${activePreviewIdx === idx
-                                ? "border-slate-900 ring-2 ring-slate-900/20"
-                                : "border-slate-200 hover:border-slate-300"
+                              ? "border-slate-900 ring-2 ring-slate-900/20"
+                              : "border-slate-200 hover:border-slate-300"
                               }`}
                           >
                             <img
@@ -1017,8 +1017,8 @@ export default function AmendVehicleForm({
                     onDrop={handleDocDrop}
                     onClick={() => docInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-2xl p-5 text-center transition-all cursor-pointer ${isDraggingDoc
-                        ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
-                        : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
+                      ? "border-slate-900 bg-slate-100 ring-2 ring-slate-900/10"
+                      : "border-slate-300 hover:border-slate-400 bg-slate-50/70 hover:bg-slate-50"
                       }`}
                   >
                     <input
@@ -1209,14 +1209,14 @@ export default function AmendVehicleForm({
                   </button>
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border ${status === "AVAILABLE"
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                        : status === "RESERVED"
-                          ? "bg-amber-50 text-amber-800 border-amber-300"
-                          : status === "ALLOCATED"
-                            ? "bg-sky-50 text-sky-800 border-sky-300"
-                            : status === "SOLD"
-                              ? "bg-purple-50 text-purple-800 border-purple-300"
-                              : "bg-slate-100 text-slate-700 border-slate-300"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                      : status === "RESERVED"
+                        ? "bg-amber-50 text-amber-800 border-amber-300"
+                        : status === "ALLOCATED"
+                          ? "bg-sky-50 text-sky-800 border-sky-300"
+                          : status === "SOLD"
+                            ? "bg-purple-50 text-purple-800 border-purple-300"
+                            : "bg-slate-100 text-slate-700 border-slate-300"
                       }`}
                   >
                     {status}
@@ -1286,8 +1286,8 @@ export default function AmendVehicleForm({
                               setActivePreviewIdx(idx);
                             }}
                             className={`w-12 h-9 rounded-lg overflow-hidden border p-0.5 shrink-0 transition-all cursor-pointer bg-slate-50 ${activePreviewIdx === idx
-                                ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/20 bg-white"
-                                : "border-slate-200 opacity-60 hover:opacity-100"
+                              ? "border-[#0A0A0A] ring-2 ring-[#0A0A0A]/20 bg-white"
+                              : "border-slate-200 opacity-60 hover:opacity-100"
                               }`}
                           >
                             <img src={img} alt={`Angle ${idx + 1}`} className="w-full h-full object-contain" />

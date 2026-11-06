@@ -227,7 +227,7 @@ export default function JapanInventoryView({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-8xl mx-auto text-slate-800 pb-12 animate-in fade-in duration-300">
       {/* ─────────────────────────────────────────────────────────── */}
       {/* 1. Header: Clean Title & Subtitle + Total Stocks Text       */}
       {/* ─────────────────────────────────────────────────────────── */}
@@ -437,11 +437,10 @@ export default function JapanInventoryView({
                 }}
                 title="Grid View"
                 aria-label="Grid View"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  viewMode === "GRID"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${viewMode === "GRID"
                     ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                     : "text-slate-500 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 <span>Grid</span>
@@ -455,11 +454,10 @@ export default function JapanInventoryView({
                 }}
                 title="List View"
                 aria-label="List View"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
-                  viewMode === "LIST"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${viewMode === "LIST"
                     ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                     : "text-slate-500 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <List className="w-3.5 h-3.5" />
                 <span>List</span>
@@ -901,11 +899,10 @@ export default function JapanInventoryView({
                 <label
                   key={idx}
                   onClick={() => setWithdrawReason(reason)}
-                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${
-                    withdrawReason === reason
+                  className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 cursor-pointer transition-colors ${withdrawReason === reason
                       ? "border-rose-300 bg-rose-50/60 text-slate-900 font-semibold"
                       : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
